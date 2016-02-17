@@ -184,7 +184,7 @@ class SchemaData extends Schema {
             $join .= " AND $tn.colref = $col\n";
         }
 
-        $where = "WHERE DATA.pid = ? AND DATA.rev = ?";
+        $where = "WHERE DATA.pid = ? AND DATA.rev <= ?";
         $opt = array($this->page, $this->ts);
 
         $sql = "$select FROM $stable DATA\n$join $where";
