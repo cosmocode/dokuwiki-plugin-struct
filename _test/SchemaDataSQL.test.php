@@ -43,7 +43,7 @@ class schemaDataSQL_struct_test extends StructTest {
                     'singles' => array(1,2),
                     'multis' => array(3),
                 ),
-                "SELECT col1,col2, GROUP_CONCAT(M3.value,'".Search::CONCAT_SEPARATOR."') AS col3
+                "SELECT col1,col2, ifnull(GROUP_CONCAT(M3.value,'".Search::CONCAT_SEPARATOR."'), DATA.col3) AS col3
                    FROM data_testtable DATA
                    LEFT OUTER JOIN multi_testtable M3
                      ON DATA.pid = M3.pid
@@ -61,8 +61,8 @@ class schemaDataSQL_struct_test extends StructTest {
                     'singles' => array(),
                     'multis' => array(1,2)
                 ),
-                "SELECT GROUP_CONCAT(M1.value,'".Search::CONCAT_SEPARATOR."') AS col1,
-                        GROUP_CONCAT(M2.value,'".Search::CONCAT_SEPARATOR."') AS col2
+                "SELECT ifnull(GROUP_CONCAT(M1.value,'".Search::CONCAT_SEPARATOR."'), DATA.col1) AS col1,
+                        ifnull(GROUP_CONCAT(M2.value,'".Search::CONCAT_SEPARATOR."'), DATA.col2) AS col2
                    FROM data_testtable DATA
                    LEFT OUTER JOIN multi_testtable M1
                      ON DATA.pid = M1.pid
