@@ -245,7 +245,7 @@ class SchemaData extends Schema {
         $join = '';
         foreach($multis as $col) {
             $tn = 'M' . $col;
-            $colsel .= ", ifnull(GROUP_CONCAT($tn.value, '$sep'), DATA.col$col) AS col$col";
+            $colsel .= ", IFNULL(GROUP_CONCAT($tn.value, '$sep'), DATA.col$col) AS col$col";
             $join .= "LEFT OUTER JOIN $mtable $tn";
             $join .= " ON DATA.pid = $tn.pid AND DATA.rev = $tn.rev";
             $join .= " AND $tn.colref = $col\n";
