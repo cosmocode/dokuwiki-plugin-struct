@@ -266,7 +266,7 @@ class Search {
 
             if($col->isMulti()) {
                 $tn = 'M' . $col->getColref();
-                $select .= "GROUP_CONCAT($tn.value, '$sep') AS $CN, ";
+                $select .= "IFNULL(GROUP_CONCAT($tn.value, '$sep'), data_{$col->getTable()}.col{$col->getColref()}) AS $CN, ";
                 $from .= "\nLEFT OUTER JOIN multi_{$col->getTable()} AS $tn";
                 $from .= " ON data_{$col->getTable()}.pid = $tn.pid AND data_{$col->getTable()}.rev = $tn.rev";
                 $from .= " AND $tn.colref = {$col->getColref()}\n";
