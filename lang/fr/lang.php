@@ -6,11 +6,11 @@
  * @author Andreas Gohr, Michael Große <dokuwiki@cosmocode.de>
  * @author Laynee <seedfloyd@gmail.com>
  * @author lerdt <pro@nicolas-hemard.eu>
+ * @author Digitalin <digikatya@yahoo.fr>
  */
 $lang['menu']                  = 'Struct - Éditeur de schémas';
 $lang['menu_assignments']      = 'Struct - Assignement de schémas';
 $lang['headline']              = 'Données structurées';
-$lang['edithl']                = 'Édition du schéma <i>%s</i>';
 $lang['create']                = 'Créer un nouveau schéma';
 $lang['schemaname']            = 'Nom du schéma :';
 $lang['save']                  = 'Sauvegarder';
@@ -27,6 +27,7 @@ $lang['del_confirm']           = 'Entrez le nom du schéma pour confirmer sa sup
 $lang['del_fail']              = 'Le nom que vous avez entré ne correspond pas à celui du schéma actuel. Il n\'a pas été supprimé.';
 $lang['del_ok']                = 'Le schéma a été supprimé.';
 $lang['btn_delete']            = 'Supprimer';
+$lang['js']['confirmAssignmentsDelete'] = 'Voulez-vous réellement supprimer l\'affectation du schéma "{0}" à la page/l\'espace de noms "{1}"?';
 $lang['tab_edit']              = 'Édition';
 $lang['tab_export']            = 'Import/Export';
 $lang['tab_delete']            = 'Suppression';
