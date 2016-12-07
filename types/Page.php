@@ -176,7 +176,12 @@ class Page extends AbstractMultiBaseType {
      */
     public function displayValue($value) {
         if($this->config['usetitles']) {
-            list(, $value) = json_decode($value);
+            list($raw, $title) = json_decode($value);
+            if(blank($title)) {
+                $value = $raw;
+            } else {
+                $value = $title;
+            }
         }
         return $value;
     }
