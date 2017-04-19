@@ -164,6 +164,10 @@ class Page extends AbstractMultiBaseType {
      */
     public function rawValue($value) {
         if($this->config['usetitles']) {
+            if (cleanID($value) == $value) {
+                // This is already a raw value
+                return $value;
+            }
             list($value) = json_decode($value);
         }
         return $value;
