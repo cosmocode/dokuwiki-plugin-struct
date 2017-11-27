@@ -32,7 +32,7 @@ abstract class AbstractBaseType {
     /**
      * @var array config keys that should not be cleaned despite not being in $config
      */
-    protected $keepconfig = array('label', 'hint', 'visibility');
+    protected $keepconfig = array('label', 'hint', 'visibility', 'default');
 
     /**
      * @var string label for the field
@@ -72,7 +72,8 @@ abstract class AbstractBaseType {
             'visibility' => array(
                 'inpage' => true,
                 'ineditor' => true,
-            )
+            ),
+            'default' => '',
         );
 
         // use previously saved configuration, ignoring all keys that are not supposed to be here
@@ -213,6 +214,13 @@ abstract class AbstractBaseType {
      */
     public function isVisibleInPage() {
         return $this->config['visibility']['inpage'];
+    }
+
+    /**
+     * @return string
+     */
+    public function getDefaultValue() {
+        return $this->config['default'];
     }
 
     /**

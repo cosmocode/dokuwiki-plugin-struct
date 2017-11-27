@@ -318,4 +318,36 @@ pageschema.multititle : DokuWiki Overview, DokuWiki Foobar Syntax, wiki:welcome\
 
         $this->assertEquals($expected_pseudodiff, $actual_pseudodiff);
     }
+
+    public function test_getData_defaults() {
+        $schemaData = meta\AccessTable::byTableName('testtable', 'newpage', time());
+
+        // act
+        $actual_data = $schemaData->getData();
+
+        $expected_data = array(
+            'testcolumn' => 'defvalue1',
+            'testMulitColumn' => array('defvalue2.1', 'defvalue2.2')
+        );
+
+        // assert
+        foreach($expected_data as $key => $value) {
+            $this->assertEquals($value, $actual_data[$key]->getValue());
+        }
+    }
+
+    public function test_getDataArray_defaults() {
+        $schemaData = meta\AccessTable::byTableName('testtable', 'newpage', time());
+
+        // act
+        $actual_data = $schemaData->getDataArray();
+
+        $expected_data = array(
+            'testcolumn' => 'defvalue1',
+            'testMulitColumn' => array('defvalue2.1', 'defvalue2.2')
+        );
+
+        // assert
+        $this->assertEquals($expected_data, $actual_data, '');
+    }
 }

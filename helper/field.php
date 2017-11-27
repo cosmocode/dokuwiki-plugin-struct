@@ -82,7 +82,15 @@ class helper_plugin_struct_field extends helper_plugin_bureaucracy_field {
         }
 
         // output the field
-        $value = new Value($this->column, $this->opt['value']);
+        $rawvalue = $this->opt['value'];
+        if (empty($rawvalue)) {
+            $rawvalue = $this->column->getType()->getDefaultValue();
+        }
+        if ($this->column->isMulti()) {
+            $rawvalue = explode(',', $rawvalue);
+            $rawvalue = array_map('trim', $rawvalue);
+        }
+        $value = new Value($this->column, $rawvalue);
         $field = $this->makeField($value, $params['name']);
         $form->addElement($field);
     }
