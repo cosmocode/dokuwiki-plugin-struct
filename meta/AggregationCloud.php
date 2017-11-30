@@ -88,7 +88,15 @@ class AggregationCloud {
     protected function startScope() {
         // wrapping div
         if($this->mode != 'xhtml') return;
-        $this->renderer->doc .= "<div class=\"structcloud\">";
+        $params = [
+            'class' => 'structcloud',
+        ];
+        if($this->data['displaycolumns'] > 0) {
+            $params['class'] .= ' columnDisplay';
+            $params['style'] .= 'column-count: ' . $this->data['displaycolumns'] . ';';
+        }
+        $attributes = buildAttributes($params);
+        $this->renderer->doc .= "<div $attributes>";
     }
 
     /**
