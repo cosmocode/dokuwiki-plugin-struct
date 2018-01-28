@@ -55,8 +55,6 @@ class syntax_plugin_struct_value extends DokuWiki_Syntax_Plugin {
     public function handle($match, $state, $pos, Doku_Handler $handler) {
         global $conf;
 
-        dbg('Reached struct value handler');
-
         $lines = explode("\n", $match);
         array_shift($lines);
         array_pop($lines);
