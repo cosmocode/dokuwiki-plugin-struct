@@ -40,7 +40,19 @@ class syntax_plugin_struct_value extends DokuWiki_Syntax_Plugin {
      * @param string $mode Parser mode
      */
     public function connectTo($mode) {
+        /*
+         * Full syntax:
+         * ---- struct value ----
+         * <config>
+         * ----
+         */
         $this->Lexer->addSpecialPattern('----+ *struct value *-+\n.*?\n----+', $mode, 'plugin_struct_value');
+
+        /*
+         * Short syntax:
+         * {{$<schema>.<field>}}
+         */
+        $this->Lexer->addSpecialPattern('\{\{\$[^}]+\}\}', $mode, 'plugin_struct_value');
     }
 
     /**
@@ -55,7 +67,14 @@ class syntax_plugin_struct_value extends DokuWiki_Syntax_Plugin {
     public function handle($match, $state, $pos, Doku_Handler $handler) {
         global $conf;
 
-        $lines = explode("\n", $match);
+        if (substr($match, 0, 3) == '{{$') {
+            // Short syntax
+            $lines = $this->convertSyntax($match);
+        } else {
+            $lines = explode("\n", $match);
+        }
+
+        // Strip off delimiter lines
         array_shift($lines);
         array_pop($lines);
 
@@ -105,5 +124,23 @@ class syntax_plugin_struct_value extends DokuWiki_Syntax_Plugin {
         }
 
         return true;
+    }
+
+    protected function convertSyntax($shortForm) {
+        $content = substr($shortForm, 3, -2);
+        $components = explode('.', $content);
+
+        $lines = array('---- struct value ----');
+
+        if (count($components) == 2) {
+            // At least schema and field supplied
+            $lines[] = 'schema: ' . trim($components[0]);
+            $lines[] = 'field: ' . trim($components[1]);
+        }
+
+        // Close config array
+        $lines[] = '----';
+
+        return $lines;
     }
 }
