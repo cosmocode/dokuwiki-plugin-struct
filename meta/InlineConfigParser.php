@@ -46,7 +46,7 @@ class InlineConfigParser extends ConfigParser {
             // At least schema and field supplied
             $lines[] = 'schema: ' . trim($components[0]);
             $lines[] = 'field: ' . trim($components[1]);
-            $lines[] = 'filter: %pageid% = $ID$';
+            $lines[] = 'filter: %pageid% = ' . $GLOBALS['ID'];
         } 
 
         // Call original ConfigParser's constructor
