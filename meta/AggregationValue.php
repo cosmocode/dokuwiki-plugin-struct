@@ -39,6 +39,17 @@ class AggregationValue {
     protected $result;
 
     /**
+     * @var int number of all results
+     */
+    protected $resultCount;
+
+    /**
+     * @todo we might be able to get rid of this helper and move this to SearchConfig
+     * @var \helper_plugin_struct_config
+     */
+    protected $helper;
+
+    /**
      * Initialize the Aggregation renderer and executes the search
      *
      * You need to call @see render() on the resulting object.
@@ -66,9 +77,13 @@ class AggregationValue {
 
         // Run the search
         $result = $this->searchConfig->execute();
+        $this->resultCount = $this->searchConfig->getCount();
 
         // Change from two-dimensional array with one entry to one-dimensional array
         $this->result = $result[0];
+
+        // Load helper
+        $this->helper = plugin_load('helper', 'struct_config');
     }
 
     /**
@@ -77,7 +92,12 @@ class AggregationValue {
     public function render() {
         $this->startScope();
 
-        $this->renderValue($this->result);
+        // Check that we actually got a result
+        if ($this->resultCount) {
+            $this->renderValue($this->result);
+        } else {
+            $this->renderer->cdata($this->helper->getLang('none'));
+        }
 
         $this->finishScope();
 
