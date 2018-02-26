@@ -111,12 +111,15 @@ class syntax_plugin_struct_value extends DokuWiki_Syntax_Plugin {
         global $INFO;
         global $conf;
 
+        // Get configuration
+        $show_not_found = $this->getConf('show_not_found');
+
         try {
             $search = new SearchConfig($data);
 
             /** @var AggregationValue $value */
             $value = new AggregationValue($INFO['id'], $mode, $renderer, $search);
-            $value->render();
+            $value->render($show_not_found);
 
             if($mode == 'metadata') {
                 /** @var Doku_Renderer_metadata $renderer */

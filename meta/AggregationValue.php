@@ -88,15 +88,19 @@ class AggregationValue {
 
     /**
      * Create the output on the renderer
+     * 
+     * @param  int  $show_not_found  Whether to display the default text for no records
      */
-    public function render() {
+    public function render($show_not_found = 0) {
         $this->startScope();
 
         // Check that we actually got a result
         if ($this->resultCount) {
             $this->renderValue($this->result);
         } else {
-            $this->renderer->cdata($this->helper->getLang('none'));
+            if ($show_not_found) {
+                $this->renderer->cdata($this->helper->getLang('none'));
+            }
         }
 
         $this->finishScope();
