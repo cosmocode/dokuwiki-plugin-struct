@@ -24,6 +24,15 @@ class InlineConfigParser extends ConfigParser {
         // Split into components
         $components = str_getcsv($inline, '.');
 
+        // Protect against using single quotes
+        foreach ($components as $component) {
+            if ( substr($component, 0, 1) == "'" ) {
+                // Used single quotes rather than double - will need to rerun CSV extraction
+                $enclosure = "'";
+            }
+        }
+        if ($enclosure == "'") $components = str_getcsv($inline, '.', $enclosure);
+
         // Start to build the main config array
         $lines = array();
 
