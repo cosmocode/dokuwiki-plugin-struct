@@ -49,21 +49,30 @@ class AggregationValue {
      * @param SearchConfig $searchConfig
      */
     public function __construct($id, $mode, \Doku_Renderer $renderer, SearchConfig $searchConfig) {
+        // Parameters
         $this->id = $id;
         $this->mode = $mode;
         $this->renderer = $renderer;
         $this->searchConfig = $searchConfig;
-        $this->data = $searchConfig->getConf();
-        $columns = $searchConfig->getColumns();
+
+        // Search info
+        $this->data = $this->searchConfig->getConf();
+        $columns = $this->searchConfig->getColumns();
         $this->column = $columns[0];
 
+        // limit to first result
+        $this->searchConfig->setLimit(1);
+        $this->searchConfig->setOffset(0);
+
+        // Run the search
         $result = $this->searchConfig->execute();
+
+        // Change from two-dimensional array with one entry to one-dimensional array
         $this->result = $result[0];
-        $this->resultPIDs = $this->searchConfig->getPids();
     }
 
     /**
-     * Create the list on the renderer
+     * Create the output on the renderer
      */
     public function render() {
         $this->startScope();
@@ -101,9 +110,7 @@ class AggregationValue {
      * @param $resultrow
      */
     protected function renderValue($resultrow) {
-        /**
-         * @var Value $value
-         */
+        // @var  Value  $value
         foreach ($resultrow as $column => $value) {
             if ($value->isEmpty()) {
                 continue;

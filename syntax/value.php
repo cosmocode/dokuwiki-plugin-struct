@@ -8,6 +8,7 @@
 
 use dokuwiki\plugin\struct\meta\AggregationValue;
 use dokuwiki\plugin\struct\meta\ConfigParser;
+use dokuwiki\plugin\struct\meta\InlineConfigParser;
 use dokuwiki\plugin\struct\meta\SearchConfig;
 use dokuwiki\plugin\struct\meta\StructException;
 
@@ -49,8 +50,10 @@ class syntax_plugin_struct_value extends DokuWiki_Syntax_Plugin {
         $this->Lexer->addSpecialPattern('----+ *struct value *-+\n.*?\n----+', $mode, 'plugin_struct_value');
 
         /*
-         * Short syntax:
+         * Inline syntax (page ID will default to $ID$ if not supplied):
          * {{$<schema>.<field>}}
+         * {{$<pageid>.<schema>.<field>}}
+         * Any <component> can be surrounded by quotes - see http://php.net/manual/function.str-getcsv.php
          */
         $this->Lexer->addSpecialPattern('\{\{\$[^}]+\}\}', $mode, 'plugin_struct_value');
     }
@@ -67,19 +70,25 @@ class syntax_plugin_struct_value extends DokuWiki_Syntax_Plugin {
     public function handle($match, $state, $pos, Doku_Handler $handler) {
         global $conf;
 
-        if (substr($match, 0, 3) == '{{$') {
-            // Short syntax
-            $lines = $this->convertSyntax($match);
-        } else {
-            $lines = explode("\n", $match);
-        }
-
-        // Strip off delimiter lines
-        array_shift($lines);
-        array_pop($lines);
-
         try {
-            $parser = new ConfigParser($lines);
+            // Choose which parser to use
+            if (substr($match, 0, 3) == '{{$') {
+                // strip {{$ and }} markers
+                $inline = substr($match, 3, -2);
+
+                // Parse inline syntax
+                $parser = new InlineConfigParser($inline);
+            } else {
+                $lines = explode("\n", $match);
+    
+                // Strip off delimiter lines
+                array_shift($lines);
+                array_pop($lines);
+
+                // Parse full syntax
+                $parser = new ConfigParser($lines);
+            }
+
             $config = $parser->getConfig();
             return $config;
         } catch(StructException $e) {
@@ -105,10 +114,6 @@ class syntax_plugin_struct_value extends DokuWiki_Syntax_Plugin {
         try {
             $search = new SearchConfig($data);
 
-            // limit to first result
-            $search->setLimit(1);
-            $search->setOffset(0);
-
             /** @var AggregationValue $value */
             $value = new AggregationValue($INFO['id'], $mode, $renderer, $search);
             $value->render();
@@ -124,23 +129,5 @@ class syntax_plugin_struct_value extends DokuWiki_Syntax_Plugin {
         }
 
         return true;
-    }
-
-    protected function convertSyntax($shortForm) {
-        $content = substr($shortForm, 3, -2);
-        $components = explode('.', $content);
-
-        $lines = array('---- struct value ----');
-
-        if (count($components) == 2) {
-            // At least schema and field supplied
-            $lines[] = 'schema: ' . trim($components[0]);
-            $lines[] = 'field: ' . trim($components[1]);
-        }
-
-        // Close config array
-        $lines[] = '----';
-
-        return $lines;
     }
 }
