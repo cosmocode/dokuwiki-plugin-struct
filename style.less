@@ -93,12 +93,13 @@
     text-align: right;
 
     label {
-        display: inline-block;
-        width: 47%;
+        clear: both; // this is somehow missing in the bootstrap template
     }
 
     span {
         line-height: 2em;
+        float: left;
+        text-align: right;
     }
 
     span.label {
@@ -128,6 +129,23 @@
         label {
             text-align: left;
             line-height: 1.5em;
+        }
+    }
+}
+
+/*responsive - small screen*/
+@media (max-width: 480px) {
+    .dokuwiki form.bureaucracy__plugin div.field {
+        label {
+            text-align: left;
+
+            > span {
+                width: 100%;
+            }
+        }
+
+        span.input {
+            width: 100%;
         }
     }
 }
