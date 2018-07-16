@@ -29,6 +29,7 @@ class Dropdown extends AbstractBaseType {
      * @return string
      */
     public function valueEditor($name, $rawvalue, $htmlID) {
+        $rawvalue = trim($rawvalue);
         $params = array(
             'name' => $name,
             'class' => 'struct_'.strtolower($this->getClass()),
@@ -60,6 +61,8 @@ class Dropdown extends AbstractBaseType {
      * @return string
      */
     public function multiValueEditor($name, $rawvalues, $htmlID) {
+        $rawvalues = array_map('trim', $rawvalues);
+        $rawvalues = array_filter($rawvalues);
         $params = array(
             'name' => $name . '[]',
             'class' => 'struct_'.strtolower($this->getClass()),

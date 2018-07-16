@@ -207,14 +207,20 @@ abstract class AccessTable {
             // if no data saved yet, return empty strings
             if($DBdata) {
                 $val = $DBdata[0]['out' . $col->getColref()];
-            } else {
-                $val = '';
-            }
 
-            // multi val data is concatenated
-            if($col->isMulti()) {
-                $val = explode($sep, $val);
-                $val = array_filter($val);
+                // multi val data is concatenated
+                if($col->isMulti()) {
+                    $val = explode($sep, $val);
+                    $val = array_filter($val);
+                }
+            } else {
+                $val = $col->getType()->getDefaultValue();
+
+                // multi val data is concatenated
+                if($col->isMulti()) {
+                    $val = explode(',', $val);
+                    $val = array_map('trim', $val);
+                }
             }
 
             $value = new Value($col, $val);

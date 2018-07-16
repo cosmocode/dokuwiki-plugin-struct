@@ -9,6 +9,7 @@
             "label": "testcolumn",
             "class": "Text",
             "config": {
+                "default": "defvalue1",
                 "prefix": "",
                 "postfix": ""
             }
@@ -20,6 +21,7 @@
             "label": "testMulitColumn",
             "class": "Text",
             "config": {
+                "default": "defvalue2.1, defvalue2.2",
                 "prefix": "",
                 "postfix": ""
             }

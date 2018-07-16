@@ -36,7 +36,8 @@ class Type_AbstractBase_struct_test extends StructTest {
                 'hint' => array(
                     'en' => ''
                 ),
-                'visibility' => array('inpage' => true, 'ineditor' => true)
+                'visibility' => array('inpage' => true, 'ineditor' => true),
+                'default' => ''
             ),
             $type->getConfig()
         );
@@ -60,7 +61,8 @@ class Type_AbstractBase_struct_test extends StructTest {
                 'hint' => array(
                     'en' => 'english hint'
                 ),
-                'visibility' => array('inpage' => true, 'ineditor' => true)
+                'visibility' => array('inpage' => true, 'ineditor' => true),
+                'default' => ''
             ),
             $type->getConfig()
         );
@@ -93,7 +95,8 @@ class Type_AbstractBase_struct_test extends StructTest {
                     'it' => '',
                     'de' => '',
                 ),
-                'visibility' => array('inpage' => true, 'ineditor' => true)
+                'visibility' => array('inpage' => true, 'ineditor' => true),
+                'default' => ''
             ),
             $type->getConfig()
         );
@@ -133,7 +136,8 @@ class Type_AbstractBase_struct_test extends StructTest {
                     'it' => '',
                     'de' => 'german hint',
                 ),
-                'visibility' => array('inpage' => true, 'ineditor' => true)
+                'visibility' => array('inpage' => true, 'ineditor' => true),
+                'default' => ''
             ),
             $type->getConfig()
         );

@@ -18,6 +18,7 @@ class edit_struct_test extends StructTest {
 
         $this->loadSchemaJSON('schema1');
         $this->loadSchemaJSON('schema2', 'schema2int');
+        $this->loadSchemaJSON('schema3');
         $this->saveData(
             'page01',
             'schema1',
@@ -61,6 +62,20 @@ class edit_struct_test extends StructTest {
         $this->checkField($pq, 'schema1', 'second', '');
         $this->checkField($pq, 'schema1', 'third', '');
         $this->checkField($pq, 'schema1', 'fourth', '');
+    }
+
+    public function test_createForm_defaultData() {
+        $edit = new mock\action_plugin_struct_edit();
+        global $ID;
+        $ID = 'page02';
+        $test_html = $edit->createForm('schema3');
+
+        $pq = \phpQuery::newDocument($test_html);
+        $this->assertEquals('schema3', $pq->find('legend')->text());
+        $this->checkField($pq, 'schema3', 'first', 'first');
+        $this->checkField($pq, 'schema3', 'second', 'second1, second2');
+        $this->checkField($pq, 'schema3', 'third', 'third');
+        $this->checkField($pq, 'schema3', 'fourth', 'fourth');
     }
 
     public function test_createForm_postData() {

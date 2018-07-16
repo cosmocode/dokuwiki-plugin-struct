@@ -22,7 +22,7 @@
                     "inpage": true,
                     "ineditor": true
                 },
-                "default": "",
+                "default": "first",
                 "prefix": "",
                 "postfix": "",
                 "label": {
@@ -45,7 +45,7 @@
                     "inpage": true,
                     "ineditor": true
                 },
-                "default": "",
+                "default": "second1, second2",
                 "prefix": "",
                 "postfix": "",
                 "label": {
@@ -68,7 +68,7 @@
                     "inpage": true,
                     "ineditor": true
                 },
-                "default": "",
+                "default": "third",
                 "prefix": "",
                 "postfix": "",
                 "label": {
@@ -91,7 +91,7 @@
                     "inpage": true,
                     "ineditor": true
                 },
-                "default": "",
+                "default": "fourth",
                 "prefix": "",
                 "postfix": "",
                 "label": {
