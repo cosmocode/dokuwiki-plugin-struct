@@ -22,9 +22,6 @@ class CSVPageImporter extends \dokuwiki\plugin\struct\meta\CSVPageImporter
 
     protected function getLine()
     {
-        if (!$this->testData->valid()) {
-            return $this->testData->getReturn();
-        }
         $current = $this->testData->current();
         $this->testData->next();
         return $current;
@@ -36,6 +33,6 @@ class CSVPageImporter extends \dokuwiki\plugin\struct\meta\CSVPageImporter
             yield $line;
         }
 
-        return false;
+        yield false;
     }
 }
