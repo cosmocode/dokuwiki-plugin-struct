@@ -7,6 +7,9 @@ class CSVPageImporter extends CSVImporter {
 
     protected $importedPids = array();
 
+    /** @var bool  */
+    protected $createPage = [];
+
     /**
      * Chceck if schema is page schema
      *
@@ -27,7 +30,7 @@ class CSVPageImporter extends CSVImporter {
 
         //add pid to struct
         $pageType = new Page(null, 'pid');
-        $this->columns[] = new Column(0, $pageType);
+        $this->columns[] = new Column(0, $pageType, 0, true, $this->schema->getTable());
 
         parent::readHeaders();
 
@@ -67,6 +70,9 @@ class CSVPageImporter extends CSVImporter {
     protected function saveLine($values, $line, $single, $multi) {
         //create new page revision
         $pid = $values[0];
+        if ($this->createPage[$pid]) {
+            $this->createPage($pid, $line);
+        }
         $helper = plugin_load('helper', 'struct');
         $revision = $helper->createPageRevision($pid, 'CSV data imported');
         p_get_metadata($pid); // reparse the metadata of the page top update the titles/rev/lasteditor table
@@ -82,6 +88,39 @@ class CSVPageImporter extends CSVImporter {
         $values[] = $revision;
 
         parent::saveLine($values, $line, $single, $multi);
+    }
+
+    /**
+     * Create a page from a namespace template and replace column-label-placeholders
+     *
+     * This is intended to use the same placeholders as bureaucracy in their most basic version
+     * (i.e. without default values, formatting, etc. )
+     *
+     * @param string $pid
+     * @param array  $line
+     */
+    protected function createPage($pid, $line)
+    {
+        $text = pageTemplate($pid);
+        if (trim($text) === '') {
+            $pageParts = explode(':', $pid);
+            $pagename = end($pageParts);
+            $text = "====== $pagename ======\n";
+        }
+        $keys = array_map(function (Column $col) {return $col->getFullQualifiedLabel();} , $this->columns);
+        $keysAt = array_map(function ($key) { return "@@$key@@";}, $keys);
+        $keysHash = array_map(function ($key) { return "##$key##";}, $keys);
+        $flatValues = array_map(
+            function($value) {
+                if (is_array($value)) {
+                    return implode(', ', $value);
+                }
+                return $value;
+            }, $line);
+        $text = str_replace($keysAt, $flatValues, $text);
+        /** @noinspection CascadeStringReplacementInspection */
+        $text = str_replace($keysHash, $flatValues, $text);
+        saveWikiText($pid, $text, 'Created by struct csv import');
     }
 
     /**
@@ -153,6 +192,11 @@ class CSVPageImporter extends CSVImporter {
             }
             if(page_exists($pid)) {
                 $this->importedPids[$pid] = true;
+                return true;
+            }
+            global $INPUT;
+            if ($INPUT->bool('createPage')) {
+                $this->createPage[$pid] = true;
                 return true;
             }
             $this->errors[] = 'Page "'.$pid.'" does not exists. Skipping the row.';
