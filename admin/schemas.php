@@ -208,7 +208,7 @@ class admin_plugin_struct_schemas extends DokuWiki_Admin_Plugin {
         $form->addFieldsetOpen($this->getLang('admin_csvimport'));
         $form->addElement((new \dokuwiki\Form\InputElement('file', 'csvfile'))->attr('accept', '.csv'));
         $form->addButton('importcsv', $this->getLang('btn_import'));
-        $form->addCheckbox('createPage', 'Create missing pages')->addClass('block');
+        $form->addCheckbox('createPage', 'Create missing pages')->addClass('block edit');
         $form->addHTML('<p><a href="https://www.dokuwiki.org/plugin:struct:csvimport">' . $this->getLang('admin_csvhelp') . '</a></p>');
         $form->addFieldsetClose();
 
