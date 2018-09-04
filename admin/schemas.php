@@ -196,7 +196,7 @@ class admin_plugin_struct_schemas extends DokuWiki_Admin_Plugin {
         $form->addFieldsetClose();
 
         $form->addFieldsetOpen($this->getLang('import'));
-        $form->addElement((new \dokuwiki\Form\InputElement('file', 'schemafile'))->attr('accept', '.json'));
+        $form->addElement(new \dokuwiki\Form\InputElement('file', 'schemafile'))->attr('accept', '.json');
         $form->addButton('import', $this->getLang('btn_import'));
         $form->addHTML('<p>' . $this->getLang('import_warning') . '</p>');
         $form->addFieldsetClose();
@@ -206,7 +206,7 @@ class admin_plugin_struct_schemas extends DokuWiki_Admin_Plugin {
         $form->addFieldsetClose();
 
         $form->addFieldsetOpen($this->getLang('admin_csvimport'));
-        $form->addElement((new \dokuwiki\Form\InputElement('file', 'csvfile'))->attr('accept', '.csv'));
+        $form->addElement(new \dokuwiki\Form\InputElement('file', 'csvfile'))->attr('accept', '.csv');
         $form->addButton('importcsv', $this->getLang('btn_import'));
         $form->addCheckbox('createPage', 'Create missing pages')->addClass('block edit');
         $form->addHTML('<p><a href="https://www.dokuwiki.org/plugin:struct:csvimport">' . $this->getLang('admin_csvhelp') . '</a></p>');
