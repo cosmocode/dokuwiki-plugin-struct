@@ -7,7 +7,7 @@ class CSVPageImporter extends CSVImporter {
 
     protected $importedPids = array();
 
-    /** @var bool  */
+    /** @var bool[]  */
     protected $createPage = [];
 
     /**
