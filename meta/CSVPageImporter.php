@@ -107,7 +107,18 @@ class CSVPageImporter extends CSVImporter {
             $pagename = end($pageParts);
             $text = "====== $pagename ======\n";
         }
-        $keys = array_map(function (Column $col) {return $col->getFullQualifiedLabel();} , $this->columns);
+        $keys = array_reduce($this->columns,
+            function ($keys, Column $col) {
+                if (!in_array($col->getLabel(), $keys, true)) {
+                    return $keys;
+                }
+                $index = array_search($col->getLabel(), $keys, true);
+                $keys[$index] = $col->getFullQualifiedLabel();
+                return $keys;
+            },
+            $this->header
+        );
+
         $keysAt = array_map(function ($key) { return "@@$key@@";}, $keys);
         $keysHash = array_map(function ($key) { return "##$key##";}, $keys);
         $flatValues = array_map(
