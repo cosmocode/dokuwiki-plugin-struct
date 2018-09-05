@@ -69,7 +69,7 @@ class CSVPageImporter extends CSVImporter {
      */
     protected function saveLine($values, $line, $single, $multi) {
         //create new page revision
-        $pid = $values[0];
+        $pid = cleanID($values[0]);
         if ($this->createPage[$pid]) {
             $this->createPage($pid, $line);
         }
