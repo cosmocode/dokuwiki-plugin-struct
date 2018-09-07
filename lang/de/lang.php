@@ -3,6 +3,7 @@
 /**
  * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
  *
+ * @author Jürgen <hans-juergen.schuemmer@schuette.de>
  * @author Joerg <scooter22@gmx.de>
  * @author Andreas Gohr <andi@splitbrain.org>
  * @author Malte Lembeck <malte.lembeck@outlook.de>
@@ -22,6 +23,7 @@ $lang['pagelabel']             = 'Seite';
 $lang['rowlabel']              = 'Reihe #';
 $lang['revisionlabel']         = 'Zuletzt geändert';
 $lang['userlabel']             = 'letzter Bearbeitender';
+$lang['summarylabel']          = 'Letzte Zusammenfassung';
 $lang['summary']               = 'Struct-Daten geändert';
 $lang['export']                = 'Schema als JSON exportieren';
 $lang['btn_export']            = 'Exportieren';
@@ -70,7 +72,21 @@ $lang['Validation Exception bad color specification'] = 'muss im Format \'\'#RRG
 $lang['Exception illegal option'] = 'Die Option \'<code>%s</code>\' ist für diesen Aggregationstyp ungültig.';
 $lang['Exception noschemas']   = 'Keine Schemas für das Laden von Spalten angegeben';
 $lang['Exception nocolname']   = 'Kein Spaltenname angegeben';
+$lang['Exception No data saved'] = 'Keine Daten gespeichert';
+$lang['Exception no sqlite']   = 'Das \'Struct Plugin\' benötigt das \'Sqlite Plugin\'. Bitte installieren und aktivieren.';
+$lang['Warning: no filters for cloud'] = 'Filter werden in \'Struct Clouds\' nicht unterstützt';
+$lang['sort']                  = 'Nach dieser Spalte sortieren';
+$lang['next']                  = 'Nächste Seite';
+$lang['prev']                  = 'Vorherige Seite';
+$lang['none']                  = 'Nichts gefunden';
+$lang['csvexport']             = 'CSV-Export';
 $lang['admin_csvexport']       = 'Exportieren von Rohdaten in einer CSV-Datei';
 $lang['admin_csvimport']       = 'Importieren von Rohdaten aus einer CSV-Datei';
 $lang['admin_csvdone']         = 'CSV-Datei importiert';
 $lang['admin_csvhelp']         = 'Bitte konsultieren Sie das Handbuch zum CSV-Import (engl.) für Formatierungsdetails.';
+$lang['tablefilteredby']       = 'Filterung mit %s';
+$lang['tableresetfilter']      = 'Zeige alle (Filter/Sortierung löschen)';
+$lang['Exception schema missing'] = 'Schema %s existiert nicht!';
+$lang['no_lookup_for_page']    = 'Sie können den Lookup Editor nicht bei einem Seiten-Schema benutzen!';
+$lang['lookup new entry']      = 'Neuen Eintrag anlegen';
+$lang['bureaucracy_action_struct_lookup_thanks'] = 'Der Eintrag wurde gespeichert. <a href="%s">Neuen Eintrag hinzufügen</a>.';
