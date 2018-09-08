@@ -164,6 +164,18 @@ class SearchConfig extends Search {
             } else {
                 $filter = $match[1] . $value . $match[3];
             }
+        } elseif(preg_match('/^(.*?)(?:\$USER\.(.*?)\$)(.*?)$/', $filter, $match)) {
+            $key = strtolower($match[2]);
+
+            if (!in_array($key, array('name', 'mail', 'grps'))) {
+                throw new StructException('"%s" is not a valid USER key', $key);
+            }
+
+            if (empty($INFO['userinfo'])) {
+                $filter = '';
+            } else {
+                $filter = $INFO['userinfo'][$key];
+            }
         }
 
         return $filter;
