@@ -41,7 +41,7 @@ class remote_plugin_struct extends DokuWiki_Remote_Plugin {
     public function getData($page, $schema, $time) {
         $page = cleanID($page);
 
-        if(!auth_quickaclcheck($page) < AUTH_READ) {
+        if(auth_quickaclcheck($page) < AUTH_READ) {
             throw new RemoteAccessDeniedException('no permissions to access data of that page');
         }
 
@@ -72,7 +72,7 @@ class remote_plugin_struct extends DokuWiki_Remote_Plugin {
     public function saveData($page, $data, $summary) {
         $page = cleanID($page);
 
-        if(!auth_quickaclcheck($page) < AUTH_EDIT) {
+        if(auth_quickaclcheck($page) < AUTH_EDIT) {
             throw new RemoteAccessDeniedException('no permissions to save data for that page');
         }
 
