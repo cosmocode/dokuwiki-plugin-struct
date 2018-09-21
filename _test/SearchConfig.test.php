@@ -66,6 +66,23 @@ class SearchConfig_struct_test extends StructTest {
         $this->assertEquals('', $searchConfig->applyFilterVars('$STRUCT.notexisting$'));
     }
 
+    public function test_filtervars_user() {
+        global $INFO, $USERINFO, $conf;
+
+        $searchConfig = new SearchConfig(array());
+
+        $_SERVER['REMOTE_USER'] = 'john';
+        $USERINFO['name'] = 'John Smith';
+        $USERINFO['mail'] = 'john.smith@example.com';
+        $USERINFO['grps'] = array('user', 'test');
+        //update info array
+        $INFO['userinfo'] = $USERINFO;
+
+        $this->assertEquals('John Smith', $searchConfig->applyFilterVars('$USER.name$'));
+        $this->assertEquals('john.smith@example.com', $searchConfig->applyFilterVars('$USER.mail$'));
+        $this->assertEquals(array('user', 'test'), $searchConfig->applyFilterVars('$USER.grps$'));
+    }
+
     public function test_cacheflags() {
         $searchConfig = new SearchConfig(array());
 
