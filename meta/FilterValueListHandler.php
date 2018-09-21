@@ -5,7 +5,7 @@ namespace dokuwiki\plugin\struct\meta;
 /**
  * Handler for the row value parser
  */
-class RowValueHandler {
+class FilterValueListHandler {
 
     protected $row = array();
     protected $current_row = 0;

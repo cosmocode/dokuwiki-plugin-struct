@@ -172,7 +172,7 @@ class Search {
         }
 
         if ($comp == 'IN' && !is_array($value)) {
-            $value = $this->parseRowValue($value);
+            $value = $this->parseFilterValueList($value);
             //col IN ('a', 'b', 'c') is equal to col = 'a' OR 'col = 'b' OR col = 'c'
             $comp = '=';
         }
@@ -187,8 +187,8 @@ class Search {
      * @param string $value
      * @return string[]
      */
-    protected function parseRowValue($value) {
-        $Handler = new RowValueHandler();
+    protected function parseFilterValueList($value) {
+        $Handler = new FilterValueListHandler();
         $Lexer = new \Doku_Lexer($Handler, 'base', true);
 
         $Lexer->addEntryPattern('\(','base','row');
