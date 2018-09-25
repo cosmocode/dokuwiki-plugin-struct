@@ -54,12 +54,20 @@ class ImportPageCSV extends StructTest
         $pageID = 'new:page';
         $csvImporter = new mock\CSVPageImporter('schema1', '');
         $csvImporter->setTestData([
-            ['pid', 'first', 'third', 'second', 'fourth'],
-            [$pageID, 'a', 'c', 'b,e', 'd'],
+            ['pid', 'first', 'third', 'second', 'fourth', 'fifth'],
+            [$pageID, 'a', 'c', 'b,e', 'd',],
         ]);
         $templateFN = substr(wikiFN($pageID), 0, -1 * strlen('page.txt')) . '_template.txt';
         io_makeFileDir($templateFN);
-        file_put_contents($templateFN, "====== @PAGE@ ======\nfirst: @@schema1.first@@\n\nsecond: ##schema1.second##\n");
+        file_put_contents($templateFN,
+'====== @PAGE@ ======
+<ifnotempty schema1.first>
+first: @@schema1.first@@
+</ifnotempty>
+second: ##schema1.second##
+<ifnotempty fifth>
+fifth: @@fifth@@
+</ifnotempty>');
 
         // act
         $csvImporter->import();
@@ -79,6 +87,7 @@ class ImportPageCSV extends StructTest
         $this->assertSame($expected_data, $actual_data);
         $this->assertTrue(page_exists($pageID));
         $expectedText = '====== page ======
+
 first: a
 
 second: b, e
