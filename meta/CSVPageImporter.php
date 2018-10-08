@@ -128,10 +128,41 @@ class CSVPageImporter extends CSVImporter {
                 }
                 return $value;
             }, $line);
+        $text = $this->evaluateIfNotEmptyTags($text, $keys, $flatValues);
         $text = str_replace($keysAt, $flatValues, $text);
         /** @noinspection CascadeStringReplacementInspection */
         $text = str_replace($keysHash, $flatValues, $text);
         saveWikiText($pid, $text, 'Created by struct csv import');
+    }
+
+    /**
+     * Replace conditional <ifnotempty fieldname></ifnotempty> tags
+     *
+     * @param string   $text   The template
+     * @param string[] $keys   The array of qualified headers
+     * @param string[] $values The flat array of corresponding values
+     *
+     * @return string The template with the tags replaced
+     */
+    protected function evaluateIfNotEmptyTags($text, $keys, $values)
+    {
+        return preg_replace_callback(
+            '/<ifnotempty (.+?)>([^<]*?)<\/ifnotempty>/',
+            function ($matches) use ($keys, $values)
+            {
+                list (,$blockKey, $textIfNotEmpty) = $matches;
+                $index = array_search($blockKey, $keys, true);
+                if ($index === false) {
+                    msg('Import error: Key "' . hsc($blockKey) . '" not found!', -1);
+                    return '';
+                }
+                if (trim($values[$index]) === '') {
+                    return '';
+                }
+                return $textIfNotEmpty;
+            },
+            $text
+        );
     }
 
     /**
