@@ -4,6 +4,7 @@ namespace dokuwiki\plugin\struct\types;
 
 use dokuwiki\plugin\struct\meta\QueryBuilder;
 use dokuwiki\plugin\struct\meta\QueryBuilderWhere;
+use dokuwiki\plugin\struct\meta\Schema;
 use dokuwiki\plugin\struct\meta\SearchConfigParameters;
 use dokuwiki\plugin\struct\meta\StructException;
 
@@ -52,6 +53,15 @@ class Tag extends AbstractMultiBaseType {
 
         $context = $this->getContext();
 
+        $schema = new Schema($context->getTable());
+        $enforcePageAccess = '';
+        if (!$schema->isLookup()) {
+            $enforcePageAccess = '
+                       AND PAGEEXISTS(D.pid) = 1
+                       AND GETACCESSLEVEL(D.pid) > 0
+            ';
+        }
+
         if($context->isMulti()) {
             /** @noinspection SqlResolve */
             $sql = "SELECT DISTINCT value
@@ -59,8 +69,7 @@ class Tag extends AbstractMultiBaseType {
                      WHERE M.pid = D.pid
                        AND M.rev = D.rev
                        AND D.latest = 1
-                       AND PAGEEXISTS(D.pid) = 1
-                       AND GETACCESSLEVEL(D.pid) > 0
+                       $enforcePageAccess
                        AND M.colref = ?
                        AND value LIKE ?
                   ORDER BY value";
@@ -70,8 +79,7 @@ class Tag extends AbstractMultiBaseType {
             $sql = "SELECT DISTINCT col{$context->getColref()} AS value
                       FROM data_{$context->getTable()} AS D
                      WHERE D.latest = 1
-                       AND PAGEEXISTS(D.pid) = 1
-                       AND GETACCESSLEVEL(D.pid) > 0
+                       $enforcePageAccess
                        AND value LIKE ?
                   ORDER BY value";
             $opt = array("%$lookup%");
