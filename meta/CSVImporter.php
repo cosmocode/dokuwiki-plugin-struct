@@ -40,8 +40,7 @@ abstract class CSVImporter {
      * @param string $file
      */
     public function __construct($table, $file) {
-        $this->fh = fopen($file, 'r');
-        if(!$this->fh) throw new StructException('Failed to open CSV file for reading');
+        $this->openFile($file);
 
         $this->schema = new Schema($table);
         if(!$this->schema->getId()) throw new StructException('Schema does not exist');
@@ -63,12 +62,41 @@ abstract class CSVImporter {
     }
 
     /**
+     * Open a given file path
+     *
+     * The main purpose of this method is to be overridden in a mock for testing
+     *
+     * @param string $file the file path
+     *
+     * @return void
+     */
+    protected function openFile($file)
+    {
+        $this->fh = fopen($file, 'rb');
+        if(!$this->fh) {
+            throw new StructException('Failed to open CSV file for reading');
+        }
+    }
+
+    /**
+     * Get a parsed line from the opened CSV file
+     *
+     * The main purpose of this method is to be overridden in a mock for testing
+     *
+     * @return array|false|null
+     */
+    protected function getLine()
+    {
+        return fgetcsv($this->fh);
+    }
+
+    /**
      * Read the CSV headers and match it with the Schema columns
      *
      * @return array headers of file
      */
     protected function readHeaders() {
-        $header = fgetcsv($this->fh);
+        $header = $this->getLine();
         if(!$header) throw new StructException('Failed to read CSV');
         $this->line++;
 
@@ -124,7 +152,7 @@ abstract class CSVImporter {
         $single = $this->getSQLforAllValues();
         $multi = $this->getSQLforMultiValue();
 
-        while(($data = fgetcsv($this->fh)) !== false) {
+        while(($data = $this->getLine()) !== false) {
             $this->sqlite->query('BEGIN TRANSACTION');
             $this->line++;
             $this->importLine($data, $single, $multi);
