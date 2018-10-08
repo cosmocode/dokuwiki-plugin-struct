@@ -89,11 +89,12 @@
  * Bureaucracy form adjustments
  */
 .dokuwiki form.bureaucracy__plugin div.field {
-    display: block;
-    text-align: right;
+    display: flex;
+    justify-content: flex-end;
 
     label {
         clear: both; // this is somehow missing in the bootstrap template
+        flex-grow: 1;
     }
 
     span {
@@ -104,6 +105,7 @@
 
     span.label {
         vertical-align: top;
+        width: 100%;
 
         // fixes for bootstrap3 template
         color: @ini_text;
@@ -136,10 +138,10 @@
 /*responsive - small screen*/
 @media (max-width: 480px) {
     .dokuwiki form.bureaucracy__plugin div.field {
+        flex-wrap: wrap;
         label {
-            text-align: left;
-
             > span {
+                text-align: left;
                 width: 100%;
             }
         }
