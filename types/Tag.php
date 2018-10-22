@@ -2,8 +2,10 @@
 
 namespace dokuwiki\plugin\struct\types;
 
+use dokuwiki\plugin\struct\meta\Column;
 use dokuwiki\plugin\struct\meta\QueryBuilder;
 use dokuwiki\plugin\struct\meta\QueryBuilderWhere;
+use dokuwiki\plugin\struct\meta\Schema;
 use dokuwiki\plugin\struct\meta\SearchConfigParameters;
 use dokuwiki\plugin\struct\meta\StructException;
 
@@ -51,31 +53,8 @@ class Tag extends AbstractMultiBaseType {
         if($max <= 0) return array();
 
         $context = $this->getContext();
-
-        if($context->isMulti()) {
-            /** @noinspection SqlResolve */
-            $sql = "SELECT DISTINCT value
-                      FROM multi_{$context->getTable()} AS M, data_{$context->getTable()} AS D
-                     WHERE M.pid = D.pid
-                       AND M.rev = D.rev
-                       AND D.latest = 1
-                       AND PAGEEXISTS(D.pid) = 1
-                       AND GETACCESSLEVEL(D.pid) > 0
-                       AND M.colref = ?
-                       AND value LIKE ?
-                  ORDER BY value";
-            $opt = array($context->getColref(), "%$lookup%");
-        } else {
-            /** @noinspection SqlResolve */
-            $sql = "SELECT DISTINCT col{$context->getColref()} AS value
-                      FROM data_{$context->getTable()} AS D
-                     WHERE D.latest = 1
-                       AND PAGEEXISTS(D.pid) = 1
-                       AND GETACCESSLEVEL(D.pid) > 0
-                       AND value LIKE ?
-                  ORDER BY value";
-            $opt = array("%$lookup%");
-        }
+        $sql = $this->buildSQLFromContext($context);
+        $opt = array("%$lookup%");
 
         /** @var \helper_plugin_struct_db $hlp */
         $hlp = plugin_load('helper', 'struct_db');
@@ -93,6 +72,45 @@ class Tag extends AbstractMultiBaseType {
         }
 
         return $result;
+    }
+
+    /**
+     * Create the sql to query the database for tags to do autocompletion
+     *
+     * This method both handles multi columns and page schemas that need access checking
+     *
+     * @param Column $context
+     *
+     * @return string The sql with a single "?" placeholde for the search value
+     */
+    protected function buildSQLFromContext(Column $context)
+    {
+        $sql = '';
+        if ($context->isMulti()) {
+            /** @noinspection SqlResolve */
+            $sql .= "SELECT DISTINCT value
+                      FROM multi_{$context->getTable()} AS M, data_{$context->getTable()} AS D
+                     WHERE M.pid = D.pid
+                       AND M.rev = D.rev
+                       AND M.colref = {$context->getColref()}\n";
+        } else {
+            /** @noinspection SqlResolve */
+            $sql .= "SELECT DISTINCT col{$context->getColref()} AS value
+                      FROM data_{$context->getTable()} AS D
+                     WHERE 1 = 1\n";
+        }
+
+        $schema = new Schema($context->getTable());
+        if (!$schema->isLookup()) {
+            $sql .= "AND PAGEEXISTS(D.pid) = 1\n";
+            $sql .= "AND GETACCESSLEVEL(D.pid) > 0\n";
+        }
+
+        $sql .= "AND D.latest = 1\n";
+        $sql .= "AND value LIKE ?\n";
+        $sql .= 'ORDER BY value';
+
+        return $sql;
     }
 
     /**
