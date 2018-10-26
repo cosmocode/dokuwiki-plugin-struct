@@ -26,6 +26,7 @@ $lang['pagelabel']             = 'Page';
 $lang['rowlabel']              = 'N° de ligne';
 $lang['revisionlabel']         = 'Dernière mise à jour';
 $lang['userlabel']             = 'Dernier éditeur';
+$lang['summarylabel']          = 'Dernier Résumé';
 $lang['summary']               = 'Struct : données mises à jour';
 $lang['export']                = 'Exporter le schéma au format JSON';
 $lang['btn_export']            = 'Exporter';
