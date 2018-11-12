@@ -3,6 +3,7 @@
 /**
  * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
  *
+ * @author salabdou <salabdou@gmail.com>
  * @author Schplurtz le Déboulonné <schplurtz@laposte.net>
  * @author Andreas Gohr, Michael Große <dokuwiki@cosmocode.de>
  * @author Laynee <seedfloyd@gmail.com>
@@ -26,6 +27,7 @@ $lang['pagelabel']             = 'Page';
 $lang['rowlabel']              = 'N° de ligne';
 $lang['revisionlabel']         = 'Dernière mise à jour';
 $lang['userlabel']             = 'Dernier éditeur';
+$lang['summarylabel']          = 'Dernier résumé';
 $lang['summary']               = 'Struct : données mises à jour';
 $lang['export']                = 'Exporter le schéma au format JSON';
 $lang['btn_export']            = 'Exporter';
