@@ -94,7 +94,7 @@ class remote_plugin_struct extends DokuWiki_Remote_Plugin {
      * @throws RemoteAccessDeniedException
      * @throws RemoteException
      */
-    public function getSchema($schema) {
+    public function getSchema($schema = null) {
         if(!auth_ismanager()) {
             throw new RemoteAccessDeniedException('you need to be manager to access schema info');
         }
