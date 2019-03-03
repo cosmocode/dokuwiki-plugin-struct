@@ -35,6 +35,12 @@ class helper_plugin_struct_db extends DokuWiki_Plugin {
             return;
         }
 
+        if ($this->sqlite->getAdapter() === null) {
+            if(defined('DOKU_UNITTEST')) throw new \Exception('Couldn\'t load PDO sqlite.');
+            $this->sqlite = null;
+            return;
+        }
+
         if($this->sqlite->getAdapter()->getName() != DOKU_EXT_PDO) {
             if(defined('DOKU_UNITTEST')) throw new \Exception('Couldn\'t load PDO sqlite.');
             $this->sqlite = null;
