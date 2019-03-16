@@ -41,14 +41,14 @@ class action_plugin_struct_lookup extends DokuWiki_Action_Plugin
      */
     public function register(Doku_Event_Handler $controller)
     {
-        $controller->register_hook('AJAX_CALL_UNKNOWN', 'BEFORE', $this, 'handle_ajax');
+        $controller->register_hook('AJAX_CALL_UNKNOWN', 'BEFORE', $this, 'handleAjax');
     }
 
     /**
      * @param Doku_Event $event
      * @param $param
      */
-    public function handle_ajax(Doku_Event $event, $param)
+    public function handleAjax(Doku_Event $event, $param)
     {
         $len = strlen('plugin_struct_lookup_');
         if (substr($event->data, 0, $len) != 'plugin_struct_lookup_') {
@@ -60,15 +60,15 @@ class action_plugin_struct_lookup extends DokuWiki_Action_Plugin
         try {
 
             if (substr($event->data, $len) == 'new') {
-                $this->lookup_new();
+                $this->lookupNew();
             }
 
             if (substr($event->data, $len) == 'save') {
-                $this->lookup_save();
+                $this->lookupSave();
             }
 
             if (substr($event->data, $len) == 'delete') {
-                $this->lookup_delete();
+                $this->lookupDelete();
             }
 
         } catch (StructException $e) {
@@ -81,7 +81,7 @@ class action_plugin_struct_lookup extends DokuWiki_Action_Plugin
     /**
      * Deletes a lookup row
      */
-    protected function lookup_delete()
+    protected function lookupDelete()
     {
         global $INPUT;
         $tablename = $INPUT->str('schema');
@@ -104,7 +104,7 @@ class action_plugin_struct_lookup extends DokuWiki_Action_Plugin
     /**
      * Save one new lookup row
      */
-    protected function lookup_save()
+    protected function lookupSave()
     {
         global $INPUT;
         $tablename = $INPUT->str('schema');
@@ -133,7 +133,7 @@ class action_plugin_struct_lookup extends DokuWiki_Action_Plugin
     /**
      * Create the Editor for a new lookup row
      */
-    protected function lookup_new()
+    protected function lookupNew()
     {
         global $INPUT;
         global $lang;
