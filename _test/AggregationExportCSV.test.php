@@ -2,6 +2,7 @@
 
 namespace dokuwiki\plugin\struct\test;
 
+use dokuwiki\plugin\struct\meta\AccessTable;
 use dokuwiki\plugin\struct\meta\ConfigParser;
 
 /**
@@ -26,7 +27,8 @@ class AggregationExportCSV extends StructTest
             'SecondFieldLongText' => "abc\ndef\n",
             'ThirdFieldWiki' => "  * hi\n  * ho",
         ];
-        $helper->saveLookupData('wikilookup', $saveDate);
+        $access = AccessTable::byTableName('wikilookup', 0, 0);
+        $helper->saveLookupData($access, $saveDate);
     }
 
     public function test_wikiColumn()

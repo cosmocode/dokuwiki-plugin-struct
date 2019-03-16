@@ -111,12 +111,13 @@ class action_plugin_struct_lookup extends DokuWiki_Action_Plugin
         $data = $INPUT->arr('entry');
         action_plugin_struct_inline::checkCSRF();
 
-        /** @var helper_plugin_struct $helper */
-        $helper = plugin_load('helper', 'struct');
-        $helper->saveLookupData($tablename, $data);
-
         // create a new row based on the original aggregation config for the new pid
         $access = AccessTable::byTableName($tablename, 0, 0);
+
+        /** @var helper_plugin_struct $helper */
+        $helper = plugin_load('helper', 'struct');
+        $helper->saveLookupData($access, $data);
+
         $pid = $access->getPid();
         $config = json_decode($INPUT->str('searchconf'), true);
         $config['filter'] = array(array('%rowid%', '=', $pid, 'AND'));
