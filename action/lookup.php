@@ -16,10 +16,6 @@ use dokuwiki\plugin\struct\meta\SearchConfig;
 use dokuwiki\plugin\struct\meta\StructException;
 use dokuwiki\plugin\struct\meta\Value;
 
-if (!defined('DOKU_INC')) {
-    die();
-}
-
 /**
  * Class action_plugin_struct_lookup
  *
