@@ -16,14 +16,17 @@ use dokuwiki\plugin\struct\meta\SearchConfig;
 use dokuwiki\plugin\struct\meta\StructException;
 use dokuwiki\plugin\struct\meta\Value;
 
-if(!defined('DOKU_INC')) die();
+if (!defined('DOKU_INC')) {
+    die();
+}
 
 /**
  * Class action_plugin_struct_lookup
  *
  * Handle lookup table editing
  */
-class action_plugin_struct_lookup extends DokuWiki_Action_Plugin {
+class action_plugin_struct_lookup extends DokuWiki_Action_Plugin
+{
 
     /** @var  AccessTableData */
     protected $schemadata = null;
@@ -40,7 +43,8 @@ class action_plugin_struct_lookup extends DokuWiki_Action_Plugin {
      * @param Doku_Event_Handler $controller DokuWiki's event controller object
      * @return void
      */
-    public function register(Doku_Event_Handler $controller) {
+    public function register(Doku_Event_Handler $controller)
+    {
         $controller->register_hook('AJAX_CALL_UNKNOWN', 'BEFORE', $this, 'handle_ajax');
     }
 
@@ -48,27 +52,30 @@ class action_plugin_struct_lookup extends DokuWiki_Action_Plugin {
      * @param Doku_Event $event
      * @param $param
      */
-    public function handle_ajax(Doku_Event $event, $param) {
+    public function handle_ajax(Doku_Event $event, $param)
+    {
         $len = strlen('plugin_struct_lookup_');
-        if(substr($event->data, 0, $len) != 'plugin_struct_lookup_') return;
+        if (substr($event->data, 0, $len) != 'plugin_struct_lookup_') {
+            return;
+        }
         $event->preventDefault();
         $event->stopPropagation();
 
         try {
 
-            if(substr($event->data, $len) == 'new') {
+            if (substr($event->data, $len) == 'new') {
                 $this->lookup_new();
             }
 
-            if(substr($event->data, $len) == 'save') {
+            if (substr($event->data, $len) == 'save') {
                 $this->lookup_save();
             }
 
-            if(substr($event->data, $len) == 'delete') {
+            if (substr($event->data, $len) == 'delete') {
                 $this->lookup_delete();
             }
 
-        } catch(StructException $e) {
+        } catch (StructException $e) {
             http_status(500);
             header('Content-Type: text/plain');
             echo $e->getMessage();
@@ -78,20 +85,21 @@ class action_plugin_struct_lookup extends DokuWiki_Action_Plugin {
     /**
      * Deletes a lookup row
      */
-    protected function lookup_delete() {
+    protected function lookup_delete()
+    {
         global $INPUT;
         $tablename = $INPUT->str('schema');
         $pid = $INPUT->int('pid');
-        if(!$pid) {
+        if (!$pid) {
             throw new StructException('No pid given');
         }
-        if(!$tablename) {
+        if (!$tablename) {
             throw new StructException('No schema given');
         }
         action_plugin_struct_inline::checkCSRF();
 
         $schemadata = AccessTable::byTableName($tablename, $pid);
-        if(!$schemadata->getSchema()->isEditable()) {
+        if (!$schemadata->getSchema()->isEditable()) {
             throw new StructException('lookup delete error: no permission for schema');
         }
         $schemadata->clearData();
@@ -100,7 +108,8 @@ class action_plugin_struct_lookup extends DokuWiki_Action_Plugin {
     /**
      * Save one new lookup row
      */
-    protected function lookup_save() {
+    protected function lookup_save()
+    {
         global $INPUT;
         $tablename = $INPUT->str('schema');
         $data = $INPUT->arr('entry');
@@ -128,20 +137,23 @@ class action_plugin_struct_lookup extends DokuWiki_Action_Plugin {
     /**
      * Create the Editor for a new lookup row
      */
-    protected function lookup_new() {
+    protected function lookup_new()
+    {
         global $INPUT;
         global $lang;
         $tablename = $INPUT->str('schema');
 
         $schema = new Schema($tablename);
-        if(!$schema->isEditable()) return; // no permissions, no editor
+        if (!$schema->isEditable()) {
+            return;
+        } // no permissions, no editor
 
         echo '<div class="struct_entry_form">';
         echo '<fieldset>';
         echo '<legend>' . $this->getLang('lookup new entry') . '</legend>';
         /** @var action_plugin_struct_edit $edit */
         $edit = plugin_load('action', 'struct_edit');
-        foreach($schema->getColumns(false) as $column) {
+        foreach ($schema->getColumns(false) as $column) {
             $label = $column->getLabel();
             $field = new Value($column, '');
             echo $edit->makeField($field, "entry[$label]");
