@@ -9,6 +9,7 @@
 // must be run within Dokuwiki
 use dokuwiki\plugin\struct\meta\AccessDataValidator;
 use dokuwiki\plugin\struct\meta\AccessTable;
+use dokuwiki\plugin\struct\meta\AccessTableLookup;
 use dokuwiki\plugin\struct\meta\Assignments;
 use dokuwiki\plugin\struct\meta\Schema;
 use dokuwiki\plugin\struct\meta\StructException;
@@ -106,12 +107,11 @@ class helper_plugin_struct extends DokuWiki_Plugin {
     /**
      * Save data row for a lookup schema
      *
-     * @param string $tablename the name of the lookup schema into which to save the data
-     * @param array  $data data to be saved in the form of [columnName => 'data']
+     * @param AccessTableLookup $access the table into which to save the data
+     * @param array             $data   data to be saved in the form of [columnName => 'data']
      */
-    public function saveLookupData($tablename, $data)
+    public function saveLookupData(AccessTableLookup $access, $data)
     {
-        $access = AccessTable::byTableName($tablename, 0, 0);
         if(!$access->getSchema()->isEditable()) {
             throw new StructException('lookup save error: no permission for schema');
         }
