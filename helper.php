@@ -77,9 +77,11 @@ class helper_plugin_struct extends DokuWiki_Plugin {
      * @param string $page
      * @param array $data ('schema' => ( 'fieldlabel' => 'value', ...))
      * @param string $summary
+     * @param string $summary
      * @throws StructException
      */
-    public function saveData($page, $data, $summary = '') {
+    public function saveData($page, $data, $summary = '', $minor = false)
+    {
         $page = cleanID($page);
         $summary = trim($summary);
         if(!$summary) $summary = $this->getLang('summary');
@@ -93,7 +95,7 @@ class helper_plugin_struct extends DokuWiki_Plugin {
         }
         if(!$valid) return; // empty array when no changes were detected
 
-        $newrevision = self::createPageRevision($page, $summary);
+        $newrevision = self::createPageRevision($page, $summary, $minor);
 
         // save the provided data
         $assignments = Assignments::getInstance();

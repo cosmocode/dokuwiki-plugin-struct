@@ -65,11 +65,12 @@ class remote_plugin_struct extends DokuWiki_Remote_Plugin {
      * @param string $page
      * @param array $data ('schema' => ( 'fieldlabel' => 'value', ...))
      * @param string $summary
+     * @param bool $minor
      * @return bool returns always true
      * @throws RemoteAccessDeniedException
      * @throws RemoteException
      */
-    public function saveData($page, $data, $summary) {
+    public function saveData($page, $data, $summary, $minor = false) {
         $page = cleanID($page);
 
         if(auth_quickaclcheck($page) < AUTH_EDIT) {
@@ -77,7 +78,7 @@ class remote_plugin_struct extends DokuWiki_Remote_Plugin {
         }
 
         try {
-            $this->hlp->saveData($page, $data, $summary);
+            $this->hlp->saveData($page, $data, $summary, $minor);
             return true;
         } catch (StructException $e) {
             throw new RemoteException($e->getMessage(), 0, $e);
