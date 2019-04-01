@@ -1,0 +1,9 @@
+# auto replies used by probot/auto-comment
+
+issueOpened: >
+  Thank you for opening this issue. Please note that CosmoCode can not guarantee a
+  quick response for issues on our Open Source projects.
+
+  If you require a certain feature or need a bug fixed ASAP, you can always hire
+  us. Feel free to contact us at dokuwiki@cosmocode.de for an offer.
+
