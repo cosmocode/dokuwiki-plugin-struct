@@ -83,7 +83,7 @@ class syntax_plugin_struct_output extends DokuWiki_Syntax_Plugin {
         global $ID;
         global $INFO;
         global $REV;
-        if (!in_array(act_clean($ACT), ['show', 'export_html'])) {
+        if (!in_array(act_clean($ACT), ['show', 'export_html', 'export_pdf'])) {
             return true;
         }
         if($ID != $INFO['id']) return true;
