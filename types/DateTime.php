@@ -39,7 +39,7 @@ class DateTime extends Date {
      */
     public function valueEditor($name, $rawvalue, $htmlID) {
         if($this->config['prefilltoday'] && !$rawvalue) {
-            $rawvalue = date('Y-m-dTH:i');
+            $rawvalue = date('Y-m-d\TH:i');
         }
         $rawvalue = str_replace(' ', 'T', $rawvalue);
         $params = array(
