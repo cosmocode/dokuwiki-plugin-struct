@@ -71,7 +71,7 @@ class syntax_plugin_struct_output extends DokuWiki_Syntax_Plugin {
     /**
      * Render schema data
      *
-     * No output with renderers other than descendants of Doku_Renderer_xhtml
+     * Currently completely renderer agnostic
      *
      * @param string $mode Renderer mode
      * @param Doku_Renderer $R The renderer
@@ -83,7 +83,7 @@ class syntax_plugin_struct_output extends DokuWiki_Syntax_Plugin {
         global $ID;
         global $INFO;
         global $REV;
-        if (!($R instanceof Doku_Renderer_xhtml)) {
+        if (!in_array(act_clean($ACT), ['show', 'export_html', 'export_pdf'])) {
             return true;
         }
         if($ID != $INFO['id']) return true;
