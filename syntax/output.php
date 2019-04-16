@@ -100,7 +100,7 @@ class syntax_plugin_struct_output extends DokuWiki_Syntax_Plugin {
         $tables = $assignments->getPageAssignments($ID);
         if(!$tables) return true;
 
-        if($mode == 'xhtml') $R->doc .= self::XHTML_OPEN;
+        $R->doc .= self::XHTML_OPEN;
 
         $hasdata = false;
         foreach($tables as $table) {
@@ -142,10 +142,10 @@ class syntax_plugin_struct_output extends DokuWiki_Syntax_Plugin {
             $R->table_close();
         }
 
-        if($mode == 'xhtml') $R->doc .= self::XHTML_CLOSE;
+        $R->doc .= self::XHTML_CLOSE;
 
         // if no data has been output, remove empty wrapper again
-        if($mode == 'xhtml' && !$hasdata) {
+        if(!$hasdata) {
             $R->doc = substr($R->doc, 0, -1 * strlen(self::XHTML_OPEN . self::XHTML_CLOSE));
         }
 
