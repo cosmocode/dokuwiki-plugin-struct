@@ -13,6 +13,7 @@ use dokuwiki\plugin\struct\meta\AccessTable;
 use dokuwiki\plugin\struct\meta\Assignments;
 use dokuwiki\plugin\struct\meta\Schema;
 use dokuwiki\plugin\struct\meta\Search;
+use dokuwiki\plugin\struct\types\Lookup;
 
 /**
  * Handles bureaucracy additions
@@ -85,7 +86,7 @@ class action_plugin_struct_bureaucracy extends DokuWiki_Action_Plugin {
     public function handle_lookup_fields(Doku_Event $event, $param) {
         foreach($event->data['fields'] as $field) {
             if(!is_a($field, 'helper_plugin_struct_field')) continue;
-            if($field->column->getType()->getClass() != 'Lookup') continue;
+            if(!$field->column->getType() instanceof Lookup) continue;
 
             $value = $field->getParam('value');
             if (!is_array($value)) $value = array($value);
@@ -140,7 +141,7 @@ class action_plugin_struct_bureaucracy extends DokuWiki_Action_Plugin {
             $lbl = $field->column->getLabel();
             if(!isset($tosave[$tbl])) $tosave[$tbl] = array();
 
-            if ($field->column->isMulti() && $field->column->getType()->getClass() == 'Lookup') {
+            if ($field->column->isMulti() && $field->column->getType() instanceof Lookup) {
                 $tosave[$tbl][$lbl] = $field->opt['struct_pids'];
             } else {
                 $tosave[$tbl][$lbl] = $field->getParam('value');
