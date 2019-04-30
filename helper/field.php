@@ -4,6 +4,7 @@ use dokuwiki\plugin\struct\meta\Schema;
 use dokuwiki\plugin\struct\meta\StructException;
 use dokuwiki\plugin\struct\meta\Value;
 use dokuwiki\plugin\struct\meta\ValueValidator;
+use dokuwiki\plugin\struct\types\Lookup;
 
 /**
  * Allows adding a single struct field as a bureaucracy field
@@ -86,7 +87,7 @@ class helper_plugin_struct_field extends helper_plugin_bureaucracy_field {
 
         // output the field
         $value = new Value($this->column, $this->opt['value']);
-        if ($this->column->getType()->getClass() == 'Lookup') {
+        if ($this->column->getType() instanceof Lookup) {
             $value->setValue($this->opt['value'], true);
         }
         $field = $this->makeField($value, $params['name']);
