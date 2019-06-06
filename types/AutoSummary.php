@@ -4,7 +4,8 @@ namespace dokuwiki\plugin\struct\types;
 use dokuwiki\plugin\struct\meta\QueryBuilder;
 use dokuwiki\plugin\struct\meta\QueryBuilderWhere;
 
-class Summary extends AbstractBaseType {
+//We prefixing this type with "Abstract" to hide it in Schema Editor
+class AutoSummary extends AbstractBaseType {
 
     /**
      * When handling `%lastsummary%` get the data from the `titles` table instead the `data_` table.

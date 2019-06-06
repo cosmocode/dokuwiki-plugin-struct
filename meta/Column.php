@@ -176,6 +176,7 @@ class Column {
             $file = basename($file, '.php');
             if(substr($file, 0, 8) == 'Abstract') continue;
             if(substr($file, 0, 5) == 'Trait') continue;
+            if(substr($file, 0, 4) == 'Auto') continue;
             $map[$file] = 'dokuwiki\\plugin\\struct\\types\\' .$file;
         }
 
