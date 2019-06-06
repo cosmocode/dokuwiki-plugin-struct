@@ -3,7 +3,7 @@
 namespace dokuwiki\plugin\struct\meta;
 
 use dokuwiki\plugin\struct\types\AbstractBaseType;
-use dokuwiki\plugin\struct\types\AbstractSummary;
+use dokuwiki\plugin\struct\types\AutoSummary;
 
 /**
  * Class SummaryColumn
@@ -21,7 +21,7 @@ class SummaryColumn extends Column {
      * @param PageMeta $type
      * @param string $table
      */
-    public function __construct($sort, AbstractSummary $type, $table='') {
+    public function __construct($sort, AutoSummary $type, $table='') {
         if($type->isMulti()) throw new StructException('SummaryColumns can not be multi value types!');
         parent::__construct($sort, $type, 0, true, $table);
         $this->getType()->setContext($this);

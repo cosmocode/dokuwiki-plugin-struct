@@ -86,7 +86,7 @@ class Lookup extends Dropdown {
                     $column = new UserColumn(0, new User(), $table);
                 }
                 if ($infield == '%lastsummary%') {
-                    return new SummaryColumn(0, new AbstractSummary(), $table);
+                    return new SummaryColumn(0, new AutoSummary(), $table);
                 }
             } else {
                 if($infield == '%rowid%') {
