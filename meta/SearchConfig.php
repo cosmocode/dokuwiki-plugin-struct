@@ -128,42 +128,82 @@ class SearchConfig extends Search {
 
         // apply struct column placeholder (we support only one!)
         if(preg_match('/^(.*?)(?:\$STRUCT\.(.*?)\$)(.*?)$/', $filter, $match)) {
-            $key = $match[2];
+            $filter = $this->applyFilterVarsStruct($match);
+        } elseif(preg_match('/^(.*?)(?:\$USER\.(.*?)\$)(.*?)$/', $filter, $match)) {
+            $filter = $this->applyFilterVarsUser($match);
+        }
 
-            // we try to resolve the key via current schema aliases first, otherwise take it literally
-            $column = $this->findColumn($key);
-            if($column) {
-                $label = $column->getLabel();
-                $table = $column->getTable();
-            } else {
-                list($table, $label) = explode('.', $key);
+        return $filter;
+    }
+
+    /**
+     * Replaces struct placeholders in the given filter value by the proper value
+     *
+     * @param string $match
+     * @return string|string[] Result may be an array when a multi column placeholder is used
+     */
+    protected function applyFilterVarsStruct($match) {
+        global $INFO;
+
+        $key = $match[2];
+
+        // we try to resolve the key via current schema aliases first, otherwise take it literally
+        $column = $this->findColumn($key);
+        if($column) {
+            $label = $column->getLabel();
+            $table = $column->getTable();
+        } else {
+            list($table, $label) = explode('.', $key);
+        }
+
+        // get the data from the current page
+        if($table && $label) {
+            $schemaData = AccessTable::byTableName($table, $INFO['id'], 0);
+            $data = $schemaData->getData();
+            if (!isset($data[$label])) {
+                throw new StructException("column not in table", $label, $table);
             }
+            $value = $data[$label]->getCompareValue();
 
-            // get the data from the current page
-            if($table && $label) {
-                $schemaData = AccessTable::byTableName($table, $INFO['id'], 0);
-                $data = $schemaData->getData();
-                if (!isset($data[$label])) {
-                    throw new StructException("column not in table", $label, $table);
-                }
-                $value = $data[$label]->getCompareValue();
-
-                if(is_array($value) && !count($value)) {
-                    $value = '';
-                }
-            } else {
+            if(is_array($value) && !count($value)) {
                 $value = '';
             }
+        } else {
+            $value = '';
+        }
 
-            // apply any pre and postfixes, even when multi value
-            if(is_array($value)) {
-                $filter = array();
-                foreach($value as $item) {
-                    $filter[] = $match[1] . $item . $match[3];
-                }
-            } else {
-                $filter = $match[1] . $value . $match[3];
+        // apply any pre and postfixes, even when multi value
+        if(is_array($value)) {
+            $filter = array();
+            foreach($value as $item) {
+                $filter[] = $match[1] . $item . $match[3];
             }
+        } else {
+            $filter = $match[1] . $value . $match[3];
+        }
+
+        return $filter;
+    }
+
+    /**
+     * Replaces user placeholders in the given filter value by the proper value
+     *
+     * @param string $match
+     * @return string|string[] String for name and mail, array for grps
+     */
+    protected function applyFilterVarsUser($match) {
+        global $INFO;
+
+        $key = strtolower($match[2]);
+
+        if (!in_array($key, array('name', 'mail', 'grps'))) {
+            throw new StructException('"%s" is not a valid USER key', $key);
+        }
+
+        if (empty($INFO['userinfo'])) {
+            $filter = '';
+        } else {
+            $filter = $INFO['userinfo'][$key];
         }
 
         return $filter;
