@@ -30,8 +30,7 @@ class column_struct_test extends StructTest {
             'Text' => 'dokuwiki\\plugin\\struct\\types\\Text',
             'Url' => 'dokuwiki\\plugin\\struct\\types\\Url',
             'User' => 'dokuwiki\\plugin\\struct\\types\\User',
-            'Wiki' => 'dokuwiki\\plugin\\struct\\types\\Wiki',
-            'Summary' => 'dokuwiki\\plugin\\struct\\types\\Summary',
+            'Wiki' => 'dokuwiki\\plugin\\struct\\types\\Wiki'
         );
 
         $this->assertEquals($expect, meta\Column::allTypes(true));
@@ -56,8 +55,7 @@ class column_struct_test extends StructTest {
             'Text' => 'dokuwiki\\plugin\\struct\\types\\Text',
             'Url' => 'dokuwiki\\plugin\\struct\\types\\Url',
             'User' => 'dokuwiki\\plugin\\struct\\types\\User',
-            'Wiki' => 'dokuwiki\\plugin\\struct\\types\\Wiki',
-            'Summary' => 'dokuwiki\\plugin\\struct\\types\\Summary',
+            'Wiki' => 'dokuwiki\\plugin\\struct\\types\\Wiki'
         );
 
         global $EVENT_HANDLER;
