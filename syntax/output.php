@@ -27,6 +27,11 @@ class syntax_plugin_struct_output extends DokuWiki_Syntax_Plugin {
     const BLACKLIST_RENDERER = array('Doku_Renderer_metadata');
 
     /**
+     * Regexp to check on which actions the struct data may be rendered
+     */
+    const WHITELIST_ACTIONS = '/^(show|export_.*)$/';
+
+    /**
      * @return string Syntax mode type
      */
     public function getType() {
@@ -98,6 +103,7 @@ class syntax_plugin_struct_output extends DokuWiki_Syntax_Plugin {
         if($ID != $INFO['id']) return true;
         if(!$INFO['exists']) return true;
         if($this->hasBeenRendered) return true;
+        if(!preg_match(self::WHITELIST_ACTIONS, act_clean($ACT))) return true;
 
         // do not render the output twice on the same page, e.g. when another page has been included
         $this->hasBeenRendered = true;
