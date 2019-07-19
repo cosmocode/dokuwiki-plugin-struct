@@ -1,0 +1,5 @@
+====== Struct Editor schémat ======
+
+Schémata jsou jádrem pluginu Struct. Schéma definuje šablonu strukturovaných dat, která budou později přiřazena stránkám.
+
+Vyberte existující schéma z obsahu nebo vytvořte nové schéma.

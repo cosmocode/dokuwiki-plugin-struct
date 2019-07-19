@@ -1,0 +1,1 @@
+**VAROVÁNÍ:** Tímto se vymažou **všechna** data, která byla pro toto schéma uložena! Akce je nevratná!
