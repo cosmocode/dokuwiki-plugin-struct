@@ -1,0 +1,1 @@
+**VAROVÁNÍ:** Smazání schématu odstraní definici schématu a **všechna** data, která byla pro toto schéma uložena. Akce je nevratná!

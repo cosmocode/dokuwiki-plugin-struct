@@ -1,0 +1,9 @@
+====== Struct Editor schémat ======
+
+Zde přidávejte nebo upravujte pole schématu.
+
+Názvy polí musí být jedinečné. Doporučuje se používat krátké identifikátory, které se již později nezmění, protože již budou použity k odkazování na pole v agregacích. Použijte překladové štítky v konfiguraci pole pro lépe pochopitelné názvy polí.
+
+Typ pole definuje, jaký druh dat může být uložen v poli a ovlivňuje jeho pozdější zobrazení. Každý typ má své vlastní specifické možnosti konfigurace.
+
+Další informace naleznete v dokumentu [[doku>plugin:struct:type|documentation]].
