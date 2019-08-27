@@ -176,7 +176,14 @@ class AggregationTable {
         $fltrs = array();
         foreach($filters as $column => $filter) {
             list($comp, $value) = $filter;
-            $fltrs[] = $column . ' ' . $comp . ' ' . $value;
+
+            // FIXME display the filters in a human readable format
+            foreach ($this->columns as $col) {
+                if ($column === $col->getFullQualifiedLabel()) {
+                    $column = $col->getTranslatedLabel();
+                }
+            }
+            $fltrs[] = "$column '$value'";
         }
 
         $this->renderer->doc .= '<div class="filter">';
