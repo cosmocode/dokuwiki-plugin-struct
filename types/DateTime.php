@@ -11,8 +11,8 @@ class DateTime extends Date {
     protected $config = array(
         'format' => '', // filled by constructor
         'prefilltoday' => false,
-        'past' => false,
-        'future' => false
+        'pastonly' => false,
+        'futureonly' => false
     );
 
     /**
@@ -75,10 +75,10 @@ class DateTime extends Date {
         if(!checkdate((int) $month, (int) $day, (int) $year)) {
             throw new ValidationException('invalid datetime format');
         }
-        if ($this->config['past'] && strtotime($rawvalue) > time()) {
+        if ($this->config['pastonly'] && strtotime($rawvalue) > time()) {
             throw new ValidationException('datetime must not lie in the future');
         }
-        if ($this->config['future'] && strtotime($rawvalue) < time()) {
+        if ($this->config['futureonly'] && strtotime($rawvalue) < time()) {
             throw new ValidationException('datetime must not lie in the past');
         }
 
