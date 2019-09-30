@@ -76,10 +76,10 @@ class Date extends AbstractBaseType {
             throw new ValidationException('invalid date format');
         }
         if ($this->config['pastonly'] && strtotime($rawvalue) > time()) {
-            throw new ValidationException('date must not lie in the future');
+            throw new ValidationException('pastonly');
         }
         if ($this->config['futureonly'] && strtotime($rawvalue) < time()) {
-            throw new ValidationException('date must not lie in the past');
+            throw new ValidationException('futureonly');
         }
         return sprintf('%d-%02d-%02d', $year, $month, $day);
     }

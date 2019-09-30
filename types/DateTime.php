@@ -76,10 +76,10 @@ class DateTime extends Date {
             throw new ValidationException('invalid datetime format');
         }
         if ($this->config['pastonly'] && strtotime($rawvalue) > time()) {
-            throw new ValidationException('datetime must not lie in the future');
+            throw new ValidationException('pastonly');
         }
         if ($this->config['futureonly'] && strtotime($rawvalue) < time()) {
-            throw new ValidationException('datetime must not lie in the past');
+            throw new ValidationException('futureonly');
         }
 
         list($h, $m) = explode(':', $time, 3); // drop seconds
