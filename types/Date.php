@@ -7,7 +7,9 @@ class Date extends AbstractBaseType {
 
     protected $config = array(
         'format' => 'Y/m/d',
-        'prefilltoday' => false
+        'prefilltoday' => false,
+        'pastonly' => false,
+        'futureonly' => false
     );
 
     /**
@@ -72,6 +74,12 @@ class Date extends AbstractBaseType {
         list($year, $month, $day) = explode('-', $rawvalue, 3);
         if(!checkdate((int) $month, (int) $day, (int) $year)) {
             throw new ValidationException('invalid date format');
+        }
+        if ($this->config['pastonly'] && strtotime($rawvalue) > time()) {
+            throw new ValidationException('pastonly');
+        }
+        if ($this->config['futureonly'] && strtotime($rawvalue) < time()) {
+            throw new ValidationException('futureonly');
         }
         return sprintf('%d-%02d-%02d', $year, $month, $day);
     }

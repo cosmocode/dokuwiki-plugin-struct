@@ -10,7 +10,9 @@ class DateTime extends Date {
 
     protected $config = array(
         'format' => '', // filled by constructor
-        'prefilltoday' => false
+        'prefilltoday' => false,
+        'pastonly' => false,
+        'futureonly' => false
     );
 
     /**
@@ -72,6 +74,12 @@ class DateTime extends Date {
         list($year, $month, $day) = explode('-', $date, 3);
         if(!checkdate((int) $month, (int) $day, (int) $year)) {
             throw new ValidationException('invalid datetime format');
+        }
+        if ($this->config['pastonly'] && strtotime($rawvalue) > time()) {
+            throw new ValidationException('pastonly');
+        }
+        if ($this->config['futureonly'] && strtotime($rawvalue) < time()) {
+            throw new ValidationException('futureonly');
         }
 
         list($h, $m) = explode(':', $time, 3); // drop seconds
