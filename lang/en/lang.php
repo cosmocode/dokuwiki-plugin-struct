@@ -103,6 +103,15 @@ $lang['admin_csvhelp'] = 'Please refer to the manual on CSV Import for format de
 
 $lang['tablefilteredby'] = 'Filtered by %s';
 $lang['tableresetfilter'] = 'Show all (remove filter/sort)';
+$lang['comparator =']  = 'equals';
+$lang['comparator <']  = 'is less than';
+$lang['comparator >']  = 'is greater than';
+$lang['comparator <='] = 'is less than or euqals';
+$lang['comparator >='] = 'is greater than or equals';
+$lang['comparator !='] = 'does not equal';
+$lang['comparator <>'] = 'does not equal';
+$lang['comparator !~'] = 'is not like';
+$lang['comparator *~'] = 'is like';
 
 $lang['Exception schema missing'] = "Schema %s does not exist!";
 

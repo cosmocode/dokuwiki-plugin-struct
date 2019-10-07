@@ -183,7 +183,7 @@ class AggregationTable {
                     $column = $col->getTranslatedLabel();
                 }
             }
-            $fltrs[] = "$column '$value'";
+            $fltrs[] = sprintf('"%s" %s "%s"', $column, $this->helper->getLang("comparator $comp"), $value);
         }
 
         $this->renderer->doc .= '<div class="filter">';
