@@ -176,7 +176,14 @@ class AggregationTable {
         $fltrs = array();
         foreach($filters as $column => $filter) {
             list($comp, $value) = $filter;
-            $fltrs[] = $column . ' ' . $comp . ' ' . $value;
+
+            // display the filters in a human readable format
+            foreach ($this->columns as $col) {
+                if ($column === $col->getFullQualifiedLabel()) {
+                    $column = $col->getTranslatedLabel();
+                }
+            }
+            $fltrs[] = sprintf('"%s" %s "%s"', $column, $this->helper->getLang("comparator $comp"), $value);
         }
 
         $this->renderer->doc .= '<div class="filter">';
