@@ -1,9 +1,11 @@
 <?php
 use dokuwiki\plugin\struct\meta\Column;
 use dokuwiki\plugin\struct\meta\Schema;
+use dokuwiki\plugin\struct\meta\Search;
 use dokuwiki\plugin\struct\meta\StructException;
 use dokuwiki\plugin\struct\meta\Value;
 use dokuwiki\plugin\struct\meta\ValueValidator;
+use dokuwiki\plugin\struct\types\Increment;
 use dokuwiki\plugin\struct\types\Lookup;
 
 /**
@@ -42,9 +44,9 @@ class helper_plugin_struct_field extends helper_plugin_bureaucracy_field {
      * @return bool value was set successfully validated
      */
     protected function setVal($value) {
+        //don't validate placeholders here
         if(!$this->column) {
             $value = '';
-        //don't validate placeholders here
         } elseif($this->replace($value) == $value) {
             $validator = new ValueValidator();
             $this->error = !$validator->validateValue($this->column, $value);
@@ -53,6 +55,11 @@ class helper_plugin_struct_field extends helper_plugin_bureaucracy_field {
                     msg(hsc($error), -1);
                 }
             }
+        }
+
+        // handle empty (hidden) autoincrement field
+        if ($this->column->getType() instanceof Increment && ! $value) {
+            $value = $this->column->getType()->getMaxValue() + 1;
         }
 
         if($value === array() || $value === '') {
