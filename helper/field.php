@@ -58,7 +58,12 @@ class helper_plugin_struct_field extends helper_plugin_bureaucracy_field {
         if($value === array() || $value === '') {
             if(!isset($this->opt['optional'])) {
                 $this->error = true;
-                msg(sprintf($this->getLang('e_required'), hsc($this->column->getTranslatedLabel())), -1);
+                if ($this->column) {
+                    $label = $this->column->getTranslatedLabel();
+                } else {
+                    $label = $this->opt['label'];
+                }
+                msg(sprintf($this->getLang('e_required'), hsc($label)), -1);
             }
         }
 
