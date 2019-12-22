@@ -60,7 +60,7 @@ class admin_plugin_struct_assignments extends DokuWiki_Admin_Plugin {
                     $ok = $assignments->removePattern($assignment['assign'], $assignment['tbl']);
                     if(!$ok) msg('failed to remove pattern', -1);
                 } else if($INPUT->str('action') === 'add') {
-                    if($assignment['assign']{0} == '/') {
+                    if($assignment['assign'][0] == '/') {
                         if(@preg_match($assignment['assign'], null) === false) {
                             msg('Invalid regular expression. Pattern not saved', -1);
                         } else {
