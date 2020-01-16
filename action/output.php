@@ -20,6 +20,8 @@ if(!defined('DOKU_INC')) die();
  */
 class action_plugin_struct_output extends DokuWiki_Action_Plugin {
 
+    const DW2PDF_PLACEHOLDER_PREFIX = 'PLUGIN_STRUCT';
+
     /**
      * Registers a callback function for a given event
      *
@@ -28,6 +30,8 @@ class action_plugin_struct_output extends DokuWiki_Action_Plugin {
      */
     public function register(Doku_Event_Handler $controller) {
         $controller->register_hook('PARSER_HANDLER_DONE', 'AFTER', $this, 'handle_output');
+        $controller->register_hook('PLUGIN_DW2PDF_REPLACE', 'BEFORE', $this, 'replace_dw2pdf');
+        $controller->register_hook('PLUGIN_DW2PDF_REPLACE', 'AFTER', $this, 'cleanup_dw2pdf');
     }
 
     /**
@@ -71,6 +75,44 @@ class action_plugin_struct_output extends DokuWiki_Action_Plugin {
                 )
             )
         );
+    }
+
+    /**
+     * If the page has a schema assigned, add its struct data
+     * to dw2pdf's template replacements
+     *
+     * @param Doku_Event $event
+     * @param $param
+     */
+    public function replace_dw2pdf(Doku_Event $event, $param)
+    {
+        if (!$event->data['id'] || !page_exists($event->data['id'])) return;
+
+        /** @var helper_plugin_struct $helper */
+        $helper = plugin_load('helper', 'struct');
+        $data = $helper->getData($event->data['id']);
+
+        if(!$data) return;
+
+        foreach ($data as $schema => $fields) {
+            foreach ($fields as $field => $value) {
+                $placeholder = sprintf('@%s_%s_%s@', self::DW2PDF_PLACEHOLDER_PREFIX, $schema, $field);
+                $event->data['replace'][$placeholder] = is_array($value) ? implode(', ', $value) : $value;
+            }
+        }
+    }
+
+    /**
+     * Remove struct placeholders still present after replacement.
+     * Requested data was not found.
+     *
+     * @param Doku_Event $event
+     * @param $param
+     */
+    public function cleanup_dw2pdf(Doku_Event $event, $param)
+    {
+        $pattern = '~@' . self::DW2PDF_PLACEHOLDER_PREFIX . '_[^@]+?@~';
+        $event->data['content'] = preg_replace($pattern, '', $event->data['content']);
     }
 
 }
