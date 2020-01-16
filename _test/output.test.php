@@ -3,6 +3,7 @@
 namespace dokuwiki\plugin\struct\test;
 
 use dokuwiki\plugin\struct\meta;
+use Doku_Event;
 
 /**
  * @group plugin_struct
@@ -98,5 +99,42 @@ Log for [[page01]]:
         $this->assertEquals('header', $instructions[1][0]);
         $this->assertEquals('plugin', $instructions[2][0], 'The struct data should be rendererd after the first headline');
         $this->assertEquals('struct_output', $instructions[2][1][0]);
+    }
+
+    /**
+     * Replace and clean up template placeholders
+     * provided by a dw2pdf event
+     */
+    public function test_dw2pdf_replacements()
+    {
+        $page = 'page01';
+        $replace = ['@ID@' => $page];
+        $content = <<< HTML
+<table class="pdffooter">
+    <tr>
+        <td style="text-align: left">ID: @ID@</td>
+        <td style="text-align: center">Version: @ID@@@PLUGIN_STRUCT_schema1_version@~@PLUGIN_STRUCT_schema1_first@</td>
+        <td style="text-align: right">Second data: @PLUGIN_STRUCT_schema1_second@</td>
+    </tr>
+</table>
+HTML;
+        $processed = <<< HTML
+<table class="pdffooter">
+    <tr>
+        <td style="text-align: left">ID: page01</td>
+        <td style="text-align: center">Version: page01@~first data</td>
+        <td style="text-align: right">Second data: second data, more data, even more</td>
+    </tr>
+</table>
+HTML;
+
+        $evdata = ['id' => $page, 'replace' => &$replace, 'content' => &$content];
+        $event = new Doku_Event('PLUGIN_DW2PDF_REPLACE', $evdata);
+        if ($event->advise_before()) {
+            $content = str_replace(array_keys($replace), array_values($replace), $content);
+        }
+        $event->advise_after();
+
+        $this->assertEquals($processed, $content);
     }
 }
