@@ -20,6 +20,8 @@ class output_struct_test extends StructTest {
         parent::setUp();
 
         $this->loadSchemaJSON('schema1');
+        $this->loadSchemaJSON('schema_3');
+
         $page = 'page01';
         $includedPage = 'foo';
         $this->saveData(
@@ -30,6 +32,16 @@ class output_struct_test extends StructTest {
                 'second' => array('second data', 'more data', 'even more'),
                 'third' => 'third data',
                 'fourth' => 'fourth data'
+            )
+        );
+        $this->saveData(
+            $page,
+            'schema_3',
+            array(
+                'first_field' => 'first data',
+                'second field' => array('second data', 'more data', 'even more'),
+                'third%field' => 'third data',
+                'fourth.field?' => 'fourth data'
             )
         );
         $this->saveData(
@@ -113,8 +125,8 @@ Log for [[page01]]:
 <table class="pdffooter">
     <tr>
         <td style="text-align: left">ID: @ID@</td>
-        <td style="text-align: center">Version: @ID@@@PLUGIN_STRUCT_schema1_version@~@PLUGIN_STRUCT_schema1_first@</td>
-        <td style="text-align: right">Second data: @PLUGIN_STRUCT_schema1_second@</td>
+        <td style="text-align: center">Version: @ID@@@PLUGIN_STRUCT_schema_3_version@~@PLUGIN_STRUCT_schema_3_first_field@</td>
+        <td style="text-align: right">Second data: @PLUGIN_STRUCT_schema_3_second field@</td>
     </tr>
 </table>
 HTML;
