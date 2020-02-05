@@ -1,0 +1,102 @@
+{
+    "structversion": "2020-01-16",
+    "schema": "schema_3",
+    "id": "1",
+    "user": "",
+    "config": {
+        "allowed editors": "",
+        "label": {
+            "en": ""
+        }
+    },
+    "columns": [
+        {
+            "colref": 1,
+            "ismulti": false,
+            "isenabled": true,
+            "sort": 10,
+            "label": "first_field",
+            "class": "Text",
+            "config": {
+                "visibility": {
+                    "inpage": true,
+                    "ineditor": true
+                },
+                "prefix": "",
+                "postfix": "",
+                "label": {
+                    "en": ""
+                },
+                "hint": {
+                    "en": ""
+                }
+            }
+        },
+        {
+            "colref": 2,
+            "ismulti": true,
+            "isenabled": true,
+            "sort": 20,
+            "label": "second field",
+            "class": "Text",
+            "config": {
+                "visibility": {
+                    "inpage": true,
+                    "ineditor": true
+                },
+                "prefix": "",
+                "postfix": "",
+                "label": {
+                    "en": ""
+                },
+                "hint": {
+                    "en": ""
+                }
+            }
+        },
+        {
+            "colref": 3,
+            "ismulti": false,
+            "isenabled": true,
+            "sort": 30,
+            "label": "third%field",
+            "class": "Text",
+            "config": {
+                "visibility": {
+                    "inpage": true,
+                    "ineditor": true
+                },
+                "prefix": "",
+                "postfix": "",
+                "label": {
+                    "en": ""
+                },
+                "hint": {
+                    "en": ""
+                }
+            }
+        },
+        {
+            "colref": 4,
+            "ismulti": false,
+            "isenabled": true,
+            "sort": 40,
+            "label": "fourth.field?",
+            "class": "Text",
+            "config": {
+                "visibility": {
+                    "inpage": true,
+                    "ineditor": true
+                },
+                "prefix": "",
+                "postfix": "",
+                "label": {
+                    "en": ""
+                },
+                "hint": {
+                    "en": ""
+                }
+            }
+        }
+    ]
+}
