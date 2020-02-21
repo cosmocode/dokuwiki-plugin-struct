@@ -3,6 +3,7 @@
 /**
  * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
  *
+ * @author Nat <natdoub@hotmail.com>
  * @author salabdou <salabdou@gmail.com>
  * @author Schplurtz le Déboulonné <schplurtz@laposte.net>
  * @author Andreas Gohr, Michael Große <dokuwiki@cosmocode.de>
@@ -72,6 +73,8 @@ $lang['Validation Exception Url invalid'] = '%s n\'est pas un URL valide';
 $lang['Validation Exception Mail invalid'] = '%s n\'est pas une adresse email valide';
 $lang['Validation Exception invalid date format'] = 'doit être au format AAAA-MM-JJ';
 $lang['Validation Exception invalid datetime format'] = 'doit être au format AAAA-MM-JJ HH:MM';
+$lang['Validation Exception pastonly'] = 'ne doit pas avoir lieu dans le futur';
+$lang['Validation Exception futureonly'] = 'ne doit pas avoir lieu dans le passé';
 $lang['Validation Exception bad color specification'] = 'doit être au format #RRVVBB';
 $lang['Exception illegal option'] = 'L\'option \'<code>%s</code>\' est invalide pour ce type d\'agrégation.';
 $lang['Exception noschemas']   = 'Schéma non spécifié, impossible de charger des colonnes';
@@ -93,6 +96,15 @@ $lang['admin_csvdone']         = 'Fichier CSV importé';
 $lang['admin_csvhelp']         = 'Veuillez vous référer au manuel sur l\'importation CSV pour les détails du format. (link to french struct doc)';
 $lang['tablefilteredby']       = 'Filtre : %s';
 $lang['tableresetfilter']      = 'Tout montrer (Supprimer les filtres/le tri)';
+$lang['comparator =']          = 'égale';
+$lang['comparator <']          = 'est inférieur à';
+$lang['comparator >']          = 'est supérieur à';
+$lang['comparator <=']         = 'est inférieur ou égal';
+$lang['comparator >=']         = 'est supérieur ou égal';
+$lang['comparator !=']         = 'n\'est pas égal à';
+$lang['comparator <>']         = 'n\'est pas égal à';
+$lang['comparator !~']         = 'n\'est pas comme';
+$lang['comparator *~']         = 'est comme';
 $lang['Exception schema missing'] = 'Le schéma %s n\'existe pas !';
 $lang['no_lookup_for_page']    = 'Vous ne pouvez pas utiliser l\'éditeur de consultation sur une page de schéma!';
 $lang['lookup new entry']      = 'Créer une nouvelle entrée';
