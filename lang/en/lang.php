@@ -13,8 +13,7 @@ $lang['headline'] = 'Structured Data';
 
 $lang['page schema'] = 'Page Schema:';
 $lang['lookup schema'] = 'Lookup Schema:';
-$lang['edithl page'] = 'Editing Page Schema <i>%s</i>';
-$lang['edithl lookup'] = 'Editing Lookup Schema <i>%s</i>';
+$lang['edithl'] = 'Editing schema <i>%s</i>';
 $lang['create'] = 'Create new Schema';
 $lang['schemaname'] = 'Schema Name:';
 $lang['save'] = 'Save';

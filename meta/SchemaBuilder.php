@@ -57,7 +57,7 @@ class SchemaBuilder {
     public function __construct($table, $data) {
         $this->table = $table;
         $this->data = $data;
-        $this->oldschema = new Schema($table, 0, $data['islookup']);
+        $this->oldschema = new Schema($table, 0);
 
         $this->helper = plugin_load('helper', 'struct_db');
         $this->sqlite = $this->helper->getDB();
@@ -78,11 +78,7 @@ class SchemaBuilder {
         $ok = true;
         // create the data table if new schema
         if(!$this->oldschema->getId()) {
-            if($this->oldschema->isLookup()) {
-                $ok = $this->newLookupTable();
-            } else {
-                $ok = $this->newDataTable();
-            }
+            $ok = $this->newDataTable();
         }
 
         // create a new schema
@@ -149,7 +145,8 @@ class SchemaBuilder {
 
         /** @noinspection SqlResolve */
         $sql = "INSERT INTO schemas (tbl, ts, islookup, user, config) VALUES (?, ?, ?, ?, ?)";
-        $this->sqlite->query($sql, $this->table, $this->time, (int) $this->oldschema->isLookup(), $this->user, $config);
+        // FIXME magic 0 for islookup
+        $this->sqlite->query($sql, $this->table, $this->time, 0, $this->user, $config);
         $res = $this->sqlite->query('SELECT last_insert_rowid()');
         $this->newschemaid = $this->sqlite->res2single($res);
         $this->sqlite->res_close($res);
@@ -208,6 +205,7 @@ class SchemaBuilder {
 
     /**
      * Write the latest value from an entry in a data_ table to the corresponding multi_table
+     * FIXME handle rid
      *
      * @param string $table
      * @param int    $colref
@@ -302,57 +300,27 @@ class SchemaBuilder {
         $ok = true;
 
         $tbl = 'data_' . $this->table;
+        // FIXME default latest in data table is 1 for lookups, 0 for pages
+        // FIXME because lookup data is never versioned?
         $sql = "CREATE TABLE $tbl (
-                    pid NOT NULL,
-                    rev INTEGER NOT NULL,
+                    pid TEXT DEFAULT NULL,
+                    rid INTEGER,
+                    rev INTEGER,
                     latest BOOLEAN NOT NULL DEFAULT 0,
-                    PRIMARY KEY(pid, rev)
+                    PRIMARY KEY(pid, rid, rev)
                 )";
         $ok = $ok && (bool) $this->sqlite->query($sql);
 
         $tbl = 'multi_' . $this->table;
         $sql = "CREATE TABLE $tbl (
                     colref INTEGER NOT NULL,
-                    pid NOT NULL,
-                    rev INTEGER NOT NULL,
+                    pid TEXT,
+                    rid INTEGER,
+                    rev INTEGER,
                     latest INTEGER NOT NULL DEFAULT 0,
                     row INTEGER NOT NULL,
                     value,
-                    PRIMARY KEY(colref, pid, rev, row)
-                );";
-        $ok = $ok && (bool) $this->sqlite->query($sql);
-
-        return $ok;
-    }
-
-    /**
-     * Creates a new lookup table with no columns
-     *
-     * This is basically the same as @see newDataTable() but sets
-     * different primary keys and types
-     *
-     * @return bool
-     */
-    protected function newLookupTable() {
-        $ok = true;
-
-        $tbl = 'data_' . $this->table;
-        $sql = "CREATE TABLE $tbl (
-                    pid INTEGER PRIMARY KEY,
-                    rev INTEGER NOT NULL DEFAULT 0,
-                    latest BOOLEAN NOT NULL DEFAULT 1
-                )";
-        $ok = $ok && (bool) $this->sqlite->query($sql);
-
-        $tbl = 'multi_' . $this->table;
-        $sql = "CREATE TABLE $tbl (
-                    colref INTEGER NOT NULL,
-                    pid INTEGER NOT NULL,
-                    rev INTEGER NOT NULL DEFAULT 0,
-                    latest INTEGER NOT NULL DEFAULT 0,
-                    row INTEGER NOT NULL,
-                    value,
-                    PRIMARY KEY(colref, pid, row)
+                    PRIMARY KEY(colref, pid, rid, rev, row)
                 );";
         $ok = $ok && (bool) $this->sqlite->query($sql);
 

@@ -17,11 +17,11 @@ class CSVPageImporter extends CSVImporter {
      * @param string $table
      * @param string $file
      */
-    public function __construct($table, $file) {
-        parent::__construct($table, $file);
-
-        if($this->schema->isLookup()) throw new StructException($table.' is not a page schema');
-    }
+//    public function __construct($table, $file) {
+//        parent::__construct($table, $file);
+//
+//        if($this->schema->isLookup()) throw new StructException($table.' is not a page schema');
+//    }
 
     /**
      * Import page schema only when the pid header is present.

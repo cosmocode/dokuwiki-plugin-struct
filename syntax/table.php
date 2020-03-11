@@ -68,6 +68,9 @@ class syntax_plugin_struct_table extends DokuWiki_Syntax_Plugin {
         try {
             $parser = new ConfigParser($lines);
             $config = $parser->getConfig();
+
+            $config = $this->addTypeFilter($config);
+
             return $config;
         } catch(StructException $e) {
             msg($e->getMessage(), -1, $e->getLine(), $e->getFile());
@@ -112,5 +115,17 @@ class syntax_plugin_struct_table extends DokuWiki_Syntax_Plugin {
         }
 
         return true;
+    }
+
+    /**
+     * Filter based on primary key columns
+     *
+     * @param array $config
+     * @return array
+     */
+    protected function addTypeFilter($config)
+    {
+        $config['filter'][] = ['%rowid%', '=', (string)\dokuwiki\plugin\struct\meta\AccessTableData::DEFAULT_PAGE_RID, 'AND'];
+        return $config;
     }
 }

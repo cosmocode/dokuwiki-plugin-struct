@@ -39,10 +39,25 @@ class syntax_plugin_struct_lookup extends syntax_plugin_struct_table {
         $config = parent::handle($match, $state, $pos, $handler);
         if(is_null($config)) return null;
 
+        $config = $this->addTypeFilter($config);
+
         // adjust some things for the lookup editor
         $config['cols'] = array('*'); // always select all columns
         if(isset($config['rownumbers'])) unset($config['rownumbers']); // this annoying to update dynamically
 
+        return $config;
+    }
+
+    /**
+     * Filter based on primary key columns
+     *
+     * @param array $config
+     * @return array
+     */
+    protected function addTypeFilter($config)
+    {
+        $config['filter'][] = ['%rowid%', '!=', (string)\dokuwiki\plugin\struct\meta\AccessTableData::DEFAULT_PAGE_RID, 'AND'];
+        $config['filter'][] = ['%pageid%', '=*', '^(?![\s\S])', 'AND'];
         return $config;
     }
 }

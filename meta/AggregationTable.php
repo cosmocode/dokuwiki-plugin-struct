@@ -45,6 +45,7 @@ class AggregationTable {
      * @var string[] the result PIDs for each row
      */
     protected $resultPIDs;
+    protected $resultRids;
 
     /**
      * @var array for summing up columns
@@ -83,6 +84,7 @@ class AggregationTable {
         $this->result = $this->searchConfig->execute();
         $this->resultCount = $this->searchConfig->getCount();
         $this->resultPIDs = $this->searchConfig->getPids();
+        $this->resultRids = $this->searchConfig->getRids();
         $this->helper = plugin_load('helper', 'struct_config');
     }
 
@@ -360,8 +362,9 @@ class AggregationTable {
         // add data attribute for inline edit
         if($this->mode == 'xhtml') {
             $pid = $this->resultPIDs[$rownum];
+            $rid = $this->resultRids[$rownum];
             $this->renderer->doc = substr(rtrim($this->renderer->doc), 0, -1); // remove closing '>'
-            $this->renderer->doc .= ' data-pid="' . hsc($pid) . '">';
+            $this->renderer->doc .= ' data-pid="' . hsc($pid) . '" data-rid="' . hsc($rid) . '">';
         }
 
         // row number column

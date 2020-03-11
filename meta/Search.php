@@ -51,6 +51,8 @@ class Search {
     protected $count = -1;
     /** @var  string[] the PIDs of the result rows */
     protected $result_pids = null;
+    /** @var  array the row ids of the result rows */
+    protected $result_rids = [];
 
     /**
      * Search constructor.
@@ -75,14 +77,15 @@ class Search {
             throw new StructException('schema missing', $table);
         }
 
-        if($this->schemas &&
-            (
-                $schema->isLookup() ||
-                reset($this->schemas)->isLookup()
-            )
-        ) {
-            throw new StructException('nolookupmix');
-        }
+        // FIXME is the mixing still relevant?
+//        if($this->schemas &&
+//            (
+//                $schema->isLookup() ||
+//                reset($this->schemas)->isLookup()
+//            )
+//        ) {
+//            throw new StructException('nolookupmix');
+//        }
 
         $this->schemas[$schema->getTable()] = $schema;
         if($alias) $this->aliases[$alias] = $schema->getTable();
@@ -266,6 +269,18 @@ class Search {
     }
 
     /**
+     * Returns the rid associated with each result row
+     *
+     * Important: this may only be called after running @see execute()
+     *
+     * @return array
+     */
+    public function getRids() {
+        if($this->result_rids === null) throw new StructException('rids are only accessible after executing the search');
+        return $this->result_rids;
+    }
+
+    /**
      * Execute this search and return the result
      *
      * The result is a two dimensional array of Value()s.
@@ -314,6 +329,7 @@ class Search {
             }
 
             $this->result_pids[] = $row['PID'];
+            $this->result_rids[] = $row['rid'];
             $result[] = $resrow;
         }
 
@@ -342,7 +358,8 @@ class Search {
             } else {
                 // first table
 
-                if(!$schema->isLookup()) {
+                // FIXME this breaks page search, a different check is needed
+                if(false) {
                     $QB->addTable('schema_assignments');
                     $QB->filters()->whereAnd("$datatable.pid = schema_assignments.pid");
                     $QB->filters()->whereAnd("schema_assignments.tbl = '{$schema->getTable()}'");
@@ -352,6 +369,7 @@ class Search {
                 }
 
                 $QB->addTable($datatable);
+                $QB->addSelectColumn($datatable, 'rid');
                 $QB->addSelectColumn($datatable, 'pid', 'PID');
                 $QB->addGroupByColumn($datatable, 'pid');
 
@@ -513,8 +531,9 @@ class Search {
         if(!$this->schemas) throw new StructException('noschemas');
         $schema_list = array_keys($this->schemas);
 
+        // FIXME check for page schema?
         // add "fake" column for special col
-        if(!(reset($this->schemas)->isLookup())) {
+//        if(!(reset($this->schemas)->isLookup())) {
             if($colname == '%pageid%') {
                 return new PageColumn(0, new Page(), $schema_list[0]);
             }
@@ -530,11 +549,11 @@ class Search {
             if ($colname == '%lastsummary%') {
                 return new SummaryColumn(0, new AutoSummary(), $schema_list[0]);
             }
-        } else {
+//        } else {
             if($colname == '%rowid%') {
                 return new RowColumn(0, new Decimal(), $schema_list[0]);
             }
-        }
+//        }
 
         list($colname, $table) = $this->resolveColumn($colname);
 

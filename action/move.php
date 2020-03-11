@@ -185,9 +185,11 @@ class action_plugin_struct_move extends DokuWiki_Action_Plugin {
         $tconf = $col->getType()->getConfig();
         $ref = new Schema($tconf['schema']);
         if(!$ref->getId()) return; // this schema does not exist
-        if($ref->isLookup()) return; // a lookup is referenced, nothing to do
+        // FIXME does this make sense at all? it's always a lookup, isn't it?
+        if(!$ref->getTimeStamp()) return; // a lookup is referenced, nothing to do
+//        var_dump($ref) && die();
 
-        $this->updateColumnID($schema, $col, $old, $new);
+//        $this->updateColumnID($schema, $col, $old, $new);
     }
 
 }

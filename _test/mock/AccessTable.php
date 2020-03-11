@@ -14,11 +14,12 @@ abstract class AccessTable extends meta\AccessTable {
      * @return meta\AccessTableLookup|AccessTableData
      */
     public static function bySchema(Schema $schema, $pid, $ts = 0) {
-        if($schema->isLookup()) {
-            return new meta\AccessTableLookup($schema, $pid, $ts); // FIXME not mocked, yet
-        } else {
-            return new AccessTableData($schema, $pid, $ts);
-        }
+        // FIXME will we still need that?
+//        if($schema->isLookup()) {
+//            return new meta\AccessTableLookup($schema, $pid, $ts); // FIXME not mocked, yet
+//        } else {
+//        }
+        return new AccessTableData($schema, $pid, $ts);
     }
 
     public static function byTableName($tablename, $pid, $ts = 0) {

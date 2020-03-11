@@ -10,6 +10,7 @@ $lang['menu_assignments']      = 'Struct Přiřazení schémat';
 $lang['headline']              = 'Strukturovaná data';
 $lang['page schema']           = '\'Stránkové schéma:';
 $lang['lookup schema']         = 'Vyhledávací schéma:';
+$lang['edithl']                = 'Editování schematu <i>%s</i>';
 $lang['edithl page']           = 'Editování stránkového schematu <i>%s</i>';
 $lang['edithl lookup']         = 'Editování vyhledávacího schematu <i>%s</i>';
 $lang['create']                = 'Vytvořit nové schéma';

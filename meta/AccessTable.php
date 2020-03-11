@@ -7,6 +7,7 @@ abstract class AccessTable {
     /** @var  Schema */
     protected $schema;
     protected $pid;
+    protected $rid;
     protected $labels = array();
     protected $ts     = 0;
     /** @var \helper_plugin_sqlite */
@@ -21,14 +22,14 @@ abstract class AccessTable {
      * @param Schema $schema schema to load
      * @param string|int $pid Page or row id to access
      * @param int $ts Time at which the data should be read or written, 0 for now
+     * @param int $rid
      * @return AccessTableData|AccessTableLookup
      */
-    public static function bySchema(Schema $schema, $pid, $ts = 0) {
-        if($schema->isLookup()) {
-            return new AccessTableLookup($schema, $pid, $ts);
-        } else {
-            return new AccessTableData($schema, $pid, $ts);
+    public static function bySchema(Schema $schema, $pid, $ts = 0, $rid = 0) {
+        if (!$pid && $ts === 0) {
+            return new AccessTableLookup($schema, $pid, $ts, $rid);
         }
+        return new AccessTableData($schema, $pid, $ts, $rid);
     }
 
     /**
@@ -37,11 +38,12 @@ abstract class AccessTable {
      * @param string $tablename schema to load
      * @param string|int $pid Page or row id to access
      * @param int $ts Time at which the data should be read or written, 0 for now
+     * @param int $rid
      * @return AccessTableData|AccessTableLookup
      */
-    public static function byTableName($tablename, $pid, $ts = 0) {
+    public static function byTableName($tablename, $pid, $ts = 0, $rid = 0) {
         $schema = new Schema($tablename, $ts);
-        return self::bySchema($schema, $pid, $ts);
+        return self::bySchema($schema, $pid, $ts, $rid);
     }
 
     /**
@@ -50,8 +52,9 @@ abstract class AccessTable {
      * @param Schema $schema The schema valid at $ts
      * @param string|int $pid
      * @param int $ts Time at which the data should be read or written, 0 for now
+     * @param int $rid Row id: 0 for pages, autoincremented for other types
      */
-    public function __construct(Schema $schema, $pid, $ts = 0) {
+    public function __construct(Schema $schema, $pid, $ts = 0, $rid = 0) {
         /** @var \helper_plugin_struct_db $helper */
         $helper = plugin_load('helper', 'struct_db');
         $this->sqlite = $helper->getDB();
@@ -62,6 +65,7 @@ abstract class AccessTable {
 
         $this->schema = $schema;
         $this->pid = $pid;
+        $this->rid = $rid;
         $this->setTimestamp($ts);
         foreach($this->schema->getColumns() as $col) {
             $this->labels[$col->getColref()] = $col->getType()->getLabel();
@@ -84,6 +88,15 @@ abstract class AccessTable {
      */
     public function getPid() {
         return $this->pid;
+    }
+
+    /**
+     * The current rid
+     *
+     * @return int|string
+     */
+    public function getRid() {
+        return $this->rid;
     }
 
     /**

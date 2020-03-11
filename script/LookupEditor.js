@@ -21,17 +21,17 @@ var LookupEditor = function (idx, table) {
                 return;
             }
 
-            var pid = $me.data('pid');
+            var rid = $me.data('rid');
 
             // empty header cells
-            if (!pid) {
+            if (!rid) {
                 $me.append('<th class="action"></th>');
                 return;
             }
 
             // delete buttons for rows
             var $td = jQuery('<td class="action"></td>');
-            if (pid === '') return;
+            if (rid === '') return;
 
             var $btn = jQuery('<button><i class="ui-icon ui-icon-trash"></i></button>')
                 .addClass('delete')
@@ -45,7 +45,7 @@ var LookupEditor = function (idx, table) {
                         {
                             call: 'plugin_struct_lookup_delete',
                             schema: schema,
-                            pid: pid,
+                            rid: rid,
                             sectok: $me.parents('.structlookup').find('.struct_entry_form input[name=sectok]').val()
                         }
                     )

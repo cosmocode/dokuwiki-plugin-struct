@@ -101,7 +101,8 @@ class Tag extends AbstractMultiBaseType {
         }
 
         $schema = new Schema($context->getTable());
-        if (!$schema->isLookup()) {
+        // FIXME do not break lookup autocompletion, whatever that is
+        if (true) {
             $sql .= "AND PAGEEXISTS(D.pid) = 1\n";
             $sql .= "AND GETACCESSLEVEL(D.pid) > 0\n";
         }

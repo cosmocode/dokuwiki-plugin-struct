@@ -11,19 +11,7 @@ namespace dokuwiki\plugin\struct\meta;
  */
 class AccessTableData extends AccessTable {
 
-    /**
-     * AccessTableData constructor
-     *
-     * @param Schema $schema Which schema to access
-     * @param string $pid The page of which the data is for
-     * @param int $ts Time at which the data should be read or written, 0 for now
-     */
-    public function __construct(Schema $schema, $pid, $ts = 0) {
-        parent::__construct($schema, $pid, $ts);
-        if($this->schema->isLookup()) {
-            throw new StructException('wrong schema type. use factory methods!');
-        }
-    }
+    const DEFAULT_PAGE_RID = 0;
 
     /**
      * adds an empty data set for this schema and page
@@ -64,9 +52,10 @@ class AccessTableData extends AccessTable {
 
         $colrefs = array_flip($this->labels);
         $now = $this->ts;
-        $opt = array($this->pid, $now, 1);
+        $opt = array(self::DEFAULT_PAGE_RID, $this->pid, $now, 1);
         $multiopts = array();
-        $singlecols = 'pid, rev, latest';
+        $singlecols = 'rid, pid, rev, latest';
+
         foreach ($data as $colname => $value) {
             if(!isset($colrefs[$colname])) {
                 throw new StructException("Unknown column %s in schema.", hsc($colname));
@@ -87,9 +76,11 @@ class AccessTableData extends AccessTable {
                 $opt[] = $value;
             }
         }
-        $singlesql = "INSERT INTO $stable ($singlecols) VALUES (" . trim(str_repeat('?,',count($opt)),',') . ")";
+
+        $singlesql = "INSERT INTO $stable ($singlecols) VALUES (" . trim(str_repeat('?,',count($opt)),',') . ');';
+
         /** @noinspection SqlResolve */
-        $multisql = "INSERT INTO $mtable (latest, rev, pid, colref, row, value) VALUES (?, ?,?,?,?,?)";
+        $multisql = "INSERT INTO $mtable (latest, rev, pid, rid, colref, row, value) VALUES (?,?,?,?,?,?)";
 
         $this->sqlite->query('BEGIN TRANSACTION');
 
@@ -105,7 +96,7 @@ class AccessTableData extends AccessTable {
 
         // insert multi values
         foreach ($multiopts as $multiopt) {
-            $multiopt = array_merge(array(1, $now, $this->pid,), $multiopt);
+            $multiopt = array_merge(array(1, $now, $this->pid, self::DEFAULT_PAGE_RID), $multiopt);
             $ok = $ok && $this->sqlite->query($multisql, $multiopt);
         }
 

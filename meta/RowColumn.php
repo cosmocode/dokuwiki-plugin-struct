@@ -27,6 +27,14 @@ class RowColumn extends PageColumn {
     }
 
     /**
+     * @param bool $enforceSingleColumn ignored
+     * @return string
+     */
+    public function getColName($enforceSingleColumn = true) {
+        return 'rid';
+    }
+
+    /**
      * @return string preconfigured label
      */
     public function getTranslatedLabel() {

@@ -85,16 +85,16 @@ class action_plugin_struct_lookup extends DokuWiki_Action_Plugin
     {
         global $INPUT;
         $tablename = $INPUT->str('schema');
-        $pid = $INPUT->int('pid');
-        if (!$pid) {
-            throw new StructException('No pid given');
+        $rid = $INPUT->int('rid');
+        if (!$rid) {
+            throw new StructException('No row id given');
         }
         if (!$tablename) {
             throw new StructException('No schema given');
         }
         action_plugin_struct_inline::checkCSRF();
 
-        $schemadata = AccessTable::byTableName($tablename, $pid);
+        $schemadata = AccessTable::byTableName($tablename, 0, 0, $rid);
         if (!$schemadata->getSchema()->isEditable()) {
             throw new StructException('lookup delete error: no permission for schema');
         }
@@ -118,9 +118,9 @@ class action_plugin_struct_lookup extends DokuWiki_Action_Plugin
         $helper = plugin_load('helper', 'struct');
         $helper->saveLookupData($access, $data);
 
-        $pid = $access->getPid();
+        $rid = $access->getRid();
         $config = json_decode($INPUT->str('searchconf'), true);
-        $config['filter'] = array(array('%rowid%', '=', $pid, 'AND'));
+        $config['filter'] = array(array('%rowid%', '=', $rid, 'AND'));
         $lookup = new LookupTable(
             '', // current page doesn't matter
             'xhtml',

@@ -116,7 +116,7 @@ class action_plugin_struct_inline extends DokuWiki_Action_Plugin {
             throw new StructException('inline save error: init');
         }
         self::checkCSRF();
-        if(!$this->schemadata->getSchema()->isLookup()) {
+        if(!$this->schemadata->getRid()) {
             $this->checkPage();
             $assignments = Assignments::getInstance();
             $tables = $assignments->getPageAssignments($this->pid, true);
@@ -140,7 +140,7 @@ class action_plugin_struct_inline extends DokuWiki_Action_Plugin {
         $tosave[$this->column->getLabel()] = $value;
 
         // save
-        if($this->schemadata->getSchema()->isLookup()) {
+        if($this->schemadata->getRid() && !$this->schemadata->getPid()) {
             $revision = 0;
         } else {
             $revision = helper_plugin_struct::createPageRevision($this->pid, 'inline edit');
@@ -151,7 +151,7 @@ class action_plugin_struct_inline extends DokuWiki_Action_Plugin {
             if(!$this->schemadata->saveData($tosave)) {
                 throw new StructException('saving failed');
             }
-            if(!$this->schemadata->getSchema()->isLookup()) {
+            if(!$this->schemadata->getRid()) {
                 // make sure this schema is assigned
                 /** @noinspection PhpUndefinedVariableInspection */
                 $assignments->assignPageSchema(

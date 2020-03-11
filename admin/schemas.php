@@ -147,15 +147,10 @@ class admin_plugin_struct_schemas extends DokuWiki_Admin_Plugin {
 
         $table = Schema::cleanTableName($INPUT->str('table'));
         if($table) {
-            $schema = new Schema($table, 0, $INPUT->bool('lookup'));
-            if($schema->isLookup()) {
-                $hl = 'edithl lookup';
-            } else {
-                $hl = 'edithl page';
-            }
+            $schema = new Schema($table, 0);
 
             echo $this->locale_xhtml('editor_edit');
-            echo '<h2>' . sprintf($this->getLang($hl), hsc($table)) . '</h2>';
+            echo '<h2>' . sprintf($this->getLang('edithl'), hsc($table)) . '</h2>';
 
             echo '<ul class="tabs" id="plugin__struct_tabs">';
             /** @noinspection HtmlUnknownAnchorTarget */
@@ -189,7 +184,6 @@ class admin_plugin_struct_schemas extends DokuWiki_Admin_Plugin {
         $form->setHiddenField('do', 'admin');
         $form->setHiddenField('page', 'struct_schemas');
         $form->setHiddenField('table', $schema->getTable());
-        $form->setHiddenField('lookup', $schema->isLookup());
 
         $form->addFieldsetOpen($this->getLang('export'));
         $form->addButton('export', $this->getLang('btn_export'));
@@ -254,8 +248,6 @@ class admin_plugin_struct_schemas extends DokuWiki_Admin_Plugin {
         $form->setHiddenField('do', 'admin');
         $form->setHiddenField('page', 'struct_schemas');
         $form->addTextInput('table', $this->getLang('schemaname'));
-        $form->addRadioButton('lookup', $this->getLang('page schema'))->val('0')->attr('checked', 'checked');
-        $form->addRadioButton('lookup', $this->getLang('lookup schema'))->val('1');
         $form->addButton('', $this->getLang('save'));
         $form->addHTML('<p>' . $this->getLang('createhint') . '</p>'); // FIXME is that true? we probably could
         $form->addFieldsetClose();
@@ -286,9 +278,8 @@ class admin_plugin_struct_schemas extends DokuWiki_Admin_Plugin {
         );
         $toc[] = html_mktocitem($slink, $this->getLang('menu'), 0, '');
 
-        $tables = Schema::getAll('page');
+        $tables = Schema::getAll();
         if($tables) {
-            $toc[] = html_mktocitem($slink, $this->getLang('page schema'), 1, '');
             foreach($tables as $table) {
                 $link = wl(
                     $ID, array(
@@ -298,23 +289,7 @@ class admin_plugin_struct_schemas extends DokuWiki_Admin_Plugin {
                        )
                 );
 
-                $toc[] = html_mktocitem($link, hsc($table), 2, '');
-            }
-        }
-
-        $tables = Schema::getAll('lookup');
-        if($tables) {
-            $toc[] = html_mktocitem($slink, $this->getLang('lookup schema'), 1, '');
-            foreach($tables as $table) {
-                $link = wl(
-                    $ID, array(
-                           'do' => 'admin',
-                           'page' => 'struct_schemas',
-                           'table' => $table
-                       )
-                );
-
-                $toc[] = html_mktocitem($link, hsc($table), 2, '');
+                $toc[] = html_mktocitem($link, hsc($table), 1, '');
             }
         }
 

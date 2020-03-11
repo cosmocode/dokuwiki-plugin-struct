@@ -32,9 +32,6 @@ class Schema {
     /** @var string name of the associated table */
     protected $table = '';
 
-    /** @var bool is this a lookup schema? */
-    protected $islookup = false;
-
     /**
      * @var string the current checksum of this schema
      */
@@ -60,9 +57,8 @@ class Schema {
      *
      * @param string $table The table this schema is for
      * @param int $ts The timestamp for when this schema was valid, 0 for current
-     * @param bool $islookup only used when creating a new schema, makes the new schema a lookup
      */
-    public function __construct($table, $ts = 0, $islookup = false) {
+    public function __construct($table, $ts = 0) {
         $baseconfig = array('allowed editors' => '');
 
         /** @var \helper_plugin_struct_db $helper */
@@ -99,11 +95,8 @@ class Schema {
             $this->id = $result['id'];
             $this->user = $result['user'];
             $this->chksum = isset($result['chksum']) ? $result['chksum'] : '';
-            $this->islookup = $result['islookup'];
             $this->ts = $result['ts'];
             $config = json_decode($result['config'], true);
-        } else {
-            $this->islookup = $islookup;
         }
         $this->sqlite->res_close($res);
         $this->config = array_merge($baseconfig, $config);
@@ -225,7 +218,7 @@ class Schema {
         $this->sqlite->query($sql, $this->table);
 
         $sql = "SELECT T.id
-                  FROM types T, schema_cols SC, schemas S 
+                  FROM types T, schema_cols SC, schemas S
                  WHERE T.id = SC.tid
                    AND SC.sid = S.id
                    AND S.tbl = ?";
@@ -233,7 +226,7 @@ class Schema {
         $this->sqlite->query($sql, $this->table);
 
         $sql = "SELECT id
-                  FROM schemas 
+                  FROM schemas
                  WHERE tbl = ?";
         $sql = "DELETE FROM schema_cols WHERE sid IN ($sql)";
         $this->sqlite->query($sql, $this->table);
@@ -286,13 +279,6 @@ class Schema {
      */
     public function getTimeStamp() {
         return $this->ts;
-    }
-
-    /**
-     * @return bool is this a lookup schema?
-     */
-    public function isLookup() {
-        return $this->islookup;
     }
 
     /**

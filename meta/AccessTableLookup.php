@@ -17,24 +17,25 @@ class AccessTableLookup extends AccessTable {
      * @param Schema $schema Which schema to access
      * @param int $pid the row identifier (0 for new row)
      * @param int $ts Time at which the data should be read or written, 0 for now
+     * @param int $rid
      */
-    public function __construct(Schema $schema, $pid = 0, $ts = 0) {
-        parent::__construct($schema, $pid, $ts);
-        if(!$this->schema->isLookup()) {
-            throw new StructException('wrong schema type. use factory methods!');
-        }
+    public function __construct(Schema $schema, $pid = 0, $ts = 0, $rid = 0) {
+        parent::__construct($schema, $pid, $ts, $rid);
+//        if(!$this->schema->isLookup()) {
+//            throw new StructException('wrong schema type. use factory methods!');
+//        }
     }
 
     /**
      * Remove the current data
      */
     public function clearData() {
-        if(!$this->pid) return; // no data
+        if(!$this->rid) return; // no data
 
         /** @noinspection SqlResolve */
-        $sql = "DELETE FROM ? WHERE pid = ?";
-        $this->sqlite->query($sql, 'data_'.$this->schema->getTable(), $this->pid);
-        $this->sqlite->query($sql, 'multi_'.$this->schema->getTable(), $this->pid);
+        $sql = 'DELETE FROM ? WHERE rid = ?';
+        $this->sqlite->query($sql, 'data_'.$this->schema->getTable(), $this->rid);
+        $this->sqlite->query($sql, 'multi_'.$this->schema->getTable(), $this->rid);
     }
 
     /**
@@ -58,13 +59,8 @@ class AccessTableLookup extends AccessTable {
         if($isempty) return false;
 
 
-        $singlecols = array();
-        $opt = array();
-
-        if($this->pid) {
-            $singlecols[] = 'pid';
-            $opt[] = $this->pid;
-        }
+        $singlecols = ['rev', 'latest'];
+        $opt = [0, 1];
 
         $colrefs = array_flip($this->labels);
         $multiopts = array();
@@ -88,9 +84,13 @@ class AccessTableLookup extends AccessTable {
                 $opt[] = $value;
             }
         }
-        $singlesql = "REPLACE INTO $stable (" . join(',', $singlecols) . ") VALUES (" . trim(str_repeat('?,', count($opt)), ',') . ")";
+
+        $ridSingle = "(SELECT (COALESCE(MAX(rid), 0 ) + 1) FROM $stable)";
+        $ridMulti = "(SELECT (COALESCE(MAX(rid), 0 ) + 1) FROM $mtable)";
+
+        $singlesql = "REPLACE INTO $stable (pid, rid, " . join(',', $singlecols) . ") VALUES (NULL, $ridSingle, " . trim(str_repeat('?,', count($opt)), ',') . ")";
         /** @noinspection SqlResolve */
-        $multisql = "REPLACE INTO $mtable (pid, colref, row, value) VALUES (?,?,?,?)";
+        $multisql = "REPLACE INTO $mtable (pid, rid, colref, row, value) VALUES (NULL, $ridMulti, ?,?,?)";
 
         $this->sqlite->query('BEGIN TRANSACTION');
         $ok = true;
@@ -98,17 +98,17 @@ class AccessTableLookup extends AccessTable {
         // insert single values
         $ok = $ok && $this->sqlite->query($singlesql, $opt);
 
-        // get new pid if this is a new insert
-        if($ok && !$this->pid) {
+        // get new rid if this is a new insert
+        if($ok && !$this->rid) {
             $res = $this->sqlite->query('SELECT last_insert_rowid()');
-            $this->pid = $this->sqlite->res2single($res);
+            $this->rid = $this->sqlite->res2single($res);
             $this->sqlite->res_close($res);
-            if(!$this->pid) $ok = false;
+            if(!$this->rid) $ok = false;
         }
 
         // insert multi values
         if($ok) foreach($multiopts as $multiopt) {
-            $multiopt = array_merge(array($this->pid,), $multiopt);
+            $multiopt = array_merge(array($this->rid,), $multiopt);
             $ok = $ok && $this->sqlite->query($multisql, $multiopt);
         }
 

@@ -109,10 +109,10 @@ class helper_plugin_struct extends DokuWiki_Plugin {
     /**
      * Save data row for a lookup schema
      *
-     * @param AccessTableLookup $access the table into which to save the data
+     * @param AccessTable        $access the table into which to save the data
      * @param array             $data   data to be saved in the form of [columnName => 'data']
      */
-    public function saveLookupData(AccessTableLookup $access, $data)
+    public function saveLookupData(AccessTable $access, $data)
     {
         if(!$access->getSchema()->isEditable()) {
             throw new StructException('lookup save error: no permission for schema');
