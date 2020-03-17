@@ -344,7 +344,20 @@ class AggregationTable {
      */
     protected function renderResult() {
         foreach($this->result as $rownum => $row) {
-            $this->renderResultRow($rownum, $row);
+            $data = array(
+                'id' => $this->id,
+                'mode' => $this->mode,
+                'renderer' => $this->renderer,
+                'searchConfig' => $this->searchConfig,
+                'data' => $this->data,
+                'rownum' => &$rownum,
+                'row' => &$row,
+            );
+            $evt = new \Doku_Event('PLUGIN_STRUCT_AGGREGATIONTABLE_RENDERRESULTROW', $data);
+            if($evt->advise_before()) {
+                $this->renderResultRow($rownum, $row);
+            }
+            $evt->advise_after();
         }
     }
 
