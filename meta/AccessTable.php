@@ -17,17 +17,20 @@ abstract class AccessTable {
     protected $opt_skipempty = false;
 
     /**
-     * Factory Method to access a data or lookup table
+     * Factory method returning the appropriate data accessor (page, lookup or serial)
      *
      * @param Schema $schema schema to load
      * @param string|int $pid Page or row id to access
      * @param int $ts Time at which the data should be read or written, 0 for now
      * @param int $rid
-     * @return AccessTableData|AccessTableLookup
+     * @return AccessTableData|AccessTableLookup|AccessTableSerial
      */
     public static function bySchema(Schema $schema, $pid, $ts = 0, $rid = 0) {
         if (!$pid && $ts === 0) {
             return new AccessTableLookup($schema, $pid, $ts, $rid);
+        }
+        if ($pid && $ts === 0) {
+            return new AccessTableSerial($schema, $pid, $ts, $rid);
         }
         return new AccessTableData($schema, $pid, $ts, $rid);
     }
