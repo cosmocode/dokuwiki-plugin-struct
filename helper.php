@@ -107,7 +107,7 @@ class helper_plugin_struct extends DokuWiki_Plugin {
     }
 
     /**
-     * Save data row for a lookup schema
+     * Save lookup data row
      *
      * @param AccessTable        $access the table into which to save the data
      * @param array             $data   data to be saved in the form of [columnName => 'data']
@@ -127,7 +127,7 @@ class helper_plugin_struct extends DokuWiki_Plugin {
     }
 
     /**
-     * Save data row for a lookup schema
+     * Save serial data row
      *
      * @param AccessTable        $access the table into which to save the data
      * @param array             $data   data to be saved in the form of [columnName => 'data']

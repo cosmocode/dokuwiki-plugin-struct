@@ -205,7 +205,6 @@ class SchemaBuilder {
 
     /**
      * Write the latest value from an entry in a data_ table to the corresponding multi_table
-     * FIXME handle rid
      *
      * @param string $table
      * @param int    $colref
@@ -300,8 +299,6 @@ class SchemaBuilder {
         $ok = true;
 
         $tbl = 'data_' . $this->table;
-        // FIXME default latest in data table is 1 for lookups, 0 for pages
-        // FIXME because lookup data is never versioned?
         $sql = "CREATE TABLE $tbl (
                     pid TEXT DEFAULT NULL,
                     rid INTEGER,

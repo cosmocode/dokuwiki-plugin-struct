@@ -12,21 +12,6 @@ namespace dokuwiki\plugin\struct\meta;
 class AccessTableLookup extends AccessTable {
 
     /**
-     * AccessTableLookup constructor.
-     *
-     * @param Schema $schema Which schema to access
-     * @param int $pid the row identifier (0 for new row)
-     * @param int $ts Time at which the data should be read or written, 0 for now
-     * @param int $rid
-     */
-    public function __construct(Schema $schema, $pid = 0, $ts = 0, $rid = 0) {
-        parent::__construct($schema, $pid, $ts, $rid);
-//        if(!$this->schema->isLookup()) {
-//            throw new StructException('wrong schema type. use factory methods!');
-//        }
-    }
-
-    /**
      * Remove the current data
      */
     public function clearData() {

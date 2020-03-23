@@ -531,29 +531,25 @@ class Search {
         if(!$this->schemas) throw new StructException('noschemas');
         $schema_list = array_keys($this->schemas);
 
-        // FIXME check for page schema?
         // add "fake" column for special col
-//        if(!(reset($this->schemas)->isLookup())) {
-            if($colname == '%pageid%') {
-                return new PageColumn(0, new Page(), $schema_list[0]);
-            }
-            if($colname == '%title%') {
-                return new PageColumn(0, new Page(array('usetitles' => true)), $schema_list[0]);
-            }
-            if($colname == '%lastupdate%') {
-                return new RevisionColumn(0, new DateTime(), $schema_list[0]);
-            }
-            if ($colname == '%lasteditor%') {
-                return new UserColumn(0, new User(), $schema_list[0]);
-            }
-            if ($colname == '%lastsummary%') {
-                return new SummaryColumn(0, new AutoSummary(), $schema_list[0]);
-            }
-//        } else {
-            if($colname == '%rowid%') {
-                return new RowColumn(0, new Decimal(), $schema_list[0]);
-            }
-//        }
+        if($colname == '%pageid%') {
+            return new PageColumn(0, new Page(), $schema_list[0]);
+        }
+        if($colname == '%title%') {
+            return new PageColumn(0, new Page(array('usetitles' => true)), $schema_list[0]);
+        }
+        if($colname == '%lastupdate%') {
+            return new RevisionColumn(0, new DateTime(), $schema_list[0]);
+        }
+        if ($colname == '%lasteditor%') {
+            return new UserColumn(0, new User(), $schema_list[0]);
+        }
+        if ($colname == '%lastsummary%') {
+            return new SummaryColumn(0, new AutoSummary(), $schema_list[0]);
+        }
+        if($colname == '%rowid%') {
+            return new RowColumn(0, new Decimal(), $schema_list[0]);
+        }
 
         list($colname, $table) = $this->resolveColumn($colname);
 
