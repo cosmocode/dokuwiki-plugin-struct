@@ -85,7 +85,7 @@ class AccessTableLookup extends AccessTable {
 
         // get new rid if this is a new insert
         if($ok && !$this->rid) {
-            $res = $this->sqlite->query("SELECT MAX(rid) FROM $stable");
+            $res = $this->sqlite->query("SELECT rid FROM $stable WHERE ROWID = last_insert_rowid()");
             $this->rid = $this->sqlite->res2single($res);
             $this->sqlite->res_close($res);
             if(!$this->rid) $ok = false;
