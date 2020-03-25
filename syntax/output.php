@@ -120,7 +120,9 @@ class syntax_plugin_struct_output extends DokuWiki_Syntax_Plugin {
         $hasdata = false;
         foreach($tables as $table) {
             try {
-                $schemadata = AccessTable::byTableName($table, $ID, $REV);
+                // use the current revision if none is specified, otherwise we can't access page data
+                $ts = $REV ?: $INFO['currentrev'];
+                $schemadata = AccessTable::byTableName($table, $ID, $ts);
             } catch(StructException $ignored) {
                 continue; // no such schema at this revision
             }
