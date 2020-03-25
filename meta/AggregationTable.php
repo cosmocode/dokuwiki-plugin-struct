@@ -46,6 +46,7 @@ class AggregationTable {
      */
     protected $resultPIDs;
     protected $resultRids;
+    protected $resultRevs;
 
     /**
      * @var array for summing up columns
@@ -85,6 +86,7 @@ class AggregationTable {
         $this->resultCount = $this->searchConfig->getCount();
         $this->resultPIDs = $this->searchConfig->getPids();
         $this->resultRids = $this->searchConfig->getRids();
+        $this->resultRevs = $this->searchConfig->getRevs();
         $this->helper = plugin_load('helper', 'struct_config');
     }
 
@@ -363,8 +365,9 @@ class AggregationTable {
         if($this->mode == 'xhtml') {
             $pid = $this->resultPIDs[$rownum];
             $rid = $this->resultRids[$rownum];
+            $rev = $this->resultRevs[$rownum];
             $this->renderer->doc = substr(rtrim($this->renderer->doc), 0, -1); // remove closing '>'
-            $this->renderer->doc .= ' data-pid="' . hsc($pid) . '" data-rid="' . hsc($rid) . '">';
+            $this->renderer->doc .= ' data-pid="' . hsc($pid) . '" data-rev="' . $rev . '" data-rid="' . $rid . '">';
         }
 
         // row number column

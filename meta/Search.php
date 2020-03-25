@@ -53,6 +53,8 @@ class Search {
     protected $result_pids = null;
     /** @var  array the row ids of the result rows */
     protected $result_rids = [];
+    /** @var  array the revisions of the result rows */
+    protected $result_revs = [];
 
     /**
      * Search constructor.
@@ -281,6 +283,18 @@ class Search {
     }
 
     /**
+     * Returns the rid associated with each result row
+     *
+     * Important: this may only be called after running @see execute()
+     *
+     * @return array
+     */
+    public function getRevs() {
+        if($this->result_revs === null) throw new StructException('revs are only accessible after executing the search');
+        return $this->result_revs;
+    }
+
+    /**
      * Execute this search and return the result
      *
      * The result is a two dimensional array of Value()s.
@@ -330,6 +344,7 @@ class Search {
 
             $this->result_pids[] = $row['PID'];
             $this->result_rids[] = $row['rid'];
+            $this->result_revs[] = $row['rev'];
             $result[] = $resrow;
         }
 
@@ -371,6 +386,7 @@ class Search {
                 $QB->addTable($datatable);
                 $QB->addSelectColumn($datatable, 'rid');
                 $QB->addSelectColumn($datatable, 'pid', 'PID');
+                $QB->addSelectColumn($datatable, 'rev');
                 $QB->addGroupByColumn($datatable, 'pid');
 
                 $first_table = $datatable;

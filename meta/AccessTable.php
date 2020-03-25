@@ -254,15 +254,15 @@ abstract class AccessTable {
      *
      * @return array Two fields: the SQL string and the parameters array
      */
-    protected function buildGetDataSQL() {
+    protected function buildGetDataSQL($idColumn = 'pid') {
         $sep = Search::CONCAT_SEPARATOR;
         $stable = 'data_' . $this->schema->getTable();
         $mtable = 'multi_' . $this->schema->getTable();
 
         $QB = new QueryBuilder();
         $QB->addTable($stable, 'DATA');
-        $QB->addSelectColumn('DATA', 'pid', 'PID');
-        $QB->addGroupByStatement('DATA.pid');
+        $QB->addSelectColumn('DATA', $idColumn, strtoupper($idColumn));
+        $QB->addGroupByStatement("DATA.$idColumn");
 
         foreach($this->schema->getColumns(false) as $col) {
 
@@ -276,7 +276,7 @@ abstract class AccessTable {
                     'DATA',
                     $mtable,
                     $tn,
-                    "DATA.pid = $tn.pid AND DATA.rev = $tn.rev AND $tn.colref = $colref"
+                    "DATA.$idColumn = $tn.$idColumn AND DATA.rev = $tn.rev AND $tn.colref = $colref"
                 );
                 $col->getType()->select($QB, $tn, 'value', $outname);
                 $sel = $QB->getSelectStatement($outname);
@@ -287,8 +287,8 @@ abstract class AccessTable {
             }
         }
 
-        $pl = $QB->addValue($this->pid);
-        $QB->filters()->whereAnd("DATA.pid = $pl");
+        $pl = $QB->addValue($this->{$idColumn});
+        $QB->filters()->whereAnd("DATA.$idColumn = $pl");
         $pl = $QB->addValue($this->getLastRevisionTimestamp());
         $QB->filters()->whereAnd("DATA.rev = $pl");
 

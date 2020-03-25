@@ -32,6 +32,9 @@ class action_plugin_struct_inline extends DokuWiki_Action_Plugin {
     /** @var String */
     protected $pid = '';
 
+    /** @var int */
+    protected $rid = 0;
+
     /**
      * Registers a callback function for a given event
      *
@@ -197,14 +200,16 @@ class action_plugin_struct_inline extends DokuWiki_Action_Plugin {
         $this->column = null;
 
         $pid = $INPUT->str('pid');
+        $rid = $INPUT->int('rid');
+        $rev = $INPUT->int('rev');
         list($table, $field) = explode('.', $INPUT->str('field'));
-        if(blank($pid)) return false;
+        if(blank($pid) && blank($rid)) return false;
         if(blank($table)) return false;
         if(blank($field)) return false;
 
         $this->pid = $pid;
         try {
-            $this->schemadata = AccessTable::byTableName($table, $pid);
+            $this->schemadata = AccessTable::byTableName($table, $pid, $rev, $rid);
         } catch(StructException $ignore) {
             return false;
         }

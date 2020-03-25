@@ -70,8 +70,8 @@ class AccessTableLookup extends AccessTable {
             }
         }
 
-        $ridSingle = "(SELECT (COALESCE(MAX(rid), 0 ) + 1) FROM $stable)";
-        $ridMulti = "(SELECT (COALESCE(MAX(rid), 0 ) + 1) FROM $mtable)";
+        $ridSingle = $this->getRid() ?: "(SELECT (COALESCE(MAX(rid), 0 ) + 1) FROM $stable)";
+        $ridMulti = $this->getRid() ?: "(SELECT (COALESCE(MAX(rid), 0 ) + 1) FROM $mtable)";
 
         $singlesql = "REPLACE INTO $stable (rid, " . join(',', $singlecols) . ") VALUES ($ridSingle, " . trim(str_repeat('?,', count($opt)), ',') . ")";
         /** @noinspection SqlResolve */
@@ -85,7 +85,7 @@ class AccessTableLookup extends AccessTable {
 
         // get new rid if this is a new insert
         if($ok && !$this->rid) {
-            $res = $this->sqlite->query('SELECT last_insert_rowid()');
+            $res = $this->sqlite->query("SELECT MAX(rid) FROM $stable");
             $this->rid = $this->sqlite->res2single($res);
             $this->sqlite->res_close($res);
             if(!$this->rid) $ok = false;
@@ -107,6 +107,14 @@ class AccessTableLookup extends AccessTable {
 
     protected function getLastRevisionTimestamp() {
         return 0;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function buildGetDataSQL($idColumn = 'rid')
+    {
+        return parent::buildGetDataSQL($idColumn);
     }
 
 }
