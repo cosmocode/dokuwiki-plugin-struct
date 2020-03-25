@@ -300,7 +300,7 @@ class SchemaBuilder {
 
         $tbl = 'data_' . $this->table;
         $sql = "CREATE TABLE $tbl (
-                    pid TEXT DEFAULT NULL,
+                    pid TEXT DEFAULT '',
                     rid INTEGER,
                     rev INTEGER,
                     latest BOOLEAN NOT NULL DEFAULT 0,
@@ -311,7 +311,7 @@ class SchemaBuilder {
         $tbl = 'multi_' . $this->table;
         $sql = "CREATE TABLE $tbl (
                     colref INTEGER NOT NULL,
-                    pid TEXT,
+                    pid TEXT DEFAULT '',
                     rid INTEGER,
                     rev INTEGER,
                     latest INTEGER NOT NULL DEFAULT 0,

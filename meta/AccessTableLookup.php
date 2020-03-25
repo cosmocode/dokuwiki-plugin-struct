@@ -73,9 +73,9 @@ class AccessTableLookup extends AccessTable {
         $ridSingle = "(SELECT (COALESCE(MAX(rid), 0 ) + 1) FROM $stable)";
         $ridMulti = "(SELECT (COALESCE(MAX(rid), 0 ) + 1) FROM $mtable)";
 
-        $singlesql = "REPLACE INTO $stable (pid, rid, " . join(',', $singlecols) . ") VALUES (NULL, $ridSingle, " . trim(str_repeat('?,', count($opt)), ',') . ")";
+        $singlesql = "REPLACE INTO $stable (rid, " . join(',', $singlecols) . ") VALUES ($ridSingle, " . trim(str_repeat('?,', count($opt)), ',') . ")";
         /** @noinspection SqlResolve */
-        $multisql = "REPLACE INTO $mtable (pid, rid, colref, row, value) VALUES (NULL, $ridMulti, ?,?,?)";
+        $multisql = "REPLACE INTO $mtable (rid, pid, colref, row, value) VALUES ($ridMulti,?,?,?,?)";
 
         $this->sqlite->query('BEGIN TRANSACTION');
         $ok = true;

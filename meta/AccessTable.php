@@ -20,9 +20,9 @@ abstract class AccessTable {
      * Factory method returning the appropriate data accessor (page, lookup or serial)
      *
      * @param Schema $schema schema to load
-     * @param string|int $pid Page or row id to access
+     * @param string $pid Page id to access
      * @param int $ts Time at which the data should be read or written, 0 for now
-     * @param int $rid
+     * @param int $rid Row id, 0 for page type data, otherwise autoincrement
      * @return AccessTableData|AccessTableLookup|AccessTableSerial
      */
     public static function bySchema(Schema $schema, $pid, $ts = 0, $rid = 0) {
@@ -39,9 +39,9 @@ abstract class AccessTable {
      * Factory Method to access a data or lookup table
      *
      * @param string $tablename schema to load
-     * @param string|int $pid Page or row id to access
+     * @param string $pid Page id to access
      * @param int $ts Time at which the data should be read or written, 0 for now
-     * @param int $rid
+     * @param int $rid Row id, 0 for page type data, otherwise autoincrement
      * @return AccessTableData|AccessTableLookup
      */
     public static function byTableName($tablename, $pid, $ts = 0, $rid = 0) {
@@ -53,7 +53,7 @@ abstract class AccessTable {
      * AccessTable constructor
      *
      * @param Schema $schema The schema valid at $ts
-     * @param string|int $pid
+     * @param string $pid Page id
      * @param int $ts Time at which the data should be read or written, 0 for now
      * @param int $rid Row id: 0 for pages, autoincremented for other types
      */
@@ -87,7 +87,7 @@ abstract class AccessTable {
     /**
      * The current pid
      *
-     * @return int|string
+     * @return string
      */
     public function getPid() {
         return $this->pid;
@@ -96,7 +96,7 @@ abstract class AccessTable {
     /**
      * The current rid
      *
-     * @return int|string
+     * @return int
      */
     public function getRid() {
         return $this->rid;

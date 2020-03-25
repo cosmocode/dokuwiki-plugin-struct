@@ -94,7 +94,7 @@ class action_plugin_struct_lookup extends DokuWiki_Action_Plugin
         }
         action_plugin_struct_inline::checkCSRF();
 
-        $schemadata = AccessTable::byTableName($tablename, 0, 0, $rid);
+        $schemadata = AccessTable::byTableName($tablename, '', 0, $rid);
         if (!$schemadata->getSchema()->isEditable()) {
             throw new StructException('lookup delete error: no permission for schema');
         }
@@ -112,7 +112,7 @@ class action_plugin_struct_lookup extends DokuWiki_Action_Plugin
         action_plugin_struct_inline::checkCSRF();
 
         // create a new row based on the original aggregation config for the new pid
-        $access = AccessTable::byTableName($tablename, 0, 0);
+        $access = AccessTable::byTableName($tablename, '', 0);
 
         /** @var helper_plugin_struct $helper */
         $helper = plugin_load('helper', 'struct');

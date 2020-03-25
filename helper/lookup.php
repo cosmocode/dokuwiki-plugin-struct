@@ -34,7 +34,7 @@ class helper_plugin_struct_lookup extends helper_plugin_bureaucracy_action {
         }
 
         foreach($tosave as $table => $data) {
-            $access = AccessTable::byTableName($table, 0, 0);
+            $access = AccessTable::byTableName($table, '', 0);
             if (!$access instanceof AccessTableLookup) continue;
 
             if(!$access->getSchema()->isEditable()) {
