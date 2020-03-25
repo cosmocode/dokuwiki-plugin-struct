@@ -80,7 +80,7 @@ class AccessTableData extends AccessTable {
         $singlesql = "INSERT INTO $stable ($singlecols) VALUES (" . trim(str_repeat('?,',count($opt)),',') . ');';
 
         /** @noinspection SqlResolve */
-        $multisql = "INSERT INTO $mtable (latest, rev, pid, rid, colref, row, value) VALUES (?,?,?,?,?,?)";
+        $multisql = "INSERT INTO $mtable (latest, rev, pid, rid, colref, row, value) VALUES (?,?,?,?,?,?,?)";
 
         $this->sqlite->query('BEGIN TRANSACTION');
 
