@@ -95,15 +95,14 @@ class remote_plugin_struct extends DokuWiki_Remote_Plugin {
      * @throws RemoteAccessDeniedException
      * @throws RemoteException
      */
-    public function getSchema($schema) {
+    public function getSchema($schema = null) {
         if(!auth_ismanager()) {
             throw new RemoteAccessDeniedException('you need to be manager to access schema info');
         }
 
-        if(!$schema) $schema = null;
         try {
             $result = array();
-            $schemas = $this->hlp->getSchema($schema);
+            $schemas = $this->hlp->getSchema($schema ?: null);
             foreach($schemas as $name => $schema) {
                 $result[$name] = array();
                 foreach ($schema->getColumns(false) as $column) {
