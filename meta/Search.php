@@ -20,7 +20,7 @@ class Search {
      * (order matters)
      */
     static public $COMPARATORS = array(
-        '<=', '>=', '=*', '=', '<', '>', '!=', '!~', '~',
+        '<=', '>=', '=*', '=', '<', '>', '!=', '!~', '~', 'IN'
     );
 
     /** @var  \helper_plugin_sqlite */
@@ -171,8 +171,49 @@ class Search {
             $value = $this->filterChangeToLike($value);
         }
 
+        if ($comp == 'IN' && !is_array($value)) {
+            $value = $this->parseFilterValueList($value);
+            //col IN ('a', 'b', 'c') is equal to col = 'a' OR 'col = 'b' OR col = 'c'
+            $comp = '=';
+        }
+
         // add the filter
         $this->filter[] = array($col, $value, $comp, $op);
+    }
+
+    /**
+     * Parse SQLite row value into array
+     *
+     * @param string $value
+     * @return string[]
+     */
+    protected function parseFilterValueList($value) {
+        $Handler = new FilterValueListHandler();
+        $Lexer = new \Doku_Lexer($Handler, 'base', true);
+
+        $Lexer->addEntryPattern('\(','base','row');
+        $Lexer->addPattern('\s*,\s*','row');
+        $Lexer->addExitPattern('\)','row');
+
+        $Lexer->addEntryPattern('"', 'row', 'double_quote_string');
+        $Lexer->addSpecialPattern('\\\\"','double_quote_string','escape_sequence');
+        $Lexer->addExitPattern('"', 'double_quote_string');
+
+        $Lexer->addEntryPattern("'", 'row', 'single_quote_string');
+        $Lexer->addSpecialPattern("\\\\'",'single_quote_string','escape_sequence');
+        $Lexer->addExitPattern("'", 'single_quote_string');
+
+        $Lexer->mapHandler('double_quote_string','single_quote_string');
+
+        $Lexer->addSpecialPattern('[-+]?[0-9]*\.?[0-9]+(?:[eE][-+]?[0-9]+)?','row','number');
+
+        $res = $Lexer->parse($value);
+
+        if (!$res || $Lexer->_mode->getCurrent() != 'base') {
+            throw new StructException('invalid row value syntax');
+        }
+
+        return $Handler->get_row();
     }
 
     /**
