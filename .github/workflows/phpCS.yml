@@ -1,0 +1,30 @@
+name: PHP Code Style
+
+on: [push]
+
+jobs:
+    phpcs:
+        name: PHP CodeSniffer
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v1
+
+            - name: Setup PHP
+              uses: nanasess/setup-php@master
+              with:
+                  php-version: 7.3
+
+            - name: retrieve script
+              run: wget https://raw.github.com/splitbrain/dokuwiki-travis/master/travis.sh
+
+            - name: Install DokuWiki
+              env:
+                  CI_SERVER: 1
+                  DOKUWIKI : master
+              run: sh travis.sh
+
+            - name: Download PHPCS
+              run: wget https://squizlabs.github.io/PHP_CodeSniffer/phpcs.phar
+
+            - name: run PHP codesniffer
+              run: php phpcs.phar -v --standard=_test/phpcs.xml lib/plugins/struct
