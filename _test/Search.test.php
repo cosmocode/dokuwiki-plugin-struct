@@ -377,4 +377,32 @@ class Search_struct_test extends StructTest {
         $search->addColumn('nope.*');
         $this->assertEquals(0, count($search->getColumns()));
     }
+
+    public function test_filterValueList() {
+        $search = new mock\Search();
+
+        //simple - single quote
+        $this->assertEquals(array('test'),
+            $this->callInaccessibleMethod($search, 'parseFilterValueList', array('("test")')));
+
+        //simple - double quote
+        $this->assertEquals(array('test'),
+            $this->callInaccessibleMethod($search, 'parseFilterValueList', array("('test')")));
+
+        //many elements
+        $this->assertEquals(array('test', 'test2', '18'),
+            $this->callInaccessibleMethod($search, 'parseFilterValueList', array('("test", \'test2\', 18)')));
+
+        $str = <<<'EOD'
+("t\"est", 't\'est2', 18)
+EOD;
+        //escape sequences
+        $this->assertEquals(array('t"est', "t'est2", '18'),
+            $this->callInaccessibleMethod($search, 'parseFilterValueList', array($str)));
+
+        //numbers
+        $this->assertEquals(array('18.7', '10e5', '-100'),
+            $this->callInaccessibleMethod($search, 'parseFilterValueList', array('(18.7, 10e5, -100)')));
+
+    }
 }
