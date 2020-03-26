@@ -2,6 +2,13 @@
 
 namespace dokuwiki\plugin\struct\meta;
 
+/**
+ * Class AccessTable
+ *
+ * Base class for data accessors
+ *
+ * @package dokuwiki\plugin\struct\meta
+ */
 abstract class AccessTable {
 
     /** @var  Schema */
@@ -26,23 +33,23 @@ abstract class AccessTable {
      * @return AccessTableData|AccessTableLookup|AccessTableSerial
      */
     public static function bySchema(Schema $schema, $pid, $ts = 0, $rid = 0) {
-        if (!$pid && $ts === 0) {
+        if (self::isTypeLookup($pid, $ts, $rid)) {
             return new AccessTableLookup($schema, $pid, $ts, $rid);
         }
-        if ($pid && $ts === 0) {
+        if (self::isTypeSerial($pid, $ts, $rid)) {
             return new AccessTableSerial($schema, $pid, $ts, $rid);
         }
         return new AccessTableData($schema, $pid, $ts, $rid);
     }
 
     /**
-     * Factory Method to access a data or lookup table
+     * Factory Method to access data
      *
      * @param string $tablename schema to load
      * @param string $pid Page id to access
      * @param int $ts Time at which the data should be read or written, 0 for now
      * @param int $rid Row id, 0 for page type data, otherwise autoincrement
-     * @return AccessTableData|AccessTableLookup
+     * @return AccessTableData|AccessTableLookup|AccessTableSerial
      */
     public static function byTableName($tablename, $pid, $ts = 0, $rid = 0) {
         $schema = new Schema($tablename, $ts);
@@ -323,6 +330,45 @@ abstract class AccessTable {
      */
     public function getValidator($data) {
         return new AccessDataValidator($this, $data);
+    }
+
+    /**
+     * Returns true if data is of type "page"
+     *
+     * @param string $pid
+     * @param int $rev
+     * @param int $rid
+     * @return bool
+     */
+    public static function isTypePage($pid, $rev, $rid)
+    {
+        return $rev > 0;
+    }
+
+    /**
+     * Returns true if data is of type "lookup"
+     *
+     * @param string $pid
+     * @param int $rev
+     * @param int $rid
+     * @return bool
+     */
+    public static function isTypeLookup($pid, $rev, $rid)
+    {
+        return $pid === '';
+    }
+
+    /**
+     * Returns true if data is of type "serial"
+     *
+     * @param string $pid
+     * @param int $rev
+     * @param int $rid
+     * @return bool
+     */
+    public static function isTypeSerial($pid, $rev, $rid)
+    {
+        return $pid !== '' && $rev === 0;
     }
 }
 
