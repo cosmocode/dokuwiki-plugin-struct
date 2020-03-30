@@ -17,7 +17,7 @@ use dokuwiki\plugin\struct\meta\Value;
 /**
  * Class action_plugin_struct_entry
  *
- * Handles the whole struct data entry process
+ * Handles the entry process of struct data with type "page"
  */
 class action_plugin_struct_entry extends DokuWiki_Action_Plugin {
 

@@ -172,11 +172,12 @@ class action_plugin_struct_inline extends DokuWiki_Action_Plugin {
         }
 
         // reinit then render
-        $this->initFromInput();
+        $this->initFromInput($this->schemadata->getTimestamp());
         $value = $this->schemadata->getDataColumn($this->column);
         $R = new Doku_Renderer_xhtml();
         $value->render($R, 'xhtml'); // FIXME use configured default renderer
-        echo $R->doc;
+        $data = json_encode(['value' => $R->doc, 'rev' => $this->schemadata->getTimestamp()]);
+        echo $data;
     }
 
     /**
@@ -191,9 +192,10 @@ class action_plugin_struct_inline extends DokuWiki_Action_Plugin {
     /**
      * Initialize internal state based on input variables
      *
-     * @return bool if initialization was successfull
+     * @param int $updatedRev timestamp of currently created revision, might be newer than input variable
+     * @return bool if initialization was successful
      */
-    protected function initFromInput() {
+    protected function initFromInput($updatedRev = 0) {
         global $INPUT;
 
         $this->schemadata = null;
@@ -201,7 +203,8 @@ class action_plugin_struct_inline extends DokuWiki_Action_Plugin {
 
         $pid = $INPUT->str('pid');
         $rid = $INPUT->int('rid');
-        $rev = $INPUT->int('rev');
+        $rev = $updatedRev ?: $INPUT->int('rev');
+
         list($table, $field) = explode('.', $INPUT->str('field'));
         if(blank($pid) && blank($rid)) return false;
         if(blank($table)) return false;

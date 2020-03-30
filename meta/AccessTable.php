@@ -314,6 +314,15 @@ abstract class AccessTable {
     }
 
     /**
+     * Returns the timestamp from the current data
+     * @return int
+     */
+    public function getTimestamp()
+    {
+        return $this->ts;
+    }
+
+    /**
      * Return the last time an edit happened for this table for the currently set
      * time and pid. When the current timestamp is 0, the newest revision is
      * returned. Used in @see buildGetDataSQL()

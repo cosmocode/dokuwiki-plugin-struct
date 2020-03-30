@@ -72,8 +72,10 @@ var InlineEditor = function ($table) {
                 $form.serialize()
             )
                 .done(function (data) {
-                    // save succeeded display new value and close editor
-                    $self.html(data);
+                    // save succeeded, display new value, update revision data and close editor
+                    const saved = JSON.parse(data);
+                    $self.html(saved['value']);
+                    $self.parent().data('rev', saved['rev']);
                     $div.remove();
                     // sums are now out of date - remove them til page is reloaded
                     $self.parents('table').find('tr.summarize').remove();
