@@ -143,7 +143,7 @@ class action_plugin_struct_inline extends DokuWiki_Action_Plugin {
         $tosave[$this->column->getLabel()] = $value;
 
         // save
-        if($this->schemadata->getRid() && !$this->schemadata->getPid()) {
+        if($this->schemadata->getRid()) {
             $revision = 0;
         } else {
             $revision = helper_plugin_struct::createPageRevision($this->pid, 'inline edit');

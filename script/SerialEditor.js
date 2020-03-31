@@ -25,7 +25,7 @@ var SerialEditor = function (idx, table) {
             var rid = $me.data('rid');
 
             // empty header cells
-            if (!rid) {
+            if (!rid && !pid) {
                 $me.append('<th class="action"></th>');
                 return;
             }

@@ -82,7 +82,9 @@ class AggregationTable {
         $this->data = $searchConfig->getConf();
         $this->columns = $searchConfig->getColumns();
 
-        $this->result = $this->searchConfig->execute();
+        // FIXME detect or get real columnId
+        // for now rid is OK for page data because tables are also joined on rev
+        $this->result = $this->searchConfig->execute('rid');
         $this->resultCount = $this->searchConfig->getCount();
         $this->resultPIDs = $this->searchConfig->getPids();
         $this->resultRids = $this->searchConfig->getRids();

@@ -343,10 +343,11 @@ class Search {
      * This will always query for the full result (not using offset and limit) and then
      * return the wanted range, setting the count (@see getCount) to the whole result number
      *
+     * @param string $idColumn Column on which to join tables
      * @return Value[][]
      */
-    public function execute() {
-        list($sql, $opts) = $this->getSQL();
+    public function execute($idColumn) {
+        list($sql, $opts) = $this->getSQL($idColumn);
 
         /** @var \PDOStatement $res */
         $res = $this->sqlite->query($sql, $opts);
@@ -397,9 +398,10 @@ class Search {
     /**
      * Transform the set search parameters into a statement
      *
+     * @param string $idColumn Column on which to join tables
      * @return array ($sql, $opts) The SQL and parameters to execute
      */
-    public function getSQL() {
+    public function getSQL($idColumn) {
         if(!$this->columns) throw new StructException('nocolname');
 
         $QB = new QueryBuilder();
@@ -410,7 +412,7 @@ class Search {
             $datatable = 'data_' . $schema->getTable();
             if($first_table) {
                 // follow up tables
-                $QB->addLeftJoin($first_table, $datatable, $datatable, "$first_table.pid = $datatable.pid");
+                $QB->addLeftJoin($first_table, $datatable, $datatable, "$first_table.$idColumn = $datatable.$idColumn");
             } else {
                 // first table
 
@@ -450,7 +452,7 @@ class Search {
                     $datatable,
                     $multitable,
                     $MN,
-                    "$datatable.pid = $MN.pid AND
+                    "$datatable.$idColumn = $MN.$idColumn AND
                      $datatable.rev = $MN.rev AND
                      $MN.colref = {$col->getColref()}"
                 );
@@ -483,7 +485,7 @@ class Search {
                     $datatable,
                     $multitable,
                     $MN,
-                    "$datatable.pid = $MN.pid AND
+                    "$datatable.$idColumn = $MN.$idColumn AND
                      $datatable.rev = $MN.rev AND
                      $MN.colref = {$col->getColref()}"
                 );

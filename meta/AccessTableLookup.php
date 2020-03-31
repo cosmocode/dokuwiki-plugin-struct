@@ -45,10 +45,10 @@ class AccessTableLookup extends AccessTable {
 
 
         $singlecols = ['rev', 'latest'];
-        $opt = [0, 1];
+        $opt = [AccessTable::DEFAULT_REV, AccessTable::DEFAULT_LATEST];
 
         $colrefs = array_flip($this->labels);
-        $multiopts = array();
+        $multiopts = [];
         foreach($data as $colname => $value) {
             if(!isset($colrefs[$colname])) {
                 throw new StructException("Unknown column %s in schema.", hsc($colname));
@@ -71,11 +71,7 @@ class AccessTableLookup extends AccessTable {
         }
 
         $ridSingle = $this->getRid() ?: "(SELECT (COALESCE(MAX(rid), 0 ) + 1) FROM $stable)";
-        $ridMulti = $this->getRid() ?: "(SELECT (COALESCE(MAX(rid), 0 ) + 1) FROM $mtable)";
-
         $singlesql = "REPLACE INTO $stable (rid, " . join(',', $singlecols) . ") VALUES ($ridSingle, " . trim(str_repeat('?,', count($opt)), ',') . ")";
-        /** @noinspection SqlResolve */
-        $multisql = "REPLACE INTO $mtable (rid, pid, colref, row, value) VALUES ($ridMulti,?,?,?,?)";
 
         $this->sqlite->query('BEGIN TRANSACTION');
         $ok = true;
@@ -92,8 +88,14 @@ class AccessTableLookup extends AccessTable {
         }
 
         // insert multi values
+        /** @noinspection SqlResolve */
+        $multisql = "REPLACE INTO $mtable (pid, rid, rev, latest, colref, row, value) VALUES (?,?,?,?,?,?,?)";
+
         if($ok) foreach($multiopts as $multiopt) {
-            $multiopt = array_merge(array($this->rid,), $multiopt);
+            $multiopt = array_merge(
+                [$this->pid, $this->rid, AccessTable::DEFAULT_REV, AccessTable::DEFAULT_LATEST],
+                $multiopt
+            );
             $ok = $ok && $this->sqlite->query($multisql, $multiopt);
         }
 

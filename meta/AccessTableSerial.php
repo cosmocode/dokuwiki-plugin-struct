@@ -69,13 +69,8 @@ class AccessTableSerial extends AccessTable {
             }
         }
 
-        // FIXME select pid too
-        $ridSingle = "(SELECT (COALESCE(MAX(rid), 0 ) + 1) FROM $stable)";
-        $ridMulti = "(SELECT (COALESCE(MAX(rid), 0 ) + 1) FROM $mtable)";
-
+        $ridSingle = $this->getRid() ?: "(SELECT (COALESCE(MAX(rid), 0 ) + 1) FROM $stable)";
         $singlesql = "REPLACE INTO $stable (rid, " . join(',', $singlecols) . ") VALUES ($ridSingle, " . trim(str_repeat('?,', count($opt)), ',') . ")";
-        /** @noinspection SqlResolve */
-        $multisql = "REPLACE INTO $mtable (rid, colref, row, value) VALUES ($ridMulti,?,?,?,?)";
 
         $this->sqlite->query('BEGIN TRANSACTION');
         $ok = true;
@@ -85,15 +80,21 @@ class AccessTableSerial extends AccessTable {
 
         // get new rid if this is a new insert
         if($ok && !$this->rid) {
-            $res = $this->sqlite->query('SELECT last_insert_rowid()');
+            $res = $this->sqlite->query("SELECT rid FROM $stable WHERE ROWID = last_insert_rowid()");
             $this->rid = $this->sqlite->res2single($res);
             $this->sqlite->res_close($res);
             if(!$this->rid) $ok = false;
         }
 
         // insert multi values
+        /** @noinspection SqlResolve */
+        $multisql = "REPLACE INTO $mtable (pid, rid, rev, latest, colref, row, value) VALUES (?,?,?,?,?,?,?)";
+
         if($ok) foreach($multiopts as $multiopt) {
-            $multiopt = array_merge(array($this->rid,$this->pid), $multiopt);
+            $multiopt = array_merge(
+                [$this->pid, $this->rid, AccessTable::DEFAULT_REV, AccessTable::DEFAULT_LATEST],
+                $multiopt
+            );
             $ok = $ok && $this->sqlite->query($multisql, $multiopt);
         }
 
@@ -107,6 +108,14 @@ class AccessTableSerial extends AccessTable {
 
     protected function getLastRevisionTimestamp() {
         return 0;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function buildGetDataSQL($idColumn = 'rid')
+    {
+        return parent::buildGetDataSQL($idColumn);
     }
 
 }

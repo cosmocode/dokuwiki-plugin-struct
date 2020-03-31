@@ -11,6 +11,9 @@ namespace dokuwiki\plugin\struct\meta;
  */
 abstract class AccessTable {
 
+    const DEFAULT_REV = 0;
+    const DEFAULT_LATEST = 1;
+
     /** @var  Schema */
     protected $schema;
     protected $pid;
@@ -205,7 +208,8 @@ abstract class AccessTable {
      * Call @see SchemaData::getData instead.
      */
     protected function getDataFromDB() {
-        list($sql, $opt) = $this->buildGetDataSQL();
+        $idColumn = self::isTypePage($this->pid, $this->ts, $this->rid) ? 'pid' : 'rid';
+        list($sql, $opt) = $this->buildGetDataSQL($idColumn);
 
         $res = $this->sqlite->query($sql, $opt);
         $data = $this->sqlite->res2arr($res);
