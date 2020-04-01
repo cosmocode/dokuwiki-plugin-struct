@@ -18,7 +18,7 @@ abstract class AccessTable {
     protected $schema;
     protected $pid;
     protected $rid;
-    protected $labels = array();
+    protected $labels = [];
     protected $ts     = 0;
     /** @var \helper_plugin_sqlite */
     protected $sqlite;
@@ -27,22 +27,45 @@ abstract class AccessTable {
     protected $opt_skipempty = false;
 
     /**
+     * @var string Name of single-value table
+     */
+    protected $stable;
+
+    /**
+     * @var string Name of multi-value table
+     */
+    protected $mtable;
+
+    /**
+     * @var array Column names for the single-value insert/update
+     */
+    protected $singleCols;
+
+    /**
+     * @var array Input values for the single-value insert/update
+     */
+    protected $singleValues;
+
+    /**
+     * @var array Input values for the multi-value inserts/updates
+     */
+    protected $multiValues;
+
+
+    /**
      * Factory method returning the appropriate data accessor (page, lookup or serial)
      *
      * @param Schema $schema schema to load
      * @param string $pid Page id to access
      * @param int $ts Time at which the data should be read or written, 0 for now
      * @param int $rid Row id, 0 for page type data, otherwise autoincrement
-     * @return AccessTableData|AccessTableLookup|AccessTableSerial
+     * @return AccessTableData|AccessTableLookup
      */
     public static function bySchema(Schema $schema, $pid, $ts = 0, $rid = 0) {
-        if (self::isTypeLookup($pid, $ts, $rid)) {
-            return new AccessTableLookup($schema, $pid, $ts, $rid);
+        if (self::isTypePage($pid, $ts, $rid)) {
+            return new AccessTableData($schema, $pid, $ts, $rid);
         }
-        if (self::isTypeSerial($pid, $ts, $rid)) {
-            return new AccessTableSerial($schema, $pid, $ts, $rid);
-        }
-        return new AccessTableData($schema, $pid, $ts, $rid);
+        return new AccessTableLookup($schema, $pid, $ts, $rid);
     }
 
     /**
@@ -52,7 +75,7 @@ abstract class AccessTable {
      * @param string $pid Page id to access
      * @param int $ts Time at which the data should be read or written, 0 for now
      * @param int $rid Row id, 0 for page type data, otherwise autoincrement
-     * @return AccessTableData|AccessTableLookup|AccessTableSerial
+     * @return AccessTableData|AccessTableLookup
      */
     public static function byTableName($tablename, $pid, $ts = 0, $rid = 0) {
         $schema = new Schema($tablename, $ts);
@@ -128,7 +151,142 @@ abstract class AccessTable {
      * @param array $data typelabel => value for single fields or typelabel => array(value, value, ...) for multi fields
      * @return bool success of saving the data to the database
      */
-    abstract public function saveData($data);
+    public function saveData($data)
+    {
+        if (!$this->validateTypeData($data)) {
+            return false;
+        }
+
+        $this->stable = 'data_' . $this->schema->getTable();
+        $this->mtable = 'multi_' . $this->schema->getTable();
+
+        $colrefs = array_flip($this->labels);
+
+        foreach ($data as $colname => $value) {
+            if(!isset($colrefs[$colname])) {
+                throw new StructException("Unknown column %s in schema.", hsc($colname));
+            }
+
+            $this->singleCols[] = 'col' . $colrefs[$colname];
+            if (is_array($value)) {
+                foreach ($value as $index => $multivalue) {
+                    $this->multiValues[] = [$colrefs[$colname], $index + 1, $multivalue];
+                }
+                // copy first value to the single column
+                if(isset($value[0])) {
+                    $this->singleValues[] = $value[0];
+                } else {
+                    $this->singleValues[] = null;
+                }
+            } else {
+                $this->singleValues[] = $value;
+            }
+        }
+
+        $this->sqlite->query('BEGIN TRANSACTION');
+
+        $ok = $this->beforeSave();
+
+        // insert single values
+        $ok = $ok && $this->sqlite->query(
+                $this->getSingleSql(),
+            array_merge($this->getSingleNoninputValues(), $this->singleValues)
+            );
+
+        $ok = $ok && $this->afterSingleSave();
+
+        // insert multi values
+        if ($ok && $this->multiValues) {
+            $multisql = $this->getMultiSql();
+            $multiNoninputValues = $this->getMultiNoninputValues();
+            foreach ($this->multiValues as $value) {
+                $ok = $ok && $this->sqlite->query(
+                        $multisql,
+                        array_merge($multiNoninputValues, $value)
+                    );
+            }
+        }
+
+        if (!$ok) {
+            $this->sqlite->query('ROLLBACK TRANSACTION');
+            return false;
+        }
+        $this->sqlite->query('COMMIT TRANSACTION');
+        return true;
+    }
+
+    /**
+     * Check whether all required data is present
+     *
+     * @param array $data
+     * @return bool
+     */
+    abstract protected function validateTypeData($data);
+
+    /**
+     * Names of non-input columns to be inserted into SQL query
+     *
+     * @return array
+     */
+    abstract protected function getSingleNoninputCols();
+
+    /**
+     * Values for non-input columns to be inserted into SQL query
+     * for single-value tables
+     *
+     * @return array
+     */
+    abstract protected function getSingleNoninputValues();
+
+    /**
+     * String template for single-value table
+     *
+     * @return string
+     */
+    protected function getSingleSql()
+    {
+        $cols = array_merge($this->getSingleNoninputCols(), $this->singleCols);
+        $cols = join(',', $cols);
+        $vals = array_merge($this->getSingleNoninputValues(), $this->singleValues);
+
+        return "INSERT INTO $this->stable ($cols) VALUES (" . trim(str_repeat('?,', count($vals)),',') . ');';
+    }
+
+    /**
+     * Optional operations to be executed before saving data
+     *
+     * @return bool False if any of the operations failed and transaction should be rolled back
+     */
+    protected function beforeSave()
+    {
+        return true;
+    }
+
+    /**
+     * Optional operations to be executed after saving data to single-value table,
+     * before saving multivalues
+     *
+     * @return bool False if anything goes wrong and transaction should be rolled back
+     */
+    protected function afterSingleSave()
+    {
+        return true;
+    }
+
+    /**
+     * String template for multi-value table
+     *
+     * @return string
+     */
+    abstract protected function getMultiSql();
+
+    /**
+     * Values for non-input columns to be inserted into SQL query
+     * for multi-value tables
+     * @return array
+     */
+    abstract protected function getMultiNoninputValues();
+
 
     /**
      * Should empty or invisible (inpage) fields be returned?

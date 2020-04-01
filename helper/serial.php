@@ -1,6 +1,6 @@
 <?php
 use dokuwiki\plugin\struct\meta\AccessTable;
-use dokuwiki\plugin\struct\meta\AccessTableSerial;
+use dokuwiki\plugin\struct\meta\AccessTableLookup;
 use dokuwiki\plugin\struct\meta\StructException;
 
 /**
@@ -35,7 +35,7 @@ class helper_plugin_struct_serial extends helper_plugin_bureaucracy_action {
 
         foreach($tosave as $table => $data) {
             $access = AccessTable::byTableName($table, '', 0, 0);
-            if (!$access instanceof AccessTableSerial) continue;
+            if (!$access instanceof AccessTableLookup) continue;
 
             if(!$access->getSchema()->isEditable()) {
                 msg('serial save error: no permission for schema', -1);

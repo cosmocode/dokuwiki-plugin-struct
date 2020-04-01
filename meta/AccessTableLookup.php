@@ -23,90 +23,6 @@ class AccessTableLookup extends AccessTable {
         $this->sqlite->query($sql, 'multi_'.$this->schema->getTable(), $this->rid);
     }
 
-    /**
-     * Save the data to the database.
-     *
-     * We differentiate between single-value-column and multi-value-column by the value to the respective column-name,
-     * i.e. depending on if that is a string or an array, respectively.
-     *
-     * @param array $data typelabel => value for single fields or typelabel => array(value, value, ...) for multi fields
-     * @return bool success of saving the data to the database
-     * @todo this duplicates quite a bit code from AccessTableData - could we avoid that?
-     */
-    public function saveData($data) {
-        $stable = 'data_' . $this->schema->getTable();
-        $mtable = 'multi_' . $this->schema->getTable();
-
-        // we do not store completely empty rows
-        $isempty = array_reduce($data, function ($isempty, $cell) {
-            return $isempty && ($cell === '' || $cell === array() || $cell === null);
-        }, true);
-        if($isempty) return false;
-
-
-        $singlecols = ['rev', 'latest'];
-        $opt = [AccessTable::DEFAULT_REV, AccessTable::DEFAULT_LATEST];
-
-        $colrefs = array_flip($this->labels);
-        $multiopts = [];
-        foreach($data as $colname => $value) {
-            if(!isset($colrefs[$colname])) {
-                throw new StructException("Unknown column %s in schema.", hsc($colname));
-            }
-
-            $singlecols[] = 'col' . $colrefs[$colname];
-            if(is_array($value)) {
-                foreach($value as $index => $multivalue) {
-                    $multiopts[] = array($colrefs[$colname], $index + 1, $multivalue,);
-                }
-                // copy first value to the single column
-                if(isset($value[0])) {
-                    $opt[] = $value[0];
-                } else {
-                    $opt[] = null;
-                }
-            } else {
-                $opt[] = $value;
-            }
-        }
-
-        $ridSingle = $this->getRid() ?: "(SELECT (COALESCE(MAX(rid), 0 ) + 1) FROM $stable)";
-        $singlesql = "REPLACE INTO $stable (rid, " . join(',', $singlecols) . ") VALUES ($ridSingle, " . trim(str_repeat('?,', count($opt)), ',') . ")";
-
-        $this->sqlite->query('BEGIN TRANSACTION');
-        $ok = true;
-
-        // insert single values
-        $ok = $ok && $this->sqlite->query($singlesql, $opt);
-
-        // get new rid if this is a new insert
-        if($ok && !$this->rid) {
-            $res = $this->sqlite->query("SELECT rid FROM $stable WHERE ROWID = last_insert_rowid()");
-            $this->rid = $this->sqlite->res2single($res);
-            $this->sqlite->res_close($res);
-            if(!$this->rid) $ok = false;
-        }
-
-        // insert multi values
-        /** @noinspection SqlResolve */
-        $multisql = "REPLACE INTO $mtable (pid, rid, rev, latest, colref, row, value) VALUES (?,?,?,?,?,?,?)";
-
-        if($ok) foreach($multiopts as $multiopt) {
-            $multiopt = array_merge(
-                [$this->pid, $this->rid, AccessTable::DEFAULT_REV, AccessTable::DEFAULT_LATEST],
-                $multiopt
-            );
-            $ok = $ok && $this->sqlite->query($multisql, $multiopt);
-        }
-
-        if(!$ok) {
-            $this->sqlite->query('ROLLBACK TRANSACTION');
-            return false;
-        }
-        $this->sqlite->query('COMMIT TRANSACTION');
-        return true;
-    }
-
     protected function getLastRevisionTimestamp() {
         return 0;
     }
@@ -119,4 +35,80 @@ class AccessTableLookup extends AccessTable {
         return parent::buildGetDataSQL($idColumn);
     }
 
+    /**
+     * @inheritDoc
+     */
+    protected function getSingleSql()
+    {
+        $cols = array_merge($this->getSingleNoninputCols(), $this->singleCols);
+        $cols = join(',', $cols);
+        $vals = array_merge($this->getSingleNoninputValues(), $this->singleValues);
+        $rid = $this->getRid() ?: "(SELECT (COALESCE(MAX(rid), 0 ) + 1) FROM $this->stable)";
+
+        return "REPLACE INTO $this->stable (rid, $cols) VALUES ($rid," . trim(str_repeat('?,', count($vals)),',') . ');';
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function getMultiSql()
+    {
+        return "REPLACE INTO $this->mtable (pid, rid, rev, latest, colref, row, value) VALUES (?,?,?,?,?,?,?)";
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function validateTypeData($data)
+    {
+        // we do not store completely empty rows
+        $isempty = array_reduce($data, function ($isempty, $cell) {
+            return $isempty && ($cell === '' || $cell === [] || $cell === null);
+        }, true);
+
+        return !$isempty;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function getSingleNoninputCols()
+    {
+        return ['pid', 'rev', 'latest'];
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function getSingleNoninputValues()
+    {
+        return [$this->pid, AccessTable::DEFAULT_REV, AccessTable::DEFAULT_LATEST];
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function getMultiNoninputValues()
+    {
+        return [$this->pid, $this->rid, AccessTable::DEFAULT_REV, AccessTable::DEFAULT_LATEST];
+    }
+
+    /**
+     * Set new rid if this is a new insert
+
+     * @return bool
+     */
+    protected function afterSingleSave()
+    {
+        $ok = true;
+        if(!$this->rid) {
+            $res = $this->sqlite->query("SELECT rid FROM $this->stable WHERE ROWID = last_insert_rowid()");
+            $this->rid = $this->sqlite->res2single($res);
+            $this->sqlite->res_close($res);
+            if(!$this->rid) {
+                $ok = false;
+            }
+        }
+        return $ok;
+    }
 }

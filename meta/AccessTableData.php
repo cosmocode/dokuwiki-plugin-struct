@@ -35,80 +35,6 @@ class AccessTableData extends AccessTable {
     }
 
     /**
-     * Save the data to the database.
-     *
-     * We differentiate between single-value-column and multi-value-column by the value to the respective column-name,
-     * i.e. depending on if that is a string or an array, respectively.
-     *
-     * @param array $data typelabel => value for single fields or typelabel => array(value, value, ...) for multi fields
-     *
-     * @return bool success of saving the data to the database
-     */
-    public function saveData($data) {
-        $stable = 'data_' . $this->schema->getTable();
-        $mtable = 'multi_' . $this->schema->getTable();
-
-        if($this->ts == 0) throw new StructException("Saving with zero timestamp does not work.");
-
-        $colrefs = array_flip($this->labels);
-        $now = $this->ts;
-        $opt = array(self::DEFAULT_PAGE_RID, $this->pid, $now, 1);
-        $multiopts = array();
-        $singlecols = 'rid, pid, rev, latest';
-
-        foreach ($data as $colname => $value) {
-            if(!isset($colrefs[$colname])) {
-                throw new StructException("Unknown column %s in schema.", hsc($colname));
-            }
-
-            $singlecols .= ",col" . $colrefs[$colname];
-            if (is_array($value)) {
-                foreach ($value as $index => $multivalue) {
-                    $multiopts[] = array($colrefs[$colname], $index+1, $multivalue,);
-                }
-                // copy first value to the single column
-                if(isset($value[0])) {
-                    $opt[] = $value[0];
-                } else {
-                    $opt[] = null;
-                }
-            } else {
-                $opt[] = $value;
-            }
-        }
-
-        $singlesql = "INSERT INTO $stable ($singlecols) VALUES (" . trim(str_repeat('?,',count($opt)),',') . ');';
-
-        /** @noinspection SqlResolve */
-        $multisql = "INSERT INTO $mtable (latest, rev, pid, rid, colref, row, value) VALUES (?,?,?,?,?,?,?)";
-
-        $this->sqlite->query('BEGIN TRANSACTION');
-
-        // remove latest status from previous data
-        /** @noinspection SqlResolve */
-        $ok = $this->sqlite->query( "UPDATE $stable SET latest = 0 WHERE latest = 1 AND pid = ?",array($this->pid));
-        /** @noinspection SqlResolve */
-        $ok = $ok && $this->sqlite->query( "UPDATE $mtable SET latest = 0 WHERE latest = 1 AND pid = ?",array($this->pid));
-
-        // insert single values
-        $ok = $ok && $this->sqlite->query($singlesql, $opt);
-
-
-        // insert multi values
-        foreach ($multiopts as $multiopt) {
-            $multiopt = array_merge(array(1, $now, $this->pid, self::DEFAULT_PAGE_RID), $multiopt);
-            $ok = $ok && $this->sqlite->query($multisql, $multiopt);
-        }
-
-        if (!$ok) {
-            $this->sqlite->query('ROLLBACK TRANSACTION');
-            return false;
-        }
-        $this->sqlite->query('COMMIT TRANSACTION');
-        return true;
-    }
-
-    /**
      * @return int
      */
     protected function getLastRevisionTimestamp() {
@@ -128,4 +54,62 @@ class AccessTableData extends AccessTable {
         return $ret;
     }
 
+    /**
+     * @inheritDoc
+     */
+    protected function validateTypeData($data)
+    {
+        if($this->ts == 0) {
+            throw new StructException("Saving with zero timestamp does not work.");
+        }
+        return true;
+    }
+
+    /**
+     * Remove latest status from previous data
+     */
+    protected function beforeSave()
+    {
+        /** @noinspection SqlResolve */
+        $ok = $this->sqlite->query(
+            "UPDATE $this->stable SET latest = 0 WHERE latest = 1 AND pid = ?", [$this->pid]
+        );
+        /** @noinspection SqlResolve */
+        return $ok && $this->sqlite->query(
+            "UPDATE $this->mtable SET latest = 0 WHERE latest = 1 AND pid = ?",  [$this->pid]
+            );
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function getSingleNoninputCols()
+    {
+        return ['rid, pid, rev, latest'];
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function getSingleNoninputValues()
+    {
+        return [self::DEFAULT_PAGE_RID, $this->pid, $this->ts, 1];
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function getMultiSql()
+    {
+        /** @noinspection SqlResolve */
+        return "INSERT INTO $this->mtable (latest, rev, pid, rid, colref, row, value) VALUES (?,?,?,?,?,?,?)";
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function getMultiNoninputValues()
+    {
+        return [AccessTable::DEFAULT_LATEST, $this->ts, $this->pid, self::DEFAULT_PAGE_RID];
+    }
 }
