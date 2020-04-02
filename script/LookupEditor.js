@@ -79,6 +79,16 @@ var LookupEditor = function (idx, table) {
             name: 'searchconf',
             value: $agg.attr('data-searchconf')
         }).appendTo($form); // add the search config to the form
+
+        // if page id needs to be passed to backend, add pid
+        const searchconf = JSON.parse($agg.attr('data-searchconf'));
+        if (searchconf['withpid']) {
+            jQuery('<input>').attr({
+                type: 'hidden',
+                name: 'pid',
+                value: JSINFO.id
+            }).appendTo($form); // add the page id to the form
+        }
         $agg.append($form);
         EntryEditor($form);
 

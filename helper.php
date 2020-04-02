@@ -127,26 +127,6 @@ class helper_plugin_struct extends DokuWiki_Plugin {
     }
 
     /**
-     * Save serial data row
-     *
-     * @param AccessTable        $access the table into which to save the data
-     * @param array             $data   data to be saved in the form of [columnName => 'data']
-     */
-    public function saveSerialData(AccessTable $access, $data)
-    {
-        if(!$access->getSchema()->isEditable()) {
-            throw new StructException('serial save error: no permission for schema');
-        }
-        $validator = $access->getValidator($data);
-        if(!$validator->validate()) {
-            throw new StructException("Validation failed:\n%s", implode("\n", $validator->getErrors()));
-        }
-        if(!$validator->saveData()) {
-            throw new StructException('No data saved');
-        }
-    }
-
-    /**
      * Creates a new page revision with the same page content as before
      *
      * @param string $page

@@ -41,6 +41,7 @@ class action_plugin_struct_search extends DokuWiki_Action_Plugin {
         if(!$tables) return;
 
         foreach($tables as $table) {
+            // FIXME is timestamp relevant here?
             $schemadata = AccessTable::byTableName($table, $id, 0);
             $event->data['body'] .= $schemadata->getDataPseudoSyntax();
         }
@@ -61,6 +62,7 @@ class action_plugin_struct_search extends DokuWiki_Action_Plugin {
         if(!$tables) return;
 
         foreach($tables as $table) {
+            // FIXME is timestamp relevant here?
             $schemadata = AccessTable::byTableName($table, $id, 0);
             $event->data['text'] .= $schemadata->getDataPseudoSyntax();
         }

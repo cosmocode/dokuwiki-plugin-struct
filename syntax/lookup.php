@@ -44,7 +44,6 @@ class syntax_plugin_struct_lookup extends syntax_plugin_struct_table {
         // adjust some things for the lookup editor
         $config['cols'] = array('*'); // always select all columns
         if(isset($config['rownumbers'])) unset($config['rownumbers']); // this annoying to update dynamically
-
         return $config;
     }
 
@@ -58,6 +57,7 @@ class syntax_plugin_struct_lookup extends syntax_plugin_struct_table {
     {
         $config['filter'][] = ['%rowid%', '!=', (string)\dokuwiki\plugin\struct\meta\AccessTableData::DEFAULT_PAGE_RID, 'AND'];
         $config['filter'][] = ['%pageid%', '=*', '^(?![\s\S])', 'AND'];
+        $config['withpid'] = 0; // flag for the editor to distinguish data types
         return $config;
     }
 }

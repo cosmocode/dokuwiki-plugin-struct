@@ -3,14 +3,12 @@ jQuery(function() {
     /* DOKUWIKI:include script/EntryEditor.js */
     /* DOKUWIKI:include script/SchemaEditor.js */
     /* DOKUWIKI:include script/LookupEditor.js */
-    /* DOKUWIKI:include script/SerialEditor.js */
     /* DOKUWIKI:include script/InlineEditor.js */
 
     function init() {
         EntryEditor(jQuery('#dw__editform, form.bureaucracy__plugin'));
         SchemaEditor();
         jQuery('div.structlookup table').each(LookupEditor);
-        jQuery('div.structserial table').each(SerialEditor);
         InlineEditor(jQuery('div.structaggregation table'));
     }
 
