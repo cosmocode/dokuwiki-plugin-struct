@@ -6,13 +6,12 @@
  * @author  Andreas Gohr, Michael Große <dokuwiki@cosmocode.de>
  */
 
-// must be run within Dokuwiki
 use dokuwiki\plugin\struct\meta\AccessTable;
 use dokuwiki\plugin\struct\meta\Assignments;
-use dokuwiki\plugin\struct\meta\AccessTableData;
 
-if(!defined('DOKU_INC')) die();
-
+/**
+ * Inject struct data into indexed pages and search result snippets
+ */
 class action_plugin_struct_search extends DokuWiki_Action_Plugin {
 
     /**
@@ -40,9 +39,9 @@ class action_plugin_struct_search extends DokuWiki_Action_Plugin {
         $tables = $assignments->getPageAssignments($id);
         if(!$tables) return;
 
+        $now = time();
         foreach($tables as $table) {
-            // FIXME is timestamp relevant here?
-            $schemadata = AccessTable::byTableName($table, $id, 0);
+            $schemadata = AccessTable::byTableName($table, $id, $now);
             $event->data['body'] .= $schemadata->getDataPseudoSyntax();
         }
     }
@@ -61,9 +60,9 @@ class action_plugin_struct_search extends DokuWiki_Action_Plugin {
         $tables = $assignments->getPageAssignments($id);
         if(!$tables) return;
 
+        $now = time();
         foreach($tables as $table) {
-            // FIXME is timestamp relevant here?
-            $schemadata = AccessTable::byTableName($table, $id, 0);
+            $schemadata = AccessTable::byTableName($table, $id, $now);
             $event->data['text'] .= $schemadata->getDataPseudoSyntax();
         }
     }

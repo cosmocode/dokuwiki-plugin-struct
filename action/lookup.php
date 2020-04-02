@@ -123,7 +123,6 @@ class action_plugin_struct_lookup extends DokuWiki_Action_Plugin
         $this->rid = $access->getRid();
         $config = $this->addTypeFilter($config);
 
-        // FIXME type specific handling of pid
         $lookup = new LookupTable(
             $this->pid,
             'xhtml',

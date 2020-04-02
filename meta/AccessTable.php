@@ -57,7 +57,7 @@ abstract class AccessTable {
      *
      * @param Schema $schema schema to load
      * @param string $pid Page id to access
-     * @param int $ts Time at which the data should be read or written, 0 for now
+     * @param int $ts Time at which the data should be read or written
      * @param int $rid Row id, 0 for page type data, otherwise autoincrement
      * @return AccessTableData|AccessTableLookup
      */
@@ -73,7 +73,7 @@ abstract class AccessTable {
      *
      * @param string $tablename schema to load
      * @param string $pid Page id to access
-     * @param int $ts Time at which the data should be read or written, 0 for now
+     * @param int $ts Time at which the data should be read or written
      * @param int $rid Row id, 0 for page type data, otherwise autoincrement
      * @return AccessTableData|AccessTableLookup
      */
@@ -486,8 +486,7 @@ abstract class AccessTable {
 
     /**
      * Return the last time an edit happened for this table for the currently set
-     * time and pid. When the current timestamp is 0, the newest revision is
-     * returned. Used in @see buildGetDataSQL()
+     * time and pid. Used in @see buildGetDataSQL()
      *
      * @return int
      */
