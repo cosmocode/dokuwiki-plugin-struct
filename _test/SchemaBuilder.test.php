@@ -54,7 +54,7 @@ class schemaBuilder_struct_test extends StructTest {
         $tableSQL = $this->sqlite->res2single($res);
         $this->sqlite->res_close($res);
         $expected_tableSQL = "CREATE TABLE data_testtable (
-                    pid TEXT DEFAULT NULL,
+                    pid TEXT DEFAULT '',
                     rid INTEGER,
                     rev INTEGER,
                     latest BOOLEAN NOT NULL DEFAULT 0, col1 DEFAULT '', col2 DEFAULT '',

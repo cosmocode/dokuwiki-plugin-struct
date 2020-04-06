@@ -67,21 +67,21 @@ class move_struct_test extends StructTest {
         $event->trigger();
 
         // old page should be gone
-        $schemaData = meta\AccessTable::byTableName('moves', 'page1', 0);
+        $schemaData = meta\AccessTable::byTableName('moves', 'page1', time());
         $this->assertEquals($this->empty, $schemaData->getDataArray());
 
         // new page should have adjusted data
         $data = $this->data1;
         $data['lookup'] = 'page3';
         $data['lookups'] = array('page3', 'page2');
-        $schemaData = meta\AccessTable::byTableName('moves', 'page3', 0);
+        $schemaData = meta\AccessTable::byTableName('moves', 'page3', time());
         $this->assertEquals($data, $schemaData->getDataArray());
 
         // other page should have adjusted lookups
         $data = $this->data2;
         $data['lookup'] = 'page3';
         $data['lookups'] = array('page3', 'page2');
-        $schemaData = meta\AccessTable::byTableName('moves', 'page2', 0);
+        $schemaData = meta\AccessTable::byTableName('moves', 'page2', time());
         $this->assertEquals($data, $schemaData->getDataArray());
     }
 
@@ -96,7 +96,7 @@ class move_struct_test extends StructTest {
         $data['pages'] = array('foobar', 'wiki:welcome');
         $data['title'] = 'foobar';
         $data['titles'] = array('foobar', 'wiki:welcome');
-        $schemaData = meta\AccessTable::byTableName('moves', 'page1', 0);
+        $schemaData = meta\AccessTable::byTableName('moves', 'page1', time());
         $this->assertEquals($data, $schemaData->getDataArray());
 
         $data = $this->data2;
@@ -104,7 +104,7 @@ class move_struct_test extends StructTest {
         $data['pages'] = array('foobar#something', 'wiki:welcome#something');
         $data['title'] = 'foobar#something';
         $data['titles'] = array('foobar#something', 'wiki:welcome#something');
-        $schemaData = meta\AccessTable::byTableName('moves', 'page2', 0);
+        $schemaData = meta\AccessTable::byTableName('moves', 'page2', time());
         $this->assertEquals($data, $schemaData->getDataArray());
     }
 
@@ -117,13 +117,13 @@ class move_struct_test extends StructTest {
         $data = $this->data1;
         $data['media'] = 'foobar.png';
         $data['medias'] = array('foobar.png');
-        $schemaData = meta\AccessTable::byTableName('moves', 'page1', 0);
+        $schemaData = meta\AccessTable::byTableName('moves', 'page1', time());
         $this->assertEquals($data, $schemaData->getDataArray());
 
         $data = $this->data2;
         $data['media'] = 'foobar.png';
         $data['medias'] = array('foobar.png');
-        $schemaData = meta\AccessTable::byTableName('moves', 'page2', 0);
+        $schemaData = meta\AccessTable::byTableName('moves', 'page2', time());
         $this->assertEquals($data, $schemaData->getDataArray());
     }
 }

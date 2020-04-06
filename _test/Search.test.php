@@ -94,7 +94,7 @@ class Search_struct_test extends StructTest {
         $search->addColumn('second');
 
         /** @var meta\Value[][] $result */
-        $result = $search->execute();
+        $result = $search->execute('pid');
 
         $this->assertEquals(2, count($result), 'result rows');
         $this->assertEquals(3, count($result[0]), 'result columns');
@@ -112,7 +112,7 @@ class Search_struct_test extends StructTest {
         $search->addColumn('second');
 
         /** @var meta\Value[][] $result */
-        $result = $search->execute();
+        $result = $search->execute('pid');
 
         $this->assertEquals(2, count($result), 'result rows');
         $this->assertEquals(3, count($result[0]), 'result columns');
@@ -131,7 +131,7 @@ class Search_struct_test extends StructTest {
         $search->addColumn('second');
 
         /** @var meta\Value[][] $result */
-        $result = $search->execute();
+        $result = $search->execute('pid');
 
         $this->assertEquals(2, count($result), 'result rows');
         $this->assertEquals(4, count($result[0]), 'result columns');
@@ -157,7 +157,7 @@ class Search_struct_test extends StructTest {
         $search->addColumn('second');
 
         /** @var meta\Value[][] $result */
-        $result = $search->execute();
+        $result = $search->execute('pid');
 
         $expected_time = dformat(filemtime(wikiFN('page01')), '%Y-%m-%d %H:%M:%S');
 
@@ -185,7 +185,7 @@ class Search_struct_test extends StructTest {
         $search->addColumn('second');
 
         /** @var meta\Value[][] $result */
-        $result = $search->execute();
+        $result = $search->execute('pid');
 
         $this->assertEquals(2, count($result), 'result rows');
         $this->assertEquals(4, count($result[0]), 'result columns');
@@ -240,7 +240,7 @@ class Search_struct_test extends StructTest {
         $search->addFilter('second', '%sec%', '~', 'AND');
         $search->addFilter('first', '%rst%', '~', 'AND');
 
-        $result = $search->execute();
+        $result = $search->execute('pid');
         $count = $search->getCount();
 
         $this->assertEquals(1, $count, 'result count');
@@ -250,7 +250,7 @@ class Search_struct_test extends StructTest {
         // sort by multi-column
         $search->addSort('second');
         $this->assertEquals(2, count($search->sortby));
-        $result = $search->execute();
+        $result = $search->execute('pid');
         $count = $search->getCount();
         $this->assertEquals(1, $count, 'result count');
         $this->assertEquals(1, count($result), 'result rows');
@@ -282,7 +282,7 @@ class Search_struct_test extends StructTest {
         $search->addSort('%pageid%', false);
 
         /** @var meta\Value[][] $result */
-        $result = $search->execute();
+        $result = $search->execute('pid');
         $count = $search->getCount();
 
         // check result dimensions
@@ -297,7 +297,7 @@ class Search_struct_test extends StructTest {
 
         // now add limit
         $search->setLimit(5);
-        $result = $search->execute();
+        $result = $search->execute('pid');
         $count = $search->getCount();
 
         // check result dimensions
@@ -310,7 +310,7 @@ class Search_struct_test extends StructTest {
 
         // now add offset
         $search->setOffset(5);
-        $result = $search->execute();
+        $result = $search->execute('pid');
         $count = $search->getCount();
 
         // check result dimensions

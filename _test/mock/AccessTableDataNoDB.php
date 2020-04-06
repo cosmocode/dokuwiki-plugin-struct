@@ -21,8 +21,8 @@ class AccessTableDataNoDB extends AccessTableData {
         $this->ts = $ts;
     }
 
-    public function buildGetDataSQL() {
-        return parent::buildGetDataSQL();
+    public function buildGetDataSQL($idColumn = 'pid') {
+        return parent::buildGetDataSQL($idColumn);
     }
 
     public function setColumns($singles, $multis) {

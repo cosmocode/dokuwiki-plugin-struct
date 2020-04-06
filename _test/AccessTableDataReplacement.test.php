@@ -81,8 +81,8 @@ class AccessTableDataReplacement_struct_test extends StructTest {
         $actual_config = $configParser->getConfig();
 
         $search = new meta\SearchConfig($actual_config);
-        list(, $opts) = $search->getSQL();
-        $result = $search->execute();
+        list(, $opts) = $search->getSQL('pid');
+        $result = $search->execute('pid');
 
         $this->assertEquals(array('page1', 'page2'), $opts, '$STRUCT.table.col$ should not require table to be selected');
         $this->assertEquals('data of page1', $result[0][1]->getValue());
@@ -157,11 +157,11 @@ class AccessTableDataReplacement_struct_test extends StructTest {
         $actual_config = $configParser->getConfig();
 
         $search = new meta\SearchConfig($actual_config);
-        list($sql,) = $search->getSQL();
+        list($sql,) = $search->getSQL('pid');
         $where = array_filter(explode("\n", $sql), function ($elem) {return strpos($elem,'WHERE') !== false;});
         $where = trim(reset($where));
 
-        $baseWhere = "WHERE  ( 
+        $baseWhere = "WHERE  (
                                   data_bar.pid = schema_assignments.pid
                               AND schema_assignments.tbl = 'bar'
                               AND schema_assignments.assigned = 1
