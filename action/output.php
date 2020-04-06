@@ -88,9 +88,12 @@ class action_plugin_struct_output extends DokuWiki_Action_Plugin {
     {
         if (!$event->data['id'] || !page_exists($event->data['id'])) return;
 
+        global $REV;
+        $rev = $REV ?: time();
+
         /** @var helper_plugin_struct $helper */
         $helper = plugin_load('helper', 'struct');
-        $data = $helper->getData($event->data['id']);
+        $data = $helper->getData($event->data['id'], null, $rev);
 
         if(!$data) return;
 
