@@ -34,12 +34,15 @@ class helper_plugin_struct extends DokuWiki_Plugin {
      *
      * @param string $page The page to get data for
      * @param string|null $schema The schema to use null for all
-     * @param int $time A timestamp if you want historic data (0 for now)
+     * @param int $time A timestamp if you want historic data
      * @return array ('schema' => ( 'fieldlabel' => 'value', ...))
      * @throws StructException
      */
     public function getData($page, $schema = null, $time = 0) {
         $page = cleanID($page);
+        if (!$time) {
+            $time = time();
+        }
 
         if(is_null($schema)) {
             $assignments = Assignments::getInstance();

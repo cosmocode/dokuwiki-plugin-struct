@@ -74,10 +74,9 @@ class action_plugin_struct_edit extends DokuWiki_Action_Plugin {
         global $ID;
         global $REV;
         global $INPUT;
-        global $INFO;
         if(auth_quickaclcheck($ID) == AUTH_READ) return '';
         if(checklock($ID)) return '';
-        $ts = $REV ?: $INFO['currentrev'];
+        $ts = $REV ?: time();
         $schema = AccessTable::byTableName($tablename, $ID, $ts);
         if(!$schema->getSchema()->isEditable()) {
             return '';

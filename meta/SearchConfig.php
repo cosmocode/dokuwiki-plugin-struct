@@ -158,7 +158,7 @@ class SearchConfig extends Search {
 
         // get the data from the current page
         if($table && $label) {
-            $schemaData = AccessTable::byTableName($table, $INFO['id'], 0);
+            $schemaData = AccessTable::byTableName($table, $INFO['id'], time());
             $data = $schemaData->getData();
             if (!isset($data[$label])) {
                 throw new StructException("column not in table", $label, $table);
