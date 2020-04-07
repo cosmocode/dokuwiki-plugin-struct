@@ -24,7 +24,7 @@ class Bureaucracy_struct_test extends StructTest {
     public function setUp() {
         parent::setUp();
 
-        $this->loadSchemaJSON('bureaucracy_lookup', '', 0, true);
+        $this->loadSchemaJSON('bureaucracy_lookup', '', 0);
         $this->loadSchemaJSON('bureaucracy');
 
         //insert some data to lookup

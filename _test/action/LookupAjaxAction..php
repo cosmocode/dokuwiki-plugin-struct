@@ -18,7 +18,7 @@ class LookupAjaxAction extends StructTest
     {
         parent::setUp();
 
-        $this->loadSchemaJSON('wikilookup', '', 0, true);
+        $this->loadSchemaJSON('wikilookup', '', 0);
 
         /** @var \helper_plugin_struct $helper */
         $helper = plugin_load('helper', 'struct');
@@ -28,7 +28,7 @@ class LookupAjaxAction extends StructTest
             'SecondFieldLongText' => "abc\ndef\n",
             'ThirdFieldWiki' => "  * hi\n  * ho",
         ];
-        $access = AccessTable::byTableName('wikilookup', 0, 0);
+        $access = AccessTable::byTableName('wikilookup', 0, time());
         $helper->saveLookupData($access, $saveDate);
     }
 

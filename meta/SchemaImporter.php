@@ -20,10 +20,9 @@ class SchemaImporter extends SchemaBuilder {
      *
      * @param string $table
      * @param string $json
-     * @param bool $islookup
      */
-    public function __construct($table, $json, $islookup=false) {
-        parent::__construct($table, array('islookup' => $islookup));
+    public function __construct($table, $json) {
+        parent::__construct($table, []);
 
         // number of existing columns
         $existing = count($this->oldschema->getColumns());

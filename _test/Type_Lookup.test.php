@@ -27,8 +27,8 @@ class Type_Lookup_struct_test extends StructTest {
         $pageMeta = new PageMeta('title3');
         $pageMeta->setTitle('Another Title');
 
-        $this->loadSchemaJSON('pageschema', '', 0, true);
-        $access = AccessTable::byTableName('pageschema', 0);
+        $this->loadSchemaJSON('pageschema', '', 0);
+        $access = AccessTable::byTableName('pageschema', '');
         $access->saveData(
             array(
                 'singlepage' => 'title1',
@@ -37,7 +37,7 @@ class Type_Lookup_struct_test extends StructTest {
                 'multititle' => array('title1'),
             )
         );
-        $access = AccessTable::byTableName('pageschema', 0);
+        $access = AccessTable::byTableName('pageschema', '');
         $access->saveData(
             array(
                 'singlepage' => 'title2',
@@ -46,7 +46,7 @@ class Type_Lookup_struct_test extends StructTest {
                 'multititle' => array('title2'),
             )
         );
-        $access = AccessTable::byTableName('pageschema', 0);
+        $access = AccessTable::byTableName('pageschema', '');
         $access->saveData(
             array(
                 'singlepage' => 'title3',
@@ -58,8 +58,8 @@ class Type_Lookup_struct_test extends StructTest {
     }
 
     protected function prepareTranslation() {
-        $this->loadSchemaJSON('translation', '', 0, true);
-        $access = AccessTable::byTableName('translation', 0);
+        $this->loadSchemaJSON('translation', '', 0);
+        $access = AccessTable::byTableName('translation', '');
         $access->saveData(
             array(
                 'en' => 'shoe',
@@ -68,7 +68,7 @@ class Type_Lookup_struct_test extends StructTest {
             )
         );
 
-        $access = AccessTable::byTableName('translation', 0);
+        $access = AccessTable::byTableName('translation', '');
         $access->saveData(
             array(
                 'en' => 'dog',
@@ -77,7 +77,7 @@ class Type_Lookup_struct_test extends StructTest {
             )
         );
 
-        $access = AccessTable::byTableName('translation', 0);
+        $access = AccessTable::byTableName('translation', '');
         $access->saveData(
             array(
                 'en' => 'cat',
@@ -98,7 +98,7 @@ class Type_Lookup_struct_test extends StructTest {
         $this->prepareLookup();
         $this->preparePages();
 
-        $access = AccessTable::byTableName('dropdowns', 'test1');
+        $access = AccessTable::byTableName('dropdowns', 'test1', time());
         $data = $access->getData();
 
         $this->assertEquals('["1","[\\"title1\\",\\"This is a title\\"]"]', $data['drop1']->getValue());

@@ -72,26 +72,23 @@ class Lookup extends Dropdown {
             $column = $table->findColumn($field);
         }
         if(!$column) {
-            if(!$table->isLookup()) {
-                if($infield == '%pageid%') {
-                    $column = new PageColumn(0, new Page(), $table);
-                }
-                if($infield == '%title%') {
-                    $column = new PageColumn(0, new Page(array('usetitles' => true)), $table);
-                }
-                if($infield == '%lastupdate%') {
-                    $column = new RevisionColumn(0, new DateTime(), $table);
-                }
-                if ($infield == '%lasteditor%') {
-                    $column = new UserColumn(0, new User(), $table);
-                }
-                if ($infield == '%lastsummary%') {
-                    return new SummaryColumn(0, new AutoSummary(), $table);
-                }
-            } else {
-                if($infield == '%rowid%') {
-                    $column = new RowColumn(0, new Decimal(), $table);
-                }
+            if($infield == '%pageid%') {
+                $column = new PageColumn(0, new Page(), $table);
+            }
+            if($infield == '%title%') {
+                $column = new PageColumn(0, new Page(array('usetitles' => true)), $table);
+            }
+            if($infield == '%lastupdate%') {
+                $column = new RevisionColumn(0, new DateTime(), $table);
+            }
+            if ($infield == '%lasteditor%') {
+                $column = new UserColumn(0, new User(), $table);
+            }
+            if ($infield == '%lastsummary%') {
+                return new SummaryColumn(0, new AutoSummary(), $table);
+            }
+            if($infield == '%rowid%') {
+                $column = new RowColumn(0, new Decimal(), $table);
             }
         }
         if(!$column) {
@@ -125,13 +122,13 @@ class Lookup extends Dropdown {
         $search->addColumn($field);
         $search->addSort($field);
         $result = $search->execute();
-        $pids = $search->getPids();
+        $rids = $search->getRids();
         $len = count($result);
 
         /** @var Value[][] $result */
         $options = array('' => '');
         for($i = 0; $i < $len; $i++) {
-            $options[$pids[$i]] = $result[$i][0]->getDisplayValue();
+            $options[$rids[$i]] = $result[$i][0]->getDisplayValue();
         }
         return $options;
     }
@@ -234,7 +231,7 @@ class Lookup extends Dropdown {
         $rightalias = $QB->generateTableAlias();
         $QB->addLeftJoin(
             $tablealias, $schema, $rightalias,
-            "$tablealias.$colname = $rightalias.pid AND $rightalias.latest = 1"
+            "$tablealias.$colname = $rightalias.rid AND $rightalias.latest = 1"
         );
         $column->getType()->select($QB, $rightalias, $field, $alias);
         $sql = $QB->getSelectStatement($alias);
@@ -265,7 +262,7 @@ class Lookup extends Dropdown {
         $rightalias = $QB->generateTableAlias();
         $QB->addLeftJoin(
             $tablealias, $schema, $rightalias,
-            "$tablealias.$colname = $rightalias.pid AND $rightalias.latest = 1"
+            "$tablealias.$colname = $rightalias.rid AND $rightalias.latest = 1"
         );
         $column->getType()->filter($add, $rightalias, $field, $comp, $value, $op);
     }
@@ -290,7 +287,7 @@ class Lookup extends Dropdown {
         $rightalias = $QB->generateTableAlias();
         $QB->addLeftJoin(
             $tablealias, $schema, $rightalias,
-            "$tablealias.$colname = $rightalias.pid AND $rightalias.latest = 1"
+            "$tablealias.$colname = $rightalias.rid AND $rightalias.latest = 1"
         );
         $column->getType()->sort($QB, $rightalias, $field, $order);
     }

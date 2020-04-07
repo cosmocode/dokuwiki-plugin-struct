@@ -346,7 +346,7 @@ class Search {
      * @param string $idColumn Column on which to join tables
      * @return Value[][]
      */
-    public function execute($idColumn) {
+    public function execute($idColumn = 'rid') {
         list($sql, $opts) = $this->getSQL($idColumn);
 
         /** @var \PDOStatement $res */

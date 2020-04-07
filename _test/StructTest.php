@@ -39,14 +39,14 @@ abstract class StructTest extends \DokuWikiTest {
      * @param int $rev allows to create schemas back in time
      * @param bool $lookup create as a lookup schema
      */
-    protected function loadSchemaJSON($schema, $json = '', $rev = 0, $lookup = false) {
+    protected function loadSchemaJSON($schema, $json = '', $rev = 0) {
         if(!$json) $json = $schema;
         $file = __DIR__ . "/json/$json.struct.json";
         if(!file_exists($file)) {
             throw new \RuntimeException("$file does not exist");
         }
 
-        $importer = new SchemaImporter($schema, file_get_contents($file), $lookup);
+        $importer = new SchemaImporter($schema, file_get_contents($file));
 
         if(!$importer->build($rev)) {
             throw new \RuntimeException("build of $schema from $file failed");
