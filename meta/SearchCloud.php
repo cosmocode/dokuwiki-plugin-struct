@@ -18,16 +18,17 @@ class SearchCloud extends SearchConfig {
     /**
      * Transform the set search parameters into a statement
      *
+     * @param string $idColumn Column on which to join tables
      * @return array ($sql, $opts) The SQL and parameters to execute
      */
-    public function getSQL() {
+    public function getSQL($idColumn) {
         if(!$this->columns) throw new StructException('nocolname');
 
         $QB = new QueryBuilder();
         reset($this->schemas);
         $schema = current($this->schemas);
         $datatable = 'data_' . $schema->getTable();
-        if(!$schema->isLookup()) {
+        if($idColumn === 'pid') {
             $QB->addTable('schema_assignments');
             $QB->filters()->whereAnd("$datatable.pid = schema_assignments.pid");
             $QB->filters()->whereAnd("schema_assignments.tbl = '{$schema->getTable()}'");
@@ -48,7 +49,7 @@ class SearchCloud extends SearchConfig {
                 $datatable,
                 $multitable,
                 $MN,
-                "$datatable.pid = $MN.pid AND
+                "$datatable.$idColumn = $MN.$idColumn AND
                      $datatable.rev = $MN.rev AND
                      $MN.colref = {$col->getColref()}"
             );
@@ -81,10 +82,11 @@ class SearchCloud extends SearchConfig {
      *
      * The result is a two dimensional array of Value()s.
      *
+     * @param string $idColumn Column on which to join tables
      * @return Value[][]
      */
-    public function execute() {
-        list($sql, $opts) = $this->getSQL();
+    public function execute($idColumn) {
+        list($sql, $opts) = $this->getSQL($idColumn);
 
         /** @var \PDOStatement $res */
         $res = $this->sqlite->query($sql, $opts);

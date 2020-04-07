@@ -415,9 +415,7 @@ class Search {
                 $QB->addLeftJoin($first_table, $datatable, $datatable, "$first_table.$idColumn = $datatable.$idColumn");
             } else {
                 // first table
-
-                // FIXME this breaks page search, a different check is needed
-                if(false) {
+                if($idColumn === 'pid') {
                     $QB->addTable('schema_assignments');
                     $QB->filters()->whereAnd("$datatable.pid = schema_assignments.pid");
                     $QB->filters()->whereAnd("schema_assignments.tbl = '{$schema->getTable()}'");
