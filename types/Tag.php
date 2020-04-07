@@ -100,12 +100,10 @@ class Tag extends AbstractMultiBaseType {
                      WHERE 1 = 1\n";
         }
 
-        $schema = new Schema($context->getTable());
-        // FIXME do not break lookup autocompletion, whatever that is
-        if (true) {
-            $sql .= "AND PAGEEXISTS(D.pid) = 1\n";
-            $sql .= "AND GETACCESSLEVEL(D.pid) > 0\n";
-        }
+        $sql .= "AND ( D.pid = '' OR (";
+        $sql .= "PAGEEXISTS(D.pid) = 1\n";
+        $sql .= "AND GETACCESSLEVEL(D.pid) > 0\n";
+        $sql .= ")) ";
 
         $sql .= "AND D.latest = 1\n";
         $sql .= "AND value LIKE ?\n";
