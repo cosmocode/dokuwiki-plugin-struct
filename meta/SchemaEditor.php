@@ -86,8 +86,8 @@ class SchemaEditor {
         $html = '';
         $html .= '<link href="'.DOKU_BASE.'lib/plugins/struct/jsoneditor/jsoneditor.min.css" rel="stylesheet" type="text/css">';
         $html .= '<link href="'.DOKU_BASE.'lib/plugins/struct/jsoneditor/setup.css" rel="stylesheet" type="text/css">';
-        $html .= '<script src="'.DOKU_BASE.'lib/plugins/struct/jsoneditor/jsoneditor-minimalist.min.js"></script>';
-        $html .= '<script src="'.DOKU_BASE.'lib/plugins/struct/jsoneditor/setup.js"></script>';
+        $html .= '<script src="'.DOKU_BASE.'lib/plugins/struct/jsoneditor/jsoneditor-minimalist.min.js" defer="defer"></script>';
+        $html .= '<script src="'.DOKU_BASE.'lib/plugins/struct/jsoneditor/setup.js" defer="defer"></script>';
         return $html;
     }
 
