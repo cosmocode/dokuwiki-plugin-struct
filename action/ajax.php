@@ -7,11 +7,8 @@
  * @author  Andreas Gohr, Michael Große <dokuwiki@cosmocode.de>
  */
 
-// must be run within Dokuwiki
 use dokuwiki\plugin\struct\meta\Schema;
 use dokuwiki\plugin\struct\meta\StructException;
-
-if (!defined('DOKU_INC')) die();
 
 class action_plugin_struct_ajax extends DokuWiki_Action_Plugin
 {
@@ -24,7 +21,7 @@ class action_plugin_struct_ajax extends DokuWiki_Action_Plugin
      */
     public function register(Doku_Event_Handler $controller)
     {
-        $controller->register_hook('AJAX_CALL_UNKNOWN', 'BEFORE', $this, 'handle_ajax');
+        $controller->register_hook('AJAX_CALL_UNKNOWN', 'BEFORE', $this, 'handleAjax');
     }
 
     /**
@@ -34,7 +31,7 @@ class action_plugin_struct_ajax extends DokuWiki_Action_Plugin
      * @param mixed $param [the parameters passed as fifth argument to register_hook() when this
      *                           handler was registered]
      */
-    public function handle_ajax(Doku_Event $event, $param)
+    public function handleAjax(Doku_Event $event, $param)
     {
         if ($event->data != 'plugin_struct') return;
         $event->preventDefault();

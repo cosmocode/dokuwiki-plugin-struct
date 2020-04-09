@@ -7,9 +7,6 @@
  * @author  Andreas Gohr, Michael Große <dokuwiki@cosmocode.de>
  */
 
-// must be run within Dokuwiki
-if (!defined('DOKU_INC')) die();
-
 use dokuwiki\plugin\struct\meta\AccessTable;
 use dokuwiki\plugin\struct\meta\Assignments;
 use dokuwiki\plugin\struct\meta\Value;
@@ -36,7 +33,7 @@ class action_plugin_struct_edit extends DokuWiki_Action_Plugin
     public function register(Doku_Event_Handler $controller)
     {
         // add the struct editor to the edit form;
-        $controller->register_hook('HTML_EDITFORM_OUTPUT', 'BEFORE', $this, 'handle_editform');
+        $controller->register_hook('HTML_EDITFORM_OUTPUT', 'BEFORE', $this, 'handleEditform');
     }
 
     /**
@@ -47,7 +44,7 @@ class action_plugin_struct_edit extends DokuWiki_Action_Plugin
      *                           handler was registered]
      * @return bool
      */
-    public function handle_editform(Doku_Event $event, $param)
+    public function handleEditform(Doku_Event $event, $param)
     {
         global $ID;
 

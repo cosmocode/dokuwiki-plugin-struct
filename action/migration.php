@@ -7,10 +7,6 @@
  * @author  Andreas Gohr, Michael Große <dokuwiki@cosmocode.de>
  */
 
-// must be run within Dokuwiki
-
-if (!defined('DOKU_INC')) die();
-
 /**
  * Class action_plugin_struct_migration
  *
@@ -23,7 +19,7 @@ class action_plugin_struct_migration extends DokuWiki_Action_Plugin
      */
     public function register(Doku_Event_Handler $controller)
     {
-        $controller->register_hook('PLUGIN_SQLITE_DATABASE_UPGRADE', 'BEFORE', $this, 'handle_migrations');
+        $controller->register_hook('PLUGIN_SQLITE_DATABASE_UPGRADE', 'BEFORE', $this, 'handleMigrations');
     }
 
     /**
@@ -32,7 +28,7 @@ class action_plugin_struct_migration extends DokuWiki_Action_Plugin
      * @param Doku_Event $event
      * @param $param
      */
-    public function handle_migrations(Doku_Event $event, $param)
+    public function handleMigrations(Doku_Event $event, $param)
     {
         if ($event->data['sqlite']->getAdapter()->getDbname() !== 'struct') {
             return;

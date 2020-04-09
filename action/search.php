@@ -24,8 +24,8 @@ class action_plugin_struct_search extends DokuWiki_Action_Plugin
      */
     public function register(Doku_Event_Handler $controller)
     {
-        $controller->register_hook('INDEXER_PAGE_ADD', 'BEFORE', $this, 'handle_indexing');
-        $controller->register_hook('FULLTEXT_SNIPPET_CREATE', 'BEFORE', $this, 'handle_snippets');
+        $controller->register_hook('INDEXER_PAGE_ADD', 'BEFORE', $this, 'handleIndexing');
+        $controller->register_hook('FULLTEXT_SNIPPET_CREATE', 'BEFORE', $this, 'handleSnippets');
     }
 
     /**
@@ -36,7 +36,7 @@ class action_plugin_struct_search extends DokuWiki_Action_Plugin
      *                           handler was registered]
      * @return bool
      */
-    public function handle_indexing(Doku_Event $event, $param)
+    public function handleIndexing(Doku_Event $event, $param)
     {
         $id = $event->data['page'];
         $assignments = Assignments::getInstance();
@@ -58,7 +58,7 @@ class action_plugin_struct_search extends DokuWiki_Action_Plugin
      *                           handler was registered]
      * @return bool
      */
-    public function handle_snippets(Doku_Event $event, $param)
+    public function handleSnippets(Doku_Event $event, $param)
     {
         $id = $event->data['id'];
         $assignments = Assignments::getInstance();

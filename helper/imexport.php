@@ -7,11 +7,8 @@
  * @author  Andreas Gohr, Michael Große <dokuwiki@cosmocode.de>
  */
 
-// must be run within Dokuwiki
 use dokuwiki\plugin\struct\meta\Assignments;
 use dokuwiki\plugin\struct\meta\Schema;
-
-if (!defined('DOKU_INC')) die();
 
 class helper_plugin_struct_imexport extends DokuWiki_Plugin
 {
@@ -97,7 +94,8 @@ class helper_plugin_struct_imexport extends DokuWiki_Plugin
      *
      * @param string $schemaName The name of the schema
      * @param string $schemaJSON The structure of the schema as exportet by structs export functionality
-     * @param string $user optional, the user that should be set in the schemas history. If blank, the current user is used.
+     * @param string $user optional, the user that should be set in the schemas history.
+     *                      If blank, the current user is used.
      * @return bool|int the id of the new schema version or false on error.
      *
      * @throws dokuwiki\plugin\struct\meta\StructException

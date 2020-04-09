@@ -7,12 +7,9 @@
  * @author  Andreas Gohr, Michael Große <dokuwiki@cosmocode.de>
  */
 
-// must be run within Dokuwiki
 use dokuwiki\plugin\struct\meta\AccessTable;
 use dokuwiki\plugin\struct\meta\Assignments;
 use dokuwiki\plugin\struct\meta\StructException;
-
-if (!defined('DOKU_INC')) die();
 
 class syntax_plugin_struct_output extends DokuWiki_Syntax_Plugin
 {
@@ -156,7 +153,9 @@ class syntax_plugin_struct_output extends DokuWiki_Syntax_Plugin
                 $R->tableheader_close();
                 $R->tablecell_open();
                 if ($mode == 'xhtml') {
-                    $R->doc = substr($R->doc, 0, -1) . ' data-struct="' . hsc($field->getColumn()->getFullQualifiedLabel()) . '">';
+                    $R->doc = substr($R->doc, 0, -1) .
+                        ' data-struct="' . hsc($field->getColumn()->getFullQualifiedLabel()) .
+                        '">';
                 }
                 $field->render($R, $mode);
                 $R->tablecell_close();

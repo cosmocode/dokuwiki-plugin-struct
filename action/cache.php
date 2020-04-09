@@ -18,9 +18,9 @@ class action_plugin_struct_cache extends DokuWiki_Action_Plugin
      */
     public function register(Doku_Event_Handler $controller)
     {
-        $controller->register_hook('PARSER_CACHE_USE', 'BEFORE', $this, 'handle_cache_schemachange');
-        $controller->register_hook('PARSER_CACHE_USE', 'BEFORE', $this, 'handle_cache_aggregation');
-        $controller->register_hook('PARSER_CACHE_USE', 'AFTER', $this, 'handle_cache_dynamic');
+        $controller->register_hook('PARSER_CACHE_USE', 'BEFORE', $this, 'handleCacheSchemachange');
+        $controller->register_hook('PARSER_CACHE_USE', 'BEFORE', $this, 'handleCacheAggregation');
+        $controller->register_hook('PARSER_CACHE_USE', 'AFTER', $this, 'handleCacheDynamic');
     }
 
     /**
@@ -41,7 +41,7 @@ class action_plugin_struct_cache extends DokuWiki_Action_Plugin
      *                           handler was registered]
      * @return bool
      */
-    public function handle_cache_schemachange(Doku_Event $event, $param)
+    public function handleCacheSchemachange(Doku_Event $event, $param)
     {
         /** @var \cache_parser $cache */
         $cache = $event->data;
@@ -64,7 +64,7 @@ class action_plugin_struct_cache extends DokuWiki_Action_Plugin
      *                           handler was registered]
      * @return bool
      */
-    public function handle_cache_aggregation(Doku_Event $event, $param)
+    public function handleCacheAggregation(Doku_Event $event, $param)
     {
         global $INPUT;
 
@@ -121,7 +121,7 @@ class action_plugin_struct_cache extends DokuWiki_Action_Plugin
      *                           handler was registered]
      * @return bool
      */
-    public function handle_cache_dynamic(Doku_Event $event, $param)
+    public function handleCacheDynamic(Doku_Event $event, $param)
     {
         /** @var \cache_parser $cache */
         $cache = $event->data;

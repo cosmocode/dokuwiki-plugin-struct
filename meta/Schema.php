@@ -148,7 +148,7 @@ class Schema
     /**
      * @return string identifer for debugging purposes
      */
-    function __toString()
+    public function __toString()
     {
         return __CLASS__ . ' ' . $this->table . ' (' . $this->id . ') ' . ($this->islookup ? 'LOOKUP' : 'DATA');
     }

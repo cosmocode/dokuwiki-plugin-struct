@@ -17,9 +17,6 @@ use dokuwiki\plugin\struct\meta\SchemaEditor;
 use dokuwiki\plugin\struct\meta\SchemaImporter;
 use dokuwiki\plugin\struct\meta\StructException;
 
-// must be run within Dokuwiki
-if (!defined('DOKU_INC')) die();
-
 class admin_plugin_struct_schemas extends DokuWiki_Admin_Plugin
 {
 
@@ -169,11 +166,11 @@ class admin_plugin_struct_schemas extends DokuWiki_Admin_Plugin
 
             $editor = new SchemaEditor($schema);
             echo $editor->getEditor();
-            echo $this->html_json($schema);
-            echo $this->html_delete($schema);
+            echo $this->htmlJson($schema);
+            echo $this->htmlDelete($schema);
         } else {
             echo $this->locale_xhtml('editor_intro');
-            echo $this->html_newschema();
+            echo $this->htmlNewschema();
         }
     }
 
@@ -183,7 +180,7 @@ class admin_plugin_struct_schemas extends DokuWiki_Admin_Plugin
      * @param Schema $schema
      * @return string
      */
-    protected function html_json(Schema $schema)
+    protected function htmlJson(Schema $schema)
     {
         $form = new Form(array('enctype' => 'multipart/form-data', 'id' => 'plugin__struct_json'));
         $form->setHiddenField('do', 'admin');
@@ -220,7 +217,7 @@ class admin_plugin_struct_schemas extends DokuWiki_Admin_Plugin
      * @param Schema $schema
      * @return string
      */
-    protected function html_delete(Schema $schema)
+    protected function htmlDelete(Schema $schema)
     {
         $form = new Form(array('id' => 'plugin__struct_delete'));
         $form->setHiddenField('do', 'admin');
@@ -247,7 +244,7 @@ class admin_plugin_struct_schemas extends DokuWiki_Admin_Plugin
      *
      * @return string
      */
-    protected function html_newschema()
+    protected function htmlNewschema()
     {
         $form = new Form();
         $form->addClass('struct_newschema');

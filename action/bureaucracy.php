@@ -7,9 +7,6 @@
  * @author  Andreas Gohr, Michael Große <dokuwiki@cosmocode.de>
  */
 
-// must be run within Dokuwiki
-if (!defined('DOKU_INC')) die();
-
 use dokuwiki\plugin\struct\meta\AccessTable;
 use dokuwiki\plugin\struct\meta\Assignments;
 use dokuwiki\plugin\struct\meta\Schema;
@@ -37,9 +34,9 @@ class action_plugin_struct_bureaucracy extends DokuWiki_Action_Plugin
      */
     public function register(Doku_Event_Handler $controller)
     {
-        $controller->register_hook('PLUGIN_BUREAUCRACY_TEMPLATE_SAVE', 'BEFORE', $this, 'handle_lookup_fields');
-        $controller->register_hook('PLUGIN_BUREAUCRACY_TEMPLATE_SAVE', 'AFTER', $this, 'handle_save');
-        $controller->register_hook('PLUGIN_BUREAUCRACY_FIELD_UNKNOWN', 'BEFORE', $this, 'handle_schema');
+        $controller->register_hook('PLUGIN_BUREAUCRACY_TEMPLATE_SAVE', 'BEFORE', $this, 'handleLookupFields');
+        $controller->register_hook('PLUGIN_BUREAUCRACY_TEMPLATE_SAVE', 'AFTER', $this, 'handleSave');
+        $controller->register_hook('PLUGIN_BUREAUCRACY_FIELD_UNKNOWN', 'BEFORE', $this, 'handleSchema');
     }
 
     /**
@@ -50,7 +47,7 @@ class action_plugin_struct_bureaucracy extends DokuWiki_Action_Plugin
      *                           handler was registered]
      * @return bool
      */
-    public function handle_schema(Doku_Event $event, $param)
+    public function handleSchema(Doku_Event $event, $param)
     {
         $args = $event->data['args'];
         if ($args[0] != 'struct_schema') return false;
@@ -87,7 +84,7 @@ class action_plugin_struct_bureaucracy extends DokuWiki_Action_Plugin
      *                           handler was registered]
      * @return bool
      */
-    public function handle_lookup_fields(Doku_Event $event, $param)
+    public function handleLookupFields(Doku_Event $event, $param)
     {
         foreach ($event->data['fields'] as $field) {
             if (!is_a($field, 'helper_plugin_struct_field')) continue;
@@ -135,7 +132,7 @@ class action_plugin_struct_bureaucracy extends DokuWiki_Action_Plugin
      *                           handler was registered]
      * @return bool
      */
-    public function handle_save(Doku_Event $event, $param)
+    public function handleSave(Doku_Event $event, $param)
     {
         // get all struct values and their associated schemas
         $tosave = array();

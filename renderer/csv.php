@@ -18,7 +18,7 @@ class renderer_plugin_struct_csv extends Doku_Renderer
      *
      * @return bool
      */
-    function _doOutput()
+    protected function doOutput()
     {
         global $INPUT;
 
@@ -41,7 +41,7 @@ class renderer_plugin_struct_csv extends Doku_Renderer
      *
      * @return string
      */
-    function getFormat()
+    public function getFormat()
     {
         return 'struct_csv';
     }
@@ -49,7 +49,7 @@ class renderer_plugin_struct_csv extends Doku_Renderer
     /**
      * Set proper headers
      */
-    function document_start()
+    public function document_start() // phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
     {
         global $ID;
         $filename = noNS($ID) . '.csv';
@@ -65,9 +65,9 @@ class renderer_plugin_struct_csv extends Doku_Renderer
     /**
      * Opening a table row prevents the separator for the first following cell
      */
-    function tablerow_open()
+    public function tablerow_open() // phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
     {
-        if (!$this->_doOutput()) return;
+        if (!$this->doOutput()) return;
         $this->first = true;
     }
 
@@ -78,9 +78,9 @@ class renderer_plugin_struct_csv extends Doku_Renderer
      * @param null $align ignored
      * @param int $rowspan ignored
      */
-    function tablecell_open($colspan = 1, $align = null, $rowspan = 1)
+    public function tablecell_open($colspan = 1, $align = null, $rowspan = 1) // phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
     {
-        if (!$this->_doOutput()) return;
+        if (!$this->doOutput()) return;
         if (!$this->first) {
             $this->doc .= ",";
         }
@@ -92,9 +92,9 @@ class renderer_plugin_struct_csv extends Doku_Renderer
     /**
      * Close the text wrapper
      */
-    function tablecell_close()
+    public function tablecell_close() // phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
     {
-        if (!$this->_doOutput()) return;
+        if (!$this->doOutput()) return;
         $this->doc .= '"';
     }
 
@@ -105,7 +105,7 @@ class renderer_plugin_struct_csv extends Doku_Renderer
      * @param null $align ignored
      * @param int $rowspan ignored
      */
-    function tableheader_open($colspan = 1, $align = null, $rowspan = 1)
+    public function tableheader_open($colspan = 1, $align = null, $rowspan = 1) // phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
     {
         $this->tablecell_open($colspan, $align, $rowspan);
     }
@@ -113,7 +113,7 @@ class renderer_plugin_struct_csv extends Doku_Renderer
     /**
      * Alias for tablecell_close
      */
-    function tableheader_close()
+    public function tableheader_close() // phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
     {
         $this->tablecell_close();
     }
@@ -121,9 +121,9 @@ class renderer_plugin_struct_csv extends Doku_Renderer
     /**
      * Add CRLF newline at the end of one line
      */
-    function tablerow_close()
+    public function tablerow_close() // phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
     {
-        if (!$this->_doOutput()) return;
+        if (!$this->doOutput()) return;
         $this->doc .= "\r\n";
     }
 
@@ -132,9 +132,9 @@ class renderer_plugin_struct_csv extends Doku_Renderer
      *
      * @param string $text
      */
-    function cdata($text)
+    public function cdata($text)
     {
-        if (!$this->_doOutput()) return;
+        if (!$this->doOutput()) return;
         if ($text === '') return;
 
         $this->doc .= str_replace('"', '""', $text);
@@ -143,7 +143,7 @@ class renderer_plugin_struct_csv extends Doku_Renderer
 
     #region overrides using cdata for output
 
-    function internallink($link, $title = null)
+    public function internallink($link, $title = null)
     {
         if (is_null($title) or is_array($title) or $title == '') {
             $title = $this->_simpleTitle($link);
@@ -151,7 +151,7 @@ class renderer_plugin_struct_csv extends Doku_Renderer
         $this->cdata($title);
     }
 
-    function externallink($link, $title = null)
+    public function externallink($link, $title = null)
     {
         if (is_null($title) or is_array($title) or $title == '') {
             $title = $link;
@@ -159,12 +159,12 @@ class renderer_plugin_struct_csv extends Doku_Renderer
         $this->cdata($title);
     }
 
-    function emaillink($address, $name = null)
+    public function emaillink($address, $name = null)
     {
         $this->cdata($address);
     }
 
-    function plugin($name, $args, $state = '', $match = '')
+    public function plugin($name, $args, $state = '', $match = '')
     {
         if (substr($name, 0, 7) == 'struct_') {
             parent::plugin($name, $args, $state, $match);
@@ -173,77 +173,77 @@ class renderer_plugin_struct_csv extends Doku_Renderer
         }
     }
 
-    function acronym($acronym)
+    public function acronym($acronym)
     {
         $this->cdata($acronym);
     }
 
-    function code($text, $lang = null, $file = null)
+    public function code($text, $lang = null, $file = null)
     {
         $this->cdata($text);
     }
 
-    function header($text, $level, $pos)
+    public function header($text, $level, $pos)
     {
         $this->cdata($text);
     }
 
-    function linebreak()
+    public function linebreak()
     {
         $this->cdata("\r\n");
     }
 
-    function unformatted($text)
+    public function unformatted($text)
     {
         $this->cdata($text);
     }
 
-    function php($text)
+    public function php($text)
     {
         $this->cdata($text);
     }
 
-    function phpblock($text)
+    public function phpblock($text)
     {
         $this->cdata($text);
     }
 
-    function html($text)
+    public function html($text)
     {
         $this->cdata($text);
     }
 
-    function htmlblock($text)
+    public function htmlblock($text)
     {
         $this->cdata($text);
     }
 
-    function preformatted($text)
+    public function preformatted($text)
     {
         $this->cdata($text);
     }
 
-    function file($text, $lang = null, $file = null)
+    public function file($text, $lang = null, $file = null)
     {
         $this->cdata($text);
     }
 
-    function smiley($smiley)
+    public function smiley($smiley)
     {
         $this->cdata($smiley);
     }
 
-    function entity($entity)
+    public function entity($entity)
     {
         $this->cdata($entity);
     }
 
-    function multiplyentity($x, $y)
+    public function multiplyentity($x, $y)
     {
         $this->cdata($x . 'x' . $y);
     }
 
-    function locallink($hash, $name = null)
+    public function locallink($hash, $name = null)
     {
         if (is_null($name) or is_array($name) or $name == '') {
             $name = $hash;
@@ -251,15 +251,15 @@ class renderer_plugin_struct_csv extends Doku_Renderer
         $this->cdata($name);
     }
 
-    function interwikilink($link, $title = null, $wikiName, $wikiUri)
+    public function interwikilink($link, $title, $wikiName, $wikiUri)
     {
-        if (is_null($title) or is_array($title) or $title == '') {
+        if (is_array($title) or $title == '') {
             $title = $wikiName . '>' . $link;
         }
         $this->cdata($title);
     }
 
-    function filelink($link, $title = null)
+    public function filelink($link, $title = null)
     {
         if (is_null($title) or is_array($title) or $title == '') {
             $title = $link;
@@ -267,7 +267,7 @@ class renderer_plugin_struct_csv extends Doku_Renderer
         $this->cdata($title);
     }
 
-    function windowssharelink($link, $title = null)
+    public function windowssharelink($link, $title = null)
     {
         if (is_null($title) or is_array($title) or $title == '') {
             $title = $link;
@@ -275,7 +275,7 @@ class renderer_plugin_struct_csv extends Doku_Renderer
         $this->cdata($title);
     }
 
-    function internalmedia(
+    public function internalmedia(
         $src,
         $title = null,
         $align = null,
@@ -287,7 +287,7 @@ class renderer_plugin_struct_csv extends Doku_Renderer
         $this->cdata($src);
     }
 
-    function externalmedia(
+    public function externalmedia(
         $src,
         $title = null,
         $align = null,
@@ -299,7 +299,7 @@ class renderer_plugin_struct_csv extends Doku_Renderer
         $this->cdata($src);
     }
 
-    function internalmedialink(
+    public function internalmedialink(
         $src,
         $title = null,
         $align = null,
@@ -310,7 +310,7 @@ class renderer_plugin_struct_csv extends Doku_Renderer
         $this->cdata($src);
     }
 
-    function externalmedialink(
+    public function externalmedialink(
         $src,
         $title = null,
         $align = null,

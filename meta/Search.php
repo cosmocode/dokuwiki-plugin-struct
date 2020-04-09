@@ -213,14 +213,14 @@ class Search
         $Lexer->addExitPattern('\)', 'row');
 
         $Lexer->addEntryPattern('"', 'row', 'double_quote_string');
-        $Lexer->addSpecialPattern('\\\\"', 'double_quote_string', 'escape_sequence');
+        $Lexer->addSpecialPattern('\\\\"', 'double_quote_string', 'escapeSequence');
         $Lexer->addExitPattern('"', 'double_quote_string');
 
-        $Lexer->addEntryPattern("'", 'row', 'single_quote_string');
-        $Lexer->addSpecialPattern("\\\\'", 'single_quote_string', 'escape_sequence');
-        $Lexer->addExitPattern("'", 'single_quote_string');
+        $Lexer->addEntryPattern("'", 'row', 'singleQuoteString');
+        $Lexer->addSpecialPattern("\\\\'", 'singleQuoteString', 'escapeSequence');
+        $Lexer->addExitPattern("'", 'singleQuoteString');
 
-        $Lexer->mapHandler('double_quote_string', 'single_quote_string');
+        $Lexer->mapHandler('double_quote_string', 'singleQuoteString');
 
         $Lexer->addSpecialPattern('[-+]?[0-9]*\.?[0-9]+(?:[eE][-+]?[0-9]+)?', 'row', 'number');
 
@@ -231,7 +231,7 @@ class Search
             throw new StructException('invalid row value syntax');
         }
 
-        return $Handler->get_row();
+        return $Handler->getRow();
     }
 
     /**

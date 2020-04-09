@@ -15,7 +15,7 @@ class FilterValueListHandler
     /**
      * @return array
      */
-    public function get_row()
+    public function getRow()
     {
         return $this->row;
     }
@@ -51,7 +51,7 @@ class FilterValueListHandler
      * @param int state - the type of match made (see below)
      * @param int pos - byte index where match was made
      */
-    public function single_quote_string($match, $state, $pos)
+    public function singleQuoteString($match, $state, $pos)
     {
         switch ($state) {
             case DOKU_LEXER_UNMATCHED:
@@ -66,7 +66,7 @@ class FilterValueListHandler
      * @param int state - the type of match made (see below)
      * @param int pos - byte index where match was made
      */
-    public function escape_sequence($match, $state, $pos)
+    public function escapeSequence($match, $state, $pos)
     {
         //add escape character to the token
         $this->token .= $match[1];

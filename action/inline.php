@@ -7,15 +7,12 @@
  * @author  Andreas Gohr, Michael Große <dokuwiki@cosmocode.de>
  */
 
-// must be run within Dokuwiki
 use dokuwiki\plugin\struct\meta\AccessTable;
 use dokuwiki\plugin\struct\meta\AccessTableData;
 use dokuwiki\plugin\struct\meta\Assignments;
 use dokuwiki\plugin\struct\meta\Column;
 use dokuwiki\plugin\struct\meta\StructException;
 use dokuwiki\plugin\struct\meta\ValueValidator;
-
-if (!defined('DOKU_INC')) die();
 
 /**
  * Class action_plugin_struct_inline
@@ -45,14 +42,14 @@ class action_plugin_struct_inline extends DokuWiki_Action_Plugin
      */
     public function register(Doku_Event_Handler $controller)
     {
-        $controller->register_hook('AJAX_CALL_UNKNOWN', 'BEFORE', $this, 'handle_ajax');
+        $controller->register_hook('AJAX_CALL_UNKNOWN', 'BEFORE', $this, 'handleAjax');
     }
 
     /**
      * @param Doku_Event $event
      * @param $param
      */
-    public function handle_ajax(Doku_Event $event, $param)
+    public function handleAjax(Doku_Event $event, $param)
     {
         $len = strlen('plugin_struct_inline_');
         if (substr($event->data, 0, $len) != 'plugin_struct_inline_') return;
@@ -60,12 +57,12 @@ class action_plugin_struct_inline extends DokuWiki_Action_Plugin
         $event->stopPropagation();
 
         if (substr($event->data, $len) == 'editor') {
-            $this->inline_editor();
+            $this->inlineEditor();
         }
 
         if (substr($event->data, $len) == 'save') {
             try {
-                $this->inline_save();
+                $this->inlineSave();
             } catch (StructException $e) {
                 http_status(500);
                 header('Content-Type: text/plain; charset=utf-8');
@@ -74,14 +71,14 @@ class action_plugin_struct_inline extends DokuWiki_Action_Plugin
         }
 
         if (substr($event->data, $len) == 'cancel') {
-            $this->inline_cancel();
+            $this->inlineCancel();
         }
     }
 
     /**
      * Creates the inline editor
      */
-    protected function inline_editor()
+    protected function inlineEditor()
     {
         // silently fail when editing not possible
         if (!$this->initFromInput()) return;
@@ -116,7 +113,7 @@ class action_plugin_struct_inline extends DokuWiki_Action_Plugin
     /**
      * Save the data posted by the inline editor
      */
-    protected function inline_save()
+    protected function inlineSave()
     {
         global $INPUT;
 
@@ -189,7 +186,7 @@ class action_plugin_struct_inline extends DokuWiki_Action_Plugin
     /**
      * Unlock a page (on cancel action)
      */
-    protected function inline_cancel()
+    protected function inlineCancel()
     {
         global $INPUT;
         $pid = $INPUT->str('pid');
