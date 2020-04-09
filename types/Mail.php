@@ -1,9 +1,11 @@
 <?php
+
 namespace dokuwiki\plugin\struct\types;
 
 use dokuwiki\plugin\struct\meta\ValidationException;
 
-class Mail extends Text {
+class Mail extends Text
+{
 
     protected $config = array(
         'prefix' => '',
@@ -18,7 +20,8 @@ class Mail extends Text {
      * @param string $mode The mode the output is rendered in (eg. XHTML)
      * @return bool true if $mode could be satisfied
      */
-    public function renderValue($value, \Doku_Renderer $R, $mode) {
+    public function renderValue($value, \Doku_Renderer $R, $mode)
+    {
         $mail = $this->config['prefix'] . $value . $this->config['postfix'];
         $R->emaillink($mail);
         return true;
@@ -30,15 +33,15 @@ class Mail extends Text {
      * @param int|string $rawvalue
      * @return int|string
      */
-    public function validate($rawvalue) {
+    public function validate($rawvalue)
+    {
         $rawvalue = parent::validate($rawvalue);
 
         $mail = $this->config['prefix'] . $rawvalue . $this->config['postfix'];
-        if(!mail_isvalid($mail)) {
+        if (!mail_isvalid($mail)) {
             throw new ValidationException('Mail invalid', $mail);
         }
 
         return $rawvalue;
     }
-
 }

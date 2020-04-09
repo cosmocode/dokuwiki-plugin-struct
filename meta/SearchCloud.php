@@ -2,7 +2,6 @@
 
 namespace dokuwiki\plugin\struct\meta;
 
-
 /**
  * Class SearchCloud
  *
@@ -10,7 +9,8 @@ namespace dokuwiki\plugin\struct\meta;
  *
  * @package dokuwiki\plugin\struct\meta
  */
-class SearchCloud extends SearchConfig {
+class SearchCloud extends SearchConfig
+{
 
     protected $limit = '';
 
@@ -21,14 +21,15 @@ class SearchCloud extends SearchConfig {
      * @param string $idColumn Column on which to join tables
      * @return array ($sql, $opts) The SQL and parameters to execute
      */
-    public function getSQL($idColumn) {
-        if(!$this->columns) throw new StructException('nocolname');
+    public function getSQL($idColumn)
+    {
+        if (!$this->columns) throw new StructException('nocolname');
 
         $QB = new QueryBuilder();
         reset($this->schemas);
         $schema = current($this->schemas);
         $datatable = 'data_' . $schema->getTable();
-        if($idColumn === 'pid') {
+        if ($idColumn === 'pid') {
             $QB->addTable('schema_assignments');
             $QB->filters()->whereAnd("$datatable.pid = schema_assignments.pid");
             $QB->filters()->whereAnd("schema_assignments.tbl = '{$schema->getTable()}'");
@@ -41,7 +42,7 @@ class SearchCloud extends SearchConfig {
         $QB->filters()->where('AND', 'tag IS NOT \'\'');
 
         $col = $this->columns[0];
-        if($col->isMulti()) {
+        if ($col->isMulti()) {
             $multitable = "multi_{$col->getTable()}";
             $MN = $QB->generateTableAlias('M');
 
@@ -73,7 +74,8 @@ class SearchCloud extends SearchConfig {
      *
      * @param int $limit
      */
-    public function setLimit($limit) {
+    public function setLimit($limit)
+    {
         $this->limit = " LIMIT $limit";
     }
 
@@ -85,12 +87,13 @@ class SearchCloud extends SearchConfig {
      * @param string $idColumn Column on which to join tables
      * @return Value[][]
      */
-    public function execute($idColumn) {
+    public function execute($idColumn)
+    {
         list($sql, $opts) = $this->getSQL($idColumn);
 
         /** @var \PDOStatement $res */
         $res = $this->sqlite->query($sql, $opts);
-        if($res === false) throw new StructException("SQL execution failed for\n\n$sql");
+        if ($res === false) throw new StructException("SQL execution failed for\n\n$sql");
 
         $result = [];
         $rows = $this->sqlite->res2arr($res);

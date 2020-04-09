@@ -1,11 +1,13 @@
 <?php
+
 namespace dokuwiki\plugin\struct\types;
 
 use dokuwiki\plugin\struct\meta\QueryBuilder;
 use dokuwiki\plugin\struct\meta\QueryBuilderWhere;
 
 //We prefixing this type with "Abstract" to hide it in Schema Editor
-class AutoSummary extends AbstractBaseType {
+class AutoSummary extends AbstractBaseType
+{
 
     /**
      * When handling `%lastsummary%` get the data from the `titles` table instead the `data_` table.
@@ -15,7 +17,8 @@ class AutoSummary extends AbstractBaseType {
      * @param string $colname
      * @param string $alias
      */
-    public function select(QueryBuilder $QB, $tablealias, $colname, $alias) {
+    public function select(QueryBuilder $QB, $tablealias, $colname, $alias)
+    {
         $rightalias = $QB->generateTableAlias();
         $QB->addLeftJoin($tablealias, 'titles', $rightalias, "$tablealias.pid = $rightalias.pid");
         $QB->addSelectStatement("$rightalias.lastsummary", $alias);
@@ -29,7 +32,8 @@ class AutoSummary extends AbstractBaseType {
      * @param string $colname
      * @param string $order
      */
-    public function sort(QueryBuilder $QB, $tablealias, $colname, $order) {
+    public function sort(QueryBuilder $QB, $tablealias, $colname, $order)
+    {
         $rightalias = $QB->generateTableAlias();
         $QB->addLeftJoin($tablealias, 'titles', $rightalias, "$tablealias.pid = $rightalias.pid");
         $QB->addOrderBy("$rightalias.lastsummary $order");
@@ -45,7 +49,8 @@ class AutoSummary extends AbstractBaseType {
      * @param string|\string[] $value
      * @param string $op
      */
-    public function filter(QueryBuilderWhere $add, $tablealias, $colname, $comp, $value, $op) {
+    public function filter(QueryBuilderWhere $add, $tablealias, $colname, $comp, $value, $op)
+    {
         $QB = $add->getQB();
         $rightalias = $QB->generateTableAlias();
         $QB->addLeftJoin($tablealias, 'titles', $rightalias, "$tablealias.pid = $rightalias.pid");
@@ -56,5 +61,4 @@ class AutoSummary extends AbstractBaseType {
         $sub->whereOr("$rightalias.lastsummary $comp $pl");
         return;
     }
-
 }

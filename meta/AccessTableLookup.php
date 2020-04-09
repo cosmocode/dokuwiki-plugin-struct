@@ -9,21 +9,24 @@ namespace dokuwiki\plugin\struct\meta;
  *
  * @package dokuwiki\plugin\struct\meta
  */
-class AccessTableLookup extends AccessTable {
+class AccessTableLookup extends AccessTable
+{
 
     /**
      * Remove the current data
      */
-    public function clearData() {
-        if(!$this->rid) return; // no data
+    public function clearData()
+    {
+        if (!$this->rid) return; // no data
 
         /** @noinspection SqlResolve */
         $sql = 'DELETE FROM ? WHERE rid = ?';
-        $this->sqlite->query($sql, 'data_'.$this->schema->getTable(), $this->rid);
-        $this->sqlite->query($sql, 'multi_'.$this->schema->getTable(), $this->rid);
+        $this->sqlite->query($sql, 'data_' . $this->schema->getTable(), $this->rid);
+        $this->sqlite->query($sql, 'multi_' . $this->schema->getTable(), $this->rid);
     }
 
-    protected function getLastRevisionTimestamp() {
+    protected function getLastRevisionTimestamp()
+    {
         return 0;
     }
 
@@ -45,7 +48,7 @@ class AccessTableLookup extends AccessTable {
         $vals = array_merge($this->getSingleNoninputValues(), $this->singleValues);
         $rid = $this->getRid() ?: "(SELECT (COALESCE(MAX(rid), 0 ) + 1) FROM $this->stable)";
 
-        return "REPLACE INTO $this->stable (rid, $cols) VALUES ($rid," . trim(str_repeat('?,', count($vals)),',') . ');';
+        return "REPLACE INTO $this->stable (rid, $cols) VALUES ($rid," . trim(str_repeat('?,', count($vals)), ',') . ');';
     }
 
     /**
@@ -101,11 +104,11 @@ class AccessTableLookup extends AccessTable {
     protected function afterSingleSave()
     {
         $ok = true;
-        if(!$this->rid) {
+        if (!$this->rid) {
             $res = $this->sqlite->query("SELECT rid FROM $this->stable WHERE ROWID = last_insert_rowid()");
             $this->rid = $this->sqlite->res2single($res);
             $this->sqlite->res_close($res);
-            if(!$this->rid) {
+            if (!$this->rid) {
                 $ok = false;
             }
         }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * DokuWiki Plugin struct (Helper Component)
  *
@@ -10,9 +11,10 @@
 use dokuwiki\plugin\struct\meta\Assignments;
 use dokuwiki\plugin\struct\meta\Schema;
 
-if(!defined('DOKU_INC')) die();
+if (!defined('DOKU_INC')) die();
 
-class helper_plugin_struct_imexport extends DokuWiki_Plugin {
+class helper_plugin_struct_imexport extends DokuWiki_Plugin
+{
 
     private $sqlite;
 
@@ -20,7 +22,8 @@ class helper_plugin_struct_imexport extends DokuWiki_Plugin {
     /**
      * this possibly duplicates @see helper_plugin_struct::getSchema()
      */
-    public function getAllSchemasList() {
+    public function getAllSchemasList()
+    {
         return Schema::getAll();
     }
 
@@ -30,11 +33,12 @@ class helper_plugin_struct_imexport extends DokuWiki_Plugin {
      * @param string $schemaName
      * @param string[] $patterns
      */
-    public function replaceSchemaAssignmentPatterns($schemaName, $patterns) {
+    public function replaceSchemaAssignmentPatterns($schemaName, $patterns)
+    {
         /** @var \helper_plugin_struct_db $helper */
         $helper = plugin_load('helper', 'struct_db');
         $this->sqlite = $helper->getDB(false);
-        if(!$this->sqlite) return;
+        if (!$this->sqlite) return;
 
         $schemaName = $this->sqlite->escape_string($schemaName);
         $sql = array();
@@ -56,17 +60,20 @@ class helper_plugin_struct_imexport extends DokuWiki_Plugin {
      * @param string $schemaName
      * @return string[]
      */
-    public function getSchemaAssignmentPatterns($schemaName) {
+    public function getSchemaAssignmentPatterns($schemaName)
+    {
         /** @var \helper_plugin_struct_db $helper */
         $helper = plugin_load('helper', 'struct_db');
         $this->sqlite = $helper->getDB(false);
-        if(!$this->sqlite) return array();
+        if (!$this->sqlite) return array();
 
         $sql = 'SELECT pattern FROM schema_assignments_patterns WHERE tbl = ?';
         $res = $this->sqlite->query($sql, $schemaName);
         $patterns = $this->sqlite->res2arr($res);
         $this->sqlite->res_close($res);
-        return array_map(function($elem){return $elem['pattern'];},$patterns);
+        return array_map(function ($elem) {
+            return $elem['pattern'];
+        }, $patterns);
     }
 
     /**
@@ -75,7 +82,8 @@ class helper_plugin_struct_imexport extends DokuWiki_Plugin {
      * @param string $schemaName
      * @return string|bool The json string or false if the schema doesn't exist
      */
-    public function getCurrentSchemaJSON($schemaName) {
+    public function getCurrentSchemaJSON($schemaName)
+    {
         $schema = new Schema($schemaName);
         if ($schema->getId() == 0) {
             return false;
@@ -94,7 +102,8 @@ class helper_plugin_struct_imexport extends DokuWiki_Plugin {
      *
      * @throws dokuwiki\plugin\struct\meta\StructException
      */
-    public function importSchema($schemaName, $schemaJSON, $user = null) {
+    public function importSchema($schemaName, $schemaJSON, $user = null)
+    {
         $importer = new \dokuwiki\plugin\struct\meta\SchemaImporter($schemaName, $schemaJSON);
         if (!blank($user)) {
             $importer->setUser($user);
@@ -102,5 +111,4 @@ class helper_plugin_struct_imexport extends DokuWiki_Plugin {
         $ok = $importer->build();
         return $ok;
     }
-
 }

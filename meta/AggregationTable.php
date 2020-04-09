@@ -7,7 +7,8 @@ namespace dokuwiki\plugin\struct\meta;
  *
  * @package dokuwiki\plugin\struct\meta
  */
-class AggregationTable {
+class AggregationTable
+{
 
     /**
      * @var string the page id of the page this is rendered to
@@ -74,7 +75,8 @@ class AggregationTable {
      * @param \Doku_Renderer $renderer
      * @param SearchConfig $searchConfig
      */
-    public function __construct($id, $mode, \Doku_Renderer $renderer, SearchConfig $searchConfig, $idColumn) {
+    public function __construct($id, $mode, \Doku_Renderer $renderer, SearchConfig $searchConfig, $idColumn)
+    {
         $this->id = $id;
         $this->mode = $mode;
         $this->renderer = $renderer;
@@ -95,10 +97,11 @@ class AggregationTable {
     /**
      * Create the table on the renderer
      */
-    public function render() {
+    public function render()
+    {
 
         // abort early if there are no results at all (not filtered)
-        if(!$this->resultCount && !$this->isDynamicallyFiltered() && $this->simplenone) {
+        if (!$this->resultCount && !$this->isDynamicallyFiltered() && $this->simplenone) {
             $this->startScope();
             $this->renderer->cdata($this->helper->getLang('none'));
             $this->finishScope();
@@ -116,17 +119,17 @@ class AggregationTable {
         $this->renderDynamicFilters();
         $this->renderer->tablethead_close();
 
-        if($this->resultCount) {
+        if ($this->resultCount) {
             // actual data
             $this->renderer->tabletbody_open();
             $this->renderResult();
             $this->renderer->tabletbody_close();
 
             // footer (tfoot is develonly currently)
-            if(method_exists($this->renderer, 'tabletfoot_open')) $this->renderer->tabletfoot_open();
+            if (method_exists($this->renderer, 'tabletfoot_open')) $this->renderer->tabletfoot_open();
             $this->renderSums();
             $this->renderPagingControls();
-            if(method_exists($this->renderer, 'tabletfoot_close')) $this->renderer->tabletfoot_close();
+            if (method_exists($this->renderer, 'tabletfoot_close')) $this->renderer->tabletfoot_close();
         } else {
             // nothing found
             $this->renderEmptyResult();
@@ -145,12 +148,13 @@ class AggregationTable {
      *
      * @see finishScope()
      */
-    protected function startScope() {
+    protected function startScope()
+    {
         // unique identifier for this aggregation
         $this->renderer->info['struct_table_hash'] = md5(var_export($this->data, true));
 
         // wrapping div
-        if($this->mode != 'xhtml') return;
+        if ($this->mode != 'xhtml') return;
         $this->renderer->doc .= "<div class=\"structaggregation\">";
     }
 
@@ -159,28 +163,30 @@ class AggregationTable {
      *
      * @see startScope()
      */
-    protected function finishScope() {
+    protected function finishScope()
+    {
         // remove identifier from renderer again
-        if(isset($this->renderer->info['struct_table_hash'])) {
+        if (isset($this->renderer->info['struct_table_hash'])) {
             unset($this->renderer->info['struct_table_hash']);
         }
 
         // wrapping div
-        if($this->mode != 'xhtml') return;
+        if ($this->mode != 'xhtml') return;
         $this->renderer->doc .= '</div>';
     }
 
     /**
      * Displays info about the currently applied filters
      */
-    protected function renderActiveFilters() {
-        if($this->mode != 'xhtml') return;
+    protected function renderActiveFilters()
+    {
+        if ($this->mode != 'xhtml') return;
         $dynamic = $this->searchConfig->getDynamicParameters();
         $filters = $dynamic->getFilters();
-        if(!$filters) return;
+        if (!$filters) return;
 
         $fltrs = array();
-        foreach($filters as $column => $filter) {
+        foreach ($filters as $column => $filter) {
             list($comp, $value) = $filter;
 
             // display the filters in a human readable format
@@ -203,26 +209,27 @@ class AggregationTable {
     /**
      * Shows the column headers with links to sort by column
      */
-    protected function renderColumnHeaders() {
+    protected function renderColumnHeaders()
+    {
         $this->renderer->tablerow_open();
 
         // additional column for row numbers
-        if($this->data['rownumbers']) {
+        if ($this->data['rownumbers']) {
             $this->renderer->tableheader_open();
             $this->renderer->cdata('#');
             $this->renderer->tableheader_close();
         }
 
         // show all headers
-        foreach($this->columns as $num => $column) {
+        foreach ($this->columns as $num => $column) {
             $header = '';
-            if(isset($this->data['headers'][$num])) {
+            if (isset($this->data['headers'][$num])) {
                 $header = $this->data['headers'][$num];
             }
 
             // use field label if no header was set
-            if(blank($header)) {
-                if(is_a($column, 'dokuwiki\plugin\struct\meta\Column')) {
+            if (blank($header)) {
+                if (is_a($column, 'dokuwiki\plugin\struct\meta\Column')) {
                     $header = $column->getTranslatedLabel();
                 } else {
                     $header = 'column ' . $num; // this should never happen
@@ -230,7 +237,7 @@ class AggregationTable {
             }
 
             // simple mode first
-            if($this->mode != 'xhtml') {
+            if ($this->mode != 'xhtml') {
                 $this->renderer->tableheader_open();
                 $this->renderer->cdata($header);
                 $this->renderer->tableheader_close();
@@ -241,13 +248,14 @@ class AggregationTable {
 
             // width setting, widths are prevalidated, no escape needed
             $width = '';
-            if(isset($this->data['widths'][$num]) && $this->data['widths'][$num] != '-') {
-                $width = ' style="min-width: ' . $this->data['widths'][$num] . ';'.
+            if (isset($this->data['widths'][$num]) && $this->data['widths'][$num] != '-') {
+                $width = ' style="min-width: ' . $this->data['widths'][$num] . ';' .
                          'max-width: ' . $this->data['widths'][$num] . ';"';
             }
 
             // prepare data attribute for inline edits
-            if(!is_a($column, '\dokuwiki\plugin\struct\meta\PageColumn') &&
+            if (
+                !is_a($column, '\dokuwiki\plugin\struct\meta\PageColumn') &&
                 !is_a($column, '\dokuwiki\plugin\struct\meta\RevisionColumn')
             ) {
                 $data = 'data-field="' . hsc($column->getFullQualifiedLabel()) . '"';
@@ -260,9 +268,9 @@ class AggregationTable {
             $sorts = $this->searchConfig->getSorts();
             $dynamic = $this->searchConfig->getDynamicParameters();
             $dynamic->setSort($column, true);
-            if(isset($sorts[$column->getFullQualifiedLabel()])) {
+            if (isset($sorts[$column->getFullQualifiedLabel()])) {
                 list(/*colname*/, $currentSort) = $sorts[$column->getFullQualifiedLabel()];
-                if($currentSort) {
+                if ($currentSort) {
                     $sortclass = 'sort-down';
                     $dynamic->setSort($column, false);
                 } else {
@@ -284,9 +292,10 @@ class AggregationTable {
      * Is the result set currently dynamically filtered?
      * @return bool
      */
-    protected function isDynamicallyFiltered() {
-        if($this->mode != 'xhtml') return false;
-        if(!$this->data['dynfilters']) return false;
+    protected function isDynamicallyFiltered()
+    {
+        if ($this->mode != 'xhtml') return false;
+        if (!$this->data['dynfilters']) return false;
 
         $dynamic = $this->searchConfig->getDynamicParameters();
         return (bool) $dynamic->getFilters();
@@ -295,9 +304,10 @@ class AggregationTable {
     /**
      * Add input fields for dynamic filtering
      */
-    protected function renderDynamicFilters() {
-        if($this->mode != 'xhtml') return;
-        if(!$this->data['dynfilters']) return;
+    protected function renderDynamicFilters()
+    {
+        if ($this->mode != 'xhtml') return;
+        if (!$this->data['dynfilters']) return;
         if (is_a($this->renderer, 'renderer_plugin_dw2pdf')) {
             return;
         }
@@ -306,33 +316,33 @@ class AggregationTable {
         $this->renderer->doc .= '<tr class="dataflt">';
 
         // add extra column for row numbers
-        if($this->data['rownumbers']) {
+        if ($this->data['rownumbers']) {
             $this->renderer->doc .= '<th></th>';
         }
 
         // each column gets a form
-        foreach($this->columns as $column) {
+        foreach ($this->columns as $column) {
             $this->renderer->doc .= '<th>';
             {
                 $form = new \Doku_Form(array('method' => 'GET', 'action' => wl($this->id)));
                 unset($form->_hidden['sectok']); // we don't need it here
-                if(!$conf['userewrite']) $form->addHidden('id', $this->id);
+                if (!$conf['userewrite']) $form->addHidden('id', $this->id);
 
                 // current value
                 $dynamic = $this->searchConfig->getDynamicParameters();
                 $filters = $dynamic->getFilters();
-                if(isset($filters[$column->getFullQualifiedLabel()])) {
-                    list(, $current) = $filters[$column->getFullQualifiedLabel()];
-                    $dynamic->removeFilter($column);
-                } else {
-                    $current = '';
-                }
+            if (isset($filters[$column->getFullQualifiedLabel()])) {
+                list(, $current) = $filters[$column->getFullQualifiedLabel()];
+                $dynamic->removeFilter($column);
+            } else {
+                $current = '';
+            }
 
                 // Add current request params
                 $params = $dynamic->getURLParameters();
-                foreach($params as $key => $val) {
-                    $form->addHidden($key, $val);
-                }
+            foreach ($params as $key => $val) {
+                $form->addHidden($key, $val);
+            }
 
                 // add input field
                 $key = $column->getFullQualifiedLabel() . $column->getType()->getDefaultComparator();
@@ -342,14 +352,14 @@ class AggregationTable {
             $this->renderer->doc .= '</th>';
         }
         $this->renderer->doc .= '</tr>';
-
     }
 
     /**
      * Display the actual table data
      */
-    protected function renderResult() {
-        foreach($this->result as $rownum => $row) {
+    protected function renderResult()
+    {
+        foreach ($this->result as $rownum => $row) {
             $data = array(
                 'id' => $this->id,
                 'mode' => $this->mode,
@@ -360,7 +370,7 @@ class AggregationTable {
                 'row' => &$row,
             );
             $evt = new \Doku_Event('PLUGIN_STRUCT_AGGREGATIONTABLE_RENDERRESULTROW', $data);
-            if($evt->advise_before()) {
+            if ($evt->advise_before()) {
                 $this->renderResultRow($rownum, $row);
             }
             $evt->advise_after();
@@ -373,11 +383,12 @@ class AggregationTable {
      * @param int $rownum
      * @param array $row
      */
-    protected function renderResultRow($rownum, $row) {
+    protected function renderResultRow($rownum, $row)
+    {
         $this->renderer->tablerow_open();
 
         // add data attribute for inline edit
-        if($this->mode == 'xhtml') {
+        if ($this->mode == 'xhtml') {
             $pid = $this->resultPIDs[$rownum];
             $rid = $this->resultRids[$rownum];
             $rev = $this->resultRevs[$rownum];
@@ -386,7 +397,7 @@ class AggregationTable {
         }
 
         // row number column
-        if($this->data['rownumbers']) {
+        if ($this->data['rownumbers']) {
             $this->renderer->tablecell_open();
             $searchConfigConf = $this->searchConfig->getConf();
             $this->renderer->cdata($rownum + $searchConfigConf['offset'] + 1);
@@ -394,14 +405,14 @@ class AggregationTable {
         }
 
         /** @var Value $value */
-        foreach($row as $colnum => $value) {
+        foreach ($row as $colnum => $value) {
             $this->renderer->tablecell_open(1, $this->data['align'][$colnum]);
             $value->render($this->renderer, $this->mode);
             $this->renderer->tablecell_close();
 
             // summarize
-            if($this->data['summarize'] && is_numeric($value->getValue())) {
-                if(!isset($this->sums[$colnum])) {
+            if ($this->data['summarize'] && is_numeric($value->getValue())) {
+                if (!isset($this->sums[$colnum])) {
                     $this->sums[$colnum] = 0;
                 }
                 $this->sums[$colnum] += $value->getValue();
@@ -413,7 +424,8 @@ class AggregationTable {
     /**
      * Renders an information row for when no results were found
      */
-    protected function renderEmptyResult() {
+    protected function renderEmptyResult()
+    {
         $this->renderer->tablerow_open();
         $this->renderer->tablecell_open(count($this->columns) + $this->data['rownumbers'], 'center');
         $this->renderer->cdata($this->helper->getLang('none'));
@@ -424,30 +436,31 @@ class AggregationTable {
     /**
      * Add sums if wanted
      */
-    protected function renderSums() {
-        if(empty($this->data['summarize'])) return;
+    protected function renderSums()
+    {
+        if (empty($this->data['summarize'])) return;
 
         $this->renderer->info['struct_table_meta'] = true;
-        if($this->mode == 'xhtml') {
+        if ($this->mode == 'xhtml') {
             /** @noinspection PhpMethodParametersCountMismatchInspection */
             $this->renderer->tablerow_open('summarize');
         } else {
             $this->renderer->tablerow_open();
         }
 
-        if($this->data['rownumbers']) {
+        if ($this->data['rownumbers']) {
             $this->renderer->tableheader_open();
             $this->renderer->tableheader_close();
         }
 
         $len = count($this->columns);
-        for($i = 0; $i < $len; $i++) {
+        for ($i = 0; $i < $len; $i++) {
             $this->renderer->tableheader_open(1, $this->data['align'][$i]);
-            if(!empty($this->sums[$i])) {
+            if (!empty($this->sums[$i])) {
                 $this->renderer->cdata('∑ ');
                 $this->columns[$i]->getType()->renderValue($this->sums[$i], $this->renderer, $this->mode);
             } else {
-                if($this->mode == 'xhtml') {
+                if ($this->mode == 'xhtml') {
                     $this->renderer->doc .= '&nbsp;';
                 }
             }
@@ -460,9 +473,10 @@ class AggregationTable {
     /**
      * Adds paging controls to the table
      */
-    protected function renderPagingControls() {
-        if(empty($this->data['limit'])) return;
-        if($this->mode != 'xhtml') return;
+    protected function renderPagingControls()
+    {
+        if (empty($this->data['limit'])) return;
+        if ($this->mode != 'xhtml') return;
 
         $this->renderer->info['struct_table_meta'] = true;
         $this->renderer->tablerow_open();
@@ -470,9 +484,9 @@ class AggregationTable {
         $offset = $this->data['offset'];
 
         // prev link
-        if($offset) {
+        if ($offset) {
             $prev = $offset - $this->data['limit'];
-            if($prev < 0) {
+            if ($prev < 0) {
                 $prev = 0;
             }
 
@@ -483,7 +497,7 @@ class AggregationTable {
         }
 
         // next link
-        if($this->resultCount > $offset + $this->data['limit']) {
+        if ($this->resultCount > $offset + $this->data['limit']) {
             $next = $offset + $this->data['limit'];
             $dynamic = $this->searchConfig->getDynamicParameters();
             $dynamic->setOffset($next);
@@ -499,10 +513,11 @@ class AggregationTable {
     /**
      * Adds CSV export controls
      */
-    protected function renderExportControls() {
-        if($this->mode != 'xhtml') return;
-        if(empty($this->data['csv'])) return;
-        if(!$this->resultCount) return;
+    protected function renderExportControls()
+    {
+        if ($this->mode != 'xhtml') return;
+        if (empty($this->data['csv'])) return;
+        if (!$this->resultCount) return;
 
         $dynamic = $this->searchConfig->getDynamicParameters();
         $params = $dynamic->getURLParameters();
@@ -511,6 +526,6 @@ class AggregationTable {
         // FIXME apply dynamic filters
         $link = exportlink($this->id, 'struct_csv', $params);
 
-        $this->renderer->doc .= '<a href="' . $link . '" class="export mediafile mf_csv">'.$this->helper->getLang('csvexport').'</a>';
+        $this->renderer->doc .= '<a href="' . $link . '" class="export mediafile mf_csv">' . $this->helper->getLang('csvexport') . '</a>';
     }
 }

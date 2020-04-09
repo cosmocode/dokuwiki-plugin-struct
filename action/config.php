@@ -1,4 +1,5 @@
 <?php
+
 /**
  * DokuWiki Plugin struct (Action Component)
  *
@@ -10,9 +11,10 @@
 use dokuwiki\plugin\struct\meta\Column;
 use dokuwiki\plugin\struct\types\AbstractBaseType;
 
-if(!defined('DOKU_INC')) die();
+if (!defined('DOKU_INC')) die();
 
-class action_plugin_struct_config extends DokuWiki_Action_Plugin {
+class action_plugin_struct_config extends DokuWiki_Action_Plugin
+{
 
     /**
      * Registers a callback function for a given event
@@ -20,7 +22,8 @@ class action_plugin_struct_config extends DokuWiki_Action_Plugin {
      * @param Doku_Event_Handler $controller DokuWiki's event controller object
      * @return void
      */
-    public function register(Doku_Event_Handler $controller) {
+    public function register(Doku_Event_Handler $controller)
+    {
         $controller->register_hook('AJAX_CALL_UNKNOWN', 'BEFORE', $this, 'handle_ajax');
     }
 
@@ -31,8 +34,9 @@ class action_plugin_struct_config extends DokuWiki_Action_Plugin {
      * @param mixed $param [the parameters passed as fifth argument to register_hook() when this
      *                           handler was registered]
      */
-    public function handle_ajax(Doku_Event $event, $param) {
-        if($event->data != 'plugin_struct_config') return;
+    public function handle_ajax(Doku_Event $event, $param)
+    {
+        if ($event->data != 'plugin_struct_config') return;
         $event->preventDefault();
         $event->stopPropagation();
         global $INPUT;
@@ -46,5 +50,4 @@ class action_plugin_struct_config extends DokuWiki_Action_Plugin {
         header('Content-Type: text/plain'); // we need the encoded string, not decoded by jQuery
         echo json_encode($type->getConfig());
     }
-
 }

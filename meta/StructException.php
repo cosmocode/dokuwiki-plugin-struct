@@ -9,7 +9,8 @@ namespace dokuwiki\plugin\struct\meta;
  *
  * @package dokuwiki\plugin\struct\meta
  */
-class StructException extends \RuntimeException {
+class StructException extends \RuntimeException
+{
 
     protected $trans_prefix = 'Exception ';
 
@@ -19,11 +20,12 @@ class StructException extends \RuntimeException {
      * @param string $message
      * @param ...string $vars
      */
-    public function __construct($message) {
+    public function __construct($message)
+    {
         /** @var \helper_plugin_struct $plugin */
         $plugin = plugin_load('helper', 'struct');
         $trans = $plugin->getLang($this->trans_prefix . $message);
-        if(!$trans) $trans = $message;
+        if (!$trans) $trans = $message;
 
         $args = func_get_args();
         array_shift($args);

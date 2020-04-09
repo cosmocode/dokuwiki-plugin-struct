@@ -1,9 +1,11 @@
 <?php
 
 namespace dokuwiki\plugin\struct\meta;
+
 use dokuwiki\plugin\struct\types\Page;
 
-class CSVPageImporter extends CSVImporter {
+class CSVPageImporter extends CSVImporter
+{
 
     protected $importedPids = array();
 
@@ -13,7 +15,8 @@ class CSVPageImporter extends CSVImporter {
     /**
      * Import page schema only when the pid header is present.
      */
-    protected function readHeaders() {
+    protected function readHeaders()
+    {
 
         //add pid to struct
         $pageType = new Page(null, 'pid');
@@ -21,7 +24,7 @@ class CSVPageImporter extends CSVImporter {
 
         parent::readHeaders();
 
-        if(!in_array('pid', $this->header)) throw new StructException('There is no "pid" header in the CSV. Schema not imported.');
+        if (!in_array('pid', $this->header)) throw new StructException('There is no "pid" header in the CSV. Schema not imported.');
     }
 
     /**
@@ -29,9 +32,10 @@ class CSVPageImporter extends CSVImporter {
      *
      * @return string
      */
-    protected function getSQLforAllValues() {
+    protected function getSQLforAllValues()
+    {
         $colnames = array();
-        foreach($this->columns as $i => $col) {
+        foreach ($this->columns as $i => $col) {
             $colnames[] = 'col' . $col->getColref();
         }
         //replace first column with pid
@@ -54,7 +58,8 @@ class CSVPageImporter extends CSVImporter {
      * @param string   $single
      * @param string   $multi
      */
-    protected function saveLine($values, $line, $single, $multi) {
+    protected function saveLine($values, $line, $single, $multi)
+    {
         //create new page revision
         $pid = cleanID($values[0]);
         if ($this->createPage[$pid]) {
@@ -94,7 +99,8 @@ class CSVPageImporter extends CSVImporter {
             $pagename = end($pageParts);
             $text = "====== $pagename ======\n";
         }
-        $keys = array_reduce($this->columns,
+        $keys = array_reduce(
+            $this->columns,
             function ($keys, Column $col) {
                 if (!in_array($col->getLabel(), $keys, true)) {
                     return $keys;
@@ -106,15 +112,21 @@ class CSVPageImporter extends CSVImporter {
             $this->header
         );
 
-        $keysAt = array_map(function ($key) { return "@@$key@@";}, $keys);
-        $keysHash = array_map(function ($key) { return "##$key##";}, $keys);
+        $keysAt = array_map(function ($key) {
+            return "@@$key@@";
+        }, $keys);
+        $keysHash = array_map(function ($key) {
+            return "##$key##";
+        }, $keys);
         $flatValues = array_map(
-            function($value) {
+            function ($value) {
                 if (is_array($value)) {
                     return implode(', ', $value);
                 }
                 return $value;
-            }, $line);
+            },
+            $line
+        );
         $text = $this->evaluateIfNotEmptyTags($text, $keys, $flatValues);
         $text = str_replace($keysAt, $flatValues, $text);
         /** @noinspection CascadeStringReplacementInspection */
@@ -135,8 +147,7 @@ class CSVPageImporter extends CSVImporter {
     {
         return preg_replace_callback(
             '/<ifnotempty (.+?)>([^<]*?)<\/ifnotempty>/',
-            function ($matches) use ($keys, $values)
-            {
+            function ($matches) use ($keys, $values) {
                 list (,$blockKey, $textIfNotEmpty) = $matches;
                 $index = array_search($blockKey, $keys, true);
                 if ($index === false) {
@@ -159,7 +170,8 @@ class CSVPageImporter extends CSVImporter {
      * @param string   $single
      * @return array(pid, rev)
      */
-    protected function insertIntoSingle($values, $single) {
+    protected function insertIntoSingle($values, $single)
+    {
         $pid = $values[0];
         $rev = $values[count($values) - 1];
 
@@ -183,7 +195,8 @@ class CSVPageImporter extends CSVImporter {
      * @param string $row
      * @param string $value
      */
-    protected function insertIntoMulti($multi, $pk, $column, $row, $value) {
+    protected function insertIntoMulti($multi, $pk, $column, $row, $value)
+    {
         list($pid, $rev) = $pk;
 
         //update latest
@@ -198,7 +211,8 @@ class CSVPageImporter extends CSVImporter {
      *
      * @return string
      */
-    protected function getSQLforMultiValue() {
+    protected function getSQLforMultiValue()
+    {
         $table = $this->schema->getTable();
         /** @noinspection SqlResolve */
         return "INSERT INTO multi_$table (pid, rev, colref, row, value, latest) VALUES (?,?,?,?,?,1)";
@@ -211,15 +225,16 @@ class CSVPageImporter extends CSVImporter {
      * @param mixed  $rawvalue
      * @return bool
      */
-    protected function validateValue(Column $col, &$rawvalue) {
+    protected function validateValue(Column $col, &$rawvalue)
+    {
         //check if page id exists and schema is bounded to the page
-        if($col->getLabel() == 'pid') {
+        if ($col->getLabel() == 'pid') {
             $pid = cleanID($rawvalue);
             if (isset($this->importedPids[$pid])) {
-                $this->errors[] = 'Page "'.$pid.'" already imported. Skipping the row.';
+                $this->errors[] = 'Page "' . $pid . '" already imported. Skipping the row.';
                 return false;
             }
-            if(page_exists($pid)) {
+            if (page_exists($pid)) {
                 $this->importedPids[$pid] = true;
                 return true;
             }
@@ -228,7 +243,7 @@ class CSVPageImporter extends CSVImporter {
                 $this->createPage[$pid] = true;
                 return true;
             }
-            $this->errors[] = 'Page "'.$pid.'" does not exists. Skipping the row.';
+            $this->errors[] = 'Page "' . $pid . '" does not exists. Skipping the row.';
             return false;
         }
 

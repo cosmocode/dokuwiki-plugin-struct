@@ -9,7 +9,8 @@ namespace dokuwiki\plugin\struct\meta;
  *
  * @package dokuwiki\plugin\struct\meta
  */
-abstract class CSVImporter {
+abstract class CSVImporter
+{
 
     /** @var  Schema */
     protected $schema;
@@ -39,11 +40,12 @@ abstract class CSVImporter {
      * @param string $table
      * @param string $file
      */
-    public function __construct($table, $file) {
+    public function __construct($table, $file)
+    {
         $this->openFile($file);
 
         $this->schema = new Schema($table);
-        if(!$this->schema->getId()) throw new StructException('Schema does not exist');
+        if (!$this->schema->getId()) throw new StructException('Schema does not exist');
 
         /** @var \helper_plugin_struct_db $db */
         $db = plugin_load('helper', 'struct_db');
@@ -55,7 +57,8 @@ abstract class CSVImporter {
      *
      * @throws StructException
      */
-    public function import() {
+    public function import()
+    {
         // Do the import
         $this->readHeaders();
         $this->importCSV();
@@ -73,7 +76,7 @@ abstract class CSVImporter {
     protected function openFile($file)
     {
         $this->fh = fopen($file, 'rb');
-        if(!$this->fh) {
+        if (!$this->fh) {
             throw new StructException('Failed to open CSV file for reading');
         }
     }
@@ -95,19 +98,20 @@ abstract class CSVImporter {
      *
      * @return array headers of file
      */
-    protected function readHeaders() {
+    protected function readHeaders()
+    {
         $header = $this->getLine();
-        if(!$header) throw new StructException('Failed to read CSV');
+        if (!$header) throw new StructException('Failed to read CSV');
         $this->line++;
 
-        foreach($header as $i => $head) {
+        foreach ($header as $i => $head) {
             $col = $this->schema->findColumn($head);
-            if(!$col) continue;
-            if(!$col->isEnabled()) continue;
+            if (!$col) continue;
+            if (!$col->isEnabled()) continue;
             $this->columns[$i] = $col;
         }
 
-        if(!$this->columns) {
+        if (!$this->columns) {
             throw new StructException('None of the CSV headers matched any of the schema\'s fields');
         }
 
@@ -119,10 +123,11 @@ abstract class CSVImporter {
      *
      * @return string
      */
-    protected function getSQLforAllValues() {
+    protected function getSQLforAllValues()
+    {
         $colnames = array();
         $placeholds = array();
-        foreach($this->columns as $i => $col) {
+        foreach ($this->columns as $i => $col) {
             $colnames[] = 'col' . $col->getColref();
             $placeholds[] = '?';
         }
@@ -138,7 +143,8 @@ abstract class CSVImporter {
      *
      * @return string
      */
-    protected function getSQLforMultiValue() {
+    protected function getSQLforMultiValue()
+    {
         $table = $this->schema->getTable();
         /** @noinspection SqlResolve */
         return "INSERT INTO multi_$table (pid, colref, row, value) VALUES (?,?,?,?)";
@@ -147,12 +153,13 @@ abstract class CSVImporter {
     /**
      * Walks through the CSV and imports
      */
-    protected function importCSV() {
+    protected function importCSV()
+    {
 
         $single = $this->getSQLforAllValues();
         $multi = $this->getSQLforMultiValue();
 
-        while(($data = $this->getLine()) !== false) {
+        while (($data = $this->getLine()) !== false) {
             $this->sqlite->query('BEGIN TRANSACTION');
             $this->line++;
             $this->importLine($data, $single, $multi);
@@ -165,7 +172,8 @@ abstract class CSVImporter {
      *
      * @return string[] already translated error messages
      */
-    public function getErrors() {
+    public function getErrors()
+    {
         return $this->errors;
     }
 
@@ -176,7 +184,8 @@ abstract class CSVImporter {
      * @param mixed &$rawvalue the value, will be fixed according to the type
      * @return bool true if the data validates, otherwise false
      */
-    protected function validateValue(Column $col, &$rawvalue) {
+    protected function validateValue(Column $col, &$rawvalue)
+    {
         //by default no validation
         return true;
     }
@@ -186,15 +195,16 @@ abstract class CSVImporter {
      *
      * @param &$line
      */
-    protected function readLine(&$line) {
+    protected function readLine(&$line)
+    {
         // prepare values for single value table
         $values = array();
-        foreach($this->columns as $i => $column) {
-            if(!isset($line[$i])) throw new StructException('Missing field at CSV line %d', $this->line);
+        foreach ($this->columns as $i => $column) {
+            if (!isset($line[$i])) throw new StructException('Missing field at CSV line %d', $this->line);
 
-            if(!$this->validateValue($column, $line[$i])) return false;
+            if (!$this->validateValue($column, $line[$i])) return false;
 
-            if($column->isMulti()) {
+            if ($column->isMulti()) {
                 // multi values get split on comma
                 $line[$i] = array_map('trim', explode(',', $line[$i]));
                 $values[] = $line[$i][0];
@@ -214,7 +224,8 @@ abstract class CSVImporter {
      *
      * @return string last_insert_rowid()
      */
-    protected function insertIntoSingle($values, $single) {
+    protected function insertIntoSingle($values, $single)
+    {
         $this->sqlite->query($single, $values);
         $res = $this->sqlite->query('SELECT last_insert_rowid()');
         $pid = $this->sqlite->res2single($res);
@@ -232,7 +243,8 @@ abstract class CSVImporter {
      * @param $row string
      * @param $value string
      */
-    protected function insertIntoMulti($multi, $pid, $column, $row, $value) {
+    protected function insertIntoMulti($multi, $pid, $column, $row, $value)
+    {
         $this->sqlite->query($multi, array($pid, $column->getColref(), $row + 1, $value));
     }
 
@@ -243,14 +255,15 @@ abstract class CSVImporter {
      * @param string $single SQL for single table
      * @param string $multi SQL for multi table
      */
-    protected function saveLine($values, $line, $single, $multi) {
+    protected function saveLine($values, $line, $single, $multi)
+    {
         // insert into single value table (and create pid)
         $pid = $this->insertIntoSingle($values, $single);
 
         // insert all the multi values
-        foreach($this->columns as $i => $column) {
-            if(!$column->isMulti()) continue;
-            foreach($line[$i] as $row => $value) {
+        foreach ($this->columns as $i => $column) {
+            if (!$column->isMulti()) continue;
+            foreach ($line[$i] as $row => $value) {
                 $this->insertIntoMulti($multi, $pid, $column, $row, $value);
             }
         }
@@ -263,13 +276,14 @@ abstract class CSVImporter {
      * @param string $single SQL for single table
      * @param string $multi SQL for multi table
      */
-    protected function importLine($line, $single, $multi) {
+    protected function importLine($line, $single, $multi)
+    {
         //read values, false if no validation
         $values = $this->readLine($line);
 
-        if($values) {
+        if ($values) {
             $this->saveLine($values, $line, $single, $multi);
-        } else foreach($this->errors as $error) {
+        } else foreach ($this->errors as $error) {
             msg($error, -1);
         }
     }

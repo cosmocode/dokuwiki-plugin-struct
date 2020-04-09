@@ -2,7 +2,8 @@
 
 namespace  dokuwiki\plugin\struct\meta;
 
-trait TranslationUtilities {
+trait TranslationUtilities
+{
 
 
     /**
@@ -14,10 +15,11 @@ trait TranslationUtilities {
      *
      * @param string[] $keysToInitialize the keys for which to initialize language fields
      */
-    protected function initTransConfig(array $keysToInitialize = array('label', 'hint')) {
+    protected function initTransConfig(array $keysToInitialize = array('label', 'hint'))
+    {
         global $conf;
         $lang = $conf['lang'];
-        if(isset($conf['plugin']['translation']['translations'])) {
+        if (isset($conf['plugin']['translation']['translations'])) {
             $lang .= ' ' . $conf['plugin']['translation']['translations'];
         }
         $langs = explode(' ', $lang);
@@ -42,7 +44,6 @@ trait TranslationUtilities {
                 }
             }
         }
-
     }
 
     /**
@@ -56,13 +57,14 @@ trait TranslationUtilities {
      *
      * @return string
      */
-    public function getTranslatedKey($key, $default) {
+    public function getTranslatedKey($key, $default)
+    {
         global $conf;
         $lang = $conf['lang'];
-        if(!blank($this->config[$key][$lang])) {
+        if (!blank($this->config[$key][$lang])) {
             return $this->config[$key][$lang];
         }
-        if(!blank($this->config[$key]['en'])) {
+        if (!blank($this->config[$key]['en'])) {
             return $this->config[$key]['en'];
         }
         return $default;

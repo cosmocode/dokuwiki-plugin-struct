@@ -2,7 +2,8 @@
 
 namespace dokuwiki\plugin\struct\meta;
 
-class AggregationCloud {
+class AggregationCloud
+{
 
     /**
      * @var string the page id of the page this is rendered to
@@ -49,7 +50,8 @@ class AggregationCloud {
      * @param \Doku_Renderer $renderer
      * @param SearchConfig $searchConfig
      */
-    public function __construct($id, $mode, \Doku_Renderer $renderer, SearchCloud $searchConfig) {
+    public function __construct($id, $mode, \Doku_Renderer $renderer, SearchCloud $searchConfig)
+    {
         $this->id = $id;
         $this->mode = $mode;
         $this->renderer = $renderer;
@@ -66,7 +68,8 @@ class AggregationCloud {
     /**
      * Create the cloud on the renderer
      */
-    public function render() {
+    public function render()
+    {
 
         $this->sortResults();
 
@@ -85,9 +88,10 @@ class AggregationCloud {
      *
      * @see finishScope()
      */
-    protected function startScope() {
+    protected function startScope()
+    {
         // wrapping div
-        if($this->mode != 'xhtml') return;
+        if ($this->mode != 'xhtml') return;
         $this->renderer->doc .= "<div class=\"structcloud\">";
     }
 
@@ -96,9 +100,10 @@ class AggregationCloud {
      *
      * @see startScope()
      */
-    protected function finishScope() {
+    protected function finishScope()
+    {
         // wrapping div
-        if($this->mode != 'xhtml') return;
+        if ($this->mode != 'xhtml') return;
         $this->renderer->doc .= '</div>';
     }
 
@@ -107,7 +112,8 @@ class AggregationCloud {
      *
      * @param ['tag' => Value, 'count' => int] $result
      */
-    protected function renderTag($result) {
+    protected function renderTag($result)
+    {
         /**
          * @var Value $value
          */
@@ -137,13 +143,13 @@ class AggregationCloud {
         $this->renderer->listitem_open(1);
         $this->renderer->listcontent_open();
 
-        if($this->mode == 'xhtml') {
+        if ($this->mode == 'xhtml') {
             $this->renderer->doc .= "<div style='font-size:$weight%' data-count='$count' class='cloudtag struct_$type'>";
         }
 
         $value->renderAsTagCloudLink($this->renderer, $this->mode, $target, $filter, $weight);
 
-        if($this->mode == 'xhtml') {
+        if ($this->mode == 'xhtml') {
             $this->renderer->doc .= '</div>';
         }
 
@@ -159,17 +165,19 @@ class AggregationCloud {
      * @param int $max
      * @return int
      */
-    protected function getWeight($current, $min, $max) {
+    protected function getWeight($current, $min, $max)
+    {
         if ($min == $max) {
             return 100;
         }
-        return round(($current - $min)/($max - $min) * 80 + 70);
+        return round(($current - $min) / ($max - $min) * 80 + 70);
     }
 
     /**
      * Sort the list of results
      */
-    protected function sortResults() {
+    protected function sortResults()
+    {
         usort($this->result, function ($a, $b) {
             $asort = $a['tag']->getColumn()->getType()->getSortString($a['tag']);
             $bsort = $b['tag']->getColumn()->getType()->getSortString($b['tag']);
@@ -183,11 +191,13 @@ class AggregationCloud {
         });
     }
 
-    protected function startList() {
+    protected function startList()
+    {
         $this->renderer->listu_open();
     }
 
-    protected function finishList() {
+    protected function finishList()
+    {
         $this->renderer->listu_close();
     }
 }

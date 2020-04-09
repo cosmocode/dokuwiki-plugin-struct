@@ -4,7 +4,8 @@ namespace dokuwiki\plugin\struct\types;
 
 use dokuwiki\plugin\struct\meta\ValidationException;
 
-class Url extends Text {
+class Url extends Text
+{
 
     protected $config = array(
         'autoscheme' => 'https',
@@ -18,14 +19,15 @@ class Url extends Text {
      * @param string $rawvalue
      * @return int|string|void
      */
-    public function validate($rawvalue) {
+    public function validate($rawvalue)
+    {
         $rawvalue = parent::validate($rawvalue);
 
         $url = $this->buildURL($rawvalue);
 
         $schemes = getSchemes();
         $regex = '^(' . join('|', $schemes) . '):\/\/.+';
-        if(!preg_match("/$regex/i", $url)) {
+        if (!preg_match("/$regex/i", $url)) {
             throw new ValidationException('Url invalid', $url);
         }
 
@@ -38,7 +40,8 @@ class Url extends Text {
      * @param string $mode
      * @return bool
      */
-    public function renderValue($value, \Doku_Renderer $R, $mode) {
+    public function renderValue($value, \Doku_Renderer $R, $mode)
+    {
         $url = $this->buildURL($value);
         $R->externallink($url);
         return true;
@@ -50,14 +53,14 @@ class Url extends Text {
      * @param string $value
      * @return string
      */
-    protected function buildURL($value) {
+    protected function buildURL($value)
+    {
         $url = $this->config['prefix'] . trim($value) . $this->config['postfix'];
 
-        if(!preg_match('/\w+:\/\//', $url)) {
+        if (!preg_match('/\w+:\/\//', $url)) {
             $url = $this->config['autoscheme'] . '://' . $url;
         }
 
         return $url;
     }
-
 }

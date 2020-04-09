@@ -12,7 +12,8 @@ namespace dokuwiki\plugin\struct\meta;
  *
  * @package dokuwiki\plugin\struct\meta
  */
-class CSVExporter {
+class CSVExporter
+{
 
     protected $islookup = false;
 
@@ -22,7 +23,8 @@ class CSVExporter {
      * @throws StructException
      * @param string $table
      */
-    public function __construct($table) {
+    public function __construct($table)
+    {
 
         $search = new Search();
         $search->addSchema($table);
@@ -30,15 +32,15 @@ class CSVExporter {
         $result = $search->execute();
 
         $this->islookup = $search->getSchemas()[0]->isLookup();
-        if(!$this->islookup) {
+        if (!$this->islookup) {
             $pids = $search->getPids();
         } else {
             $pids = array();
         }
 
         echo $this->header($search->getColumns());
-        foreach($result as $i => $row) {
-            if(!$this->islookup) {
+        foreach ($result as $i => $row) {
+            if (!$this->islookup) {
                 $pid = $pids[$i];
             } else {
                 $pid = 0;
@@ -54,15 +56,16 @@ class CSVExporter {
      * @param Column[] $columns
      * @return string
      */
-    protected function header($columns) {
+    protected function header($columns)
+    {
         $row = '';
 
-        if(!$this->islookup) {
+        if (!$this->islookup) {
             $row .= $this->escape('pid');
             $row .= ',';
         }
 
-        foreach($columns as $i => $col) {
+        foreach ($columns as $i => $col) {
             $row .= $this->escape($col->getLabel());
             $row .= ',';
         }
@@ -76,18 +79,19 @@ class CSVExporter {
      * @param string $pid pid of this row
      * @return string
      */
-    protected function row($values, $pid) {
+    protected function row($values, $pid)
+    {
         $row = '';
 
-        if(!$this->islookup) {
+        if (!$this->islookup) {
             $row .= $this->escape($pid);
             $row .= ',';
         }
 
-        foreach($values as $value) {
+        foreach ($values as $value) {
             /** @var Value $value */
             $val = $value->getRawValue();
-            if(is_array($val)) $val = join(',', $val);
+            if (is_array($val)) $val = join(',', $val);
 
             $row .= $this->escape($val);
             $row .= ',';
@@ -104,8 +108,8 @@ class CSVExporter {
      * @param string $str
      * @return string
      */
-    protected function escape($str) {
+    protected function escape($str)
+    {
         return '"' . str_replace('"', '""', $str) . '"';
     }
-
 }

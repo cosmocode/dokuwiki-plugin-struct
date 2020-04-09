@@ -1,7 +1,9 @@
 <?php
+
 namespace dokuwiki\plugin\struct\types;
 
-class Dropdown extends AbstractBaseType {
+class Dropdown extends AbstractBaseType
+{
 
     protected $config = array(
         'values' => 'one, two, three',
@@ -12,7 +14,8 @@ class Dropdown extends AbstractBaseType {
      *
      * @return array
      */
-    protected function getOptions() {
+    protected function getOptions()
+    {
         $options = explode(',', $this->config['values']);
         $options = array_map('trim', $options);
         $options = array_filter($options);
@@ -28,16 +31,17 @@ class Dropdown extends AbstractBaseType {
      * @param string $rawvalue
      * @return string
      */
-    public function valueEditor($name, $rawvalue, $htmlID) {
+    public function valueEditor($name, $rawvalue, $htmlID)
+    {
         $params = array(
             'name' => $name,
-            'class' => 'struct_'.strtolower($this->getClass()),
+            'class' => 'struct_' . strtolower($this->getClass()),
             'id' => $htmlID
         );
         $attributes = buildAttributes($params, true);
         $html = "<select $attributes>";
-        foreach($this->getOptions() as $opt => $val) {
-            if($opt == $rawvalue) {
+        foreach ($this->getOptions() as $opt => $val) {
+            if ($opt == $rawvalue) {
                 $selected = 'selected="selected"';
             } else {
                 $selected = '';
@@ -59,25 +63,25 @@ class Dropdown extends AbstractBaseType {
      *
      * @return string
      */
-    public function multiValueEditor($name, $rawvalues, $htmlID) {
+    public function multiValueEditor($name, $rawvalues, $htmlID)
+    {
         $params = array(
             'name' => $name . '[]',
-            'class' => 'struct_'.strtolower($this->getClass()),
+            'class' => 'struct_' . strtolower($this->getClass()),
             'multiple' => 'multiple',
             'size' => '5',
             'id' => $htmlID
         );
         $attributes = buildAttributes($params, true);
         $html = "<select $attributes>";
-        foreach($this->getOptions() as $raw => $opt) {
-            if(in_array($raw, $rawvalues)) {
+        foreach ($this->getOptions() as $raw => $opt) {
+            if (in_array($raw, $rawvalues)) {
                 $selected = 'selected="selected"';
             } else {
                 $selected = '';
             }
 
             $html .= "<option $selected value=\"" . hsc($raw) . "\">" . hsc($opt) . '</option>';
-
         }
         $html .= '</select> ';
         $html .= '<small>' . $this->getLang('multidropdown') . '</small>';
