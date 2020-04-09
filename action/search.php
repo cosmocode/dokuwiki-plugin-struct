@@ -1,4 +1,5 @@
 <?php
+
 /**
  * DokuWiki Plugin struct (Action Component)
  *
@@ -12,7 +13,8 @@ use dokuwiki\plugin\struct\meta\Assignments;
 /**
  * Inject struct data into indexed pages and search result snippets
  */
-class action_plugin_struct_search extends DokuWiki_Action_Plugin {
+class action_plugin_struct_search extends DokuWiki_Action_Plugin
+{
 
     /**
      * Registers a callback function for a given event
@@ -20,7 +22,8 @@ class action_plugin_struct_search extends DokuWiki_Action_Plugin {
      * @param Doku_Event_Handler $controller DokuWiki's event controller object
      * @return void
      */
-    public function register(Doku_Event_Handler $controller) {
+    public function register(Doku_Event_Handler $controller)
+    {
         $controller->register_hook('INDEXER_PAGE_ADD', 'BEFORE', $this, 'handle_indexing');
         $controller->register_hook('FULLTEXT_SNIPPET_CREATE', 'BEFORE', $this, 'handle_snippets');
     }
@@ -33,14 +36,15 @@ class action_plugin_struct_search extends DokuWiki_Action_Plugin {
      *                           handler was registered]
      * @return bool
      */
-    public function handle_indexing(Doku_Event $event, $param) {
+    public function handle_indexing(Doku_Event $event, $param)
+    {
         $id = $event->data['page'];
         $assignments = Assignments::getInstance();
         $tables = $assignments->getPageAssignments($id);
-        if(!$tables) return;
+        if (!$tables) return;
 
         $now = time();
-        foreach($tables as $table) {
+        foreach ($tables as $table) {
             $schemadata = AccessTable::byTableName($table, $id, $now);
             $event->data['body'] .= $schemadata->getDataPseudoSyntax();
         }
@@ -54,14 +58,15 @@ class action_plugin_struct_search extends DokuWiki_Action_Plugin {
      *                           handler was registered]
      * @return bool
      */
-    public function handle_snippets(Doku_Event $event, $param) {
+    public function handle_snippets(Doku_Event $event, $param)
+    {
         $id = $event->data['id'];
         $assignments = Assignments::getInstance();
         $tables = $assignments->getPageAssignments($id);
-        if(!$tables) return;
+        if (!$tables) return;
 
         $now = time();
-        foreach($tables as $table) {
+        foreach ($tables as $table) {
             $schemadata = AccessTable::byTableName($table, $id, $now);
             $event->data['text'] .= $schemadata->getDataPseudoSyntax();
         }

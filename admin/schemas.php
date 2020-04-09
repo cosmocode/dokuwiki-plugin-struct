@@ -1,4 +1,5 @@
 <?php
+
 /**
  * DokuWiki Plugin struct (Admin Component)
  *
@@ -17,28 +18,32 @@ use dokuwiki\plugin\struct\meta\SchemaImporter;
 use dokuwiki\plugin\struct\meta\StructException;
 
 // must be run within Dokuwiki
-if(!defined('DOKU_INC')) die();
+if (!defined('DOKU_INC')) die();
 
-class admin_plugin_struct_schemas extends DokuWiki_Admin_Plugin {
+class admin_plugin_struct_schemas extends DokuWiki_Admin_Plugin
+{
 
     /**
      * @return int sort number in admin menu
      */
-    public function getMenuSort() {
+    public function getMenuSort()
+    {
         return 500;
     }
 
     /**
      * @return bool true if only access for superuser, false is for superusers and moderators
      */
-    public function forAdminOnly() {
+    public function forAdminOnly()
+    {
         return false;
     }
 
     /**
      * Should carry out any processing required by the plugin.
      */
-    public function handle() {
+    public function handle()
+    {
         global $INPUT;
         global $ID;
         global $config_cascade;
@@ -46,15 +51,15 @@ class admin_plugin_struct_schemas extends DokuWiki_Admin_Plugin {
 
         // form submit
         $table = Schema::cleanTableName($INPUT->str('table'));
-        if($table && $INPUT->bool('save') && checkSecurityToken()) {
+        if ($table && $INPUT->bool('save') && checkSecurityToken()) {
             $builder = new SchemaBuilder($table, $INPUT->arr('schema'));
-            if(!$builder->build()) {
+            if (!$builder->build()) {
                 msg('something went wrong while saving', -1);
             }
             touch(action_plugin_struct_cache::getSchemaRefreshFile());
         }
         // export
-        if($table && $INPUT->bool('export')) {
+        if ($table && $INPUT->bool('export')) {
             $builder = new Schema($table);
             header('Content-Type: application/json');
             header("Content-Disposition: attachment; filename=$table.struct.json");
@@ -62,14 +67,14 @@ class admin_plugin_struct_schemas extends DokuWiki_Admin_Plugin {
             exit;
         }
         // import
-        if($table && $INPUT->bool('import')) {
-            if(isset($_FILES['schemafile']['tmp_name'])) {
+        if ($table && $INPUT->bool('import')) {
+            if (isset($_FILES['schemafile']['tmp_name'])) {
                 $json = io_readFile($_FILES['schemafile']['tmp_name'], false);
-                if(!$json) {
+                if (!$json) {
                     msg('Something went wrong with the upload', -1);
                 } else {
                     $builder = new SchemaImporter($table, $json, $INPUT->bool('lookup'));
-                    if(!$builder->build()) {
+                    if (!$builder->build()) {
                         msg('something went wrong while saving', -1);
                     }
                     touch(action_plugin_struct_cache::getSchemaRefreshFile());
@@ -78,8 +83,8 @@ class admin_plugin_struct_schemas extends DokuWiki_Admin_Plugin {
         }
 
         // import CSV
-        if($table && $INPUT->bool('importcsv')) {
-            if(isset($_FILES['csvfile']['tmp_name'])) {
+        if ($table && $INPUT->bool('importcsv')) {
+            if (isset($_FILES['csvfile']['tmp_name'])) {
                 try {
                     if ($INPUT->bool('lookup')) {
                         $csvImporter = new CSVLookupImporter($table, $_FILES['csvfile']['tmp_name']);
@@ -89,14 +94,14 @@ class admin_plugin_struct_schemas extends DokuWiki_Admin_Plugin {
                     $csvImporter->import();
 
                     msg($this->getLang('admin_csvdone'), 1);
-                } catch(StructException $e) {
+                } catch (StructException $e) {
                     msg(hsc($e->getMessage()), -1);
                 }
             }
         }
 
         // export CSV
-        if($table && $INPUT->bool('exportcsv')) {
+        if ($table && $INPUT->bool('exportcsv')) {
             header('Content-Type: text/csv');
             header('Content-Disposition: attachment; filename="' . $table . '.csv";');
             new CSVExporter($table);
@@ -104,8 +109,8 @@ class admin_plugin_struct_schemas extends DokuWiki_Admin_Plugin {
         }
 
         // delete
-        if($table && $INPUT->bool('delete')) {
-            if($table != $INPUT->str('confirm')) {
+        if ($table && $INPUT->bool('delete')) {
+            if ($table != $INPUT->str('confirm')) {
                 msg($this->getLang('del_fail'), -1);
             } else {
                 try {
@@ -114,15 +119,15 @@ class admin_plugin_struct_schemas extends DokuWiki_Admin_Plugin {
                     msg($this->getLang('del_ok'), 1);
                     touch(action_plugin_struct_cache::getSchemaRefreshFile());
                     send_redirect(wl($ID, array('do' => 'admin', 'page' => 'struct_schemas'), true, '&'));
-                } catch(StructException $e) {
+                } catch (StructException $e) {
                     msg(hsc($e->getMessage()), -1);
                 }
             }
         }
 
         // clear
-        if($table && $INPUT->bool('clear')) {
-            if($table != $INPUT->str('confirm_clear')) {
+        if ($table && $INPUT->bool('clear')) {
+            if ($table != $INPUT->str('confirm_clear')) {
                 msg($this->getLang('clear_fail'), -1);
             } else {
                 try {
@@ -131,22 +136,22 @@ class admin_plugin_struct_schemas extends DokuWiki_Admin_Plugin {
                     msg($this->getLang('clear_ok'), 1);
                     touch(action_plugin_struct_cache::getSchemaRefreshFile());
                     send_redirect(wl($ID, array('do' => 'admin', 'page' => 'struct_schemas'), true, '&'));
-                } catch(StructException $e) {
+                } catch (StructException $e) {
                     msg(hsc($e->getMessage()), -1);
                 }
             }
         }
-
     }
 
     /**
      * Render HTML output, e.g. helpful text and a form
      */
-    public function html() {
+    public function html()
+    {
         global $INPUT;
 
         $table = Schema::cleanTableName($INPUT->str('table'));
-        if($table) {
+        if ($table) {
             $schema = new Schema($table, 0);
 
             echo $this->locale_xhtml('editor_edit');
@@ -166,7 +171,6 @@ class admin_plugin_struct_schemas extends DokuWiki_Admin_Plugin {
             echo $editor->getEditor();
             echo $this->html_json($schema);
             echo $this->html_delete($schema);
-
         } else {
             echo $this->locale_xhtml('editor_intro');
             echo $this->html_newschema();
@@ -179,7 +183,8 @@ class admin_plugin_struct_schemas extends DokuWiki_Admin_Plugin {
      * @param Schema $schema
      * @return string
      */
-    protected function html_json(Schema $schema) {
+    protected function html_json(Schema $schema)
+    {
         $form = new Form(array('enctype' => 'multipart/form-data', 'id' => 'plugin__struct_json'));
         $form->setHiddenField('do', 'admin');
         $form->setHiddenField('page', 'struct_schemas');
@@ -215,7 +220,8 @@ class admin_plugin_struct_schemas extends DokuWiki_Admin_Plugin {
      * @param Schema $schema
      * @return string
      */
-    protected function html_delete(Schema $schema) {
+    protected function html_delete(Schema $schema)
+    {
         $form = new Form(array('id' => 'plugin__struct_delete'));
         $form->setHiddenField('do', 'admin');
         $form->setHiddenField('page', 'struct_schemas');
@@ -241,7 +247,8 @@ class admin_plugin_struct_schemas extends DokuWiki_Admin_Plugin {
      *
      * @return string
      */
-    protected function html_newschema() {
+    protected function html_newschema()
+    {
         $form = new Form();
         $form->addClass('struct_newschema');
         $form->addFieldsetOpen($this->getLang('create'));
@@ -259,19 +266,22 @@ class admin_plugin_struct_schemas extends DokuWiki_Admin_Plugin {
      *
      * @return array
      */
-    public function getTOC() {
+    public function getTOC()
+    {
         global $ID;
 
         $toc = array();
         $link = wl(
-            $ID, array(
+            $ID,
+            array(
                    'do' => 'admin',
                    'page' => 'struct_assignments'
                )
         );
         $toc[] = html_mktocitem($link, $this->getLang('menu_assignments'), 0, '');
         $slink = wl(
-            $ID, array(
+            $ID,
+            array(
                    'do' => 'admin',
                    'page' => 'struct_schemas'
                )
@@ -279,10 +289,11 @@ class admin_plugin_struct_schemas extends DokuWiki_Admin_Plugin {
         $toc[] = html_mktocitem($slink, $this->getLang('menu'), 0, '');
 
         $tables = Schema::getAll();
-        if($tables) {
-            foreach($tables as $table) {
+        if ($tables) {
+            foreach ($tables as $table) {
                 $link = wl(
-                    $ID, array(
+                    $ID,
+                    array(
                            'do' => 'admin',
                            'page' => 'struct_schemas',
                            'table' => $table
@@ -295,9 +306,6 @@ class admin_plugin_struct_schemas extends DokuWiki_Admin_Plugin {
 
         return $toc;
     }
-
-
-
 }
 
 // vim:ts=4:sw=4:et:

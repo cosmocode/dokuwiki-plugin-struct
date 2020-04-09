@@ -1,4 +1,5 @@
 <?php
+
 /**
  * DokuWiki Plugin struct (Syntax Component)
  *
@@ -8,14 +9,16 @@
 
 use dokuwiki\plugin\struct\meta\AccessTableData;
 
-class syntax_plugin_struct_serial extends syntax_plugin_struct_lookup {
+class syntax_plugin_struct_serial extends syntax_plugin_struct_lookup
+{
 
     /**
      * Connect serial pattern to lexer.
      *
      * @param string $mode Parser mode
      */
-    public function connectTo($mode) {
+    public function connectTo($mode)
+    {
         $this->Lexer->addSpecialPattern('----+ *struct serial *-+\n.*?\n----+', $mode, 'plugin_struct_serial');
     }
 

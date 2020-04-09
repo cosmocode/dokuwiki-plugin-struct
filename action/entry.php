@@ -1,4 +1,5 @@
 <?php
+
 /**
  * DokuWiki Plugin struct (Action Component)
  *
@@ -7,7 +8,7 @@
  */
 
 // must be run within Dokuwiki
-if(!defined('DOKU_INC')) die();
+if (!defined('DOKU_INC')) die();
 
 use dokuwiki\plugin\struct\meta\AccessTable;
 use dokuwiki\plugin\struct\meta\Assignments;
@@ -19,7 +20,8 @@ use dokuwiki\plugin\struct\meta\Value;
  *
  * Handles the entry process of struct data with type "page"
  */
-class action_plugin_struct_entry extends DokuWiki_Action_Plugin {
+class action_plugin_struct_entry extends DokuWiki_Action_Plugin
+{
 
     /**
      * @var string The form name we use to transfer schema data
@@ -41,7 +43,8 @@ class action_plugin_struct_entry extends DokuWiki_Action_Plugin {
      * @param Doku_Event_Handler $controller DokuWiki's event controller object
      * @return void
      */
-    public function register(Doku_Event_Handler $controller) {
+    public function register(Doku_Event_Handler $controller)
+    {
         // validate data on preview and save;
         $controller->register_hook('ACTION_ACT_PREPROCESS', 'BEFORE', $this, 'handle_validation');
         // ensure a page revision is created when struct data changes:
@@ -58,17 +61,18 @@ class action_plugin_struct_entry extends DokuWiki_Action_Plugin {
      *                           handler was registered]
      * @return bool
      */
-    public function handle_validation(Doku_Event $event, $param) {
+    public function handle_validation(Doku_Event $event, $param)
+    {
         global $ID, $INPUT;
         $act = act_clean($event->data);
-        if(!in_array($act, array('save', 'preview'))) return false;
+        if (!in_array($act, array('save', 'preview'))) return false;
         $this->tosave = array();
 
         // run the validation for each assignded schema
         $valid = AccessDataValidator::validateDataForPage($INPUT->arr(self::$VAR), $ID, $errors);
-        if($valid === false) {
+        if ($valid === false) {
             $this->validated = false;
-            foreach($errors as $error) {
+            foreach ($errors as $error) {
                 msg(hsc($error), -1);
             }
         } else {
@@ -80,7 +84,7 @@ class action_plugin_struct_entry extends DokuWiki_Action_Plugin {
         // could we just not do that, and keep the cleaning to saving only? and fix that bug this way?
 
         // did validation go through? otherwise abort saving
-        if(!$this->validated && $act == 'save') {
+        if (!$this->validated && $act == 'save') {
             $event->data = 'edit';
         }
 
@@ -95,20 +99,21 @@ class action_plugin_struct_entry extends DokuWiki_Action_Plugin {
      *                           handler was registered]
      * @return bool
      */
-    public function handle_pagesave_before(Doku_Event $event, $param) {
-        if($event->data['contentChanged']) return false; // will be saved for page changes
+    public function handle_pagesave_before(Doku_Event $event, $param)
+    {
+        if ($event->data['contentChanged']) return false; // will be saved for page changes
         global $ACT;
-        if($ACT == 'revert') return false; // this is handled in revert.php
+        if ($ACT == 'revert') return false; // this is handled in revert.php
 
-        if((is_array($this->tosave) && count($this->tosave)) || isset($GLOBALS['struct_plugin_force_page_save'])) {
-            if(trim($event->data['newContent']) === '') {
+        if ((is_array($this->tosave) && count($this->tosave)) || isset($GLOBALS['struct_plugin_force_page_save'])) {
+            if (trim($event->data['newContent']) === '') {
                 // this happens when a new page is tried to be created with only struct data
                 msg($this->getLang('emptypage'), -1);
             } else {
                 $event->data['contentChanged'] = true; // save for data changes
 
                 // add a summary
-                if(empty($event->data['summary'])) {
+                if (empty($event->data['summary'])) {
                     $event->data['summary'] = $this->getLang('summary');
                 }
             }
@@ -127,24 +132,25 @@ class action_plugin_struct_entry extends DokuWiki_Action_Plugin {
      *                           handler was registered]
      * @return bool
      */
-    public function handle_pagesave_after(Doku_Event $event, $param) {
+    public function handle_pagesave_after(Doku_Event $event, $param)
+    {
         global $ACT;
-        if($ACT == 'revert') return false; // handled in revert
+        if ($ACT == 'revert') return false; // handled in revert
 
         $assignments = Assignments::getInstance();
-        if($event->data['changeType'] == DOKU_CHANGE_TYPE_DELETE && empty($GLOBALS['PLUGIN_MOVE_WORKING'])) {
+        if ($event->data['changeType'] == DOKU_CHANGE_TYPE_DELETE && empty($GLOBALS['PLUGIN_MOVE_WORKING'])) {
             // clear all data on delete unless it's a move operation
             $tables = $assignments->getPageAssignments($event->data['id']);
-            foreach($tables as $table) {
+            foreach ($tables as $table) {
                 $schemaData = AccessTable::byTableName($table, $event->data['id'], time());
-                if($schemaData->getSchema()->isEditable()){
-                   $schemaData->clearData();
+                if ($schemaData->getSchema()->isEditable()) {
+                    $schemaData->clearData();
                 }
             }
         } else {
             // save the provided data
-            if($this->tosave) foreach($this->tosave as $validation) {
-                if($validation->getAccessTable()->getSchema()->isEditable()) {
+            if ($this->tosave) foreach ($this->tosave as $validation) {
+                if ($validation->getAccessTable()->getSchema()->isEditable()) {
                     $validation->saveData($event->data['newRevision']);
 
                     // make sure this schema is assigned

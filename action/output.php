@@ -1,4 +1,5 @@
 <?php
+
 /**
  * DokuWiki Plugin struct (Action Component)
  *
@@ -7,7 +8,7 @@
  */
 
 // must be run within Dokuwiki
-if(!defined('DOKU_INC')) die();
+if (!defined('DOKU_INC')) die();
 
 /**
  * Class action_plugin_struct_output
@@ -18,7 +19,8 @@ if(!defined('DOKU_INC')) die();
  * The real output creation is done within the syntax component
  * @see syntax_plugin_struct_output
  */
-class action_plugin_struct_output extends DokuWiki_Action_Plugin {
+class action_plugin_struct_output extends DokuWiki_Action_Plugin
+{
 
     const DW2PDF_PLACEHOLDER_PREFIX = 'PLUGIN_STRUCT';
 
@@ -28,7 +30,8 @@ class action_plugin_struct_output extends DokuWiki_Action_Plugin {
      * @param Doku_Event_Handler $controller DokuWiki's event controller object
      * @return void
      */
-    public function register(Doku_Event_Handler $controller) {
+    public function register(Doku_Event_Handler $controller)
+    {
         $controller->register_hook('PARSER_HANDLER_DONE', 'AFTER', $this, 'handle_output');
         $controller->register_hook('PLUGIN_DW2PDF_REPLACE', 'BEFORE', $this, 'replace_dw2pdf');
         $controller->register_hook('PLUGIN_DW2PDF_REPLACE', 'AFTER', $this, 'cleanup_dw2pdf');
@@ -41,21 +44,22 @@ class action_plugin_struct_output extends DokuWiki_Action_Plugin {
      * @param Doku_Event $event
      * @param $param
      */
-    public function handle_output(Doku_Event $event, $param) {
+    public function handle_output(Doku_Event $event, $param)
+    {
         global $ID;
-        if(!page_exists($ID)) return;
+        if (!page_exists($ID)) return;
         $ins = -1;
         $pos = 0;
-        foreach($event->data->calls as $num => $call) {
+        foreach ($event->data->calls as $num => $call) {
             // try to find the first header
-            if($call[0] == 'header') {
+            if ($call[0] == 'header') {
                 $pos = $call[2];
                 $ins = $num;
                 break;
             }
 
             // abort when after we looked at the first 150 bytes
-            if(isset($call[3]) && $call[3] > 150) {
+            if (isset($call[3]) && $call[3] > 150) {
                 break;
             }
         }
@@ -63,7 +67,7 @@ class action_plugin_struct_output extends DokuWiki_Action_Plugin {
         // insert our own call after the found position
         array_splice(
             $event->data->calls,
-            $ins+1,
+            $ins + 1,
             0,
             array(
                 array(
@@ -95,7 +99,7 @@ class action_plugin_struct_output extends DokuWiki_Action_Plugin {
         $helper = plugin_load('helper', 'struct');
         $data = $helper->getData($event->data['id'], null, $rev);
 
-        if(!$data) return;
+        if (!$data) return;
 
         foreach ($data as $schema => $fields) {
             foreach ($fields as $field => $value) {
@@ -117,7 +121,6 @@ class action_plugin_struct_output extends DokuWiki_Action_Plugin {
         $pattern = '~@' . self::DW2PDF_PLACEHOLDER_PREFIX . '_[^@]+?@~';
         $event->data['content'] = preg_replace($pattern, '', $event->data['content']);
     }
-
 }
 
 // vim:ts=4:sw=4:et:

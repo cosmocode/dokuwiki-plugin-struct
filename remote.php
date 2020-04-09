@@ -1,4 +1,5 @@
 <?php
+
 /**
  * DokuWiki Plugin struct (Helper Component)
  *
@@ -11,17 +12,19 @@ use dokuwiki\plugin\struct\meta\ConfigParser;
 use dokuwiki\plugin\struct\meta\SearchConfig;
 use dokuwiki\plugin\struct\meta\StructException;
 
-if(!defined('DOKU_INC')) die();
+if (!defined('DOKU_INC')) die();
 
 
-class remote_plugin_struct extends DokuWiki_Remote_Plugin {
+class remote_plugin_struct extends DokuWiki_Remote_Plugin
+{
     /** @var helper_plugin_struct hlp */
     protected $hlp;
 
     /**
      * remote_plugin_struct constructor.
      */
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct();
 
         /** @var helper_plugin_struct hlp */
@@ -38,14 +41,15 @@ class remote_plugin_struct extends DokuWiki_Remote_Plugin {
      * @throws RemoteAccessDeniedException
      * @throws RemoteException
      */
-    public function getData($page, $schema, $time) {
+    public function getData($page, $schema, $time)
+    {
         $page = cleanID($page);
 
-        if(auth_quickaclcheck($page) < AUTH_READ) {
+        if (auth_quickaclcheck($page) < AUTH_READ) {
             throw new RemoteAccessDeniedException('no permissions to access data of that page');
         }
 
-        if(!$schema) $schema = null;
+        if (!$schema) $schema = null;
 
         try {
             return $this->hlp->getData($page, $schema, $time);
@@ -70,10 +74,11 @@ class remote_plugin_struct extends DokuWiki_Remote_Plugin {
      * @throws RemoteAccessDeniedException
      * @throws RemoteException
      */
-    public function saveData($page, $data, $summary, $minor = false) {
+    public function saveData($page, $data, $summary, $minor = false)
+    {
         $page = cleanID($page);
 
-        if(auth_quickaclcheck($page) < AUTH_EDIT) {
+        if (auth_quickaclcheck($page) < AUTH_EDIT) {
             throw new RemoteAccessDeniedException('no permissions to save data for that page');
         }
 
@@ -95,15 +100,16 @@ class remote_plugin_struct extends DokuWiki_Remote_Plugin {
      * @throws RemoteAccessDeniedException
      * @throws RemoteException
      */
-    public function getSchema($schema = null) {
-        if(!auth_ismanager()) {
+    public function getSchema($schema = null)
+    {
+        if (!auth_ismanager()) {
             throw new RemoteAccessDeniedException('you need to be manager to access schema info');
         }
 
         try {
             $result = array();
             $schemas = $this->hlp->getSchema($schema ?: null);
-            foreach($schemas as $name => $schema) {
+            foreach ($schemas as $name => $schema) {
                 $result[$name] = array();
                 foreach ($schema->getColumns(false) as $column) {
                     $result[$name][] = array(
@@ -130,7 +136,8 @@ class remote_plugin_struct extends DokuWiki_Remote_Plugin {
      * @return array array of rows, each row is an array of the column values
      * @throws RemoteException
      */
-    public function getAggregationData(array $schemas, array $cols, array $filter = [], $sort = '') {
+    public function getAggregationData(array $schemas, array $cols, array $filter = [], $sort = '')
+    {
         $schemaLine = 'schema: ' . implode(', ', $schemas);
         $columnLine = 'cols: ' . implode(', ', $cols);
         $filterLines = array_map(function ($filter) {

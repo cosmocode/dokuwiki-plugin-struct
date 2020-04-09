@@ -1,4 +1,5 @@
 <?php
+
 use dokuwiki\plugin\struct\meta\Column;
 use dokuwiki\plugin\struct\meta\Schema;
 use dokuwiki\plugin\struct\meta\StructException;
@@ -12,7 +13,8 @@ use dokuwiki\plugin\struct\types\Lookup;
  * This class is used when a field of the type struct_field is encountered in the
  * bureaucracy syntax.
  */
-class helper_plugin_struct_field extends helper_plugin_bureaucracy_field {
+class helper_plugin_struct_field extends helper_plugin_bureaucracy_field
+{
 
     /** @var  Column */
     public $column;
@@ -22,13 +24,14 @@ class helper_plugin_struct_field extends helper_plugin_bureaucracy_field {
      *
      * @param array $args
      */
-    public function initialize($args) {
+    public function initialize($args)
+    {
         $this->init($args);
 
         // find the column
         try {
             $this->column = $this->findColumn($this->opt['label']);
-        } catch(StructException $e) {
+        } catch (StructException $e) {
             msg(hsc($e->getMessage()), -1);
         }
 
@@ -41,22 +44,23 @@ class helper_plugin_struct_field extends helper_plugin_bureaucracy_field {
      * @param mixed $value
      * @return bool value was set successfully validated
      */
-    protected function setVal($value) {
-        if(!$this->column) {
+    protected function setVal($value)
+    {
+        if (!$this->column) {
             $value = '';
         //don't validate placeholders here
-        } elseif($this->replace($value) == $value) {
+        } elseif ($this->replace($value) == $value) {
             $validator = new ValueValidator();
             $this->error = !$validator->validateValue($this->column, $value);
-            if($this->error) {
-                foreach($validator->getErrors() as $error) {
+            if ($this->error) {
+                foreach ($validator->getErrors() as $error) {
                     msg(hsc($error), -1);
                 }
             }
         }
 
-        if($value === array() || $value === '') {
-            if(!isset($this->opt['optional'])) {
+        if ($value === array() || $value === '') {
+            if (!isset($this->opt['optional'])) {
                 $this->error = true;
                 if ($this->column) {
                     $label = $this->column->getTranslatedLabel();
@@ -78,15 +82,16 @@ class helper_plugin_struct_field extends helper_plugin_bureaucracy_field {
      * @param Doku_Form $form
      * @param int $formid
      */
-    public function renderfield($params, Doku_Form $form, $formid) {
-        if(!$this->column) return;
+    public function renderfield($params, Doku_Form $form, $formid)
+    {
+        if (!$this->column) return;
 
         // this is what parent does
         $this->_handlePreload();
-        if(!$form->_infieldset) {
+        if (!$form->_infieldset) {
             $form->startFieldset('');
         }
-        if($this->error) {
+        if ($this->error) {
             $params['class'] = 'bureaucracy_error';
         }
 
@@ -106,7 +111,8 @@ class helper_plugin_struct_field extends helper_plugin_bureaucracy_field {
      * @param String $name field's name
      * @return string
      */
-    protected function makeField(Value $field, $name) {
+    protected function makeField(Value $field, $name)
+    {
         $trans = hsc($field->getColumn()->getTranslatedLabel());
         $hint = hsc($field->getColumn()->getTranslatedHint());
         $class = $hint ? 'hashint' : '';
@@ -134,9 +140,10 @@ class helper_plugin_struct_field extends helper_plugin_bureaucracy_field {
      * @param string $colname
      * @return \dokuwiki\plugin\struct\meta\Column
      */
-    protected function findColumn($colname) {
+    protected function findColumn($colname)
+    {
         list($table, $label) = explode('.', $colname, 2);
-        if(!$table || !$label) {
+        if (!$table || !$label) {
             throw new StructException('Field \'%s\' not given in schema.field form', $colname);
         }
         $schema = new Schema($table);
@@ -148,8 +155,8 @@ class helper_plugin_struct_field extends helper_plugin_bureaucracy_field {
      *
      * @return string always 'bureaucracy'
      */
-    public function getPluginName() {
+    public function getPluginName()
+    {
         return 'bureaucracy';
     }
-
 }

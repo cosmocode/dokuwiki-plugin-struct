@@ -9,7 +9,8 @@ namespace dokuwiki\plugin\struct\meta;
  *
  * @package dokuwiki\plugin\struct\meta
  */
-class Value {
+class Value
+{
 
     /** @var Column */
     protected $column;
@@ -35,7 +36,8 @@ class Value {
      * @param Column $column
      * @param array|int|string $value
      */
-    public function __construct(Column $column, $value) {
+    public function __construct(Column $column, $value)
+    {
         $this->column = $column;
         $this->setValue($value);
     }
@@ -43,15 +45,17 @@ class Value {
     /**
      * @return Column
      */
-    public function getColumn() {
+    public function getColumn()
+    {
         return $this->column;
     }
 
     /**
      * @return array|int|string
      */
-    public function getValue() {
-        if($this->rawonly) {
+    public function getValue()
+    {
+        if ($this->rawonly) {
             throw new StructException('Accessing value of rawonly value forbidden');
         }
         return $this->value;
@@ -62,7 +66,8 @@ class Value {
      *
      * @return array|string (array on multi)
      */
-    public function getRawValue() {
+    public function getRawValue()
+    {
         return $this->rawvalue;
     }
 
@@ -71,8 +76,9 @@ class Value {
      *
      * @return array|string (array on multi)
      */
-    public function getDisplayValue() {
-        if($this->rawonly) {
+    public function getDisplayValue()
+    {
+        if ($this->rawonly) {
             throw new StructException('Accessing displayvalue of rawonly value forbidden');
         }
         return $this->display;
@@ -83,8 +89,9 @@ class Value {
      *
      * @return array|string (array on multi)
      */
-    public function getCompareValue() {
-        if($this->rawonly) {
+    public function getCompareValue()
+    {
+        if ($this->rawonly) {
             throw new StructException('Accessing comparevalue of rawonly value forbidden');
         }
         return $this->compare;
@@ -98,11 +105,12 @@ class Value {
      * @param array|int|string $value
      * @param bool $israw is the passed value a raw value? turns Value into rawonly
      */
-    public function setValue($value, $israw=false) {
+    public function setValue($value, $israw = false)
+    {
         $this->rawonly = $israw;
 
         // treat all givens the same
-        if(!is_array($value)) {
+        if (!is_array($value)) {
             $value = array($value);
         }
 
@@ -113,16 +121,16 @@ class Value {
         $this->compare = array();
 
         // remove all blanks
-        foreach($value as $val) {
-            if($israw) {
+        foreach ($value as $val) {
+            if ($israw) {
                 $raw = $val;
             } else {
                 $raw = $this->column->getType()->rawValue($val);
             }
-            if('' === (string) trim($raw)) continue;
+            if ('' === (string) trim($raw)) continue;
             $this->value[] = $val;
             $this->rawvalue[] = $raw;
-            if($israw) {
+            if ($israw) {
                 $this->display[] = $val;
                 $this->compare[] = $val;
             } else {
@@ -132,7 +140,7 @@ class Value {
         }
 
         // make single value again
-        if(!$this->column->isMulti()) {
+        if (!$this->column->isMulti()) {
             $this->value = (string) array_shift($this->value);
             $this->rawvalue = (string) array_shift($this->rawvalue);
             $this->display = (string) array_shift($this->display);
@@ -145,7 +153,8 @@ class Value {
      *
      * @return bool
      */
-    public function isEmpty() {
+    public function isEmpty()
+    {
         return ($this->rawvalue === '' || $this->rawvalue === array());
     }
 
@@ -160,13 +169,14 @@ class Value {
      * @param string $mode
      * @return bool
      */
-    public function render(\Doku_Renderer $R, $mode) {
-        if($this->column->isMulti()) {
-            if(count($this->value)) {
+    public function render(\Doku_Renderer $R, $mode)
+    {
+        if ($this->column->isMulti()) {
+            if (count($this->value)) {
                 return $this->column->getType()->renderMultiValue($this->value, $R, $mode);
             }
         } else {
-            if($this->value !== '') {
+            if ($this->value !== '') {
                 return $this->column->getType()->renderValue($this->value, $R, $mode);
             }
         }
@@ -182,7 +192,8 @@ class Value {
      * @param string $filterQuery
      * @param int $weight
      */
-    public function renderAsTagCloudLink(\Doku_Renderer $R, $mode, $page, $filterQuery, $weight) {
+    public function renderAsTagCloudLink(\Doku_Renderer $R, $mode, $page, $filterQuery, $weight)
+    {
         $value = is_array($this->value) ? $this->value[0] : $this->value;
         $this->column->getType()->renderTagCloudLink($value, $R, $mode, $page, $filterQuery, $weight);
     }
@@ -193,8 +204,9 @@ class Value {
      * @param string $name The field name to use in the editor
      * @return string The HTML for the editor
      */
-    public function getValueEditor($name, $id) {
-        if($this->column->isMulti()) {
+    public function getValueEditor($name, $id)
+    {
+        if ($this->column->isMulti()) {
             return $this->column->getType()->multiValueEditor($name, $this->rawvalue, $id);
         } else {
             return $this->column->getType()->valueEditor($name, $this->rawvalue, $id);
@@ -207,7 +219,8 @@ class Value {
      * @param string $input
      * @return bool
      */
-    public function filter($input) {
+    public function filter($input)
+    {
         return '' !== ((string) $input);
     }
 }

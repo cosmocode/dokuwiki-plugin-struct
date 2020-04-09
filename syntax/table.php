@@ -1,4 +1,5 @@
 <?php
+
 /**
  * DokuWiki Plugin struct (Syntax Component)
  *
@@ -12,9 +13,10 @@ use dokuwiki\plugin\struct\meta\SearchConfig;
 use dokuwiki\plugin\struct\meta\StructException;
 
 // must be run within Dokuwiki
-if(!defined('DOKU_INC')) die();
+if (!defined('DOKU_INC')) die();
 
-class syntax_plugin_struct_table extends DokuWiki_Syntax_Plugin {
+class syntax_plugin_struct_table extends DokuWiki_Syntax_Plugin
+{
 
     /** @var string which class to use for output */
     protected $tableclass = AggregationTable::class;
@@ -23,21 +25,24 @@ class syntax_plugin_struct_table extends DokuWiki_Syntax_Plugin {
     /**
      * @return string Syntax mode type
      */
-    public function getType() {
+    public function getType()
+    {
         return 'substition';
     }
 
     /**
      * @return string Paragraph type
      */
-    public function getPType() {
+    public function getPType()
+    {
         return 'block';
     }
 
     /**
      * @return int Sort order - Low numbers go before high numbers
      */
-    public function getSort() {
+    public function getSort()
+    {
         return 155;
     }
 
@@ -46,7 +51,8 @@ class syntax_plugin_struct_table extends DokuWiki_Syntax_Plugin {
      *
      * @param string $mode Parser mode
      */
-    public function connectTo($mode) {
+    public function connectTo($mode)
+    {
         $this->Lexer->addSpecialPattern('----+ *struct table *-+\n.*?\n----+', $mode, 'plugin_struct_table');
     }
 
@@ -59,7 +65,8 @@ class syntax_plugin_struct_table extends DokuWiki_Syntax_Plugin {
      * @param Doku_Handler $handler The handler
      * @return array Data for the renderer
      */
-    public function handle($match, $state, $pos, Doku_Handler $handler) {
+    public function handle($match, $state, $pos, Doku_Handler $handler)
+    {
         global $conf;
 
         $lines = explode("\n", $match);
@@ -73,9 +80,9 @@ class syntax_plugin_struct_table extends DokuWiki_Syntax_Plugin {
             $config = $this->addTypeFilter($config);
 
             return $config;
-        } catch(StructException $e) {
+        } catch (StructException $e) {
             msg($e->getMessage(), -1, $e->getLine(), $e->getFile());
-            if($conf['allowdebug']) msg('<pre>' . hsc($e->getTraceAsString()) . '</pre>', -1);
+            if ($conf['allowdebug']) msg('<pre>' . hsc($e->getTraceAsString()) . '</pre>', -1);
             return null;
         }
     }
@@ -88,14 +95,15 @@ class syntax_plugin_struct_table extends DokuWiki_Syntax_Plugin {
      * @param array $data The data from the handler() function
      * @return bool If rendering was successful.
      */
-    public function render($mode, Doku_Renderer $renderer, $data) {
-        if(!$data) return false;
+    public function render($mode, Doku_Renderer $renderer, $data)
+    {
+        if (!$data) return false;
         global $INFO;
         global $conf;
 
         try {
             $search = new SearchConfig($data);
-            if($mode == 'struct_csv') {
+            if ($mode == 'struct_csv') {
                 // no pagination in export
                 $search->setLimit(0);
                 $search->setOffset(0);
@@ -105,14 +113,13 @@ class syntax_plugin_struct_table extends DokuWiki_Syntax_Plugin {
             $table = new $this->tableclass($INFO['id'], $mode, $renderer, $search, $this->idColumn);
             $table->render();
 
-            if($mode == 'metadata') {
+            if ($mode == 'metadata') {
                 /** @var Doku_Renderer_metadata $renderer */
                 $renderer->meta['plugin']['struct']['hasaggregation'] = $search->getCacheFlag();
             }
-
-        } catch(StructException $e) {
+        } catch (StructException $e) {
             msg($e->getMessage(), -1, $e->getLine(), $e->getFile());
-            if($conf['allowdebug']) msg('<pre>' . hsc($e->getTraceAsString()) . '</pre>', -1);
+            if ($conf['allowdebug']) msg('<pre>' . hsc($e->getTraceAsString()) . '</pre>', -1);
         }
 
         return true;

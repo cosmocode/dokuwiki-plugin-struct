@@ -1,4 +1,5 @@
 <?php
+
 /**
  * DokuWiki Plugin struct (Action Component)
  *
@@ -8,18 +9,20 @@
 
 // must be run within Dokuwiki
 
-if(!defined('DOKU_INC')) die();
+if (!defined('DOKU_INC')) die();
 
 /**
  * Class action_plugin_struct_migration
  *
  * Handle migrations that need more than just SQL
  */
-class action_plugin_struct_migration extends DokuWiki_Action_Plugin {
+class action_plugin_struct_migration extends DokuWiki_Action_Plugin
+{
     /**
      * @inheritDoc
      */
-    public function register(Doku_Event_Handler $controller) {
+    public function register(Doku_Event_Handler $controller)
+    {
         $controller->register_hook('PLUGIN_SQLITE_DATABASE_UPGRADE', 'BEFORE', $this, 'handle_migrations');
     }
 
@@ -29,13 +32,14 @@ class action_plugin_struct_migration extends DokuWiki_Action_Plugin {
      * @param Doku_Event $event
      * @param $param
      */
-    public function handle_migrations(Doku_Event $event, $param) {
+    public function handle_migrations(Doku_Event $event, $param)
+    {
         if ($event->data['sqlite']->getAdapter()->getDbname() !== 'struct') {
             return;
         }
         $to = $event->data['to'];
 
-        if(is_callable(array($this, "migration$to"))) {
+        if (is_callable(array($this, "migration$to"))) {
             $event->preventDefault();
             $event->result = call_user_func(array($this, "migration$to"), $event->data['sqlite']);
         }
@@ -49,19 +53,19 @@ class action_plugin_struct_migration extends DokuWiki_Action_Plugin {
      * @param helper_plugin_sqlite $sqlite
      * @return bool
      */
-    protected function migration12(helper_plugin_sqlite $sqlite) {
+    protected function migration12(helper_plugin_sqlite $sqlite)
+    {
         /** @noinspection SqlResolve */
         $sql = "SELECT name FROM sqlite_master WHERE type = 'table' AND name LIKE 'multi_%'";
         $res = $sqlite->query($sql);
         $tables = $sqlite->res2arr($res);
         $sqlite->res_close($res);
 
-        foreach($tables as $row) {
+        foreach ($tables as $row) {
             $sql = 'ALTER TABLE ? ADD COLUMN latest INT DEFAULT 1';
             $sqlite->query($sql, $row['name']);
         }
 
         return true;
     }
-
 }

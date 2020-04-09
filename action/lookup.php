@@ -1,4 +1,5 @@
 <?php
+
 /**
  * DokuWiki Plugin struct (Action Component)
  *
@@ -57,7 +58,6 @@ class action_plugin_struct_lookup extends DokuWiki_Action_Plugin
         $event->stopPropagation();
 
         try {
-
             if (substr($event->data, $len) == 'new') {
                 $this->lookupNew();
             }
@@ -69,7 +69,6 @@ class action_plugin_struct_lookup extends DokuWiki_Action_Plugin
             if (substr($event->data, $len) == 'delete') {
                 $this->lookupDelete();
             }
-
         } catch (StructException $e) {
             http_status(500);
             header('Content-Type: text/plain');
@@ -167,7 +166,6 @@ class action_plugin_struct_lookup extends DokuWiki_Action_Plugin
         echo '<div class="err"></div>';
         echo '</fieldset>';
         echo '</div>';
-
     }
 
     /**
@@ -205,5 +203,4 @@ class action_plugin_struct_lookup extends DokuWiki_Action_Plugin
             throw new StructException('No row id given');
         }
     }
-
 }

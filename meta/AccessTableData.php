@@ -9,7 +9,8 @@ namespace dokuwiki\plugin\struct\meta;
  * This class is for accessing the data stored for a page in a schema
  *
  */
-class AccessTableData extends AccessTable {
+class AccessTableData extends AccessTable
+{
 
     const DEFAULT_PAGE_RID = 0;
 
@@ -20,11 +21,12 @@ class AccessTableData extends AccessTable {
      *
      * @return bool
      */
-    public function clearData() {
+    public function clearData()
+    {
         $data = array();
 
-        foreach($this->schema->getColumns() as $col) {
-            if($col->isMulti()) {
+        foreach ($this->schema->getColumns() as $col) {
+            if ($col->isMulti()) {
                 $data[$col->getLabel()] = array();
             } else {
                 $data[$col->getLabel()] = null;
@@ -37,11 +39,12 @@ class AccessTableData extends AccessTable {
     /**
      * @return int
      */
-    protected function getLastRevisionTimestamp() {
+    protected function getLastRevisionTimestamp()
+    {
         $table = 'data_' . $this->schema->getTable();
         $where = "WHERE pid = ?";
         $opts = array($this->pid);
-        if($this->ts) {
+        if ($this->ts) {
             $where .= " AND rev <= ?";
             $opts[] = $this->ts;
         }
@@ -59,7 +62,7 @@ class AccessTableData extends AccessTable {
      */
     protected function validateTypeData($data)
     {
-        if($this->ts == 0) {
+        if ($this->ts == 0) {
             throw new StructException("Saving with zero timestamp does not work.");
         }
         return true;
@@ -72,12 +75,14 @@ class AccessTableData extends AccessTable {
     {
         /** @noinspection SqlResolve */
         $ok = $this->sqlite->query(
-            "UPDATE $this->stable SET latest = 0 WHERE latest = 1 AND pid = ?", [$this->pid]
+            "UPDATE $this->stable SET latest = 0 WHERE latest = 1 AND pid = ?",
+            [$this->pid]
         );
         /** @noinspection SqlResolve */
         return $ok && $this->sqlite->query(
-            "UPDATE $this->mtable SET latest = 0 WHERE latest = 1 AND pid = ?",  [$this->pid]
-            );
+            "UPDATE $this->mtable SET latest = 0 WHERE latest = 1 AND pid = ?",
+            [$this->pid]
+        );
     }
 
     /**

@@ -1,7 +1,9 @@
 <?php
+
 namespace dokuwiki\plugin\struct\types;
 
-class Checkbox extends AbstractBaseType {
+class Checkbox extends AbstractBaseType
+{
 
     protected $config = array(
         'values' => 'one, two, three',
@@ -12,7 +14,8 @@ class Checkbox extends AbstractBaseType {
      *
      * @return array
      */
-    protected function getOptions() {
+    protected function getOptions()
+    {
         $options = explode(',', $this->config['values']);
         $options = array_map('trim', $options);
         $options = array_filter($options);
@@ -28,11 +31,12 @@ class Checkbox extends AbstractBaseType {
      *
      * @return string
      */
-    public function valueEditor($name, $rawvalue, $htmlID) {
+    public function valueEditor($name, $rawvalue, $htmlID)
+    {
         $options = $this->getOptions();
         $opt = array_shift($options);
 
-        if($rawvalue == $opt) {
+        if ($rawvalue == $opt) {
             $checked = 'checked';
         } else {
             $checked = '';
@@ -59,12 +63,13 @@ class Checkbox extends AbstractBaseType {
      *
      * @return string
      */
-    public function multiValueEditor($name, $rawvalues, $htmlID) {
+    public function multiValueEditor($name, $rawvalues, $htmlID)
+    {
         $class = 'struct_' . strtolower($this->getClass());
 
         $html = '';
-        foreach($this->getOptions() as $opt) {
-            if(in_array($opt, $rawvalues)) {
+        foreach ($this->getOptions() as $opt) {
+            if (in_array($opt, $rawvalues)) {
                 $checked = 'checked';
             } else {
                 $checked = '';
@@ -86,5 +91,4 @@ class Checkbox extends AbstractBaseType {
         }
         return $html;
     }
-
 }

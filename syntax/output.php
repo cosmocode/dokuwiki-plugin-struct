@@ -1,4 +1,5 @@
 <?php
+
 /**
  * DokuWiki Plugin struct (Syntax Component)
  *
@@ -11,9 +12,10 @@ use dokuwiki\plugin\struct\meta\AccessTable;
 use dokuwiki\plugin\struct\meta\Assignments;
 use dokuwiki\plugin\struct\meta\StructException;
 
-if(!defined('DOKU_INC')) die();
+if (!defined('DOKU_INC')) die();
 
-class syntax_plugin_struct_output extends DokuWiki_Syntax_Plugin {
+class syntax_plugin_struct_output extends DokuWiki_Syntax_Plugin
+{
 
     protected $hasBeenRendered = false;
 
@@ -34,21 +36,24 @@ class syntax_plugin_struct_output extends DokuWiki_Syntax_Plugin {
     /**
      * @return string Syntax mode type
      */
-    public function getType() {
+    public function getType()
+    {
         return 'substition';
     }
 
     /**
      * @return string Paragraph type
      */
-    public function getPType() {
+    public function getPType()
+    {
         return 'block';
     }
 
     /**
      * @return int Sort order - Low numbers go before high numbers
      */
-    public function getSort() {
+    public function getSort()
+    {
         return 155;
     }
 
@@ -61,8 +66,8 @@ class syntax_plugin_struct_output extends DokuWiki_Syntax_Plugin {
      * @asee action_plugin_struct_output
      * @param string $mode Parser mode
      */
-    public function connectTo($mode) {
-
+    public function connectTo($mode)
+    {
     }
 
     /**
@@ -74,7 +79,8 @@ class syntax_plugin_struct_output extends DokuWiki_Syntax_Plugin {
      * @param Doku_Handler $handler The handler
      * @return array Data for the renderer
      */
-    public function handle($match, $state, $pos, Doku_Handler $handler) {
+    public function handle($match, $state, $pos, Doku_Handler $handler)
+    {
         // this is never called
         return array();
     }
@@ -89,7 +95,8 @@ class syntax_plugin_struct_output extends DokuWiki_Syntax_Plugin {
      * @param array $data The data from the handler() function
      * @return bool If rendering was successful.
      */
-    public function render($mode, Doku_Renderer $R, $data) {
+    public function render($mode, Doku_Renderer $R, $data)
+    {
         global $ACT;
         global $ID;
         global $INFO;
@@ -100,10 +107,10 @@ class syntax_plugin_struct_output extends DokuWiki_Syntax_Plugin {
                 return true;
             }
         }
-        if($ID != $INFO['id']) return true;
-        if(!$INFO['exists']) return true;
-        if($this->hasBeenRendered) return true;
-        if(!preg_match(self::WHITELIST_ACTIONS, act_clean($ACT))) return true;
+        if ($ID != $INFO['id']) return true;
+        if (!$INFO['exists']) return true;
+        if ($this->hasBeenRendered) return true;
+        if (!preg_match(self::WHITELIST_ACTIONS, act_clean($ACT))) return true;
 
         // do not render the output twice on the same page, e.g. when another page has been included
         $this->hasBeenRendered = true;
@@ -113,22 +120,22 @@ class syntax_plugin_struct_output extends DokuWiki_Syntax_Plugin {
             return false;
         }
         $tables = $assignments->getPageAssignments($ID);
-        if(!$tables) return true;
+        if (!$tables) return true;
 
-        if($mode == 'xhtml') $R->doc .= self::XHTML_OPEN;
+        if ($mode == 'xhtml') $R->doc .= self::XHTML_OPEN;
 
         $hasdata = false;
-        foreach($tables as $table) {
+        foreach ($tables as $table) {
             try {
                 // use the current time if no revision is specified, otherwise we can't access page data
                 $ts = $REV ?: time();
                 $schemadata = AccessTable::byTableName($table, $ID, $ts);
-            } catch(StructException $ignored) {
+            } catch (StructException $ignored) {
                 continue; // no such schema at this revision
             }
             $schemadata->optionSkipEmpty(true);
             $data = $schemadata->getData();
-            if(!count($data)) continue;
+            if (!count($data)) continue;
             $hasdata = true;
 
             $R->table_open();
@@ -142,14 +149,14 @@ class syntax_plugin_struct_output extends DokuWiki_Syntax_Plugin {
             $R->tablethead_close();
 
             $R->tabletbody_open();
-            foreach($data as $field) {
+            foreach ($data as $field) {
                 $R->tablerow_open();
                 $R->tableheader_open();
                 $R->cdata($field->getColumn()->getTranslatedLabel());
                 $R->tableheader_close();
                 $R->tablecell_open();
-                if($mode == 'xhtml') {
-                    $R->doc = substr($R->doc, 0, -1) . ' data-struct="'.hsc($field->getColumn()->getFullQualifiedLabel()).'">';
+                if ($mode == 'xhtml') {
+                    $R->doc = substr($R->doc, 0, -1) . ' data-struct="' . hsc($field->getColumn()->getFullQualifiedLabel()) . '">';
                 }
                 $field->render($R, $mode);
                 $R->tablecell_close();
@@ -159,10 +166,10 @@ class syntax_plugin_struct_output extends DokuWiki_Syntax_Plugin {
             $R->table_close();
         }
 
-        if($mode == 'xhtml') $R->doc .= self::XHTML_CLOSE;
+        if ($mode == 'xhtml') $R->doc .= self::XHTML_CLOSE;
 
         // if no data has been output, remove empty wrapper again
-        if($mode == 'xhtml' && !$hasdata) {
+        if ($mode == 'xhtml' && !$hasdata) {
             $R->doc = substr($R->doc, 0, -1 * strlen(self::XHTML_OPEN . self::XHTML_CLOSE));
         }
 

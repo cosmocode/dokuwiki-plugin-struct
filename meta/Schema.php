@@ -4,7 +4,7 @@ namespace dokuwiki\plugin\struct\meta;
 
 use dokuwiki\plugin\struct\types\AbstractBaseType;
 
-if(!defined('JSON_PRETTY_PRINT')) define('JSON_PRETTY_PRINT', 0); // PHP 5.3 compatibility
+if (!defined('JSON_PRETTY_PRINT')) define('JSON_PRETTY_PRINT', 0); // PHP 5.3 compatibility
 
 /**
  * Class Schema
@@ -16,8 +16,8 @@ if(!defined('JSON_PRETTY_PRINT')) define('JSON_PRETTY_PRINT', 0); // PHP 5.3 com
  *
  * @package dokuwiki\plugin\struct\meta
  */
-class Schema {
-
+class Schema
+{
     use TranslationUtilities;
 
     /** @var \helper_plugin_sqlite|null */
@@ -58,7 +58,8 @@ class Schema {
      * @param string $table The table this schema is for
      * @param int $ts The timestamp for when this schema was valid, 0 for current
      */
-    public function __construct($table, $ts = 0) {
+    public function __construct($table, $ts = 0)
+    {
         $baseconfig = array('allowed editors' => '');
 
         /** @var \helper_plugin_struct_db $helper */
@@ -71,7 +72,7 @@ class Schema {
         $this->ts = $ts;
 
         // load info about the schema itself
-        if($ts) {
+        if ($ts) {
             $sql = "SELECT *
                       FROM schemas
                      WHERE tbl = ?
@@ -89,7 +90,7 @@ class Schema {
         }
         $res = $this->sqlite->query($sql, $opt);
         $config = array();
-        if($this->sqlite->res2count($res)) {
+        if ($this->sqlite->res2count($res)) {
             $schema = $this->sqlite->res2arr($res);
             $result = array_shift($schema);
             $this->id = $result['id'];
@@ -101,7 +102,7 @@ class Schema {
         $this->sqlite->res_close($res);
         $this->config = array_merge($baseconfig, $config);
         $this->initTransConfig(array('label'));
-        if(!$this->id) return;
+        if (!$this->id) return;
 
         // load existing columns
         $sql = "SELECT SC.*, T.*
@@ -115,13 +116,13 @@ class Schema {
         $this->sqlite->res_close($res);
 
         $typeclasses = Column::allTypes();
-        foreach($rows as $row) {
-            if($row['class'] == 'Integer') {
+        foreach ($rows as $row) {
+            if ($row['class'] == 'Integer') {
                 $row['class'] = 'Decimal';
             }
 
             $class = $typeclasses[$row['class']];
-            if(!class_exists($class)) {
+            if (!class_exists($class)) {
                 // This usually never happens, except during development
                 msg('Unknown type "' . hsc($row['class']) . '" falling back to Text', -1);
                 $class = 'dokuwiki\\plugin\\struct\\types\\Text';
@@ -140,14 +141,15 @@ class Schema {
             $type->setContext($column);
 
             $this->columns[] = $column;
-            if($row['sort'] > $this->maxsort) $this->maxsort = $row['sort'];
+            if ($row['sort'] > $this->maxsort) $this->maxsort = $row['sort'];
         }
     }
 
     /**
      * @return string identifer for debugging purposes
      */
-    function __toString() {
+    function __toString()
+    {
         return __CLASS__ . ' ' . $this->table . ' (' . $this->id . ') ' . ($this->islookup ? 'LOOKUP' : 'DATA');
     }
 
@@ -157,7 +159,8 @@ class Schema {
      * @param string $table
      * @return string
      */
-    static public function cleanTableName($table) {
+    public static function cleanTableName($table)
+    {
         $table = strtolower($table);
         $table = preg_replace('/[^a-z0-9_]+/', '', $table);
         $table = preg_replace('/^[0-9_]+/', '', $table);
@@ -172,15 +175,16 @@ class Schema {
      * @param string $filter either 'page' or 'lookup'
      * @return \string[]
      */
-    static public function getAll($filter = '') {
+    public static function getAll($filter = '')
+    {
         /** @var \helper_plugin_struct_db $helper */
         $helper = plugin_load('helper', 'struct_db');
         $db = $helper->getDB(false);
-        if(!$db) return array();
+        if (!$db) return array();
 
-        if($filter == 'page') {
+        if ($filter == 'page') {
             $where = 'islookup = 0';
-        } elseif($filter == 'lookup') {
+        } elseif ($filter == 'lookup') {
             $where = 'islookup = 1';
         } else {
             $where = '1 = 1';
@@ -191,7 +195,7 @@ class Schema {
         $db->res_close($res);
 
         $result = array();
-        foreach($tables as $row) {
+        foreach ($tables as $row) {
             $result[] = $row['tbl'];
         }
         return $result;
@@ -202,8 +206,9 @@ class Schema {
      *
      * This is really all data ever! Be careful!
      */
-    public function delete() {
-        if(!$this->id) throw new StructException('can not delete unsaved schema');
+    public function delete()
+    {
+        if (!$this->id) throw new StructException('can not delete unsaved schema');
 
         $this->sqlite->query('BEGIN TRANSACTION');
 
@@ -249,8 +254,9 @@ class Schema {
     /**
      * Clear all data of a schema, but retain the schema itself
      */
-    public function clear() {
-        if(!$this->id) throw new StructException('can not clear data of unsaved schema');
+    public function clear()
+    {
+        if (!$this->id) throw new StructException('can not clear data of unsaved schema');
 
         $this->sqlite->query('BEGIN TRANSACTION');
         $sql = 'DELETE FROM ?';
@@ -263,32 +269,37 @@ class Schema {
     /**
      * @return string
      */
-    public function getChksum() {
+    public function getChksum()
+    {
         return $this->chksum;
     }
 
     /**
      * @return int
      */
-    public function getId() {
+    public function getId()
+    {
         return $this->id;
     }
 
     /**
      * @return int returns the timestamp this Schema was created at
      */
-    public function getTimeStamp() {
+    public function getTimeStamp()
+    {
         return $this->ts;
     }
 
     /**
      * @return string
      */
-    public function getUser() {
+    public function getUser()
+    {
         return $this->user;
     }
 
-    public function getConfig() {
+    public function getConfig()
+    {
         return $this->config;
     }
 
@@ -300,7 +311,8 @@ class Schema {
      *
      * @return string
      */
-    public function getTranslatedLabel() {
+    public function getTranslatedLabel()
+    {
         return $this->getTranslatedKey('label', $this->table);
     }
 
@@ -309,11 +321,12 @@ class Schema {
      *
      * @return bool
      */
-    public function isEditable() {
+    public function isEditable()
+    {
         global $USERINFO;
-        if($this->config['allowed editors'] === '') return true;
-        if(blank($_SERVER['REMOTE_USER'])) return false;
-        if(auth_isadmin()) return true;
+        if ($this->config['allowed editors'] === '') return true;
+        if (blank($_SERVER['REMOTE_USER'])) return false;
+        if (auth_isadmin()) return true;
         return auth_isMember($this->config['allowed editors'], $_SERVER['REMOTE_USER'], $USERINFO['grps']);
     }
 
@@ -323,8 +336,9 @@ class Schema {
      * @param bool $withDisabled if false, disabled columns will not be returned
      * @return Column[]
      */
-    public function getColumns($withDisabled = true) {
-        if(!$withDisabled) {
+    public function getColumns($withDisabled = true)
+    {
+        if (!$withDisabled) {
             return array_filter(
                 $this->columns,
                 function (Column $col) {
@@ -344,9 +358,10 @@ class Schema {
      * @param $name
      * @return bool|Column
      */
-    public function findColumn($name) {
-        foreach($this->columns as $col) {
-            if($col->isEnabled() && utf8_strtolower($col->getLabel()) == utf8_strtolower($name)) {
+    public function findColumn($name)
+    {
+        foreach ($this->columns as $col) {
+            if ($col->isEnabled() && utf8_strtolower($col->getLabel()) == utf8_strtolower($name)) {
                 return $col;
             }
         }
@@ -356,21 +371,24 @@ class Schema {
     /**
      * @return string
      */
-    public function getTable() {
+    public function getTable()
+    {
         return $this->table;
     }
 
     /**
      * @return int the highest sort number used in this schema
      */
-    public function getMaxsort() {
+    public function getMaxsort()
+    {
         return $this->maxsort;
     }
 
     /**
      * @return string the JSON representing this schema
      */
-    public function toJSON() {
+    public function toJSON()
+    {
         $data = array(
             'structversion' => $this->structversion,
             'schema' => $this->getTable(),
@@ -380,7 +398,7 @@ class Schema {
             'columns' => array()
         );
 
-        foreach($this->columns as $column) {
+        foreach ($this->columns as $column) {
             $data['columns'][] = array(
                 'colref' => $column->getColref(),
                 'ismulti' => $column->isMulti(),

@@ -1,10 +1,12 @@
 <?php
+
 namespace dokuwiki\plugin\struct\types;
 
 use dokuwiki\plugin\struct\meta\QueryBuilder;
 use dokuwiki\plugin\struct\meta\QueryBuilderWhere;
 
-class LongText extends AbstractMultiBaseType {
+class LongText extends AbstractMultiBaseType
+{
     use TraitFilterPrefix;
 
     protected $config = array(
@@ -23,7 +25,8 @@ class LongText extends AbstractMultiBaseType {
      * @param string $mode The mode the output is rendered in (eg. XHTML)
      * @return bool true if $mode could be satisfied
      */
-    public function renderValue($value, \Doku_Renderer $R, $mode) {
+    public function renderValue($value, \Doku_Renderer $R, $mode)
+    {
         if ($mode === 'xhtml') {
             $valueWithBR = nl2br(hsc($value));
             $R->doc .= hsc($this->config['prefix']) . $valueWithBR . hsc($this->config['postfix']);
@@ -39,7 +42,8 @@ class LongText extends AbstractMultiBaseType {
      * @param int|string $rawvalue
      * @return int|string
      */
-    public function validate($rawvalue) {
+    public function validate($rawvalue)
+    {
         $rawvalue = rtrim($rawvalue);
         $rawvalue = cleanText($rawvalue);
         return $rawvalue;
@@ -54,11 +58,12 @@ class LongText extends AbstractMultiBaseType {
      *
      * @return string
      */
-    public function valueEditor($name, $rawvalue, $htmlID) {
+    public function valueEditor($name, $rawvalue, $htmlID)
+    {
         $rawvalue = formText($rawvalue);
         $params = array(
             'name' => $name,
-            'class' => 'struct_'.strtolower($this->getClass()),
+            'class' => 'struct_' . strtolower($this->getClass()),
             'id' => $htmlID,
             'rows' => $this->config['rows'],
             'cols' => $this->config['cols']

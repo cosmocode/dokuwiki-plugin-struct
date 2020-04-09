@@ -7,7 +7,8 @@ use dokuwiki\plugin\struct\types\AbstractBaseType;
 /**
  * Validator to validate a single value
  */
-class ValueValidator {
+class ValueValidator
+{
 
     /** @var  \helper_plugin_struct_db */
     protected $hlp;
@@ -18,7 +19,8 @@ class ValueValidator {
     /**
      * ValueValidator constructor.
      */
-    public function __construct() {
+    public function __construct()
+    {
         $this->hlp = plugin_load('helper', 'struct_db');
         $this->errors = array();
     }
@@ -30,15 +32,16 @@ class ValueValidator {
      * @param mixed &$rawvalue the value, will be fixed according to the type
      * @return bool
      */
-    public function validateValue(Column $col, &$rawvalue) {
+    public function validateValue(Column $col, &$rawvalue)
+    {
         // fix multi value types
         $type = $col->getType();
         $trans = $type->getTranslatedLabel();
-        if($type->isMulti() && !is_array($rawvalue)) {
+        if ($type->isMulti() && !is_array($rawvalue)) {
             $rawvalue = $type->splitValues($rawvalue);
         }
         // strip empty fields from multi vals
-        if(is_array($rawvalue)) {
+        if (is_array($rawvalue)) {
             $rawvalue = array_filter($rawvalue, array($this, 'filter'));
             $rawvalue = array_values($rawvalue); // reset the array keys
         }
@@ -52,7 +55,8 @@ class ValueValidator {
      *
      * @return string[] already translated error messages
      */
-    public function getErrors() {
+    public function getErrors()
+    {
         return $this->errors;
     }
 
@@ -68,16 +72,17 @@ class ValueValidator {
      * @param array|string|int &$data may be modified by the validation function
      * @return bool true if the data validates, otherwise false
      */
-    protected function validateField(AbstractBaseType $type, $label, &$data) {
+    protected function validateField(AbstractBaseType $type, $label, &$data)
+    {
         $prefix = sprintf($this->hlp->getLang('validation_prefix'), $label);
 
         $ok = true;
-        if(is_array($data)) {
-            foreach($data as &$value) {
-                if(!blank($value)) {
+        if (is_array($data)) {
+            foreach ($data as &$value) {
+                if (!blank($value)) {
                     try {
                         $value = $type->validate($value);
-                    } catch(ValidationException $e) {
+                    } catch (ValidationException $e) {
                         $this->errors[] = $prefix . $e->getMessage();
                         $ok = false;
                     }
@@ -86,10 +91,10 @@ class ValueValidator {
             return $ok;
         }
 
-        if(!blank($data)) {
+        if (!blank($data)) {
             try {
                 $data = $type->validate($data);
-            } catch(ValidationException $e) {
+            } catch (ValidationException $e) {
                 $this->errors[] = $prefix . $e->getMessage();
                 $ok = false;
             }
@@ -103,7 +108,8 @@ class ValueValidator {
      * @param string $val
      * @return bool
      */
-    public function filter($val) {
+    public function filter($val)
+    {
         return !blank($val);
     }
 }
