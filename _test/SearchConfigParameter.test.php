@@ -223,7 +223,7 @@ class SearchConfigParameter_struct_test extends StructTest {
         $INPUT->set(meta\SearchConfigParameters::$PARAM_OFFSET, 5);
         //$params[meta\SearchConfigParameters::$PARAM_OFFSET] = 25;
         $searchConfig = new meta\SearchConfig($data);
-        $aggregationTable = new meta\AggregationTable('test_pagination', 'xhtml', $R, $searchConfig);
+        $aggregationTable = new meta\AggregationTable('test_pagination', 'xhtml', $R, $searchConfig, 'pid');
         $aggregationTable->render();
 
         // FIXME is there a better way to set the correct revision?
