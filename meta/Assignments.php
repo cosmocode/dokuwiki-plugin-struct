@@ -288,7 +288,7 @@ class Assignments {
         if(trim($pattern,':') == '**') return true; // match all
 
         // regex patterns
-        if($pattern{0} == '/') {
+        if($pattern[0] == '/') {
             return (bool) preg_match($pattern, ":$page");
         }
 
