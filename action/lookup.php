@@ -127,7 +127,8 @@ class action_plugin_struct_lookup extends DokuWiki_Action_Plugin
             $this->pid,
             'xhtml',
             new Doku_Renderer_xhtml(),
-            new SearchConfig($config)
+            new SearchConfig($config),
+            'rid'
         );
 
         echo $lookup->getFirstRow();

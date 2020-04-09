@@ -15,6 +15,7 @@ class syntax_plugin_struct_lookup extends syntax_plugin_struct_table {
 
     /** @var string which class to use for output */
     protected $tableclass = LookupTable::class;
+    protected $idColumn = 'rid';
 
     /**
      * Connect lookup pattern to lexer.
