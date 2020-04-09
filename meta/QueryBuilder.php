@@ -119,7 +119,7 @@ class QueryBuilder
 
         $pos = array_search($leftalias, array_keys($this->from));
         $statement = "LEFT OUTER JOIN $righttable AS $rightalias ON $onclause";
-        $this->from = $this->array_insert($this->from, array($rightalias => $statement), $pos + 1);
+        $this->from = $this->arrayInsert($this->from, array($rightalias => $statement), $pos + 1);
         $this->type[$rightalias] = 'join';
     }
 
@@ -280,7 +280,7 @@ class QueryBuilder
      * @link https://gist.github.com/scribu/588429 simplified
      * @return array
      */
-    protected function array_insert($array, $pairs, $key_pos)
+    protected function arrayInsert($array, $pairs, $key_pos)
     {
         $result = array_slice($array, 0, $key_pos);
         $result = array_merge($result, $pairs);

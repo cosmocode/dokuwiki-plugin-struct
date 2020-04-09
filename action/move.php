@@ -7,15 +7,12 @@
  * @author  Andreas Gohr, Michael Große <dokuwiki@cosmocode.de>
  */
 
-// must be run within Dokuwiki
 use dokuwiki\plugin\struct\meta\Assignments;
 use dokuwiki\plugin\struct\meta\Column;
 use dokuwiki\plugin\struct\meta\Schema;
 use dokuwiki\plugin\struct\types\Lookup;
 use dokuwiki\plugin\struct\types\Media;
 use dokuwiki\plugin\struct\types\Page;
-
-if (!defined('DOKU_INC')) die();
 
 class action_plugin_struct_move extends DokuWiki_Action_Plugin
 {
@@ -31,8 +28,8 @@ class action_plugin_struct_move extends DokuWiki_Action_Plugin
      */
     public function register(Doku_Event_Handler $controller)
     {
-        $controller->register_hook('PLUGIN_MOVE_PAGE_RENAME', 'AFTER', $this, 'handle_move', true);
-        $controller->register_hook('PLUGIN_MOVE_MEDIA_RENAME', 'AFTER', $this, 'handle_move', false);
+        $controller->register_hook('PLUGIN_MOVE_PAGE_RENAME', 'AFTER', $this, 'handleMove', true);
+        $controller->register_hook('PLUGIN_MOVE_MEDIA_RENAME', 'AFTER', $this, 'handleMove', false);
     }
 
     /**
@@ -42,7 +39,7 @@ class action_plugin_struct_move extends DokuWiki_Action_Plugin
      * @param bool $ispage is this a page move operation?
      * @return bool
      */
-    public function handle_move(Doku_Event $event, $ispage)
+    public function handleMove(Doku_Event $event, $ispage)
     {
         /** @var helper_plugin_struct_db $hlp */
         $hlp = plugin_load('helper', 'struct_db');

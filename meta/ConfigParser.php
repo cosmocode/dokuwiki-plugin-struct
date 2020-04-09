@@ -90,9 +90,9 @@ class ConfigParser
                     break;
                 case 'where':
                 case 'filter':
-                case 'filterand':
+                case 'filterand': // phpcs:ignore PSR2.ControlStructures.SwitchDeclaration.TerminatingComment
                     /** @noinspection PhpMissingBreakStatementInspection */
-                case 'and':
+                case 'and': // phpcs:ignore PSR2.ControlStructures.SwitchDeclaration.TerminatingComment
                     $logic = 'AND';
                 case 'filteror':
                 case 'or':

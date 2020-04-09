@@ -7,9 +7,6 @@
  * @author  Andreas Gohr, Michael Große <dokuwiki@cosmocode.de>
  */
 
-// must be run within Dokuwiki
-if (!defined('DOKU_INC')) die();
-
 use dokuwiki\plugin\struct\meta\AccessTable;
 use dokuwiki\plugin\struct\meta\Assignments;
 use dokuwiki\plugin\struct\meta\AccessDataValidator;
@@ -46,11 +43,11 @@ class action_plugin_struct_entry extends DokuWiki_Action_Plugin
     public function register(Doku_Event_Handler $controller)
     {
         // validate data on preview and save;
-        $controller->register_hook('ACTION_ACT_PREPROCESS', 'BEFORE', $this, 'handle_validation');
+        $controller->register_hook('ACTION_ACT_PREPROCESS', 'BEFORE', $this, 'handleValidation');
         // ensure a page revision is created when struct data changes:
-        $controller->register_hook('COMMON_WIKIPAGE_SAVE', 'BEFORE', $this, 'handle_pagesave_before');
+        $controller->register_hook('COMMON_WIKIPAGE_SAVE', 'BEFORE', $this, 'handlePagesaveBefore');
         // save struct data after page has been saved:
-        $controller->register_hook('COMMON_WIKIPAGE_SAVE', 'AFTER', $this, 'handle_pagesave_after');
+        $controller->register_hook('COMMON_WIKIPAGE_SAVE', 'AFTER', $this, 'handlePagesaveAfter');
     }
 
     /**
@@ -61,7 +58,7 @@ class action_plugin_struct_entry extends DokuWiki_Action_Plugin
      *                           handler was registered]
      * @return bool
      */
-    public function handle_validation(Doku_Event $event, $param)
+    public function handleValidation(Doku_Event $event, $param)
     {
         global $ID, $INPUT;
         $act = act_clean($event->data);
@@ -99,7 +96,7 @@ class action_plugin_struct_entry extends DokuWiki_Action_Plugin
      *                           handler was registered]
      * @return bool
      */
-    public function handle_pagesave_before(Doku_Event $event, $param)
+    public function handlePagesaveBefore(Doku_Event $event, $param)
     {
         if ($event->data['contentChanged']) return false; // will be saved for page changes
         global $ACT;
@@ -132,7 +129,7 @@ class action_plugin_struct_entry extends DokuWiki_Action_Plugin
      *                           handler was registered]
      * @return bool
      */
-    public function handle_pagesave_after(Doku_Event $event, $param)
+    public function handlePagesaveAfter(Doku_Event $event, $param)
     {
         global $ACT;
         if ($ACT == 'revert') return false; // handled in revert

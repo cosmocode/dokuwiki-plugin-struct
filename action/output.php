@@ -7,9 +7,6 @@
  * @author  Andreas Gohr, Michael Große <dokuwiki@cosmocode.de>
  */
 
-// must be run within Dokuwiki
-if (!defined('DOKU_INC')) die();
-
 /**
  * Class action_plugin_struct_output
  *
@@ -32,9 +29,9 @@ class action_plugin_struct_output extends DokuWiki_Action_Plugin
      */
     public function register(Doku_Event_Handler $controller)
     {
-        $controller->register_hook('PARSER_HANDLER_DONE', 'AFTER', $this, 'handle_output');
-        $controller->register_hook('PLUGIN_DW2PDF_REPLACE', 'BEFORE', $this, 'replace_dw2pdf');
-        $controller->register_hook('PLUGIN_DW2PDF_REPLACE', 'AFTER', $this, 'cleanup_dw2pdf');
+        $controller->register_hook('PARSER_HANDLER_DONE', 'AFTER', $this, 'handleOutput');
+        $controller->register_hook('PLUGIN_DW2PDF_REPLACE', 'BEFORE', $this, 'replaceDw2pdf');
+        $controller->register_hook('PLUGIN_DW2PDF_REPLACE', 'AFTER', $this, 'cleanupDw2pdf');
     }
 
     /**
@@ -44,7 +41,7 @@ class action_plugin_struct_output extends DokuWiki_Action_Plugin
      * @param Doku_Event $event
      * @param $param
      */
-    public function handle_output(Doku_Event $event, $param)
+    public function handleOutput(Doku_Event $event, $param)
     {
         global $ID;
         if (!page_exists($ID)) return;
@@ -88,7 +85,7 @@ class action_plugin_struct_output extends DokuWiki_Action_Plugin
      * @param Doku_Event $event
      * @param $param
      */
-    public function replace_dw2pdf(Doku_Event $event, $param)
+    public function replaceDw2pdf(Doku_Event $event, $param)
     {
         if (!$event->data['id'] || !page_exists($event->data['id'])) return;
 
@@ -116,7 +113,7 @@ class action_plugin_struct_output extends DokuWiki_Action_Plugin
      * @param Doku_Event $event
      * @param $param
      */
-    public function cleanup_dw2pdf(Doku_Event $event, $param)
+    public function cleanupDw2pdf(Doku_Event $event, $param)
     {
         $pattern = '~@' . self::DW2PDF_PLACEHOLDER_PREFIX . '_[^@]+?@~';
         $event->data['content'] = preg_replace($pattern, '', $event->data['content']);

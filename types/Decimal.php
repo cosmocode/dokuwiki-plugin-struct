@@ -96,7 +96,7 @@ class Decimal extends AbstractMultiBaseType
      * @param string $thousands_sep
      * @return string
      */
-    function formatWithoutRounding($number, $dec_point, $thousands_sep)
+    protected function formatWithoutRounding($number, $dec_point, $thousands_sep)
     {
         $was_neg = $number < 0; // Because +0 == -0
 

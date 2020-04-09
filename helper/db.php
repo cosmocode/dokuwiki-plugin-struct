@@ -7,10 +7,7 @@
  * @author  Andreas Gohr, Michael Große <dokuwiki@cosmocode.de>
  */
 
-// must be run within Dokuwiki
 use dokuwiki\plugin\struct\meta\StructException;
-
-if (!defined('DOKU_INC')) die();
 
 class helper_plugin_struct_db extends DokuWiki_Plugin
 {
@@ -102,7 +99,7 @@ class helper_plugin_struct_db extends DokuWiki_Plugin
      * @param string ...
      * @return string
      */
-    public function STRUCT_JSON()
+    public function STRUCT_JSON() // phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
     {
         $args = func_get_args();
         return json_encode($args);

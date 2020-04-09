@@ -7,9 +7,6 @@
  * @author  Andreas Gohr, Michael Große <dokuwiki@cosmocode.de>
  */
 
-// must be run within Dokuwiki
-if (!defined('DOKU_INC')) die();
-
 use dokuwiki\plugin\struct\meta\AccessTable;
 use dokuwiki\plugin\struct\meta\Assignments;
 
@@ -30,9 +27,9 @@ class action_plugin_struct_revert extends DokuWiki_Action_Plugin
     public function register(Doku_Event_Handler $controller)
     {
         // ensure a page revision is created when struct data changes:
-        $controller->register_hook('COMMON_WIKIPAGE_SAVE', 'BEFORE', $this, 'handle_pagesave_before');
+        $controller->register_hook('COMMON_WIKIPAGE_SAVE', 'BEFORE', $this, 'handlePagesaveBefore');
         // save struct data after page has been saved:
-        $controller->register_hook('COMMON_WIKIPAGE_SAVE', 'AFTER', $this, 'handle_pagesave_after');
+        $controller->register_hook('COMMON_WIKIPAGE_SAVE', 'AFTER', $this, 'handlePagesaveAfter');
     }
 
     /**
@@ -43,7 +40,7 @@ class action_plugin_struct_revert extends DokuWiki_Action_Plugin
      *                           handler was registered]
      * @return bool
      */
-    public function handle_pagesave_before(Doku_Event $event, $param)
+    public function handlePagesaveBefore(Doku_Event $event, $param)
     {
         if ($event->data['contentChanged']) return false; // will be saved for page changes already
         global $ACT;
@@ -68,7 +65,7 @@ class action_plugin_struct_revert extends DokuWiki_Action_Plugin
      *                           handler was registered]
      * @return bool
      */
-    public function handle_pagesave_after(Doku_Event $event, $param)
+    public function handlePagesaveAfter(Doku_Event $event, $param)
     {
         global $ACT;
         global $REV;

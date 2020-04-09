@@ -17,7 +17,7 @@ class helper_plugin_struct_fieldhidden extends helper_plugin_struct_field
      * @param Doku_Form $form   The target Doku_Form object
      * @param int       $formid unique identifier of the form which contains this field
      */
-    function renderfield($params, Doku_Form $form, $formid)
+    public function renderfield($params, Doku_Form $form, $formid)
     {
         $this->_handlePreload();
         $form->addHidden($params['name'], $this->getParam('value') . '');

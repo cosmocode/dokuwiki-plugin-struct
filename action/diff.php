@@ -7,13 +7,10 @@
  * @author  Andreas Gohr, Michael Große <dokuwiki@cosmocode.de>
  */
 
-// must be run within Dokuwiki
 use dokuwiki\plugin\struct\meta\AccessTable;
 use dokuwiki\plugin\struct\meta\Assignments;
 use dokuwiki\plugin\struct\meta\AccessTableData;
 use dokuwiki\plugin\struct\meta\StructException;
-
-if (!defined('DOKU_INC')) die();
 
 class action_plugin_struct_diff extends DokuWiki_Action_Plugin
 {
@@ -26,7 +23,7 @@ class action_plugin_struct_diff extends DokuWiki_Action_Plugin
      */
     public function register(Doku_Event_Handler $controller)
     {
-        $controller->register_hook('IO_WIKIPAGE_READ', 'AFTER', $this, 'handle_diffload');
+        $controller->register_hook('IO_WIKIPAGE_READ', 'AFTER', $this, 'handleDiffload');
     }
 
     /**
@@ -39,7 +36,7 @@ class action_plugin_struct_diff extends DokuWiki_Action_Plugin
      *                           handler was registered]
      * @return bool
      */
-    public function handle_diffload(Doku_Event $event, $param)
+    public function handleDiffload(Doku_Event $event, $param)
     {
         global $ACT;
         global $INFO;
