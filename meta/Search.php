@@ -194,7 +194,11 @@ class Search {
      */
     protected function parseFilterValueList($value) {
         $Handler = new FilterValueListHandler();
-        $Lexer = new \Doku_Lexer($Handler, 'base', true);
+        $LexerClass = class_exists('\Doku_Lexer') ? '\Doku_Lexer' : '\dokuwiki\Parsing\Lexer\Lexer';
+        $isLegacy = $LexerClass === '\Doku_Lexer';
+        /** @var \Doku_Lexer|\dokuwiki\Parsing\Lexer\Lexer $Lexer */
+        $Lexer = new $LexerClass($Handler, 'base', true);
+
 
         $Lexer->addEntryPattern('\(','base','row');
         $Lexer->addPattern('\s*,\s*','row');
@@ -214,7 +218,8 @@ class Search {
 
         $res = $Lexer->parse($value);
 
-        if (!$res || $Lexer->_mode->getCurrent() != 'base') {
+        $currentMode = $isLegacy ? $Lexer->_mode->getCurrent() : $Lexer->getModeStack()->getCurrent();
+        if (!$res || $currentMode != 'base') {
             throw new StructException('invalid row value syntax');
         }
 
