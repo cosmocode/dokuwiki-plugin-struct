@@ -126,14 +126,13 @@ class syntax_plugin_struct_table extends DokuWiki_Syntax_Plugin
     }
 
     /**
-     * Filter based on primary key columns
+     * Filter based on primary key columns, applicable in child classes
      *
      * @param array $config
      * @return array
      */
     protected function addTypeFilter($config)
     {
-        $config['filter'][] = ['%rowid%', '=', (string)\dokuwiki\plugin\struct\meta\AccessTableData::DEFAULT_PAGE_RID, 'AND'];
         return $config;
     }
 }
