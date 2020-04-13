@@ -438,13 +438,18 @@ class Search
                 $QB->addLeftJoin($first_table, $datatable, $datatable, "$first_table.$idColumn = $datatable.$idColumn");
             } else {
                 // first table
+                // add conditional page clauses if pid has a value
+                $QB->filters()->whereAnd("$datatable.pid = ''");
+                $sub = $QB->filters()->whereSubOr();
+                $sub->whereAnd("GETACCESSLEVEL($datatable.pid) > 0");
+                $sub->whereAnd("PAGEEXISTS($datatable.pid) = 1");
+
+                // check schema assignments only if page data is explicitly requested
                 if ($idColumn === 'pid') {
                     $QB->addTable('schema_assignments');
-                    $QB->filters()->whereAnd("$datatable.pid = schema_assignments.pid");
-                    $QB->filters()->whereAnd("schema_assignments.tbl = '{$schema->getTable()}'");
-                    $QB->filters()->whereAnd("schema_assignments.assigned = 1");
-                    $QB->filters()->whereAnd("GETACCESSLEVEL($datatable.pid) > 0");
-                    $QB->filters()->whereAnd("PAGEEXISTS($datatable.pid) = 1");
+                    $sub->whereAnd("$datatable.pid = schema_assignments.pid");
+                    $sub->whereAnd("schema_assignments.tbl = '{$schema->getTable()}'");
+                    $sub->whereAnd("schema_assignments.assigned = 1");
                 }
 
                 $QB->addTable($datatable);
