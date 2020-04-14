@@ -128,16 +128,19 @@ class Lookup extends Dropdown
         $search->addColumn($field);
         $search->addSort($field);
         $result = $search->execute();
+        $pids = $search->getPids();
         $rids = $search->getRids();
         $len = count($result);
 
         /** @var Value[][] $result */
         $options = array('' => '');
         for ($i = 0; $i < $len; $i++) {
-            $options[$rids[$i]] = $result[$i][0]->getDisplayValue();
+            $val = json_encode([$pids[$i], (int)$rids[$i]]);
+            $options[$val] = $result[$i][0]->getDisplayValue();
         }
         return $options;
     }
+
 
     /**
      * Render using linked field
@@ -246,7 +249,7 @@ class Lookup extends Dropdown
             $tablealias,
             $schema,
             $rightalias,
-            "$tablealias.$colname = $rightalias.rid AND $rightalias.latest = 1"
+            "$tablealias.$colname = STRUCT_JSON($rightalias.pid, CAST($rightalias.rid AS DECIMAL)) AND $rightalias.latest = 1"
         );
         $column->getType()->select($QB, $rightalias, $field, $alias);
         $sql = $QB->getSelectStatement($alias);
@@ -280,7 +283,7 @@ class Lookup extends Dropdown
             $tablealias,
             $schema,
             $rightalias,
-            "$tablealias.$colname = $rightalias.rid AND $rightalias.latest = 1"
+            "$tablealias.$colname = STRUCT_JSON($rightalias.pid, CAST($rightalias.rid AS DECIMAL)) AND $rightalias.latest = 1"
         );
         $column->getType()->filter($add, $rightalias, $field, $comp, $value, $op);
     }
@@ -308,7 +311,7 @@ class Lookup extends Dropdown
             $tablealias,
             $schema,
             $rightalias,
-            "$tablealias.$colname = $rightalias.rid AND $rightalias.latest = 1"
+            "$tablealias.$colname = STRUCT_JSON($rightalias.pid, CAST($rightalias.rid AS DECIMAL)) AND $rightalias.latest = 1"
         );
         $column->getType()->sort($QB, $rightalias, $field, $order);
     }
