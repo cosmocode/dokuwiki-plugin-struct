@@ -75,7 +75,7 @@ class AggregationTable
      * @param \Doku_Renderer $renderer
      * @param SearchConfig $searchConfig
      */
-    public function __construct($id, $mode, \Doku_Renderer $renderer, SearchConfig $searchConfig, $idColumn)
+    public function __construct($id, $mode, \Doku_Renderer $renderer, SearchConfig $searchConfig)
     {
         $this->id = $id;
         $this->mode = $mode;
@@ -84,9 +84,7 @@ class AggregationTable
         $this->data = $searchConfig->getConf();
         $this->columns = $searchConfig->getColumns();
 
-        // FIXME detect or get real columnId
-        // for now rid is OK for page data because tables are also joined on rev
-        $this->result = $this->searchConfig->execute($idColumn);
+        $this->result = $this->searchConfig->execute();
         $this->resultCount = $this->searchConfig->getCount();
         $this->resultPIDs = $this->searchConfig->getPids();
         $this->resultRids = $this->searchConfig->getRids();
