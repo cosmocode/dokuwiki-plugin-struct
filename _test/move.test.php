@@ -19,8 +19,8 @@ class move_struct_test extends StructTest {
     protected $data1 = array(
         'page' => 'wiki:syntax',
         'pages' => array('wiki:syntax', 'wiki:welcome'),
-        'lookup' => 'page1',
-        'lookups' => array('page1', 'page2'),
+        'lookup' => '["page1",0]',
+        'lookups' => ['["page1",0]', '["page2",0]'],
         'media' => 'wiki:logo.png',
         'medias' => array('wiki:logo.png'),
         'title' => 'wiki:syntax',
@@ -30,8 +30,8 @@ class move_struct_test extends StructTest {
     protected $data2 = array(
         'page' => 'wiki:syntax#something',
         'pages' => array('wiki:syntax#something', 'wiki:welcome#something'),
-        'lookup' => 'page1',
-        'lookups' => array('page1', 'page2'),
+        'lookup' => '["page1",0]',
+        'lookups' => ['["page1",0]', '["page2",0]'],
         'media' => 'wiki:logo.png',
         'medias' => array('wiki:logo.png'),
         'title' => 'wiki:syntax#something',
@@ -72,15 +72,15 @@ class move_struct_test extends StructTest {
 
         // new page should have adjusted data
         $data = $this->data1;
-        $data['lookup'] = 'page3';
-        $data['lookups'] = array('page3', 'page2');
+        $data['lookup'] = '["page3",0]';
+        $data['lookups'] = ['["page3",0]', '["page2",0]'];
         $schemaData = meta\AccessTable::byTableName('moves', 'page3', time());
         $this->assertEquals($data, $schemaData->getDataArray());
 
         // other page should have adjusted lookups
         $data = $this->data2;
-        $data['lookup'] = 'page3';
-        $data['lookups'] = array('page3', 'page2');
+        $data['lookup'] = '["page3",0]';
+        $data['lookups'] = ['["page3",0]', '["page2",0]'];
         $schemaData = meta\AccessTable::byTableName('moves', 'page2', time());
         $this->assertEquals($data, $schemaData->getDataArray());
     }

@@ -173,6 +173,12 @@ class action_plugin_struct_move extends DokuWiki_Action_Plugin
         if ($hashes) {
             $this->db->query($sql, $old, $new, "$old#%"); // match with hashes
         }
+        if (get_class($col->getType()) === Lookup::class) {
+            $this->db->query($sql, $old, $new, "[\"$old\",%]"); // match JSON string
+            if ($hashes) {
+                $this->db->query($sql, $old, $new, "[\"$old#%\",%]"); // match JSON string with hash
+            }
+        }
     }
 
     /**
@@ -191,7 +197,6 @@ class action_plugin_struct_move extends DokuWiki_Action_Plugin
         $ref = new Schema($tconf['schema']);
         if (!$ref->getId()) return; // this schema does not exist
         if (!$ref->getTimeStamp()) return; // a lookup is referenced, nothing to do
-        // FIXME does this make sense at all? it's always a lookup, isn't it?
         $this->updateColumnID($schema, $col, $old, $new);
     }
 }
