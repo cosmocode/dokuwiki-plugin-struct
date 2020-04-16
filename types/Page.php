@@ -36,7 +36,7 @@ class Page extends AbstractMultiBaseType
     public function renderValue($value, \Doku_Renderer $R, $mode)
     {
         if ($this->config['usetitles']) {
-            list($id, $title) = json_decode($value);
+            list($id, $title) = \helper_plugin_struct::decodeJson($value);
         } else {
             $id = $value;
             $title = null;
@@ -172,7 +172,7 @@ class Page extends AbstractMultiBaseType
     public function rawValue($value)
     {
         if ($this->config['usetitles']) {
-            list($value) = json_decode($value);
+            list($value) = \helper_plugin_struct::decodeJson($value);
         }
         return $value;
     }
@@ -186,7 +186,7 @@ class Page extends AbstractMultiBaseType
     public function displayValue($value)
     {
         if ($this->config['usetitles']) {
-            list($pageid, $value) = json_decode($value);
+            list($pageid, $value) = \helper_plugin_struct::decodeJson($value);
             if (blank($value)) {
                 $value = $pageid;
             }

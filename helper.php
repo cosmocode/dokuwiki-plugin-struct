@@ -188,4 +188,10 @@ class helper_plugin_struct extends DokuWiki_Plugin
         $assignments = Assignments::getInstance();
         return $assignments->getPages($schema);
     }
+
+    public static function decodeJson($value)
+    {
+        if (!empty($value) && $value[0] !== '[') throw new StructException('Lookup expects JSON');
+        return json_decode($value);
+    }
 }

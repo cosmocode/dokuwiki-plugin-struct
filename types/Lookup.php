@@ -152,7 +152,7 @@ class Lookup extends Dropdown
      */
     public function renderValue($value, \Doku_Renderer $R, $mode)
     {
-        list(, $value) = json_decode($value);
+        list(, $value) = \helper_plugin_struct::decodeJson($value);
         $column = $this->getLookupColumn();
         if (!$column) return false;
         return $column->getType()->renderValue($value, $R, $mode);
@@ -170,7 +170,7 @@ class Lookup extends Dropdown
     {
         $values = array_map(
             function ($val) {
-                list(, $val) = json_decode($val);
+                list(, $val) = \helper_plugin_struct::decodeJson($val);
                 return $val;
             },
             $values
@@ -186,7 +186,7 @@ class Lookup extends Dropdown
      */
     public function rawValue($value)
     {
-        list($value) = json_decode($value);
+        list($value) = \helper_plugin_struct::decodeJson($value);
         return $value;
     }
 
@@ -196,7 +196,7 @@ class Lookup extends Dropdown
      */
     public function displayValue($value)
     {
-        list(, $value) = json_decode($value);
+        list(, $value) = \helper_plugin_struct::decodeJson($value);
         $column = $this->getLookupColumn();
         if ($column) {
             return $column->getType()->displayValue($value);
@@ -216,7 +216,7 @@ class Lookup extends Dropdown
      */
     public function compareValue($value)
     {
-        list(, $value) = json_decode($value);
+        list(, $value) = \helper_plugin_struct::decodeJson($value);
         $column = $this->getLookupColumn();
         if ($column) {
             return $column->getType()->rawValue($value);
