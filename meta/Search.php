@@ -446,7 +446,10 @@ class Search
                 $subOr->whereAnd("PAGEEXISTS($datatable.pid) = 1");
 
                 // add conditional schema assignment check
-                $QB->addLeftJoin($datatable,'schema_assignments','',
+                $QB->addLeftJoin(
+                    $datatable,
+                    'schema_assignments',
+                    '',
                     "$datatable.pid != ''
                     AND $datatable.pid = schema_assignments.pid
                     AND schema_assignments.tbl = '{$schema->getTable()}'
