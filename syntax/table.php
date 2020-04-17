@@ -20,7 +20,6 @@ class syntax_plugin_struct_table extends DokuWiki_Syntax_Plugin
 
     /** @var string which class to use for output */
     protected $tableclass = AggregationTable::class;
-    protected $idColumn = 'pid';
 
     /**
      * @return string Syntax mode type
@@ -110,7 +109,7 @@ class syntax_plugin_struct_table extends DokuWiki_Syntax_Plugin
             }
 
             /** @var AggregationTable $table */
-            $table = new $this->tableclass($INFO['id'], $mode, $renderer, $search, $this->idColumn);
+            $table = new $this->tableclass($INFO['id'], $mode, $renderer, $search);
             $table->render();
 
             if ($mode == 'metadata') {
