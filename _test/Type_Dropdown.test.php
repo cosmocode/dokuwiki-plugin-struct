@@ -19,21 +19,21 @@ class Type_Dropdown_struct_test extends StructTest {
             'test1',
             'dropdowns',
             [
-                'drop1' => '["",1]', 'drop2' => '["",1]', 'drop3' => 'John'
+                'drop1' => '["test1",1]', 'drop2' => '["test1",1]', 'drop3' => 'John'
             ]
         );
         $this->saveData(
             'test2',
             'dropdowns',
             [
-                'drop1' => '["",2]', 'drop2' => '["",2]', 'drop3' => 'Jane'
+                'drop1' => '["test1",2]', 'drop2' => '["test1",2]', 'drop3' => 'Jane'
             ]
         );
         $this->saveData(
             'test3',
             'dropdowns',
             [
-                'drop1' => '["",3]', 'drop2' => '["",3]', 'drop3' => 'Tarzan'
+                'drop1' => '["test1",3]', 'drop2' => '["test1",3]', 'drop3' => 'Tarzan'
             ]
         );
     }
@@ -42,7 +42,7 @@ class Type_Dropdown_struct_test extends StructTest {
     public function test_data() {
         $this->preparePages();
 
-        $access = AccessTable::byTableName('dropdowns', 'test1');
+        $access = AccessTable::byTableName('dropdowns', 'test1', time());
         $data = $access->getData();
 
         $this->assertEquals('John', $data['drop3']->getValue());
