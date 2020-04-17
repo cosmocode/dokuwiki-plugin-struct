@@ -27,7 +27,7 @@ class AggregationExportCSV extends StructTest
             'SecondFieldLongText' => "abc\ndef\n",
             'ThirdFieldWiki' => "  * hi\n  * ho",
         ];
-        $access = AccessTable::byTableName('wikilookup', '', time());
+        $access = AccessTable::byTableName('wikilookup', '');
         $helper->saveLookupData($access, $saveDate);
     }
 
