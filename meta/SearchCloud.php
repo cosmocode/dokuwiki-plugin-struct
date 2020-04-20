@@ -18,10 +18,9 @@ class SearchCloud extends SearchConfig
     /**
      * Transform the set search parameters into a statement
      *
-     * @param string $idColumn Column on which to join tables
      * @return array ($sql, $opts) The SQL and parameters to execute
      */
-    public function getSQL($idColumn)
+    public function getSQL()
     {
         if (!$this->columns) throw new StructException('nocolname');
 
@@ -29,15 +28,27 @@ class SearchCloud extends SearchConfig
         reset($this->schemas);
         $schema = current($this->schemas);
         $datatable = 'data_' . $schema->getTable();
-        if ($idColumn === 'pid') {
-            $QB->addTable('schema_assignments');
-            $QB->filters()->whereAnd("$datatable.pid = schema_assignments.pid");
-            $QB->filters()->whereAnd("schema_assignments.tbl = '{$schema->getTable()}'");
-            $QB->filters()->whereAnd("schema_assignments.assigned = 1");
-            $QB->filters()->whereAnd("GETACCESSLEVEL($datatable.pid) > 0");
-            $QB->filters()->whereAnd("PAGEEXISTS($datatable.pid) = 1");
-        }
+
         $QB->addTable($datatable);
+
+        // add conditional page clauses if pid has a value
+        $subAnd = $QB->filters()->whereSubAnd();
+        $subAnd->whereAnd("$datatable.pid = ''");
+        $subOr = $subAnd->whereSubOr();
+        $subOr->whereAnd("GETACCESSLEVEL($datatable.pid) > 0");
+        $subOr->whereAnd("PAGEEXISTS($datatable.pid) = 1");
+
+        // add conditional schema assignment check
+        $QB->addLeftJoin(
+            $datatable,
+            'schema_assignments',
+            '',
+            "$datatable.pid != ''
+                    AND $datatable.pid = schema_assignments.pid
+                    AND schema_assignments.tbl = '{$schema->getTable()}'
+                    AND schema_assignments.assigned = 1"
+        );
+
         $QB->filters()->whereAnd("$datatable.latest = 1");
         $QB->filters()->where('AND', 'tag IS NOT \'\'');
 
@@ -84,12 +95,11 @@ class SearchCloud extends SearchConfig
      *
      * The result is a two dimensional array of Value()s.
      *
-     * @param string $idColumn Column on which to join tables
      * @return Value[][]
      */
-    public function execute($idColumn)
+    public function execute()
     {
-        list($sql, $opts) = $this->getSQL($idColumn);
+        list($sql, $opts) = $this->getSQL();
 
         /** @var \PDOStatement $res */
         $res = $this->sqlite->query($sql, $opts);
