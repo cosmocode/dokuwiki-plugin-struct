@@ -24,7 +24,7 @@ class Bureaucracy_struct_test extends StructTest {
     public function setUp() {
         parent::setUp();
 
-        $this->loadSchemaJSON('bureaucracy_lookup', '', 0);
+        $this->loadSchemaJSON('bureaucracy_lookup');
         $this->loadSchemaJSON('bureaucracy');
 
         //insert some data to lookup
@@ -34,7 +34,7 @@ class Bureaucracy_struct_test extends StructTest {
                 'lookup_second' => 'value second ' . $i
             );
 
-            $lookupData = AccessTable::byTableName('bureaucracy_lookup', 0);
+            $lookupData = AccessTable::byTableName('bureaucracy_lookup', '');
             $lookupData->saveData($data);
             $this->lookup[] = $lookupData;
         }
@@ -54,8 +54,8 @@ class Bureaucracy_struct_test extends StructTest {
 
         $lookup_field = plugin_load('helper', 'struct_field');
         $lookup_field->opt['label'] = 'bureaucracy.lookup_select';
-        //empty value
-        $lookup_field->opt['value'] = '';
+        //empty lookup value
+        $lookup_field->opt['value'] = '["",""]';
         //left pagename undefined
         //$lookup_field->opt['pagename'];
 
@@ -63,7 +63,7 @@ class Bureaucracy_struct_test extends StructTest {
         $lookup_field->initialize(array());
         $fields[] = $lookup_field;
 
-        //helper_plugin_bureaucracy_actiontemplate
+        /** @var  \helper_plugin_bureaucracy_actiontemplate $actiontemplate */
         $actiontemplate = plugin_load('helper', 'bureaucracy_actiontemplate');
         $actiontemplate->run($fields, '', array($template_id, $id, '_'));
 
