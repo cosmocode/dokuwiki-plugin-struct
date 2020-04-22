@@ -6,6 +6,7 @@ use dokuwiki\plugin\struct\meta\ConfigParser;
 use dokuwiki\plugin\struct\meta\PageMeta;
 use dokuwiki\plugin\struct\test\mock\AccessTable;
 use dokuwiki\plugin\struct\test\mock\AccessTableData;
+use dokuwiki\plugin\struct\test\mock\AggregationTable;
 use dokuwiki\plugin\struct\test\mock\LookupTable;
 use dokuwiki\plugin\struct\test\mock\SearchConfig;
 use dokuwiki\test\mock\Doku_Renderer;
@@ -16,14 +17,26 @@ use dokuwiki\test\mock\Doku_Renderer;
  * @group plugin_struct
  * @group plugins
  */
-class DataSerial_struct_test extends StructTest
+class AggregationResults_struct_test extends StructTest
 {
+    protected $sqlite;
+
     public function setUp()
     {
         parent::setUp();
+
+        $sqlite = plugin_load('helper', 'struct_db');
+        $this->sqlite = $sqlite->getDB();
+
         $this->loadSchemaJSON('schema1');
 
+        $assignments = mock\Assignments::getInstance();
+        $assignments->clear(true);
+
         for ($i = 0; $i < 3; $i++) {
+            // assign a schema
+            $assignments->assignPageSchema("test$i", 'schema1');
+
             // save wiki pages
             saveWikiText("test$i", "test$i", "test$i");
 
@@ -94,6 +107,44 @@ class DataSerial_struct_test extends StructTest
     }
 
     /**
+     * Test whether aggregation tables respect revoking of schema assignments
+     */
+    public function test_assignments()
+    {
+        $result = $this->fetchPagesResult('schema1');
+        $this->assertEquals(3, count($result));
+
+        // revoke assignment
+        $assignments = mock\Assignments::getInstance();
+        $assignments->deassignPageSchema('test0', 'schema1');
+
+        $result = $this->fetchPagesResult('schema1');
+        $this->assertEquals(2, count($result));
+    }
+
+
+    /**
+     * Initialize a lookup table from syntax and return the result from its internal search.
+     *
+     * @param string $schema
+     * @param string $id
+     * @param array $filters
+     * @return \dokuwiki\plugin\struct\meta\Value[][]
+     */
+    protected function fetchPagesResult($schema, $id = '', $filters = [])
+    {
+        $syntaxConfig = ['schema: ' . $schema, 'cols: %pageid%, %rowid%, *'];
+        $configParser = new ConfigParser($syntaxConfig);
+        $config = $configParser->getConfig();
+
+        if ($filters) array_push($config['filter'], $filters);
+        $search = new SearchConfig($config);
+
+        $table = new AggregationTable($id, 'xhtml', new Doku_Renderer(), $search);
+        return $table->getResult();
+    }
+
+    /**
      * Initialize a lookup table from syntax and return the result from its internal search.
      *
      * @param string $schema
@@ -107,7 +158,7 @@ class DataSerial_struct_test extends StructTest
         $configParser = new ConfigParser($syntaxConfig);
         $config = $configParser->getConfig();
 
-        // FIXME simulate addYypeFilter() from \syntax_plugin_struct_serial or\syntax_plugin_struct_lookup
+        // FIXME simulate addYypeFilter() from \syntax_plugin_struct_serial or \syntax_plugin_struct_lookup
         if ($id) {
             $config['filter'][] = ['%rowid%', '!=', (string)AccessTableData::DEFAULT_PAGE_RID, 'AND'];
             $config['filter'][] = ['%pageid%', '=', $id, 'AND'];
