@@ -444,6 +444,7 @@ class Search
                 $subOr = $subAnd->whereSubOr();
                 $subOr->whereAnd("GETACCESSLEVEL($datatable.pid) > 0");
                 $subOr->whereAnd("PAGEEXISTS($datatable.pid) = 1");
+                $subOr->whereAnd('ASSIGNED != 0');
 
                 // add conditional schema assignment check
                 $QB->addLeftJoin(
@@ -452,13 +453,13 @@ class Search
                     '',
                     "$datatable.pid != ''
                     AND $datatable.pid = schema_assignments.pid
-                    AND schema_assignments.tbl = '{$schema->getTable()}'
-                    AND schema_assignments.assigned = 1"
+                    AND schema_assignments.tbl = '{$schema->getTable()}'"
                 );
 
                 $QB->addSelectColumn($datatable, 'rid');
                 $QB->addSelectColumn($datatable, 'pid', 'PID');
                 $QB->addSelectColumn($datatable, 'rev');
+                $QB->addSelectColumn('schema_assignments', 'assigned', 'ASSIGNED');
                 $QB->addGroupByColumn($datatable, 'pid');
 
                 $first_table = $datatable;
