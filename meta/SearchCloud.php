@@ -37,6 +37,7 @@ class SearchCloud extends SearchConfig
         $subOr = $subAnd->whereSubOr();
         $subOr->whereAnd("GETACCESSLEVEL($datatable.pid) > 0");
         $subOr->whereAnd("PAGEEXISTS($datatable.pid) = 1");
+        $subOr->whereAnd('ASSIGNED != 0');
 
         // add conditional schema assignment check
         $QB->addLeftJoin(
@@ -45,8 +46,7 @@ class SearchCloud extends SearchConfig
             '',
             "$datatable.pid != ''
                     AND $datatable.pid = schema_assignments.pid
-                    AND schema_assignments.tbl = '{$schema->getTable()}'
-                    AND schema_assignments.assigned = 1"
+                    AND schema_assignments.tbl = '{$schema->getTable()}'"
         );
 
         $QB->filters()->whereAnd("$datatable.latest = 1");
@@ -61,7 +61,8 @@ class SearchCloud extends SearchConfig
                 $datatable,
                 $multitable,
                 $MN,
-                "$datatable.$idColumn = $MN.$idColumn AND
+                "$datatable.pid = $MN.pid AND
+                     $datatable.rid = $MN.rid AND
                      $datatable.rev = $MN.rev AND
                      $MN.colref = {$col->getColref()}"
             );
@@ -73,6 +74,7 @@ class SearchCloud extends SearchConfig
             $colname = $datatable . '.' . $col->getColName();
         }
         $QB->addSelectStatement("COUNT($colname)", 'count');
+        $QB->addSelectColumn('schema_assignments', 'assigned', 'ASSIGNED');
         $QB->addGroupByStatement('tag');
         $QB->addOrderBy('count DESC');
 
