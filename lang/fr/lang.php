@@ -79,7 +79,6 @@ $lang['Exception illegal option'] = 'L\'option \'<code>%s</code>\' est invalide 
 $lang['Exception noschemas']   = 'Schéma non spécifié, impossible de charger des colonnes';
 $lang['Exception nocolname']   = 'Aucun nom de colonne spécifié';
 $lang['Exception nolookupmix'] = 'Vous ne pouvez pas agréger plus d\'un schéma de consultation ou le mélanger avec des données de page.';
-$lang['Exception nolookupassign'] = 'Vous ne pouvez assigner un schéma de consultation à des pages';
 $lang['Exception No data saved'] = 'Aucune donnée sauvegardée';
 $lang['Exception no sqlite']   = 'Le plugin struct requiert le plugin sqlite. Merci de l\'installer et l\'activer.';
 $lang['Exception column not in table'] = 'Il n\'y a pas de colonne %s dans le schéma %s.';

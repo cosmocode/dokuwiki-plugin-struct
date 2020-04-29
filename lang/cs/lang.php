@@ -71,7 +71,6 @@ $lang['Exception illegal option'] = 'Volba \'<code>%s</code>\' je neplatná pro 
 $lang['Exception noschemas']   = 'Nebyla zadána žádná schémata pro načtení sloupců z';
 $lang['Exception nocolname']   = 'Nebyl uveden žádný název sloupce';
 $lang['Exception nolookupmix'] = 'Nelze agregovat více než jedno vyhledávání nebo je smíchat s daty stránky';
-$lang['Exception nolookupassign'] = 'Nelze přiřadit vyhledávací schéma ke stránce';
 $lang['Exception No data saved'] = 'Nebyla uložena žádná data';
 $lang['Exception no sqlite']   = 'Plugin struct vyžaduje plugin sqlite. Nainstalujte a povolte jej.';
 $lang['Exception column not in table'] = 'Neexistuje sloupec %s ve schématu %s.';

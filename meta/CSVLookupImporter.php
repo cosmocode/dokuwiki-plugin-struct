@@ -15,7 +15,5 @@ class CSVLookupImporter extends CSVImporter
     public function __construct($table, $file)
     {
         parent::__construct($table, $file);
-
-        if (!$this->schema->isLookup()) throw new StructException($table . ' is not lookup schema');
     }
 }

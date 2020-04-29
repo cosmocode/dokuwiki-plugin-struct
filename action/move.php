@@ -33,7 +33,7 @@ class action_plugin_struct_move extends DokuWiki_Action_Plugin
     }
 
     /**
-     * Renames all occurances of a page ID in the database
+     * Renames all occurrences of a page ID in the database
      *
      * @param Doku_Event $event event object by reference
      * @param bool $ispage is this a page move operation?
@@ -102,7 +102,7 @@ class action_plugin_struct_move extends DokuWiki_Action_Plugin
      */
     protected function updateDataTablePIDs($old, $new)
     {
-        foreach (Schema::getAll('page') as $tbl) {
+        foreach (Schema::getAll() as $tbl) {
             /** @noinspection SqlResolve */
             $sql = "UPDATE data_$tbl SET pid = ? WHERE pid = ?";
             $this->db->query($sql, array($new, $old));

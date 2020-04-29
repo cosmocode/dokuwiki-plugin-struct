@@ -150,9 +150,8 @@ class SchemaBuilder
         $config = $this->data['config'] ?: '{}';
 
         /** @noinspection SqlResolve */
-        $sql = "INSERT INTO schemas (tbl, ts, islookup, user, config) VALUES (?, ?, ?, ?, ?)";
-        // FIXME magic 0 for islookup
-        $this->sqlite->query($sql, $this->table, $this->time, 0, $this->user, $config);
+        $sql = "INSERT INTO schemas (tbl, ts, user, config) VALUES (?, ?, ?, ?)";
+        $this->sqlite->query($sql, $this->table, $this->time, $this->user, $config);
         $res = $this->sqlite->query('SELECT last_insert_rowid()');
         $this->newschemaid = $this->sqlite->res2single($res);
         $this->sqlite->res_close($res);

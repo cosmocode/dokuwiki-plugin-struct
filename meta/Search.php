@@ -82,16 +82,6 @@ class Search
             throw new StructException('schema missing', $table);
         }
 
-        // FIXME is the mixing still relevant?
-//        if($this->schemas &&
-//            (
-//                $schema->isLookup() ||
-//                reset($this->schemas)->isLookup()
-//            )
-//        ) {
-//            throw new StructException('nolookupmix');
-//        }
-
         $this->schemas[$schema->getTable()] = $schema;
         if ($alias) $this->aliases[$alias] = $schema->getTable();
     }

@@ -14,9 +14,6 @@ namespace dokuwiki\plugin\struct\meta;
  */
 class CSVExporter
 {
-
-    protected $islookup = false;
-
     /**
      * CSVImporter constructor.
      *
@@ -31,21 +28,11 @@ class CSVExporter
         $search->addColumn('*');
         $result = $search->execute();
 
-        $this->islookup = $search->getSchemas()[0]->isLookup();
-        if (!$this->islookup) {
-            $pids = $search->getPids();
-        } else {
-            $pids = array();
-        }
+        $pids = $search->getPids();
 
         echo $this->header($search->getColumns());
         foreach ($result as $i => $row) {
-            if (!$this->islookup) {
-                $pid = $pids[$i];
-            } else {
-                $pid = 0;
-            }
-
+            $pid = $pids[$i];
             echo $this->row($row, $pid);
         }
     }
@@ -59,11 +46,8 @@ class CSVExporter
     protected function header($columns)
     {
         $row = '';
-
-        if (!$this->islookup) {
-            $row .= $this->escape('pid');
-            $row .= ',';
-        }
+        $row .= $this->escape('pid');
+        $row .= ',';
 
         foreach ($columns as $i => $col) {
             $row .= $this->escape($col->getLabel());
@@ -82,11 +66,8 @@ class CSVExporter
     protected function row($values, $pid)
     {
         $row = '';
-
-        if (!$this->islookup) {
-            $row .= $this->escape($pid);
-            $row .= ',';
-        }
+        $row .= $this->escape($pid);
+        $row .= ',';
 
         foreach ($values as $value) {
             /** @var Value $value */

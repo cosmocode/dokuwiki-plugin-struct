@@ -83,7 +83,6 @@ $lang['Exception illegal option'] = 'The option \'<code>%s</code>\' is invalid f
 $lang['Exception noschemas'] = 'There have been no schemas given to load columns from';
 $lang['Exception nocolname'] = 'No column name given';
 $lang['Exception nolookupmix'] = 'You can not aggregate more than one Lookup or mix it with Page data';
-$lang['Exception nolookupassign'] = 'You can not assign Lookup schemas to pages';
 $lang['Exception No data saved'] = 'No data saved';
 $lang['Exception no sqlite'] = 'The struct plugin requires the sqlite plugin. Please install and enable it.';
 $lang['Exception column not in table'] = 'There is no column %s in schema %s.';

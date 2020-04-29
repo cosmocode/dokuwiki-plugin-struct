@@ -150,7 +150,7 @@ class Schema
      */
     public function __toString()
     {
-        return __CLASS__ . ' ' . $this->table . ' (' . $this->id . ') ' . ($this->islookup ? 'LOOKUP' : 'DATA');
+        return __CLASS__ . ' ' . $this->table . ' (' . $this->id . ') ';
     }
 
     /**
@@ -172,25 +172,16 @@ class Schema
     /**
      * Gets a list of all available schemas
      *
-     * @param string $filter either 'page' or 'lookup'
      * @return \string[]
      */
-    public static function getAll($filter = '')
+    public static function getAll()
     {
         /** @var \helper_plugin_struct_db $helper */
         $helper = plugin_load('helper', 'struct_db');
         $db = $helper->getDB(false);
         if (!$db) return array();
 
-        if ($filter == 'page') {
-            $where = 'islookup = 0';
-        } elseif ($filter == 'lookup') {
-            $where = 'islookup = 1';
-        } else {
-            $where = '1 = 1';
-        }
-
-        $res = $db->query("SELECT DISTINCT tbl FROM schemas WHERE $where ORDER BY tbl");
+        $res = $db->query("SELECT DISTINCT tbl FROM schemas ORDER BY tbl");
         $tables = $db->res2arr($res);
         $db->res_close($res);
 
