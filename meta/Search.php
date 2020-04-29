@@ -434,7 +434,7 @@ class Search
                 $subOr = $subAnd->whereSubOr();
                 $subOr->whereAnd("GETACCESSLEVEL($datatable.pid) > 0");
                 $subOr->whereAnd("PAGEEXISTS($datatable.pid) = 1");
-                $subOr->whereAnd('ASSIGNED != 0');
+                $subOr->whereAnd('(ASSIGNED = 1 OR ASSIGNED IS NULL)');
 
                 // add conditional schema assignment check
                 $QB->addLeftJoin(
