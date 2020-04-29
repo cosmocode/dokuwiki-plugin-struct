@@ -9,7 +9,6 @@ use dokuwiki\plugin\struct\test\mock\AccessTableData;
 use dokuwiki\plugin\struct\test\mock\AggregationTable;
 use dokuwiki\plugin\struct\test\mock\LookupTable;
 use dokuwiki\plugin\struct\test\mock\SearchConfig;
-use dokuwiki\test\mock\Doku_Renderer;
 
 /**
  * Testing serial data
@@ -140,7 +139,7 @@ class AggregationResults_struct_test extends StructTest
         if ($filters) array_push($config['filter'], $filters);
         $search = new SearchConfig($config);
 
-        $table = new AggregationTable($id, 'xhtml', new Doku_Renderer(), $search);
+        $table = new AggregationTable($id, 'xhtml', new \Doku_Renderer_xhtml(), $search);
         return $table->getResult();
     }
 
@@ -170,7 +169,7 @@ class AggregationResults_struct_test extends StructTest
         if ($filters) array_push($config['filter'], $filters);
         $search = new SearchConfig($config);
 
-        $table = new LookupTable($id, 'xhtml', new Doku_Renderer(), $search);
+        $table = new LookupTable($id, 'xhtml', new \Doku_Renderer_xhtml(), $search);
         return $table->getResult();
     }
 
