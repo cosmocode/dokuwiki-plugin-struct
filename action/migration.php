@@ -94,7 +94,7 @@ class action_plugin_struct_migration extends DokuWiki_Action_Plugin
         $ok = true;
 
         // Step 1: move original data to temporary tables and create new ones with modified schemas
-        foreach($tables as $table) {
+        foreach ($tables as $table) {
             $name = $table['name'];
             $sql = $table['sql'];
 
@@ -118,7 +118,7 @@ class action_plugin_struct_migration extends DokuWiki_Action_Plugin
         }
 
         // Step 2: transfer data back from original tables (temp_*)
-        foreach($schemas as $schema) {
+        foreach ($schemas as $schema) {
             $name = $schema['tbl'];
             $sid = $schema['id'];
             $isLookup = $schema['islookup'];
@@ -165,12 +165,12 @@ class action_plugin_struct_migration extends DokuWiki_Action_Plugin
             if ($cols) {
                 foreach ($cols as $col) {
                     $colno = $col['COL'];
-                    $s = "UPDATE data_$name SET col$colno = '[". '""' . ",'||col$colno||']' WHERE col$colno != ''";
+                    $s = "UPDATE data_$name SET col$colno = '[" . '""' . ",'||col$colno||']' WHERE col$colno != ''";
                     $ok = $ok && $sqlite->query($s);
                     if (!$ok) return false;
 
                     // multi_
-                    $s = "UPDATE multi_$name SET value = '[". '""' . ",'||value||']' WHERE colref=$colno";
+                    $s = "UPDATE multi_$name SET value = '[" . '""' . ",'||value||']' WHERE colref=$colno";
                     $ok = $ok && $sqlite->query($s);
                     if (!$ok) return false;
                 }
@@ -178,7 +178,7 @@ class action_plugin_struct_migration extends DokuWiki_Action_Plugin
         }
 
         // Step 3: delete temp_* tables
-        foreach($tables as $table) {
+        foreach ($tables as $table) {
             $name = $table['name'];
             $s = "DROP TABLE temp_$name";
             $ok = $ok && $sqlite->query($s);
