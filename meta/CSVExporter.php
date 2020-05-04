@@ -14,25 +14,35 @@ namespace dokuwiki\plugin\struct\meta;
  */
 class CSVExporter
 {
+    protected $type = '';
+
     /**
-     * CSVImporter constructor.
+     * CSVExporter constructor.
      *
-     * @throws StructException
      * @param string $table
+     * @param string $type
      */
-    public function __construct($table)
+    public function __construct($table, $type)
     {
+        // TODO make it nicer
+        $this->type = $type;
 
         $search = new Search();
         $search->addSchema($table);
         $search->addColumn('*');
         $result = $search->execute();
 
-        $pids = $search->getPids();
+        if ($this->type !== 'lookup') {
+            $pids = $search->getPids();
+        }
 
         echo $this->header($search->getColumns());
         foreach ($result as $i => $row) {
-            $pid = $pids[$i];
+            if ($this->type !== 'lookup') {
+                $pid = $pids[$i];
+            } else {
+                $pid = '';
+            }
             echo $this->row($row, $pid);
         }
     }
@@ -46,8 +56,11 @@ class CSVExporter
     protected function header($columns)
     {
         $row = '';
-        $row .= $this->escape('pid');
-        $row .= ',';
+
+        if($this->type !== 'lookup') {
+            $row .= $this->escape('pid');
+            $row .= ',';
+        }
 
         foreach ($columns as $i => $col) {
             $row .= $this->escape($col->getLabel());
@@ -66,14 +79,17 @@ class CSVExporter
     protected function row($values, $pid)
     {
         $row = '';
-        $row .= $this->escape($pid);
-        $row .= ',';
+        if($this->type !== 'lookup') {
+            $row .= $this->escape($pid);
+            $row .= ',';
+        }
 
         foreach ($values as $value) {
             /** @var Value $value */
             $val = $value->getRawValue();
             if (is_array($val)) $val = join(',', $val);
 
+            // FIXME check escaping of composite ids (JSON with """")
             $row .= $this->escape($val);
             $row .= ',';
         }
