@@ -451,6 +451,7 @@ class Search
                 $QB->addSelectColumn($datatable, 'rev');
                 $QB->addSelectColumn('schema_assignments', 'assigned', 'ASSIGNED');
                 $QB->addGroupByColumn($datatable, 'pid');
+                $QB->addGroupByColumn($datatable, 'rid');
 
                 $first_table = $datatable;
             }
