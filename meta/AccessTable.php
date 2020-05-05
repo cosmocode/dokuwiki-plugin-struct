@@ -81,7 +81,13 @@ abstract class AccessTable
      */
     public static function byTableName($tablename, $pid, $ts = 0, $rid = 0)
     {
-        $schema = new Schema($tablename, $ts);
+        // force loading the latest schema for anything other than page data,
+        // for which we might actually need the history
+        if (!self::isTypePage($pid, $ts, $rid)) {
+            $schema = new Schema($tablename, time());
+        } else {
+            $schema = new Schema($tablename, $ts);
+        }
         return self::bySchema($schema, $pid, $ts, $rid);
     }
 

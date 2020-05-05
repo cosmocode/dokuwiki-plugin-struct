@@ -210,9 +210,6 @@ class action_plugin_struct_inline extends DokuWiki_Action_Plugin
         $rid = $INPUT->int('rid');
         $rev = $updatedRev ?: $INPUT->int('rev');
 
-        // page revision will only be used to load schema data, which should be the latest one
-        if ($pid) $rev = time();
-
         list($table, $field) = explode('.', $INPUT->str('field'));
         if (blank($pid) && blank($rid)) return false;
         if (blank($table)) return false;
