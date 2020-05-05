@@ -227,7 +227,7 @@ class CSVPageImporter extends CSVImporter
      */
     protected function validateValue(Column $col, &$rawvalue)
     {
-        //check if page id exists and schema is bounded to the page
+        //check if page id exists and schema is bound to the page
         if ($col->getLabel() == 'pid') {
             $pid = cleanID($rawvalue);
             if (isset($this->importedPids[$pid])) {
