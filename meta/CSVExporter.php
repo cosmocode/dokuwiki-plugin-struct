@@ -57,7 +57,7 @@ class CSVExporter
     {
         $row = '';
 
-        if($this->type !== 'lookup') {
+        if ($this->type !== 'lookup') {
             $row .= $this->escape('pid');
             $row .= ',';
         }
@@ -79,7 +79,7 @@ class CSVExporter
     protected function row($values, $pid)
     {
         $row = '';
-        if($this->type !== 'lookup') {
+        if ($this->type !== 'lookup') {
             $row .= $this->escape($pid);
             $row .= ',';
         }
