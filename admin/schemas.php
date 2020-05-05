@@ -84,10 +84,11 @@ class admin_plugin_struct_schemas extends DokuWiki_Admin_Plugin
             if (isset($_FILES['csvfile']['tmp_name'])) {
                 try {
                     // FIXME
-                    if ($INPUT->str('importtype') === 'page') {
-                        $csvImporter = new CSVPageImporter($table, $_FILES['csvfile']['tmp_name']);
+                    $datatype = $INPUT->str('importtype');
+                    if ($datatype === 'page') {
+                        $csvImporter = new CSVPageImporter($table, $_FILES['csvfile']['tmp_name'], $datatype);
                     } else {
-                        $csvImporter = new CSVImporter($table, $_FILES['csvfile']['tmp_name']);
+                        $csvImporter = new CSVImporter($table, $_FILES['csvfile']['tmp_name'], $datatype);
                     }
                     $csvImporter->import();
                     msg($this->getLang('admin_csvdone'), 1);
@@ -214,9 +215,9 @@ class admin_plugin_struct_schemas extends DokuWiki_Admin_Plugin
         $form->addTagOpen('legend');
         $form->addHTML($this->getLang('admin_csvimport_datatype'));
         $form->addTagClose('legend');
-        $form->addRadioButton('importype',$this->getLang('admin_csv_page'))->val('page')->attr('checked', 'checked');
-        $form->addRadioButton('importype',$this->getLang('admin_csv_lookup'))->val('lookup');
-        $form->addRadioButton('importype',$this->getLang('admin_csv_serial'))->val('serial');
+        $form->addRadioButton('importtype',$this->getLang('admin_csv_page'))->val('page')->attr('checked', 'checked');
+        $form->addRadioButton('importtype',$this->getLang('admin_csv_lookup'))->val('lookup');
+        $form->addRadioButton('importtype',$this->getLang('admin_csv_serial'))->val('serial');
         $form->addHTML('<br>');
         $form->addElement(new \dokuwiki\Form\InputElement('file', 'csvfile'))->attr('accept', '.csv');
         $form->addButton('importcsv', $this->getLang('btn_import'));

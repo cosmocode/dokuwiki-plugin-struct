@@ -155,6 +155,7 @@ abstract class AccessTable
      * We differentiate between single-value-column and multi-value-column by the value to the respective column-name,
      * i.e. depending on if that is a string or an array, respectively.
      *
+     * @fixme we need a flag here to disable per-save db transactions if this is executed in bulk
      * @param array $data typelabel => value for single fields or typelabel => array(value, value, ...) for multi fields
      * @return bool success of saving the data to the database
      */

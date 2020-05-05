@@ -2,6 +2,8 @@
 
 namespace dokuwiki\plugin\struct\meta;
 
+use dokuwiki\plugin\struct\types\Page;
+
 /**
  * Class CSVImporter
  *
@@ -9,7 +11,7 @@ namespace dokuwiki\plugin\struct\meta;
  *
  * @package dokuwiki\plugin\struct\meta
  */
-abstract class CSVImporter
+class CSVImporter
 {
 
     /** @var  Schema */
@@ -27,21 +29,27 @@ abstract class CSVImporter
     /** @var int current line number */
     protected $line = 0;
 
-    /** @var  list of headers */
+    /** @var array list of headers */
     protected $header;
 
     /** @var  array list of validation errors */
     protected $errors;
 
     /**
+     * @var string data type, must be one of page, lookup, serial
+     */
+    protected $type;
+
+    /**
      * CSVImporter constructor.
      *
-     * @throws StructException
      * @param string $table
      * @param string $file
+     * @param string $type
      */
-    public function __construct($table, $file)
+    public function __construct($table, $file, $type)
     {
+        $this->type = $type;
         $this->openFile($file);
 
         $this->schema = new Schema($table);
@@ -104,6 +112,13 @@ abstract class CSVImporter
         if (!$header) throw new StructException('Failed to read CSV');
         $this->line++;
 
+        // FIXME we might have to create a page column first
+        if ($this->type !== 'lookup') {
+            $pageType = new Page(null, 'pid');
+            $pidCol = new Column(0, $pageType, 0, true, $this->schema->getTable());
+            $this->columns[] = $pidCol;
+        }
+
         foreach ($header as $i => $head) {
             $col = $this->schema->findColumn($head);
             if (!$col) continue;
@@ -156,14 +171,15 @@ abstract class CSVImporter
     protected function importCSV()
     {
 
+        // FIXME those are hopefully never used and can be removed soon
         $single = $this->getSQLforAllValues();
         $multi = $this->getSQLforMultiValue();
 
         while (($data = $this->getLine()) !== false) {
-            $this->sqlite->query('BEGIN TRANSACTION');
+//            $this->sqlite->query('BEGIN TRANSACTION');
             $this->line++;
             $this->importLine($data, $single, $multi);
-            $this->sqlite->query('COMMIT TRANSACTION');
+//            $this->sqlite->query('COMMIT TRANSACTION');
         }
     }
 
@@ -205,6 +221,7 @@ abstract class CSVImporter
             if (!$this->validateValue($column, $line[$i])) return false;
 
             if ($column->isMulti()) {
+                // FIXME don't split JSON values, they contain commas! we need something more clever
                 // multi values get split on comma
                 $line[$i] = array_map('trim', explode(',', $line[$i]));
                 $values[] = $line[$i][0];
@@ -282,7 +299,19 @@ abstract class CSVImporter
         $values = $this->readLine($line);
 
         if ($values) {
-            $this->saveLine($values, $line, $single, $multi);
+            // FIXME trying to bypass another custom SQL query string
+//            $this->saveLine($values, $line, $single, $multi);
+
+            $data = array_combine($this->header, $values);
+            // pid is a non-data column and must be supplied to the AccessTable separately
+            $pid = isset($data['pid']) ? $data['pid'] : '';
+            unset($data['pid']);
+            $table = $this->schema->getTable();
+            $access = AccessTable::byTableName($table, $pid);
+
+            /** @var 'helper_plugin_struct $helper */
+            $helper = plugin_load('helper', 'struct');
+            $helper->saveLookupData($access, $data);
         } else foreach ($this->errors as $error) {
             msg($error, -1);
         }
