@@ -103,8 +103,6 @@ class CSVImporter
 
     /**
      * Read the CSV headers and match it with the Schema columns
-     *
-     * @return array headers of file
      */
     protected function readHeaders()
     {
@@ -112,7 +110,7 @@ class CSVImporter
         if (!$header) throw new StructException('Failed to read CSV');
         $this->line++;
 
-        // FIXME we might have to create a page column first
+        // we might have to create a page column first
         if ($this->type !== 'lookup') {
             $pageType = new Page(null, 'pid');
             $pidCol = new Column(0, $pageType, 0, true, $this->schema->getTable());
@@ -121,7 +119,13 @@ class CSVImporter
 
         foreach ($header as $i => $head) {
             $col = $this->schema->findColumn($head);
-            if (!$col) continue;
+            // just skip the checks for 'pid' but discard other columns not present in the schema
+            if (!$col) {
+                if ($head !== 'pid') {
+                    unset($header[$i]);
+                }
+                continue;
+            }
             if (!$col->isEnabled()) continue;
             $this->columns[$i] = $col;
         }
@@ -134,52 +138,13 @@ class CSVImporter
     }
 
     /**
-     * Creates the insert string for the single value table
-     *
-     * @return string
-     */
-    protected function getSQLforAllValues()
-    {
-        $colnames = array();
-        $placeholds = array();
-        foreach ($this->columns as $i => $col) {
-            $colnames[] = 'col' . $col->getColref();
-            $placeholds[] = '?';
-        }
-        $colnames = join(', ', $colnames);
-        $placeholds = join(', ', $placeholds);
-        $table = $this->schema->getTable();
-
-        return "INSERT INTO data_$table ($colnames) VALUES ($placeholds)";
-    }
-
-    /**
-     * Creates the insert string for the multi value table
-     *
-     * @return string
-     */
-    protected function getSQLforMultiValue()
-    {
-        $table = $this->schema->getTable();
-        /** @noinspection SqlResolve */
-        return "INSERT INTO multi_$table (pid, colref, row, value) VALUES (?,?,?,?)";
-    }
-
-    /**
      * Walks through the CSV and imports
      */
     protected function importCSV()
     {
-
-        // FIXME those are hopefully never used and can be removed soon
-        $single = $this->getSQLforAllValues();
-        $multi = $this->getSQLforMultiValue();
-
         while (($data = $this->getLine()) !== false) {
-//            $this->sqlite->query('BEGIN TRANSACTION');
             $this->line++;
-            $this->importLine($data, $single, $multi);
-//            $this->sqlite->query('COMMIT TRANSACTION');
+            $this->importLine($data);
         }
     }
 
@@ -209,9 +174,10 @@ class CSVImporter
     /**
      * Read and validate CSV parsed line
      *
-     * @param &$line
+     * @param $line
+     * @return array|bool
      */
-    protected function readLine(&$line)
+    protected function readLine($line)
     {
         // prepare values for single value table
         $values = array();
@@ -221,68 +187,42 @@ class CSVImporter
             if (!$this->validateValue($column, $line[$i])) return false;
 
             if ($column->isMulti()) {
-                // FIXME don't split JSON values, they contain commas! we need something more clever
-                // multi values get split on comma
-                $line[$i] = array_map('trim', explode(',', $line[$i]));
-                $values[] = $line[$i][0];
-            } else {
-                $values[] = $line[$i];
+                // multi values get split on comma, but JSON values contain commas too, hence preg_split
+                if ($line[$i][0] === '[') {
+                    $line[$i] = preg_split('/,(?=\[)/', $line[$i]);
+                } else {
+                    $line[$i] = array_map('trim', explode(',', $line[$i]));
+                }
             }
+            // data access will handle multivalues, no need to manipulate them here
+            $values[] = $line[$i];
         }
         //if no ok don't import
         return $values;
     }
 
     /**
-     * INSERT $values into data_* table
-     *
-     * @param string[] $values
-     * @param string $single SQL for single table
-     *
-     * @return string last_insert_rowid()
-     */
-    protected function insertIntoSingle($values, $single)
-    {
-        $this->sqlite->query($single, $values);
-        $res = $this->sqlite->query('SELECT last_insert_rowid()');
-        $pid = $this->sqlite->res2single($res);
-        $this->sqlite->res_close($res);
-
-        return $pid;
-    }
-
-    /**
-     * INSERT one row into multi_* table
-     *
-     * @param string $multi SQL for multi table
-     * @param $pid string
-     * @param $column string
-     * @param $row string
-     * @param $value string
-     */
-    protected function insertIntoMulti($multi, $pid, $column, $row, $value)
-    {
-        $this->sqlite->query($multi, array($pid, $column->getColref(), $row + 1, $value));
-    }
-
-    /**
      * Save one CSV line into database
      *
      * @param string[] $values parsed line values
-     * @param string $single SQL for single table
-     * @param string $multi SQL for multi table
      */
-    protected function saveLine($values, $line, $single, $multi)
+    protected function saveLine($values)
     {
-        // insert into single value table (and create pid)
-        $pid = $this->insertIntoSingle($values, $single);
+        $data = array_combine($this->header, $values);
+        // pid is a non-data column and must be supplied to the AccessTable separately
+        $pid = isset($data['pid']) ? $data['pid'] : '';
+        unset($data['pid']);
+        $table = $this->schema->getTable();
+        // page data accessor requires a timestamp of a revision
+        $ts = ($this->type === 'page') ? time() : 0;
+        $access = AccessTable::byTableName($table, $pid, $ts);
 
-        // insert all the multi values
-        foreach ($this->columns as $i => $column) {
-            if (!$column->isMulti()) continue;
-            foreach ($line[$i] as $row => $value) {
-                $this->insertIntoMulti($multi, $pid, $column, $row, $value);
-            }
+        /** @var 'helper_plugin_struct $helper */
+        $helper = plugin_load('helper', 'struct');
+        if ($this->type === 'page') {
+            $helper->saveData($pid, [$table => $data], 'CSV data imported');
+        } else {
+            $helper->saveLookupData($access, $data);
         }
     }
 
@@ -290,28 +230,14 @@ class CSVImporter
      * Imports one line into the schema
      *
      * @param string[] $line the parsed CSV line
-     * @param string $single SQL for single table
-     * @param string $multi SQL for multi table
      */
-    protected function importLine($line, $single, $multi)
+    protected function importLine($line)
     {
-        //read values, false if no validation
+        //read values, false if invalid, empty array if the same as current data
         $values = $this->readLine($line);
 
         if ($values) {
-            // FIXME trying to bypass another custom SQL query string
-//            $this->saveLine($values, $line, $single, $multi);
-
-            $data = array_combine($this->header, $values);
-            // pid is a non-data column and must be supplied to the AccessTable separately
-            $pid = isset($data['pid']) ? $data['pid'] : '';
-            unset($data['pid']);
-            $table = $this->schema->getTable();
-            $access = AccessTable::byTableName($table, $pid);
-
-            /** @var 'helper_plugin_struct $helper */
-            $helper = plugin_load('helper', 'struct');
-            $helper->saveLookupData($access, $data);
+            $this->saveLine($values);
         } else foreach ($this->errors as $error) {
             msg($error, -1);
         }
