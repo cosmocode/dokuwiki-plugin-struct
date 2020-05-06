@@ -27,8 +27,9 @@ class ImportPageCSV extends StructTest
             ['pid', 'first', 'second', 'third', 'fourth'],
             ['wiki:syntax', 'e', 'f,i', 'g', 'h'],
         ]);
+        $assignment = mock\Assignments::getInstance();
+        $assignment->addPattern('wiki:syntax', 'schema1');
         $csvImporter->import();
-
 
         $schemaData = mock\AccessTable::byTableName('schema1', 'wiki:syntax', time());
         $actual_data = $schemaData->getDataFromDB();
@@ -73,6 +74,8 @@ fifth: @@fifth@@
 </ifnotempty>');
 
         // act
+        $assignment = mock\Assignments::getInstance();
+        $assignment->addPattern($pageID, 'schema1');
         $csvImporter->import();
 
         // assert
