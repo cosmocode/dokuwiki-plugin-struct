@@ -124,9 +124,7 @@ class syntax_plugin_struct_output extends DokuWiki_Syntax_Plugin
         $hasdata = false;
         foreach ($tables as $table) {
             try {
-                // use the current time if no revision is specified, otherwise we can't access page data
-                $ts = $REV ?: time();
-                $schemadata = AccessTable::byTableName($table, $ID, $ts);
+                $schemadata = AccessTable::getPageAccess($table, $ID, (int)$REV);
             } catch (StructException $ignored) {
                 continue; // no such schema at this revision
             }

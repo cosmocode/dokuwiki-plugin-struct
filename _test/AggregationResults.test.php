@@ -46,7 +46,7 @@ class AggregationResults_struct_test extends StructTest
                 'third' => "foobar$i",
                 'fourth' => "barfoo$i",
             ];
-            $access = AccessTable::byTableName('schema1', "test$i");
+            $access = AccessTable::getSerialAccess('schema1', "test$i");
             $access->saveData($data);
         }
     }
@@ -188,7 +188,7 @@ class AggregationResults_struct_test extends StructTest
         $pageMeta->setTitle('Another Title');
 
         $this->loadSchemaJSON('pageschema');
-        $access = AccessTable::byTableName('pageschema', '');
+        $access = AccessTable::getLookupAccess('pageschema');
         $access->saveData(
             array(
                 'singlepage' => 'title1',
@@ -197,7 +197,7 @@ class AggregationResults_struct_test extends StructTest
                 'multititle' => array('title1'),
             )
         );
-        $access = AccessTable::byTableName('pageschema', '');
+        $access = AccessTable::getLookupAccess('pageschema');
         $access->saveData(
             array(
                 'singlepage' => 'title2',
@@ -206,7 +206,7 @@ class AggregationResults_struct_test extends StructTest
                 'multititle' => array('title2'),
             )
         );
-        $access = AccessTable::byTableName('pageschema', '');
+        $access = AccessTable::getLookupAccess('pageschema');
         $access->saveData(
             array(
                 'singlepage' => 'title3',

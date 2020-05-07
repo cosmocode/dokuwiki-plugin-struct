@@ -14,6 +14,12 @@ class AccessTableData extends AccessTable
 
     const DEFAULT_PAGE_RID = 0;
 
+    public function __construct($schema, $pid, $ts = 0, $rid = 0)
+    {
+        $ts = $ts ?: time();
+        parent::__construct($schema, $pid, $ts, $rid);
+    }
+
     /**
      * adds an empty data set for this schema and page
      *

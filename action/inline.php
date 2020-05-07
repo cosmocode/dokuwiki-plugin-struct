@@ -9,8 +9,10 @@
 
 use dokuwiki\plugin\struct\meta\AccessTable;
 use dokuwiki\plugin\struct\meta\AccessTableData;
+use dokuwiki\plugin\struct\meta\AccessTableLookup;
 use dokuwiki\plugin\struct\meta\Assignments;
 use dokuwiki\plugin\struct\meta\Column;
+use dokuwiki\plugin\struct\meta\Schema;
 use dokuwiki\plugin\struct\meta\StructException;
 use dokuwiki\plugin\struct\meta\ValueValidator;
 
@@ -217,7 +219,13 @@ class action_plugin_struct_inline extends DokuWiki_Action_Plugin
 
         $this->pid = $pid;
         try {
-            $this->schemadata = AccessTable::byTableName($table, $pid, $rev, $rid);
+            if (AccessTable::isTypePage($pid, $rev)) {
+                $this->schemadata = AccessTable::getPageAccess($table, $pid);
+            } elseif (AccessTable::isTypeSerial($pid, $rev)) {
+                $this->schemadata = AccessTable::getSerialAccess($table, $pid, $rid);
+            } else {
+                $this->schemadata = AccessTable::getLookupAccess($table, $rid);
+            }
         } catch (StructException $ignore) {
             return false;
         }

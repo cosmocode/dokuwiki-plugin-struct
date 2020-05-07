@@ -139,7 +139,7 @@ class action_plugin_struct_entry extends DokuWiki_Action_Plugin
             // clear all data on delete unless it's a move operation
             $tables = $assignments->getPageAssignments($event->data['id']);
             foreach ($tables as $table) {
-                $schemaData = AccessTable::byTableName($table, $event->data['id'], time());
+                $schemaData = AccessTable::getPageAccess($table, $event->data['id']);
                 if ($schemaData->getSchema()->isEditable()) {
                     $schemaData->clearData();
                 }

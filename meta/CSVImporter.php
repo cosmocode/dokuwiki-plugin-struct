@@ -213,15 +213,13 @@ class CSVImporter
         $pid = isset($data['pid']) ? $data['pid'] : '';
         unset($data['pid']);
         $table = $this->schema->getTable();
-        // page data accessor requires a timestamp of a revision
-        $ts = ($this->type === 'page') ? time() : 0;
-        $access = AccessTable::byTableName($table, $pid, $ts);
 
         /** @var 'helper_plugin_struct $helper */
         $helper = plugin_load('helper', 'struct');
         if ($this->type === 'page') {
             $helper->saveData($pid, [$table => $data], 'CSV data imported');
         } else {
+            $access = AccessTable::getLookupAccess($table);
             $helper->saveLookupData($access, $data);
         }
     }

@@ -55,7 +55,7 @@ class action_plugin_struct_diff extends DokuWiki_Action_Plugin
         $event->result .= "\n---- struct data ----\n";
         foreach ($tables as $table) {
             try {
-                $schemadata = AccessTable::byTableName($table, $id, $rev);
+                $schemadata = AccessTable::getPageAccess($table, $id, $rev);
             } catch (StructException $ignored) {
                 continue; // no such schema at this revision
             }

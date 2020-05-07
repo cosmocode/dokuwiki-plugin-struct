@@ -56,7 +56,7 @@ class helper_plugin_struct extends DokuWiki_Plugin
 
         $result = array();
         foreach ($schemas as $schema) {
-            $schemaData = AccessTable::byTableName($schema, $page, $time);
+            $schemaData = AccessTable::getPageAccess($schema, $page, $time);
             $result[$schema] = $schemaData->getDataArray();
         }
 
