@@ -11,6 +11,7 @@ use dokuwiki\Form\Form;
 use dokuwiki\plugin\struct\meta\CSVExporter;
 use dokuwiki\plugin\struct\meta\CSVImporter;
 use dokuwiki\plugin\struct\meta\CSVPageImporter;
+use dokuwiki\plugin\struct\meta\CSVSerialImporter;
 use dokuwiki\plugin\struct\meta\Schema;
 use dokuwiki\plugin\struct\meta\SchemaBuilder;
 use dokuwiki\plugin\struct\meta\SchemaEditor;
@@ -83,10 +84,11 @@ class admin_plugin_struct_schemas extends DokuWiki_Admin_Plugin
         if ($table && $INPUT->bool('importcsv')) {
             if (isset($_FILES['csvfile']['tmp_name'])) {
                 try {
-                    // FIXME
                     $datatype = $INPUT->str('importtype');
-                    if ($datatype === 'page') {
+                    if ($datatype === CSVExporter::DATATYPE_PAGE) {
                         $csvImporter = new CSVPageImporter($table, $_FILES['csvfile']['tmp_name'], $datatype);
+                    } else if ($datatype === CSVExporter::DATATYPE_SERIAL) {
+                        $csvImporter = new CSVSerialImporter($table, $_FILES['csvfile']['tmp_name'], $datatype);
                     } else {
                         $csvImporter = new CSVImporter($table, $_FILES['csvfile']['tmp_name'], $datatype);
                     }

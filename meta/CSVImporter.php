@@ -111,7 +111,7 @@ class CSVImporter
         $this->line++;
 
         // we might have to create a page column first
-        if ($this->type !== 'lookup') {
+        if ($this->type !== CSVExporter::DATATYPE_LOOKUP) {
             $pageType = new Page(null, 'pid');
             $pidCol = new Column(0, $pageType, 0, true, $this->schema->getTable());
             $this->columns[] = $pidCol;
@@ -216,12 +216,16 @@ class CSVImporter
 
         /** @var 'helper_plugin_struct $helper */
         $helper = plugin_load('helper', 'struct');
-        if ($this->type === 'page') {
+        if ($this->type === CSVExporter::DATATYPE_PAGE) {
             $helper->saveData($pid, [$table => $data], 'CSV data imported');
+            return;
+        }
+        if ($this->type === CSVExporter::DATATYPE_SERIAL) {
+            $access = AccessTable::getSerialAccess($table, $pid);
         } else {
             $access = AccessTable::getLookupAccess($table);
-            $helper->saveLookupData($access, $data);
         }
+        $helper->saveLookupData($access, $data);
     }
 
     /**

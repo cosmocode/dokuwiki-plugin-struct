@@ -14,6 +14,10 @@ namespace dokuwiki\plugin\struct\meta;
  */
 class CSVExporter
 {
+    const DATATYPE_PAGE = 'page';
+    const DATATYPE_LOOKUP = 'lookup';
+    const DATATYPE_SERIAL = 'serial';
+
     protected $type = '';
 
     /**
@@ -32,13 +36,13 @@ class CSVExporter
         $search->addColumn('*');
         $result = $search->execute();
 
-        if ($this->type !== 'lookup') {
+        if ($this->type !== self::DATATYPE_LOOKUP) {
             $pids = $search->getPids();
         }
 
         echo $this->header($search->getColumns());
         foreach ($result as $i => $row) {
-            if ($this->type !== 'lookup') {
+            if ($this->type !== self::DATATYPE_LOOKUP) {
                 $pid = $pids[$i];
             } else {
                 $pid = '';
@@ -57,7 +61,7 @@ class CSVExporter
     {
         $row = '';
 
-        if ($this->type !== 'lookup') {
+        if ($this->type !== self::DATATYPE_LOOKUP) {
             $row .= $this->escape('pid');
             $row .= ',';
         }
@@ -79,7 +83,7 @@ class CSVExporter
     protected function row($values, $pid)
     {
         $row = '';
-        if ($this->type !== 'lookup') {
+        if ($this->type !== self::DATATYPE_LOOKUP) {
             $row .= $this->escape($pid);
             $row .= ',';
         }
