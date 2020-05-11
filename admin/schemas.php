@@ -204,9 +204,15 @@ class admin_plugin_struct_schemas extends DokuWiki_Admin_Plugin
         $form->addTagOpen('legend');
         $form->addHTML($this->getLang('admin_csvexport_datatype'));
         $form->addTagClose('legend');
-        $form->addRadioButton('exporttype', $this->getLang('admin_csv_page'))->val('page')->attr('checked', 'checked');
-        $form->addRadioButton('exporttype', $this->getLang('admin_csv_lookup'))->val('lookup');
-        $form->addRadioButton('exporttype', $this->getLang('admin_csv_serial'))->val('serial');
+        $form->addRadioButton('exporttype', $this->getLang('admin_csv_page'))
+            ->val('page')
+            ->attr('checked', 'checked')->addClass('edit block');
+        $form->addRadioButton('exporttype', $this->getLang('admin_csv_lookup'))
+            ->val('lookup')
+            ->addClass('edit block');
+        $form->addRadioButton('exporttype', $this->getLang('admin_csv_serial'))
+            ->val('serial')
+            ->addClass('edit block');
         $form->addHTML('<br>');
         $form->addButton('exportcsv', $this->getLang('btn_export'));
         $form->addFieldsetClose();
@@ -215,9 +221,16 @@ class admin_plugin_struct_schemas extends DokuWiki_Admin_Plugin
         $form->addTagOpen('legend');
         $form->addHTML($this->getLang('admin_csvimport_datatype'));
         $form->addTagClose('legend');
-        $form->addRadioButton('importtype', $this->getLang('admin_csv_page'))->val('page')->attr('checked', 'checked');
-        $form->addRadioButton('importtype', $this->getLang('admin_csv_lookup'))->val('lookup');
-        $form->addRadioButton('importtype', $this->getLang('admin_csv_serial'))->val('serial');
+        $form->addRadioButton('importtype', $this->getLang('admin_csv_page'))
+            ->val('page')
+            ->attr('checked', 'checked')
+            ->addClass('edit block');
+        $form->addRadioButton('importtype', $this->getLang('admin_csv_lookup'))
+            ->val('lookup')
+            ->addClass('edit block');
+        $form->addRadioButton('importtype', $this->getLang('admin_csv_serial'))
+            ->val('serial')
+            ->addClass('edit block');
         $form->addHTML('<br>');
         $form->addElement(new \dokuwiki\Form\InputElement('file', 'csvfile'))->attr('accept', '.csv');
         $form->addButton('importcsv', $this->getLang('btn_import'));
