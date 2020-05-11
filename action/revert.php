@@ -76,8 +76,8 @@ class action_plugin_struct_revert extends DokuWiki_Action_Plugin
         //  we load the data to restore from DB:
         $tosave = $assignments->getPageAssignments($event->data['id']);
         foreach ($tosave as $table) {
-            $accessOld = AccessTable::byTableName($table, $event->data['id'], $REV);
-            $accessNew = AccessTable::byTableName($table, $event->data['id'], $event->data['newRevision']);
+            $accessOld = AccessTable::getPageAccess($table, $event->data['id'], $REV);
+            $accessNew = AccessTable::getPageAccess($table, $event->data['id'], $event->data['newRevision']);
             $accessNew->saveData($accessOld->getDataArray());
 
             // make sure this schema is assigned

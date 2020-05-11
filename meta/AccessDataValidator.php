@@ -49,8 +49,7 @@ class AccessDataValidator extends ValueValidator
         $assignments = Assignments::getInstance();
         $tables = $assignments->getPageAssignments($pageid);
         foreach ($tables as $table) {
-            // FIXME pass some revision ts or we get the wrong type of access!
-            $access = AccessTable::byTableName($table, $pageid, time());
+            $access = AccessTable::getPageAccess($table, $pageid);
             $validation = $access->getValidator($data[$table]);
             if (!$validation->validate()) {
                 $valid = false;

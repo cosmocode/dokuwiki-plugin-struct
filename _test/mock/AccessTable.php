@@ -8,7 +8,14 @@ use dokuwiki\plugin\struct\meta\Schema;
 
 abstract class AccessTable extends meta\AccessTable {
 
+    public static function getPageAccess($tablename, $pid, $ts = 0)
+    {
+        $schema = new Schema($tablename, $ts);
+        return new AccessTableData($schema, $pid, $ts, 0);
+    }
+
     /**
+     * @deprecated
      * @param Schema $schema
      * @param int|string $pid
      * @param int $ts
@@ -22,6 +29,14 @@ abstract class AccessTable extends meta\AccessTable {
         return new AccessTableLookup($schema, $pid, $ts, $rid);
     }
 
+    /**
+     * @deprecated
+     * @param string $tablename
+     * @param string $pid
+     * @param int $ts
+     * @param int $rid
+     * @return meta\AccessTableData|AccessTableLookup|AccessTableData
+     */
     public static function byTableName($tablename, $pid, $ts = 0, $rid = 0) {
         $schema = new Schema($tablename, $ts);
         return self::bySchema($schema, $pid, $ts); // becuse we have a static call here we can not rely on inheritance

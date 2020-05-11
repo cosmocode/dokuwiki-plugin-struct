@@ -158,7 +158,7 @@ class action_plugin_struct_bureaucracy extends DokuWiki_Action_Plugin
         $assigned = $assignments->getPageAssignments($id);
         foreach ($tosave as $table => $data) {
             if (!in_array($table, $assigned)) continue;
-            $access = AccessTable::byTableName($table, $id, $time);
+            $access = AccessTable::getPageAccess($table, $id, $time);
             $validator = $access->getValidator($data);
             if ($validator->validate()) {
                 $validator->saveData($time);

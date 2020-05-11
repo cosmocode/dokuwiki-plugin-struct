@@ -11,6 +11,10 @@ namespace dokuwiki\plugin\struct\meta;
  */
 class AccessTableLookup extends AccessTable
 {
+    public function __construct($table, $pid, $ts = 0, $rid = 0)
+    {
+        parent::__construct($table, $pid, $ts, $rid);
+    }
 
     /**
      * Remove the current data

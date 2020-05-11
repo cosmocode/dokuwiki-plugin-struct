@@ -43,9 +43,8 @@ class action_plugin_struct_search extends DokuWiki_Action_Plugin
         $tables = $assignments->getPageAssignments($id);
         if (!$tables) return;
 
-        $now = time();
         foreach ($tables as $table) {
-            $schemadata = AccessTable::byTableName($table, $id, $now);
+            $schemadata = AccessTable::getPageAccess($table, $id);
             $event->data['body'] .= $schemadata->getDataPseudoSyntax();
         }
     }
@@ -65,9 +64,8 @@ class action_plugin_struct_search extends DokuWiki_Action_Plugin
         $tables = $assignments->getPageAssignments($id);
         if (!$tables) return;
 
-        $now = time();
         foreach ($tables as $table) {
-            $schemadata = AccessTable::byTableName($table, $id, $now);
+            $schemadata = AccessTable::getPageAccess($table, $id);
             $event->data['text'] .= $schemadata->getDataPseudoSyntax();
         }
     }

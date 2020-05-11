@@ -175,7 +175,10 @@ class action_plugin_struct_lookup extends DokuWiki_Action_Plugin
      */
     protected function getAccess($tablename)
     {
-        return AccessTable::byTableName($tablename, $this->pid, 0, $this->rid);
+        if ($this->pid) {
+            return AccessTable::getSerialAccess($tablename, $this->pid, $this->rid);
+        }
+        return AccessTable::getLookupAccess($tablename);
     }
 
     /**

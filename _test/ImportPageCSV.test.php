@@ -31,7 +31,7 @@ class ImportPageCSV extends StructTest
         $assignment->addPattern('wiki:syntax', 'schema1');
         $csvImporter->import();
 
-        $schemaData = mock\AccessTable::byTableName('schema1', 'wiki:syntax', time());
+        $schemaData = mock\AccessTable::getPageAccess('schema1', 'wiki:syntax');
         $actual_data = $schemaData->getDataFromDB();
 
         $expected_data = array(
@@ -79,7 +79,7 @@ fifth: @@fifth@@
         $csvImporter->import();
 
         // assert
-        $schemaData = mock\AccessTable::byTableName('schema1', $pageID, time());
+        $schemaData = mock\AccessTable::getPageAccess('schema1', $pageID);
         $actual_data = $schemaData->getDataFromDB();
         $expected_data = array(
             array(

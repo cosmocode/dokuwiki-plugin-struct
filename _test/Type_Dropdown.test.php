@@ -42,7 +42,7 @@ class Type_Dropdown_struct_test extends StructTest {
     public function test_data() {
         $this->preparePages();
 
-        $access = AccessTable::byTableName('dropdowns', 'test1', time());
+        $access = AccessTable::getPageAccess('dropdowns', 'test1');
         $data = $access->getData();
 
         $this->assertEquals('John', $data['drop3']->getValue());

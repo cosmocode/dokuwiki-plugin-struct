@@ -52,10 +52,28 @@ abstract class AccessTable
      */
     protected $multiValues;
 
+    public static function getPageAccess($tablename, $pid, $ts = 0)
+    {
+        $schema = new Schema($tablename, $ts);
+        return new AccessTableData($schema, $pid, $ts, 0);
+    }
+
+    public static function getSerialAccess($tablename, $pid, $rid = 0)
+    {
+        $schema = new Schema($tablename, 0);
+        return new AccessTableSerial($schema, $pid, 0, $rid);
+    }
+
+    public static function getLookupAccess($tablename, $rid = 0)
+    {
+        $schema = new Schema($tablename, 0);
+        return new AccessTableLookup($schema, '', 0, $rid);
+    }
 
     /**
      * Factory method returning the appropriate data accessor (page, lookup or serial)
      *
+     * @deprecated
      * @param Schema $schema schema to load
      * @param string $pid Page id to access
      * @param int $ts Time at which the data should be read or written
@@ -64,7 +82,7 @@ abstract class AccessTable
      */
     public static function bySchema(Schema $schema, $pid, $ts = 0, $rid = 0)
     {
-        if (self::isTypePage($pid, $ts, $rid)) {
+        if (self::isTypePage($pid, $ts)) {
             return new AccessTableData($schema, $pid, $ts, $rid);
         }
         return new AccessTableLookup($schema, $pid, $ts, $rid);
@@ -73,6 +91,8 @@ abstract class AccessTable
     /**
      * Factory Method to access data
      *
+     * @deprecated  Use specific methods since we can no longer
+     *              guarantee instantiating the required descendant class
      * @param string $tablename schema to load
      * @param string $pid Page id to access
      * @param int $ts Time at which the data should be read or written
@@ -83,7 +103,7 @@ abstract class AccessTable
     {
         // force loading the latest schema for anything other than page data,
         // for which we might actually need the history
-        if (!self::isTypePage($pid, $ts, $rid)) {
+        if (!self::isTypePage($pid, $ts)) {
             $schema = new Schema($tablename, time());
         } else {
             $schema = new Schema($tablename, $ts);
@@ -99,7 +119,7 @@ abstract class AccessTable
      * @param int $ts Time at which the data should be read or written, 0 for now
      * @param int $rid Row id: 0 for pages, autoincremented for other types
      */
-    public function __construct(Schema $schema, $pid, $ts = 0, $rid = 0)
+    public function __construct($schema, $pid, $ts = 0, $rid = 0)
     {
         /** @var \helper_plugin_struct_db $helper */
         $helper = plugin_load('helper', 'struct_db');
@@ -161,7 +181,6 @@ abstract class AccessTable
      * We differentiate between single-value-column and multi-value-column by the value to the respective column-name,
      * i.e. depending on if that is a string or an array, respectively.
      *
-     * @fixme we need a flag here to disable per-save db transactions if this is executed in bulk
      * @param array $data typelabel => value for single fields or typelabel => array(value, value, ...) for multi fields
      * @return bool success of saving the data to the database
      */
@@ -386,7 +405,7 @@ abstract class AccessTable
      */
     protected function getDataFromDB()
     {
-        $idColumn = self::isTypePage($this->pid, $this->ts, $this->rid) ? 'pid' : 'rid';
+        $idColumn = self::isTypePage($this->pid, $this->ts) ? 'pid' : 'rid';
         list($sql, $opt) = $this->buildGetDataSQL($idColumn);
 
         $res = $this->sqlite->query($sql, $opt);
@@ -532,7 +551,7 @@ abstract class AccessTable
      * @param int $rid
      * @return bool
      */
-    public static function isTypePage($pid, $rev, $rid)
+    public static function isTypePage($pid, $rev)
     {
         return $rev > 0;
     }
@@ -545,7 +564,7 @@ abstract class AccessTable
      * @param int $rid
      * @return bool
      */
-    public static function isTypeLookup($pid, $rev, $rid)
+    public static function isTypeLookup($pid, $rev)
     {
         return $pid === '';
     }
@@ -558,7 +577,7 @@ abstract class AccessTable
      * @param int $rid
      * @return bool
      */
-    public static function isTypeSerial($pid, $rev, $rid)
+    public static function isTypeSerial($pid, $rev)
     {
         return $pid !== '' && $rev === 0;
     }
