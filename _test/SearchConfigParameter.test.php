@@ -230,7 +230,7 @@ class SearchConfigParameter_struct_test extends StructTest {
         $aggregationTable->render();
 
         $rev = time();
-        $expect = '<div class="structaggregation"><div class="table"><table class="inline">
+        $expect_html = '<div class="structaggregation"><div class="table"><table class="inline">
 	<thead>
 	<tr class="row0">
 		<th class="col0">#</th><th  data-field="schema2.afirst"><a href="/./doku.php?id=test_pagination&amp;ofs=5&amp;srt=schema2.afirst" class="" title="Sort by this column">afirst</a></th>
@@ -256,6 +256,15 @@ class SearchConfigParameter_struct_test extends StructTest {
 </table></div>
 </div>';
 
-        $this->assertEquals($expect, $R->doc);
+        $pq = \phpQuery::newDocument($expect_html);
+        $tr1 = $pq->find(".row1");
+        $this->assertEquals('6page14 first data', trim($tr1->text()));
+        $this->assertEquals('page14', $tr1->attr('data-pid'));
+        $this->assertEquals('0', $tr1->attr('data-rid'));
+        $this->assertEquals($rev, $tr1->attr('data-rev'));
+
+        $tr6aPrev = $pq->find(".row6 a.prev");
+        $this->assertEquals('/./doku.php?id=test_pagination', $tr6aPrev->attr('href'));
+
     }
 }
