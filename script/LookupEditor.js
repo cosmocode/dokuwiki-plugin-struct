@@ -21,17 +21,17 @@ var LookupEditor = function (idx, table) {
                 return;
             }
 
-            var pid = $me.data('pid');
+            var rid = $me.data('rid');
 
             // empty header cells
-            if (!pid) {
+            if (!rid) {
                 $me.append('<th class="action"></th>');
                 return;
             }
 
             // delete buttons for rows
             var $td = jQuery('<td class="action"></td>');
-            if (pid === '') return;
+            if (rid === '') return;
 
             var $btn = jQuery('<button><i class="ui-icon ui-icon-trash"></i></button>')
                 .addClass('delete')
@@ -45,7 +45,7 @@ var LookupEditor = function (idx, table) {
                         {
                             call: 'plugin_struct_lookup_delete',
                             schema: schema,
-                            pid: pid,
+                            rid: rid,
                             sectok: $me.parents('.structlookup').find('.struct_entry_form input[name=sectok]').val()
                         }
                     )
@@ -79,6 +79,16 @@ var LookupEditor = function (idx, table) {
             name: 'searchconf',
             value: $agg.attr('data-searchconf')
         }).appendTo($form); // add the search config to the form
+
+        // if page id needs to be passed to backend, add pid
+        const searchconf = JSON.parse($agg.attr('data-searchconf'));
+        if (searchconf['withpid']) {
+            jQuery('<input>').attr({
+                type: 'hidden',
+                name: 'pid',
+                value: JSINFO.id
+            }).appendTo($form); // add the page id to the form
+        }
         $agg.append($form);
         EntryEditor($form);
 

@@ -9,7 +9,8 @@ use dokuwiki\plugin\struct\types\AutoSummary;
 use dokuwiki\plugin\struct\types\Text;
 use dokuwiki\plugin\struct\types\User;
 
-class Search {
+class Search
+{
     /**
      * This separator will be used to concat multi values to flatten them in the result set
      */
@@ -19,7 +20,7 @@ class Search {
      * The list of known and allowed comparators
      * (order matters)
      */
-    static public $COMPARATORS = array(
+    public static $COMPARATORS = array(
         '<=', '>=', '=*', '=', '<', '>', '!=', '!~', '~', 'IN'
     );
 
@@ -51,11 +52,16 @@ class Search {
     protected $count = -1;
     /** @var  string[] the PIDs of the result rows */
     protected $result_pids = null;
+    /** @var  array the row ids of the result rows */
+    protected $result_rids = [];
+    /** @var  array the revisions of the result rows */
+    protected $result_revs = [];
 
     /**
      * Search constructor.
      */
-    public function __construct() {
+    public function __construct()
+    {
         /** @var \helper_plugin_struct_db $plugin */
         $plugin = plugin_load('helper', 'struct_db');
         $this->sqlite = $plugin->getDB();
@@ -69,23 +75,15 @@ class Search {
      * @param string $table
      * @param string $alias
      */
-    public function addSchema($table, $alias = '') {
+    public function addSchema($table, $alias = '')
+    {
         $schema = new Schema($table);
-        if(!$schema->getId()) {
+        if (!$schema->getId()) {
             throw new StructException('schema missing', $table);
         }
 
-        if($this->schemas &&
-            (
-                $schema->isLookup() ||
-                reset($this->schemas)->isLookup()
-            )
-        ) {
-            throw new StructException('nolookupmix');
-        }
-
         $this->schemas[$schema->getTable()] = $schema;
-        if($alias) $this->aliases[$alias] = $schema->getTable();
+        if ($alias) $this->aliases[$alias] = $schema->getTable();
     }
 
     /**
@@ -96,10 +94,11 @@ class Search {
      *
      * @param string $colname may contain an alias
      */
-    public function addColumn($colname) {
-        if($this->processWildcard($colname)) return; // wildcard?
+    public function addColumn($colname)
+    {
+        if ($this->processWildcard($colname)) return; // wildcard?
         $col = $this->findColumn($colname);
-        if(!$col) return; //FIXME do we really want to ignore missing columns?
+        if (!$col) return; //FIXME do we really want to ignore missing columns?
         $this->columns[] = $col;
     }
 
@@ -113,9 +112,10 @@ class Search {
      * @param bool $asc sort direction (ASC = true, DESC = false)
      * @param bool $nc set true for caseinsensitivity
      */
-    public function addSort($colname, $asc = true, $nc = true) {
+    public function addSort($colname, $asc = true, $nc = true)
+    {
         $col = $this->findColumn($colname);
-        if(!$col) return; //FIXME do we really want to ignore missing columns?
+        if (!$col) return; //FIXME do we really want to ignore missing columns?
 
         $this->sortby[$col->getFullQualifiedLabel()] = array($col, $asc, $nc);
     }
@@ -125,7 +125,8 @@ class Search {
      *
      * @return array
      */
-    public function getSorts() {
+    public function getSorts()
+    {
         return $this->sortby;
     }
 
@@ -137,24 +138,25 @@ class Search {
      * @param string $comp @see self::COMPARATORS
      * @param string $op either 'OR' or 'AND'
      */
-    public function addFilter($colname, $value, $comp, $op = 'OR') {
+    public function addFilter($colname, $value, $comp, $op = 'OR')
+    {
         /* Convert certain filters into others
          * this reduces the number of supported filters to implement in types */
-        if($comp == '*~') {
+        if ($comp == '*~') {
             $value = $this->filterWrapAsterisks($value);
             $comp = '~';
-        } elseif($comp == '<>') {
+        } elseif ($comp == '<>') {
             $comp = '!=';
         }
 
-        if(!in_array($comp, self::$COMPARATORS)) throw new StructException("Bad comperator. Use " . join(',', self::$COMPARATORS));
-        if($op != 'OR' && $op != 'AND') throw new StructException('Bad filter type . Only AND or OR allowed');
+        if (!in_array($comp, self::$COMPARATORS)) throw new StructException("Bad comperator. Use " . join(',', self::$COMPARATORS));
+        if ($op != 'OR' && $op != 'AND') throw new StructException('Bad filter type . Only AND or OR allowed');
 
         $col = $this->findColumn($colname);
-        if(!$col) return; // ignore missing columns, filter might have been for different schema
+        if (!$col) return; // ignore missing columns, filter might have been for different schema
 
         // map filter operators to SQL syntax
-        switch($comp) {
+        switch ($comp) {
             case '~':
                 $comp = 'LIKE';
                 break;
@@ -167,7 +169,7 @@ class Search {
         }
 
         // we use asterisks, but SQL wants percents
-        if($comp == 'LIKE' || $comp == 'NOT LIKE') {
+        if ($comp == 'LIKE' || $comp == 'NOT LIKE') {
             $value = $this->filterChangeToLike($value);
         }
 
@@ -187,33 +189,39 @@ class Search {
      * @param string $value
      * @return string[]
      */
-    protected function parseFilterValueList($value) {
+    protected function parseFilterValueList($value)
+    {
         $Handler = new FilterValueListHandler();
-        $Lexer = new \Doku_Lexer($Handler, 'base', true);
+        $LexerClass = class_exists('\Doku_Lexer') ? '\Doku_Lexer' : '\dokuwiki\Parsing\Lexer\Lexer';
+        $isLegacy = $LexerClass === '\Doku_Lexer';
+        /** @var \Doku_Lexer|\dokuwiki\Parsing\Lexer\Lexer $Lexer */
+        $Lexer = new $LexerClass($Handler, 'base', true);
 
-        $Lexer->addEntryPattern('\(','base','row');
-        $Lexer->addPattern('\s*,\s*','row');
-        $Lexer->addExitPattern('\)','row');
+
+        $Lexer->addEntryPattern('\(', 'base', 'row');
+        $Lexer->addPattern('\s*,\s*', 'row');
+        $Lexer->addExitPattern('\)', 'row');
 
         $Lexer->addEntryPattern('"', 'row', 'double_quote_string');
-        $Lexer->addSpecialPattern('\\\\"','double_quote_string','escape_sequence');
+        $Lexer->addSpecialPattern('\\\\"', 'double_quote_string', 'escapeSequence');
         $Lexer->addExitPattern('"', 'double_quote_string');
 
-        $Lexer->addEntryPattern("'", 'row', 'single_quote_string');
-        $Lexer->addSpecialPattern("\\\\'",'single_quote_string','escape_sequence');
-        $Lexer->addExitPattern("'", 'single_quote_string');
+        $Lexer->addEntryPattern("'", 'row', 'singleQuoteString');
+        $Lexer->addSpecialPattern("\\\\'", 'singleQuoteString', 'escapeSequence');
+        $Lexer->addExitPattern("'", 'singleQuoteString');
 
-        $Lexer->mapHandler('double_quote_string','single_quote_string');
+        $Lexer->mapHandler('double_quote_string', 'singleQuoteString');
 
-        $Lexer->addSpecialPattern('[-+]?[0-9]*\.?[0-9]+(?:[eE][-+]?[0-9]+)?','row','number');
+        $Lexer->addSpecialPattern('[-+]?[0-9]*\.?[0-9]+(?:[eE][-+]?[0-9]+)?', 'row', 'number');
 
         $res = $Lexer->parse($value);
 
-        if (!$res || $Lexer->_mode->getCurrent() != 'base') {
+        $currentMode = $isLegacy ? $Lexer->_mode->getCurrent() : $Lexer->getModeStack()->getCurrent();
+        if (!$res || $currentMode != 'base') {
             throw new StructException('invalid row value syntax');
         }
 
-        return $Handler->get_row();
+        return $Handler->getRow();
     }
 
     /**
@@ -222,12 +230,13 @@ class Search {
      * @param string|string[] $value
      * @return string|string[]
      */
-    protected function filterWrapAsterisks($value) {
+    protected function filterWrapAsterisks($value)
+    {
         $map = function ($input) {
             return "*$input*";
         };
 
-        if(is_array($value)) {
+        if (is_array($value)) {
             $value = array_map($map, $value);
         } else {
             $value = $map($value);
@@ -241,12 +250,13 @@ class Search {
      * @param string|string[] $value
      * @return string|string[]
      */
-    protected function filterChangeToLike($value) {
+    protected function filterChangeToLike($value)
+    {
         $map = function ($input) {
             return str_replace('*', '%', $input);
         };
 
-        if(is_array($value)) {
+        if (is_array($value)) {
             $value = array_map($map, $value);
         } else {
             $value = $map($value);
@@ -259,14 +269,15 @@ class Search {
      *
      * @param int $offset
      */
-    public function setOffset($offset) {
+    public function setOffset($offset)
+    {
         $limit = 0;
-        if($this->range_end) {
+        if ($this->range_end) {
             // if there was a limit set previously, the range_end needs to be recalculated
             $limit = $this->range_end - $this->range_begin;
         }
         $this->range_begin = $offset;
-        if($limit) $this->setLimit($limit);
+        if ($limit) $this->setLimit($limit);
     }
 
     /**
@@ -274,8 +285,9 @@ class Search {
      *
      * @param int $limit Set to 0 to disable limit again
      */
-    public function setLimit($limit) {
-        if($limit) {
+    public function setLimit($limit)
+    {
+        if ($limit) {
             $this->range_end = $this->range_begin + $limit;
         } else {
             $this->range_end = 0;
@@ -289,8 +301,9 @@ class Search {
      *
      * @return int
      */
-    public function getCount() {
-        if($this->count < 0) throw new StructException('Count is only accessible after executing the search');
+    public function getCount()
+    {
+        if ($this->count < 0) throw new StructException('Count is only accessible after executing the search');
         return $this->count;
     }
 
@@ -301,9 +314,36 @@ class Search {
      *
      * @return \string[]
      */
-    public function getPids() {
-        if($this->result_pids === null) throw new StructException('PIDs are only accessible after executing the search');
+    public function getPids()
+    {
+        if ($this->result_pids === null) throw new StructException('PIDs are only accessible after executing the search');
         return $this->result_pids;
+    }
+
+    /**
+     * Returns the rid associated with each result row
+     *
+     * Important: this may only be called after running @see execute()
+     *
+     * @return array
+     */
+    public function getRids()
+    {
+        if ($this->result_rids === null) throw new StructException('rids are only accessible after executing the search');
+        return $this->result_rids;
+    }
+
+    /**
+     * Returns the rid associated with each result row
+     *
+     * Important: this may only be called after running @see execute()
+     *
+     * @return array
+     */
+    public function getRevs()
+    {
+        if ($this->result_revs === null) throw new StructException('revs are only accessible after executing the search');
+        return $this->result_revs;
     }
 
     /**
@@ -316,12 +356,13 @@ class Search {
      *
      * @return Value[][]
      */
-    public function execute() {
+    public function execute()
+    {
         list($sql, $opts) = $this->getSQL();
 
         /** @var \PDOStatement $res */
         $res = $this->sqlite->query($sql, $opts);
-        if($res === false) throw new StructException("SQL execution failed for\n\n$sql");
+        if ($res === false) throw new StructException("SQL execution failed for\n\n$sql");
 
         $this->result_pids = array();
         $result = array();
@@ -329,17 +370,17 @@ class Search {
         $pageidAndRevOnly = array_reduce($this->columns, function ($pageidAndRevOnly, Column $col) {
             return $pageidAndRevOnly && ($col->getTid() == 0);
         }, true);
-        while($row = $res->fetch(\PDO::FETCH_ASSOC)) {
+        while ($row = $res->fetch(\PDO::FETCH_ASSOC)) {
             $cursor++;
-            if($cursor < $this->range_begin) continue;
-            if($this->range_end && $cursor >= $this->range_end) continue;
+            if ($cursor < $this->range_begin) continue;
+            if ($this->range_end && $cursor >= $this->range_end) continue;
 
             $C = 0;
             $resrow = array();
             $isempty = true;
-            foreach($this->columns as $col) {
+            foreach ($this->columns as $col) {
                 $val = $row["C$C"];
-                if($col->isMulti()) {
+                if ($col->isMulti()) {
                     $val = explode(self::CONCAT_SEPARATOR, $val);
                 }
                 $value = new Value($col, $val);
@@ -349,12 +390,14 @@ class Search {
             }
 
             // skip empty rows
-            if($isempty && !$pageidAndRevOnly) {
+            if ($isempty && !$pageidAndRevOnly) {
                 $cursor--;
                 continue;
             }
 
             $this->result_pids[] = $row['PID'];
+            $this->result_rids[] = $row['rid'];
+            $this->result_revs[] = $row['rev'];
             $result[] = $resrow;
         }
 
@@ -368,33 +411,47 @@ class Search {
      *
      * @return array ($sql, $opts) The SQL and parameters to execute
      */
-    public function getSQL() {
-        if(!$this->columns) throw new StructException('nocolname');
+    public function getSQL()
+    {
+        if (!$this->columns) throw new StructException('nocolname');
 
         $QB = new QueryBuilder();
 
         // basic tables
         $first_table = '';
-        foreach($this->schemas as $schema) {
+        foreach ($this->schemas as $schema) {
             $datatable = 'data_' . $schema->getTable();
-            if($first_table) {
+            if ($first_table) {
                 // follow up tables
                 $QB->addLeftJoin($first_table, $datatable, $datatable, "$first_table.pid = $datatable.pid");
             } else {
                 // first table
-
-                if(!$schema->isLookup()) {
-                    $QB->addTable('schema_assignments');
-                    $QB->filters()->whereAnd("$datatable.pid = schema_assignments.pid");
-                    $QB->filters()->whereAnd("schema_assignments.tbl = '{$schema->getTable()}'");
-                    $QB->filters()->whereAnd("schema_assignments.assigned = 1");
-                    $QB->filters()->whereAnd("GETACCESSLEVEL($datatable.pid) > 0");
-                    $QB->filters()->whereAnd("PAGEEXISTS($datatable.pid) = 1");
-                }
-
                 $QB->addTable($datatable);
+
+                // add conditional page clauses if pid has a value
+                $subAnd = $QB->filters()->whereSubAnd();
+                $subAnd->whereAnd("$datatable.pid = ''");
+                $subOr = $subAnd->whereSubOr();
+                $subOr->whereAnd("GETACCESSLEVEL($datatable.pid) > 0");
+                $subOr->whereAnd("PAGEEXISTS($datatable.pid) = 1");
+                $subOr->whereAnd('(ASSIGNED = 1 OR ASSIGNED IS NULL)');
+
+                // add conditional schema assignment check
+                $QB->addLeftJoin(
+                    $datatable,
+                    'schema_assignments',
+                    '',
+                    "$datatable.pid != ''
+                    AND $datatable.pid = schema_assignments.pid
+                    AND schema_assignments.tbl = '{$schema->getTable()}'"
+                );
+
+                $QB->addSelectColumn($datatable, 'rid');
                 $QB->addSelectColumn($datatable, 'pid', 'PID');
+                $QB->addSelectColumn($datatable, 'rev');
+                $QB->addSelectColumn('schema_assignments', 'assigned', 'ASSIGNED');
                 $QB->addGroupByColumn($datatable, 'pid');
+                $QB->addGroupByColumn($datatable, 'rid');
 
                 $first_table = $datatable;
             }
@@ -404,10 +461,10 @@ class Search {
         // columns to select, handling multis
         $sep = self::CONCAT_SEPARATOR;
         $n = 0;
-        foreach($this->columns as $col) {
+        foreach ($this->columns as $col) {
             $CN = 'C' . $n++;
 
-            if($col->isMulti()) {
+            if ($col->isMulti()) {
                 $datatable = "data_{$col->getTable()}";
                 $multitable = "multi_{$col->getTable()}";
                 $MN = $QB->generateTableAlias('M');
@@ -416,7 +473,7 @@ class Search {
                     $datatable,
                     $multitable,
                     $MN,
-                    "$datatable.pid = $MN.pid AND
+                    "$datatable.pid = $MN.pid AND $datatable.rid = $MN.rid AND
                      $datatable.rev = $MN.rev AND
                      $MN.colref = {$col->getColref()}"
                 );
@@ -434,7 +491,7 @@ class Search {
         if (!empty($this->filter)) {
             $userWHERE = $QB->filters()->where('AND');
         }
-        foreach($this->filter as $filter) {
+        foreach ($this->filter as $filter) {
             /** @var Column $col */
             list($col, $value, $comp, $op) = $filter;
 
@@ -442,14 +499,14 @@ class Search {
             $multitable = "multi_{$col->getTable()}";
 
             /** @var $col Column */
-            if($col->isMulti()) {
+            if ($col->isMulti()) {
                 $MN = $QB->generateTableAlias('MN');
 
                 $QB->addLeftJoin(
                     $datatable,
                     $multitable,
                     $MN,
-                    "$datatable.pid = $MN.pid AND
+                    "$datatable.pid = $MN.pid AND $datatable.rid = $MN.rid AND
                      $datatable.rev = $MN.rev AND
                      $MN.colref = {$col->getColref()}"
                 );
@@ -464,11 +521,11 @@ class Search {
         }
 
         // sorting - we always sort by the single val column
-        foreach($this->sortby as $sort) {
+        foreach ($this->sortby as $sort) {
             list($col, $asc, $nc) = $sort;
             /** @var $col Column */
             $colname = $col->getColName(false);
-            if($nc) $colname .= ' COLLATE NOCASE';
+            if ($nc) $colname .= ' COLLATE NOCASE';
             $col->getType()->sort($QB, 'data_' . $col->getTable(), $colname, $asc ? 'ASC' : 'DESC');
         }
 
@@ -480,7 +537,8 @@ class Search {
      *
      * @return Column[]
      */
-    public function getColumns() {
+    public function getColumns()
+    {
         return $this->columns;
     }
 
@@ -489,7 +547,8 @@ class Search {
      *
      * @return Schema[]
      */
-    public function getSchemas() {
+    public function getSchemas()
+    {
         return array_values($this->schemas);
     }
 
@@ -502,18 +561,19 @@ class Search {
      * @param string $colname
      * @return bool was wildcard?
      */
-    protected function processWildcard($colname) {
+    protected function processWildcard($colname)
+    {
         list($colname, $table) = $this->resolveColumn($colname);
-        if($colname !== '*') return false;
+        if ($colname !== '*') return false;
 
         // no table given? assume the first is meant
-        if($table === null) {
+        if ($table === null) {
             $schema_list = array_keys($this->schemas);
             $table = $schema_list[0];
         }
 
         $schema = $this->schemas[$table];
-        if(!$schema) return false;
+        if (!$schema) return false;
         $this->columns = array_merge($this->columns, $schema->getColumns(false));
         return true;
     }
@@ -526,20 +586,21 @@ class Search {
      * @param $colname
      * @return array (colname, table)
      */
-    protected function resolveColumn($colname) {
-        if(!$this->schemas) throw new StructException('noschemas');
+    protected function resolveColumn($colname)
+    {
+        if (!$this->schemas) throw new StructException('noschemas');
 
         // resolve the alias or table name
         @list($table, $colname) = explode('.', $colname, 2);
-        if(!$colname) {
+        if (!$colname) {
             $colname = $table;
             $table = null;
         }
-        if($table && isset($this->aliases[$table])) {
+        if ($table && isset($this->aliases[$table])) {
             $table = $this->aliases[$table];
         }
 
-        if(!$colname) throw new StructException('nocolname');
+        if (!$colname) throw new StructException('nocolname');
 
         return array($colname, $table);
     }
@@ -550,37 +611,35 @@ class Search {
      * @param string $colname may contain an alias
      * @return bool|Column
      */
-    public function findColumn($colname) {
-        if(!$this->schemas) throw new StructException('noschemas');
+    public function findColumn($colname)
+    {
+        if (!$this->schemas) throw new StructException('noschemas');
         $schema_list = array_keys($this->schemas);
 
         // add "fake" column for special col
-        if(!(reset($this->schemas)->isLookup())) {
-            if($colname == '%pageid%') {
-                return new PageColumn(0, new Page(), $schema_list[0]);
-            }
-            if($colname == '%title%') {
-                return new PageColumn(0, new Page(array('usetitles' => true)), $schema_list[0]);
-            }
-            if($colname == '%lastupdate%') {
-                return new RevisionColumn(0, new DateTime(), $schema_list[0]);
-            }
-            if ($colname == '%lasteditor%') {
-                return new UserColumn(0, new User(), $schema_list[0]);
-            }
-            if ($colname == '%lastsummary%') {
-                return new SummaryColumn(0, new AutoSummary(), $schema_list[0]);
-            }
-        } else {
-            if($colname == '%rowid%') {
-                return new RowColumn(0, new Decimal(), $schema_list[0]);
-            }
+        if ($colname == '%pageid%') {
+            return new PageColumn(0, new Page(), $schema_list[0]);
+        }
+        if ($colname == '%title%') {
+            return new PageColumn(0, new Page(array('usetitles' => true)), $schema_list[0]);
+        }
+        if ($colname == '%lastupdate%') {
+            return new RevisionColumn(0, new DateTime(), $schema_list[0]);
+        }
+        if ($colname == '%lasteditor%') {
+            return new UserColumn(0, new User(), $schema_list[0]);
+        }
+        if ($colname == '%lastsummary%') {
+            return new SummaryColumn(0, new AutoSummary(), $schema_list[0]);
+        }
+        if ($colname == '%rowid%') {
+            return new RowColumn(0, new Decimal(), $schema_list[0]);
         }
 
         list($colname, $table) = $this->resolveColumn($colname);
 
         // if table name given search only that, otherwise try all for matching column name
-        if($table !== null) {
+        if ($table !== null) {
             $schemas = array($table => $this->schemas[$table]);
         } else {
             $schemas = $this->schemas;
@@ -588,12 +647,12 @@ class Search {
 
         // find it
         $col = false;
-        foreach($schemas as $schema) {
-            if(empty($schema)) {
+        foreach ($schemas as $schema) {
+            if (empty($schema)) {
                 continue;
             }
             $col = $schema->findColumn($colname);
-            if($col) break;
+            if ($col) break;
         }
 
         return $col;
@@ -605,11 +664,10 @@ class Search {
      * @param Value $value
      * @return bool
      */
-    protected function isEmptyValue(Value $value) {
+    protected function isEmptyValue(Value $value)
+    {
         if ($value->isEmpty()) return true;
         if ($value->getColumn()->getTid() == 0) return true;
         return false;
     }
 }
-
-

@@ -1,4 +1,5 @@
 <?php
+
 namespace dokuwiki\plugin\struct\types;
 
 use dokuwiki\plugin\struct\meta\QueryBuilder;
@@ -11,7 +12,8 @@ use dokuwiki\plugin\struct\meta\QueryBuilderWhere;
  *
  * @package dokuwiki\plugin\struct\types
  */
-class Page extends AbstractMultiBaseType {
+class Page extends AbstractMultiBaseType
+{
 
     protected $config = array(
         'usetitles' => false,
@@ -31,15 +33,16 @@ class Page extends AbstractMultiBaseType {
      * @param string $mode The mode the output is rendered in (eg. XHTML)
      * @return bool true if $mode could be satisfied
      */
-    public function renderValue($value, \Doku_Renderer $R, $mode) {
-        if($this->config['usetitles']) {
-            list($id, $title) = json_decode($value);
+    public function renderValue($value, \Doku_Renderer $R, $mode)
+    {
+        if ($this->config['usetitles']) {
+            list($id, $title) = \helper_plugin_struct::decodeJson($value);
         } else {
             $id = $value;
             $title = null;
         }
 
-        if(!$id) return true;
+        if (!$id) return true;
 
         $R->internallink(":$id", $title);
         return true;
@@ -51,7 +54,8 @@ class Page extends AbstractMultiBaseType {
      * @param string $rawvalue
      * @return string
      */
-    public function validate($rawvalue) {
+    public function validate($rawvalue)
+    {
         list($page, $fragment) = explode('#', $rawvalue, 2);
         return cleanID($page) . (strlen(cleanID($fragment)) > 0 ? '#' . cleanID($fragment) : '');
     }
@@ -61,40 +65,41 @@ class Page extends AbstractMultiBaseType {
      *
      * @return array
      */
-    public function handleAjax() {
+    public function handleAjax()
+    {
         global $INPUT;
 
         // check minimum length
         $lookup = trim($INPUT->str('search'));
-        if(utf8_strlen($lookup) < $this->config['autocomplete']['mininput']) return array();
+        if (utf8_strlen($lookup) < $this->config['autocomplete']['mininput']) return array();
 
         // results wanted?
         $max = $this->config['autocomplete']['maxresult'];
-        if($max <= 0) return array();
+        if ($max <= 0) return array();
 
         // lookup with namespace and postfix applied
         $namespace = $this->config['autocomplete']['namespace'];
-        if($namespace) {
+        if ($namespace) {
             // namespace may be relative, resolve in current context
             $namespace .= ':foo'; // resolve expects pageID
             resolve_pageid($INPUT->str('ns'), $namespace, $exists);
             $namespace = getNS($namespace);
         }
         $postfix = $this->config['autocomplete']['postfix'];
-        if($namespace) $lookup .= ' @' . $namespace;
+        if ($namespace) $lookup .= ' @' . $namespace;
 
         $data = ft_pageLookup($lookup, true, $this->config['usetitles']);
-        if(!count($data)) return array();
+        if (!count($data)) return array();
 
         // this basically duplicates what we do in ajax_qsearch()
         $result = array();
         $counter = 0;
-        foreach($data as $id => $title) {
-            if($this->config['usetitles']) {
+        foreach ($data as $id => $title) {
+            if ($this->config['usetitles']) {
                 $name = $title . ' (' . $id . ')';
             } else {
                 $ns = getNS($id);
-                if($ns) {
+                if ($ns) {
                     $name = noNS($id) . ' (' . $ns . ')';
                 } else {
                     $name = $id;
@@ -102,7 +107,7 @@ class Page extends AbstractMultiBaseType {
             }
 
             // check suffix
-            if($postfix && substr($id, -1 * strlen($postfix)) != $postfix) {
+            if ($postfix && substr($id, -1 * strlen($postfix)) != $postfix) {
                 continue; // page does not end in postfix, don't suggest it
             }
 
@@ -112,7 +117,7 @@ class Page extends AbstractMultiBaseType {
             );
 
             $counter++;
-            if($counter > $max) break;
+            if ($counter > $max) break;
         }
 
         return $result;
@@ -126,8 +131,9 @@ class Page extends AbstractMultiBaseType {
      * @param string $colname
      * @param string $alias
      */
-    public function select(QueryBuilder $QB, $tablealias, $colname, $alias) {
-        if(!$this->config['usetitles']) {
+    public function select(QueryBuilder $QB, $tablealias, $colname, $alias)
+    {
+        if (!$this->config['usetitles']) {
             parent::select($QB, $tablealias, $colname, $alias);
             return;
         }
@@ -144,8 +150,9 @@ class Page extends AbstractMultiBaseType {
      * @param string $colname
      * @param string $order
      */
-    public function sort(QueryBuilder $QB, $tablealias, $colname, $order) {
-        if(!$this->config['usetitles']) {
+    public function sort(QueryBuilder $QB, $tablealias, $colname, $order)
+    {
+        if (!$this->config['usetitles']) {
             parent::sort($QB, $tablealias, $colname, $order);
             return;
         }
@@ -162,9 +169,10 @@ class Page extends AbstractMultiBaseType {
      * @param string $value
      * @return string
      */
-    public function rawValue($value) {
-        if($this->config['usetitles']) {
-            list($value) = json_decode($value);
+    public function rawValue($value)
+    {
+        if ($this->config['usetitles']) {
+            list($value) = \helper_plugin_struct::decodeJson($value);
         }
         return $value;
     }
@@ -175,9 +183,10 @@ class Page extends AbstractMultiBaseType {
      * @param string $value
      * @return string
      */
-    public function displayValue($value) {
-        if($this->config['usetitles']) {
-            list($pageid, $value) = json_decode($value);
+    public function displayValue($value)
+    {
+        if ($this->config['usetitles']) {
+            list($pageid, $value) = \helper_plugin_struct::decodeJson($value);
             if (blank($value)) {
                 $value = $pageid;
             }
@@ -195,8 +204,9 @@ class Page extends AbstractMultiBaseType {
      * @param string $value
      * @param string $op
      */
-    public function filter(QueryBuilderWhere $add, $tablealias, $colname, $comp, $value, $op) {
-        if(!$this->config['usetitles']) {
+    public function filter(QueryBuilderWhere $add, $tablealias, $colname, $comp, $value, $op)
+    {
+        if (!$this->config['usetitles']) {
             parent::filter($add, $tablealias, $colname, $comp, $value, $op);
             return;
         }
@@ -212,5 +222,4 @@ class Page extends AbstractMultiBaseType {
         $pl = $QB->addValue($value);
         $sub->whereOr("$rightalias.title $comp $pl");
     }
-
 }

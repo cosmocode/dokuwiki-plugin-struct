@@ -1,4 +1,5 @@
 <?php
+
 namespace dokuwiki\plugin\struct\types;
 
 use dokuwiki\plugin\struct\meta\QueryBuilder;
@@ -6,7 +7,8 @@ use dokuwiki\plugin\struct\meta\QueryBuilderWhere;
 use dokuwiki\plugin\struct\meta\StructException;
 use dokuwiki\plugin\struct\meta\ValidationException;
 
-class User extends AbstractMultiBaseType {
+class User extends AbstractMultiBaseType
+{
 
     protected $config = array(
         'existingonly' => true,
@@ -21,14 +23,15 @@ class User extends AbstractMultiBaseType {
      * @param string $rawvalue the user to validate
      * @return int|string|void
      */
-    public function validate($rawvalue) {
+    public function validate($rawvalue)
+    {
         $rawvalue = parent::validate($rawvalue);
 
-        if($this->config['existingonly']) {
+        if ($this->config['existingonly']) {
             /** @var \DokuWiki_Auth_Plugin $auth */
             global $auth;
             $info = $auth->getUserData($rawvalue, false);
-            if($info === false) throw new ValidationException('User not found', $rawvalue);
+            if ($info === false) throw new ValidationException('User not found', $rawvalue);
         }
 
         return $rawvalue;
@@ -40,8 +43,9 @@ class User extends AbstractMultiBaseType {
      * @param string $mode
      * @return bool
      */
-    public function renderValue($value, \Doku_Renderer $R, $mode) {
-        if($mode == 'xhtml') {
+    public function renderValue($value, \Doku_Renderer $R, $mode)
+    {
+        if ($mode == 'xhtml') {
             $name = userlink($value);
             $R->doc .= $name;
         } else {
@@ -57,32 +61,33 @@ class User extends AbstractMultiBaseType {
      * @todo should we have any security mechanism? Currently everybody can look up users
      * @return array
      */
-    public function handleAjax() {
+    public function handleAjax()
+    {
         /** @var \DokuWiki_Auth_Plugin $auth */
         global $auth;
         global $INPUT;
 
-        if(!$auth->canDo('getUsers')) {
+        if (!$auth->canDo('getUsers')) {
             throw new StructException('The user backend can not search for users');
         }
 
         // check minimum length
         $lookup = trim($INPUT->str('search'));
-        if(utf8_strlen($lookup) < $this->config['autocomplete']['mininput']) return array();
+        if (utf8_strlen($lookup) < $this->config['autocomplete']['mininput']) return array();
 
         // results wanted?
         $max = $this->config['autocomplete']['maxresult'];
-        if($max <= 0) return array();
+        if ($max <= 0) return array();
 
         // find users by login, fill up with names if wanted
         $logins = (array) $auth->retrieveUsers(0, $max, array('user' => $lookup));
-        if((count($logins) < $max) && $this->config['autocomplete']['fullname']) {
+        if ((count($logins) < $max) && $this->config['autocomplete']['fullname']) {
             $logins = array_merge($logins, (array) $auth->retrieveUsers(0, $max, array('name' => $lookup)));
         }
 
         // reformat result for jQuery UI Autocomplete
         $users = array();
-        foreach($logins as $login => $info) {
+        foreach ($logins as $login => $info) {
             $users[] = array(
                 'label' => $info['name'] . ' [' . $login . ']',
                 'value' => $login
@@ -100,8 +105,9 @@ class User extends AbstractMultiBaseType {
      * @param string $colname
      * @param string $alias
      */
-    public function select(QueryBuilder $QB, $tablealias, $colname, $alias) {
-        if(is_a($this->context,'dokuwiki\plugin\struct\meta\UserColumn')) {
+    public function select(QueryBuilder $QB, $tablealias, $colname, $alias)
+    {
+        if (is_a($this->context, 'dokuwiki\plugin\struct\meta\UserColumn')) {
             $rightalias = $QB->generateTableAlias();
             $QB->addLeftJoin($tablealias, 'titles', $rightalias, "$tablealias.pid = $rightalias.pid");
             $QB->addSelectStatement("$rightalias.lasteditor", $alias);
@@ -119,8 +125,9 @@ class User extends AbstractMultiBaseType {
      * @param string $colname
      * @param string $order
      */
-    public function sort(QueryBuilder $QB, $tablealias, $colname, $order) {
-        if(is_a($this->context,'dokuwiki\plugin\struct\meta\UserColumn')) {
+    public function sort(QueryBuilder $QB, $tablealias, $colname, $order)
+    {
+        if (is_a($this->context, 'dokuwiki\plugin\struct\meta\UserColumn')) {
             $rightalias = $QB->generateTableAlias();
             $QB->addLeftJoin($tablealias, 'titles', $rightalias, "$tablealias.pid = $rightalias.pid");
             $QB->addOrderBy("$rightalias.lasteditor $order");
@@ -140,8 +147,9 @@ class User extends AbstractMultiBaseType {
      * @param string|\string[] $value
      * @param string $op
      */
-    public function filter(QueryBuilderWhere $add, $tablealias, $colname, $comp, $value, $op) {
-        if(is_a($this->context,'dokuwiki\plugin\struct\meta\UserColumn')) {
+    public function filter(QueryBuilderWhere $add, $tablealias, $colname, $comp, $value, $op)
+    {
+        if (is_a($this->context, 'dokuwiki\plugin\struct\meta\UserColumn')) {
             $QB = $add->getQB();
             $rightalias = $QB->generateTableAlias();
             $QB->addLeftJoin($tablealias, 'titles', $rightalias, "$tablealias.pid = $rightalias.pid");
@@ -155,5 +163,4 @@ class User extends AbstractMultiBaseType {
 
         parent::filter($add, $tablealias, $colname, $comp, $value, $op);
     }
-
 }

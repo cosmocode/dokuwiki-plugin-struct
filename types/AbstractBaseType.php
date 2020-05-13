@@ -1,4 +1,5 @@
 <?php
+
 namespace dokuwiki\plugin\struct\types;
 
 use dokuwiki\plugin\struct\meta\Column;
@@ -20,8 +21,8 @@ use dokuwiki\plugin\struct\meta\Value;
  * @package dokuwiki\plugin\struct\types
  * @see Column
  */
-abstract class AbstractBaseType {
-
+abstract class AbstractBaseType
+{
     use TranslationUtilities;
 
     /**
@@ -66,7 +67,8 @@ abstract class AbstractBaseType {
      * @param bool $ismulti Should this field accept multiple values?
      * @param int $tid The id of this type if it has been saved, yet
      */
-    public function __construct($config = null, $label = '', $ismulti = false, $tid = 0) {
+    public function __construct($config = null, $label = '', $ismulti = false, $tid = 0)
+    {
         // general config options
         $baseconfig = array(
             'visibility' => array(
@@ -76,7 +78,7 @@ abstract class AbstractBaseType {
         );
 
         // use previously saved configuration, ignoring all keys that are not supposed to be here
-        if(!is_null($config)) {
+        if (!is_null($config)) {
             $this->mergeConfig($config, $this->config);
         }
 
@@ -95,10 +97,11 @@ abstract class AbstractBaseType {
      * @param array $current Current configuration
      * @param array $config Base Type configuration
      */
-    protected function mergeConfig($current, &$config) {
-        foreach($current as $key => $value) {
-            if(isset($config[$key]) || in_array($key, $this->keepconfig)) {
-                if(isset($config[$key]) && is_array($config[$key])) {
+    protected function mergeConfig($current, &$config)
+    {
+        foreach ($current as $key => $value) {
+            if (isset($config[$key]) || in_array($key, $this->keepconfig)) {
+                if (isset($config[$key]) && is_array($config[$key])) {
                     $this->mergeConfig($value, $config[$key]);
                 } else {
                     $config[$key] = $value;
@@ -112,7 +115,8 @@ abstract class AbstractBaseType {
      *
      * @return array
      */
-    public function getAsEntry() {
+    public function getAsEntry()
+    {
         return array(
             'config' => json_encode($this->config),
             'label' => $this->label,
@@ -125,7 +129,8 @@ abstract class AbstractBaseType {
      * The class name of this type (no namespace)
      * @return string
      */
-    public function getClass() {
+    public function getClass()
+    {
         $class = get_class($this);
         return substr($class, strrpos($class, "\\") + 1);
     }
@@ -135,21 +140,24 @@ abstract class AbstractBaseType {
      *
      * @return array
      */
-    public function getConfig() {
+    public function getConfig()
+    {
         return $this->config;
     }
 
     /**
      * @return boolean
      */
-    public function isMulti() {
+    public function isMulti()
+    {
         return $this->ismulti;
     }
 
     /**
      * @return string
      */
-    public function getLabel() {
+    public function getLabel()
+    {
         return $this->label;
     }
 
@@ -161,7 +169,8 @@ abstract class AbstractBaseType {
      *
      * @return string
      */
-    public function getTranslatedLabel() {
+    public function getTranslatedLabel()
+    {
         return $this->getTranslatedKey('label', $this->label);
     }
 
@@ -173,14 +182,16 @@ abstract class AbstractBaseType {
      *
      * @return string
      */
-    public function getTranslatedHint() {
+    public function getTranslatedHint()
+    {
         return $this->getTranslatedKey('hint', '');
     }
 
     /**
      * @return int
      */
-    public function getTid() {
+    public function getTid()
+    {
         return $this->tid;
     }
 
@@ -188,8 +199,9 @@ abstract class AbstractBaseType {
      * @throws StructException
      * @return Column
      */
-    public function getContext() {
-        if(is_null($this->context))
+    public function getContext()
+    {
+        if (is_null($this->context))
             throw new StructException('Empty column context requested. Type was probably initialized outside of Schema.');
         return $this->context;
     }
@@ -197,21 +209,24 @@ abstract class AbstractBaseType {
     /**
      * @param Column $context
      */
-    public function setContext($context) {
+    public function setContext($context)
+    {
         $this->context = $context;
     }
 
     /**
      * @return bool
      */
-    public function isVisibleInEditor() {
+    public function isVisibleInEditor()
+    {
         return $this->config['visibility']['ineditor'];
     }
 
     /**
      * @return bool
      */
-    public function isVisibleInPage() {
+    public function isVisibleInPage()
+    {
         return $this->config['visibility']['inpage'];
     }
 
@@ -226,7 +241,8 @@ abstract class AbstractBaseType {
      * @param string $value
      * @return array
      */
-    public function splitValues($value) {
+    public function splitValues($value)
+    {
         return array_map('trim', explode(',', $value));
     }
 
@@ -240,9 +256,10 @@ abstract class AbstractBaseType {
      * @param string $htmlID   a unique id to be referenced by the label
      * @return string html
      */
-    public function multiValueEditor($name, $rawvalues, $htmlID) {
+    public function multiValueEditor($name, $rawvalues, $htmlID)
+    {
         $html = '';
-        foreach($rawvalues as $value) {
+        foreach ($rawvalues as $value) {
             $html .= '<div class="multiwrap">';
             $html .= $this->valueEditor($name . '[]', $value, '');
             $html .= '</div>';
@@ -266,11 +283,12 @@ abstract class AbstractBaseType {
      *
      * @return string html
      */
-    public function valueEditor($name, $rawvalue, $htmlID) {
+    public function valueEditor($name, $rawvalue, $htmlID)
+    {
         $class = 'struct_' . strtolower($this->getClass());
 
         // support the autocomplete configurations out of the box
-        if(isset($this->config['autocomplete']['maxresult']) && $this->config['autocomplete']['maxresult']) {
+        if (isset($this->config['autocomplete']['maxresult']) && $this->config['autocomplete']['maxresult']) {
             $class .= ' struct_autocomplete';
         }
 
@@ -292,7 +310,8 @@ abstract class AbstractBaseType {
      * @param string $mode The mode the output is rendered in (eg. XHTML)
      * @return bool true if $mode could be satisfied
      */
-    public function renderValue($value, \Doku_Renderer $R, $mode) {
+    public function renderValue($value, \Doku_Renderer $R, $mode)
+    {
         $value = $this->displayValue($value);
         $R->cdata($value);
         return true;
@@ -306,11 +325,12 @@ abstract class AbstractBaseType {
      * @param string $mode The mode the output is rendered in (eg. XHTML)
      * @return bool true if $mode could be satisfied
      */
-    public function renderMultiValue($values, \Doku_Renderer $R, $mode) {
+    public function renderMultiValue($values, \Doku_Renderer $R, $mode)
+    {
         $len = count($values);
-        for($i = 0; $i < $len; $i++) {
+        for ($i = 0; $i < $len; $i++) {
             $this->renderValue($values[$i], $R, $mode);
-            if($i < $len - 1) {
+            if ($i < $len - 1) {
                 $R->cdata(', ');
             }
         }
@@ -327,7 +347,8 @@ abstract class AbstractBaseType {
      * @param string $filter the filter to apply to the aggregations on $page
      * @param int $weight the scaled weight of the item. Will already be implemented as css font-size on the outside container
      */
-    public function renderTagCloudLink($value, \Doku_Renderer $R, $mode, $page, $filter, $weight) {
+    public function renderTagCloudLink($value, \Doku_Renderer $R, $mode, $page, $filter, $weight)
+    {
         $R->internallink("$page?$filter", $this->displayValue($value));
     }
 
@@ -347,13 +368,14 @@ abstract class AbstractBaseType {
      * @param string|string[] $value this is the user supplied value to compare against. might be multiple
      * @param string $op the logical operator this filter should use (AND|OR)
      */
-    public function filter(QueryBuilderWhere $add, $tablealias, $colname, $comp, $value, $op) {
+    public function filter(QueryBuilderWhere $add, $tablealias, $colname, $comp, $value, $op)
+    {
         /** @var QueryBuilderWhere $add Where additionional queries are added to*/
-        if(is_array($value)) {
+        if (is_array($value)) {
             $add = $add->where($op); // sub where group
             $op = 'OR';
         }
-        foreach((array) $value as $item) {
+        foreach ((array) $value as $item) {
             $pl = $add->getQB()->addValue($item);
             $add->where($op, "$tablealias.$colname $comp $pl");
         }
@@ -379,7 +401,8 @@ abstract class AbstractBaseType {
      * @param string $colname The column name on above table
      * @param string $alias The added selection *has* to use this column alias
      */
-    public function select(QueryBuilder $QB, $tablealias, $colname, $alias) {
+    public function select(QueryBuilder $QB, $tablealias, $colname, $alias)
+    {
         $QB->addSelectColumn($tablealias, $colname, $alias);
     }
 
@@ -397,7 +420,8 @@ abstract class AbstractBaseType {
      * @param string $colname The column name on above table (always single column!)
      * @param string $order either ASC or DESC
      */
-    public function sort(QueryBuilder $QB, $tablealias, $colname, $order) {
+    public function sort(QueryBuilder $QB, $tablealias, $colname, $order)
+    {
         $QB->addOrderBy("$tablealias.$colname $order");
     }
 
@@ -411,7 +435,8 @@ abstract class AbstractBaseType {
      *
      * @return string
      */
-    public function getSortString($value) {
+    public function getSortString($value)
+    {
         if (is_string($value)) {
             return $value;
         }
@@ -435,7 +460,8 @@ abstract class AbstractBaseType {
      * @param string $value The value as returned by select()
      * @return string The value as saved in the database
      */
-    public function rawValue($value) {
+    public function rawValue($value)
+    {
         return $value;
     }
 
@@ -446,7 +472,8 @@ abstract class AbstractBaseType {
      * @param string $value
      * @return string
      */
-    public function displayValue($value) {
+    public function displayValue($value)
+    {
         return $this->rawValue($value);
     }
 
@@ -459,7 +486,8 @@ abstract class AbstractBaseType {
      *
      * @return string
      */
-    public function compareValue($value) {
+    public function compareValue($value)
+    {
         return $this->rawValue($value);
     }
 
@@ -475,7 +503,8 @@ abstract class AbstractBaseType {
      * @return int|string the cleaned value
      * @throws ValidationException
      */
-    public function validate($rawvalue) {
+    public function validate($rawvalue)
+    {
         return trim($rawvalue);
     }
 
@@ -490,7 +519,8 @@ abstract class AbstractBaseType {
      * @throws StructException when something goes wrong
      * @return mixed
      */
-    public function handleAjax() {
+    public function handleAjax()
+    {
         throw new StructException('not implemented');
     }
 
@@ -500,8 +530,9 @@ abstract class AbstractBaseType {
      * @param string $string
      * @return string
      */
-    public function getLang($string) {
-        if(is_null($this->hlp)) $this->hlp = plugin_load('helper', 'struct');
+    public function getLang($string)
+    {
+        if (is_null($this->hlp)) $this->hlp = plugin_load('helper', 'struct');
         return $this->hlp->getLang($string);
     }
 
@@ -513,7 +544,8 @@ abstract class AbstractBaseType {
      * @see Search::$COMPARATORS
      * @return string
      */
-    public function getDefaultComparator() {
+    public function getDefaultComparator()
+    {
         return '*~';
     }
 }

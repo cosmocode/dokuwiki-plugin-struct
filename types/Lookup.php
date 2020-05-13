@@ -1,4 +1,5 @@
 <?php
+
 namespace dokuwiki\plugin\struct\types;
 
 use dokuwiki\plugin\struct\meta\Column;
@@ -13,7 +14,8 @@ use dokuwiki\plugin\struct\meta\RevisionColumn;
 use dokuwiki\plugin\struct\meta\UserColumn;
 use dokuwiki\plugin\struct\meta\RowColumn;
 
-class Lookup extends Dropdown {
+class Lookup extends Dropdown
+{
 
     protected $config = array(
         'schema' => '',
@@ -31,7 +33,8 @@ class Lookup extends Dropdown {
      * @param bool $ismulti
      * @param int $tid
      */
-    public function __construct($config = null, $label = '', $ismulti = false, $tid = 0) {
+    public function __construct($config = null, $label = '', $ismulti = false, $tid = 0)
+    {
         parent::__construct($config, $label, $ismulti, $tid);
         $this->config['schema'] = Schema::cleanTableName($this->config['schema']);
     }
@@ -41,8 +44,9 @@ class Lookup extends Dropdown {
      *
      * @return Column|false
      */
-    protected function getLookupColumn() {
-        if($this->column !== null) return $this->column;
+    protected function getLookupColumn()
+    {
+        if ($this->column !== null) return $this->column;
         $this->column = $this->getColumn($this->config['schema'], $this->config['field']);
         return $this->column;
     }
@@ -54,11 +58,12 @@ class Lookup extends Dropdown {
      * @param string $infield
      * @return Column|false
      */
-    protected function getColumn($table, $infield) {
+    protected function getColumn($table, $infield)
+    {
         global $conf;
 
         $table = new Schema($table);
-        if(!$table->getId()) {
+        if (!$table->getId()) {
             // schema does not exist
             msg(sprintf('Schema %s does not exist', $table), -1);
             return false;
@@ -67,40 +72,37 @@ class Lookup extends Dropdown {
         // apply language replacement
         $field = str_replace('$LANG', $conf['lang'], $infield);
         $column = $table->findColumn($field);
-        if(!$column) {
+        if (!$column) {
             $field = str_replace('$LANG', 'en', $infield); // fallback to en
             $column = $table->findColumn($field);
         }
-        if(!$column) {
-            if(!$table->isLookup()) {
-                if($infield == '%pageid%') {
-                    $column = new PageColumn(0, new Page(), $table);
-                }
-                if($infield == '%title%') {
-                    $column = new PageColumn(0, new Page(array('usetitles' => true)), $table);
-                }
-                if($infield == '%lastupdate%') {
-                    $column = new RevisionColumn(0, new DateTime(), $table);
-                }
-                if ($infield == '%lasteditor%') {
-                    $column = new UserColumn(0, new User(), $table);
-                }
-                if ($infield == '%lastsummary%') {
-                    return new SummaryColumn(0, new AutoSummary(), $table);
-                }
-            } else {
-                if($infield == '%rowid%') {
-                    $column = new RowColumn(0, new Decimal(), $table);
-                }
+        if (!$column) {
+            if ($infield == '%pageid%') {
+                $column = new PageColumn(0, new Page(), $table);
+            }
+            if ($infield == '%title%') {
+                $column = new PageColumn(0, new Page(array('usetitles' => true)), $table);
+            }
+            if ($infield == '%lastupdate%') {
+                $column = new RevisionColumn(0, new DateTime(), $table);
+            }
+            if ($infield == '%lasteditor%') {
+                $column = new UserColumn(0, new User(), $table);
+            }
+            if ($infield == '%lastsummary%') {
+                return new SummaryColumn(0, new AutoSummary(), $table);
+            }
+            if ($infield == '%rowid%') {
+                $column = new RowColumn(0, new Decimal(), $table);
             }
         }
-        if(!$column) {
+        if (!$column) {
             // field does not exist
             msg(sprintf('Field %s.%s does not exist', $table, $infield), -1);
             return false;
         }
 
-        if($column->isMulti()) {
+        if ($column->isMulti()) {
             // field is multi
             msg(sprintf('Field %s.%s is a multi field - not allowed for lookup', $table, $field), -1);
             return false;
@@ -114,10 +116,11 @@ class Lookup extends Dropdown {
      *
      * @return array
      */
-    protected function getOptions() {
+    protected function getOptions()
+    {
         $schema = $this->config['schema'];
         $column = $this->getLookupColumn();
-        if(!$column) return array();
+        if (!$column) return array();
         $field = $column->getLabel();
 
         $search = new Search();
@@ -126,15 +129,18 @@ class Lookup extends Dropdown {
         $search->addSort($field);
         $result = $search->execute();
         $pids = $search->getPids();
+        $rids = $search->getRids();
         $len = count($result);
 
         /** @var Value[][] $result */
         $options = array('' => '');
-        for($i = 0; $i < $len; $i++) {
-            $options[$pids[$i]] = $result[$i][0]->getDisplayValue();
+        for ($i = 0; $i < $len; $i++) {
+            $val = json_encode([$pids[$i], (int)$rids[$i]]);
+            $options[$val] = $result[$i][0]->getDisplayValue();
         }
         return $options;
     }
+
 
     /**
      * Render using linked field
@@ -144,10 +150,11 @@ class Lookup extends Dropdown {
      * @param string $mode
      * @return bool
      */
-    public function renderValue($value, \Doku_Renderer $R, $mode) {
-        list(, $value) = json_decode($value);
+    public function renderValue($value, \Doku_Renderer $R, $mode)
+    {
+        list(, $value) = \helper_plugin_struct::decodeJson($value);
         $column = $this->getLookupColumn();
-        if(!$column) return false;
+        if (!$column) return false;
         return $column->getType()->renderValue($value, $R, $mode);
     }
 
@@ -159,15 +166,17 @@ class Lookup extends Dropdown {
      * @param string $mode
      * @return bool
      */
-    public function renderMultiValue($values, \Doku_Renderer $R, $mode) {
+    public function renderMultiValue($values, \Doku_Renderer $R, $mode)
+    {
         $values = array_map(
             function ($val) {
-                list(, $val) = json_decode($val);
+                list(, $val) = \helper_plugin_struct::decodeJson($val);
                 return $val;
-            }, $values
+            },
+            $values
         );
         $column = $this->getLookupColumn();
-        if(!$column) return false;
+        if (!$column) return false;
         return $column->getType()->renderMultiValue($values, $R, $mode);
     }
 
@@ -175,8 +184,9 @@ class Lookup extends Dropdown {
      * @param string $value
      * @return string
      */
-    public function rawValue($value) {
-        list($value) = json_decode($value);
+    public function rawValue($value)
+    {
+        list($value) = \helper_plugin_struct::decodeJson($value);
         return $value;
     }
 
@@ -184,10 +194,11 @@ class Lookup extends Dropdown {
      * @param string $value
      * @return string
      */
-    public function displayValue($value) {
-        list(, $value) = json_decode($value);
+    public function displayValue($value)
+    {
+        list(, $value) = \helper_plugin_struct::decodeJson($value);
         $column = $this->getLookupColumn();
-        if($column) {
+        if ($column) {
             return $column->getType()->displayValue($value);
         } else {
             return '';
@@ -203,10 +214,11 @@ class Lookup extends Dropdown {
      *
      * @return string
      */
-    public function compareValue($value) {
-        list(, $value) = json_decode($value);
+    public function compareValue($value)
+    {
+        list(, $value) = \helper_plugin_struct::decodeJson($value);
         $column = $this->getLookupColumn();
-        if($column) {
+        if ($column) {
             return $column->getType()->rawValue($value);
         } else {
             return '';
@@ -222,10 +234,11 @@ class Lookup extends Dropdown {
      * @param string $colname
      * @param string $alias
      */
-    public function select(QueryBuilder $QB, $tablealias, $colname, $alias) {
+    public function select(QueryBuilder $QB, $tablealias, $colname, $alias)
+    {
         $schema = 'data_' . $this->config['schema'];
         $column = $this->getLookupColumn();
-        if(!$column) {
+        if (!$column) {
             parent::select($QB, $tablealias, $colname, $alias);
             return;
         }
@@ -233,8 +246,10 @@ class Lookup extends Dropdown {
         $field = $column->getColName();
         $rightalias = $QB->generateTableAlias();
         $QB->addLeftJoin(
-            $tablealias, $schema, $rightalias,
-            "$tablealias.$colname = $rightalias.pid AND $rightalias.latest = 1"
+            $tablealias,
+            $schema,
+            $rightalias,
+            "$tablealias.$colname = STRUCT_JSON($rightalias.pid, CAST($rightalias.rid AS DECIMAL)) AND $rightalias.latest = 1"
         );
         $column->getType()->select($QB, $rightalias, $field, $alias);
         $sql = $QB->getSelectStatement($alias);
@@ -251,10 +266,11 @@ class Lookup extends Dropdown {
      * @param string|\string[] $value
      * @param string $op
      */
-    public function filter(QueryBuilderWhere $add, $tablealias, $colname, $comp, $value, $op) {
+    public function filter(QueryBuilderWhere $add, $tablealias, $colname, $comp, $value, $op)
+    {
         $schema = 'data_' . $this->config['schema'];
         $column = $this->getLookupColumn();
-        if(!$column) {
+        if (!$column) {
             parent::filter($add, $tablealias, $colname, $comp, $value, $op);
             return;
         }
@@ -264,8 +280,10 @@ class Lookup extends Dropdown {
         $QB = $add->getQB();
         $rightalias = $QB->generateTableAlias();
         $QB->addLeftJoin(
-            $tablealias, $schema, $rightalias,
-            "$tablealias.$colname = $rightalias.pid AND $rightalias.latest = 1"
+            $tablealias,
+            $schema,
+            $rightalias,
+            "$tablealias.$colname = STRUCT_JSON($rightalias.pid, CAST($rightalias.rid AS DECIMAL)) AND $rightalias.latest = 1"
         );
         $column->getType()->filter($add, $rightalias, $field, $comp, $value, $op);
     }
@@ -278,10 +296,11 @@ class Lookup extends Dropdown {
      * @param string $colname
      * @param string $order
      */
-    public function sort(QueryBuilder $QB, $tablealias, $colname, $order) {
+    public function sort(QueryBuilder $QB, $tablealias, $colname, $order)
+    {
         $schema = 'data_' . $this->config['schema'];
         $column = $this->getLookupColumn();
-        if(!$column) {
+        if (!$column) {
             parent::sort($QB, $tablealias, $colname, $order);
             return;
         }
@@ -289,10 +308,11 @@ class Lookup extends Dropdown {
 
         $rightalias = $QB->generateTableAlias();
         $QB->addLeftJoin(
-            $tablealias, $schema, $rightalias,
-            "$tablealias.$colname = $rightalias.pid AND $rightalias.latest = 1"
+            $tablealias,
+            $schema,
+            $rightalias,
+            "$tablealias.$colname = STRUCT_JSON($rightalias.pid, CAST($rightalias.rid AS DECIMAL)) AND $rightalias.latest = 1"
         );
         $column->getType()->sort($QB, $rightalias, $field, $order);
     }
-
 }

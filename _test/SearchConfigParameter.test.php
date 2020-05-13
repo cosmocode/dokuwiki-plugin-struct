@@ -30,7 +30,8 @@ class SearchConfigParameter_struct_test extends StructTest {
                 'second' => array('second data', 'more data', 'even more'),
                 'third' => 'third data',
                 'fourth' => 'fourth data'
-            )
+            ),
+            time()
         );
 
         $as->assignPageSchema('page01', 'schema2');
@@ -42,7 +43,8 @@ class SearchConfigParameter_struct_test extends StructTest {
                 'asecond' => array('second data', 'more data', 'even more'),
                 'athird' => 'third data',
                 'afourth' => 'fourth data'
-            )
+            ),
+            time()
         );
 
         for($i=10; $i <=20; $i++) {
@@ -55,7 +57,8 @@ class SearchConfigParameter_struct_test extends StructTest {
                     'asecond' => array("page$i second data"),
                     'athird' => "page$i third data",
                     'afourth' => "page$i fourth data"
-                )
+                ),
+                time()
             );
         }
     }
@@ -225,22 +228,24 @@ class SearchConfigParameter_struct_test extends StructTest {
         $searchConfig = new meta\SearchConfig($data);
         $aggregationTable = new meta\AggregationTable('test_pagination', 'xhtml', $R, $searchConfig);
         $aggregationTable->render();
-        $expect = '<div class="structaggregation"><div class="table"><table class="inline">
+
+        $rev = time();
+        $expect_html = '<div class="structaggregation"><div class="table"><table class="inline">
 	<thead>
 	<tr class="row0">
 		<th class="col0">#</th><th  data-field="schema2.afirst"><a href="/./doku.php?id=test_pagination&amp;ofs=5&amp;srt=schema2.afirst" class="" title="Sort by this column">afirst</a></th>
 	</tr>
 	</thead>
 	<tbody>
-	<tr class="row1" data-pid="page14"><td class="col0">6</td><td class="col1">page14 first data</td>
+	<tr class="row1" data-pid="page14" data-rev="' . $rev . '" data-rid="0"><td class="col0">6</td><td class="col1">page14 first data</td>
 	</tr>
-	<tr class="row2" data-pid="page15"><td class="col0">7</td><td class="col1">page15 first data</td>
+	<tr class="row2" data-pid="page15" data-rev="' . $rev . '" data-rid="0"><td class="col0">7</td><td class="col1">page15 first data</td>
 	</tr>
-	<tr class="row3" data-pid="page16"><td class="col0">8</td><td class="col1">page16 first data</td>
+	<tr class="row3" data-pid="page16" data-rev="' . $rev . '" data-rid="0"><td class="col0">8</td><td class="col1">page16 first data</td>
 	</tr>
-	<tr class="row4" data-pid="page17"><td class="col0">9</td><td class="col1">page17 first data</td>
+	<tr class="row4" data-pid="page17" data-rev="' . $rev . '" data-rid="0"><td class="col0">9</td><td class="col1">page17 first data</td>
 	</tr>
-	<tr class="row5" data-pid="page18"><td class="col0">10</td><td class="col1">page18 first data</td>
+	<tr class="row5" data-pid="page18" data-rev="' . $rev . '" data-rid="0"><td class="col0">10</td><td class="col1">page18 first data</td>
 	</tr>
 	</tbody>
 	<tfoot>
@@ -251,6 +256,15 @@ class SearchConfigParameter_struct_test extends StructTest {
 </table></div>
 </div>';
 
-        $this->assertEquals($expect, $R->doc);
+        $pq = \phpQuery::newDocument($expect_html);
+        $tr1 = $pq->find(".row1");
+        $this->assertEquals('6page14 first data', trim($tr1->text()));
+        $this->assertEquals('page14', $tr1->attr('data-pid'));
+        $this->assertEquals('0', $tr1->attr('data-rid'));
+        $this->assertEquals($rev, $tr1->attr('data-rev'));
+
+        $tr6aPrev = $pq->find(".row6 a.prev");
+        $this->assertEquals('/./doku.php?id=test_pagination', $tr6aPrev->attr('href'));
+
     }
 }

@@ -5,7 +5,7 @@ namespace dokuwiki\plugin\struct\meta;
 use dokuwiki\Form\Form;
 use dokuwiki\plugin\struct\types\Text;
 
-if(!defined('JSON_PRETTY_PRINT')) define('JSON_PRETTY_PRINT', 0); // PHP 5.3 compatibility
+if (!defined('JSON_PRETTY_PRINT')) define('JSON_PRETTY_PRINT', 0); // PHP 5.3 compatibility
 
 /**
  * Class SchemaEditor
@@ -15,7 +15,8 @@ if(!defined('JSON_PRETTY_PRINT')) define('JSON_PRETTY_PRINT', 0); // PHP 5.3 com
  *
  * @package dokuwiki\plugin\struct\meta
  */
-class SchemaEditor {
+class SchemaEditor
+{
     /** @var Schema the schema that is edited */
     protected $schema;
 
@@ -26,7 +27,8 @@ class SchemaEditor {
      * SchemaEditor constructor.
      * @param Schema $schema
      */
-    public function __construct(Schema $schema) {
+    public function __construct(Schema $schema)
+    {
         $this->schema = $schema;
         $this->hlp = plugin_load('helper', 'struct_config');
     }
@@ -39,13 +41,13 @@ class SchemaEditor {
      * @return string the HTML for the editor form
      * @see SchemaBuilder
      */
-    public function getEditor() {
-        $form = new Form(array('method' => 'POST', 'id'=>'plugin__struct_editor'));
+    public function getEditor()
+    {
+        $form = new Form(array('method' => 'POST', 'id' => 'plugin__struct_editor'));
         $form->setHiddenField('do', 'admin');
         $form->setHiddenField('page', 'struct_schemas');
         $form->setHiddenField('table', $this->schema->getTable());
         $form->setHiddenField('schema[id]', $this->schema->getId());
-        $form->setHiddenField('schema[islookup]', $this->schema->isLookup());
 
         $form->addHTML('<table class="inline">');
         $form->addHTML("<tr>
@@ -58,12 +60,12 @@ class SchemaEditor {
         </tr>");
 
 
-        foreach($this->schema->getColumns() as $key => $col) {
+        foreach ($this->schema->getColumns() as $key => $col) {
             $form->addHTML($this->adminColumn($col->getColref(), $col));
         }
 
         // FIXME new one needs to be added dynamically, this is just for testing
-        $form->addHTML($this->adminColumn('new1', new Column($this->schema->getMaxsort()+10, new Text()), 'new'));
+        $form->addHTML($this->adminColumn('new1', new Column($this->schema->getMaxsort() + 10, new Text()), 'new'));
 
         $form->addHTML('</table>');
 
@@ -73,7 +75,7 @@ class SchemaEditor {
         $form->addFieldsetClose();
 
 
-        $form->addButton('save', 'Save')->attr('type','submit');
+        $form->addButton('save', 'Save')->attr('type', 'submit');
         return $form->toHTML() . $this->initJSONEditor();
     }
 
@@ -83,12 +85,13 @@ class SchemaEditor {
      * We do not use the "normal" way, because this is rarely used code and there's no need to always load it.
      * @return string
      */
-    protected function initJSONEditor() {
+    protected function initJSONEditor()
+    {
         $html = '';
-        $html .= '<link href="'.DOKU_BASE.'lib/plugins/struct/jsoneditor/jsoneditor.min.css" rel="stylesheet" type="text/css">';
-        $html .= '<link href="'.DOKU_BASE.'lib/plugins/struct/jsoneditor/setup.css" rel="stylesheet" type="text/css">';
-        $html .= '<script src="'.DOKU_BASE.'lib/plugins/struct/jsoneditor/jsoneditor-minimalist.min.js"></script>';
-        $html .= '<script src="'.DOKU_BASE.'lib/plugins/struct/jsoneditor/setup.js"></script>';
+        $html .= '<link href="' . DOKU_BASE . 'lib/plugins/struct/jsoneditor/jsoneditor.min.css" rel="stylesheet" type="text/css">';
+        $html .= '<link href="' . DOKU_BASE . 'lib/plugins/struct/jsoneditor/setup.css" rel="stylesheet" type="text/css">';
+        $html .= '<script src="' . DOKU_BASE . 'lib/plugins/struct/jsoneditor/jsoneditor-minimalist.min.js" defer="defer"></script>';
+        $html .= '<script src="' . DOKU_BASE . 'lib/plugins/struct/jsoneditor/setup.js" defer="defer"></script>';
         return $html;
     }
 
@@ -101,8 +104,9 @@ class SchemaEditor {
      * @return string
      * @todo this should probably be reused for adding new columns via AJAX later?
      */
-    protected function adminColumn($column_id, Column $col, $key='cols') {
-        $base = 'schema['.$key.'][' . $column_id . ']'; // base name for all fields
+    protected function adminColumn($column_id, Column $col, $key = 'cols')
+    {
+        $base = 'schema[' . $key . '][' . $column_id . ']'; // base name for all fields
 
         $class = $col->isEnabled() ? '' : 'disabled';
 
@@ -129,7 +133,7 @@ class SchemaEditor {
         $types = array_keys(Column::allTypes());
         $html .= '<td class="class">';
         $html .= '<select name="' . $base . '[class]">';
-        foreach($types as $type) {
+        foreach ($types as $type) {
             $selected = ($col->getType()->getClass() == $type) ? 'selected="selected"' : '';
             $html .= '<option value="' . hsc($type) . '" ' . $selected . '>' . hsc($type) . '</option>';
         }
@@ -146,5 +150,4 @@ class SchemaEditor {
 
         return $html;
     }
-
 }

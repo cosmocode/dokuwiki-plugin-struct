@@ -7,7 +7,8 @@ namespace dokuwiki\plugin\struct\meta;
  *
  * @package dokuwiki\plugin\struct\meta
  */
-class SearchConfigParameters {
+class SearchConfigParameters
+{
 
     /** @var string parameter name to pass filters */
     public static $PARAM_FILTER = 'flt';
@@ -31,25 +32,26 @@ class SearchConfigParameters {
      *
      * @param SearchConfig $searchConfig
      */
-    public function __construct(SearchConfig $searchConfig) {
+    public function __construct(SearchConfig $searchConfig)
+    {
         global $INPUT;
         $this->searchConfig = $searchConfig;
         /** @var \helper_plugin_struct_config $confHlp */
         $confHlp = plugin_load('helper', 'struct_config');
 
-        if($INPUT->has(self::$PARAM_SORT)) {
+        if ($INPUT->has(self::$PARAM_SORT)) {
             list($colname, $sort) = $confHlp->parseSort($INPUT->str(self::$PARAM_SORT));
             $this->setSort($colname, $sort);
         }
 
-        if($INPUT->has(self::$PARAM_FILTER)) {
-            foreach($INPUT->arr(self::$PARAM_FILTER) as $colcomp => $filter) {
+        if ($INPUT->has(self::$PARAM_FILTER)) {
+            foreach ($INPUT->arr(self::$PARAM_FILTER) as $colcomp => $filter) {
                 list($colname, $comp, $value,) = $confHlp->parseFilterLine('AND', $colcomp . $filter);
                 $this->addFilter($colname, $comp, $value);
             }
         }
 
-        if($INPUT->has(self::$PARAM_OFFSET)) {
+        if ($INPUT->has(self::$PARAM_OFFSET)) {
             $this->setOffset($INPUT->int(self::$PARAM_OFFSET));
         }
     }
@@ -60,10 +62,11 @@ class SearchConfigParameters {
      * @param string|Column $column
      * @return bool|string
      */
-    protected function resolveColumn($column) {
-        if(!is_a($column, '\dokuwiki\plugin\struct\meta\Column')) {
+    protected function resolveColumn($column)
+    {
+        if (!is_a($column, '\dokuwiki\plugin\struct\meta\Column')) {
             $column = $this->searchConfig->findColumn($column);
-            if(!$column) return false;
+            if (!$column) return false;
         }
         /** @var Column $column */
         return $column->getFullQualifiedLabel();
@@ -75,16 +78,18 @@ class SearchConfigParameters {
      * @param string|Column $column
      * @param bool $asc
      */
-    public function setSort($column, $asc = true) {
+    public function setSort($column, $asc = true)
+    {
         $column = $this->resolveColumn($column);
-        if(!$column) return;
+        if (!$column) return;
         $this->sort = array($column, $asc);
     }
 
     /**
      * Remove the sorting column
      */
-    public function removeSort() {
+    public function removeSort()
+    {
         $this->sort = null;
     }
 
@@ -93,14 +98,16 @@ class SearchConfigParameters {
      *
      * @param int $offset
      */
-    public function setOffset($offset) {
+    public function setOffset($offset)
+    {
         $this->offset = $offset;
     }
 
     /**
      * Removes the offset
      */
-    public function removeOffset() {
+    public function removeOffset()
+    {
         $this->offset = 0;
     }
 
@@ -114,11 +121,12 @@ class SearchConfigParameters {
      * @param string $comp the comparator
      * @param string $value the value to compare against
      */
-    public function addFilter($column, $comp, $value) {
+    public function addFilter($column, $comp, $value)
+    {
         $column = $this->resolveColumn($column);
-        if(!$column) return;
+        if (!$column) return;
 
-        if(trim($value) === '') {
+        if (trim($value) === '') {
             $this->removeFilter($column);
         } else {
             $this->filters[$column] = array($comp, $value);
@@ -130,23 +138,26 @@ class SearchConfigParameters {
      *
      * @param $column
      */
-    public function removeFilter($column) {
+    public function removeFilter($column)
+    {
         $column = $this->resolveColumn($column);
-        if(!$column) return;
-        if(isset($this->filters[$column])) unset($this->filters[$column]);
+        if (!$column) return;
+        if (isset($this->filters[$column])) unset($this->filters[$column]);
     }
 
     /**
      * Remove all filter
      */
-    public function clearFilters() {
+    public function clearFilters()
+    {
         $this->filters = array();
     }
 
     /**
      * @return array the current filters
      */
-    public function getFilters() {
+    public function getFilters()
+    {
         return $this->filters;
     }
 
@@ -159,21 +170,21 @@ class SearchConfigParameters {
      *
      * @return array
      */
-    public function getURLParameters() {
+    public function getURLParameters()
+    {
         $params = array();
-        if($this->offset) {
+        if ($this->offset) {
             $params[self::$PARAM_OFFSET] = $this->offset;
         }
 
-        if($this->sort) {
+        if ($this->sort) {
             list($column, $asc) = $this->sort;
-            if(!$asc) $column = "^$column";
+            if (!$asc) $column = "^$column";
             $params[self::$PARAM_SORT] = $column;
         }
 
-        if($this->filters) {
-
-            foreach($this->filters as $column => $filter) {
+        if ($this->filters) {
+            foreach ($this->filters as $column => $filter) {
                 list($comp, $value) = $filter;
                 $key = self::$PARAM_FILTER . '[' . $column . $comp . ']';
                 $params[$key] = $value;
@@ -191,21 +202,22 @@ class SearchConfigParameters {
      * @param array $config
      * @return array
      */
-    public function updateConfig($config) {
-        if($this->offset) {
+    public function updateConfig($config)
+    {
+        if ($this->offset) {
             $config['offset'] = $this->offset;
         }
 
-        if($this->sort) {
+        if ($this->sort) {
             list($column, $asc) = $this->sort;
             $config['sort'] = array(
                 array($column, $asc)
             );
         }
 
-        if($this->filters) {
-            if(empty($config['filter'])) $config['filter'] = array();
-            foreach($this->filters as $column => $filter) {
+        if ($this->filters) {
+            if (empty($config['filter'])) $config['filter'] = array();
+            foreach ($this->filters as $column => $filter) {
                 list($comp, $value) = $filter;
                 $config['filter'][] = array($column, $comp, $value, 'AND');
             }
@@ -213,5 +225,4 @@ class SearchConfigParameters {
 
         return $config;
     }
-
 }

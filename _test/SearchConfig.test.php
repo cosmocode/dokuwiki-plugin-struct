@@ -38,7 +38,7 @@ class SearchConfig_struct_test extends StructTest {
         // prepare some struct data
         $sb = new meta\SchemaImporter('schema1', file_get_contents(__DIR__ . '/json/schema1.struct.json'));
         $sb->build();
-        $schemaData = meta\AccessTable::byTableName('schema1', $INFO['id'], time());
+        $schemaData = meta\AccessTable::getPageAccess('schema1', $INFO['id'], time());
         $schemaData->saveData(
             array(
                 'first' => 'test',

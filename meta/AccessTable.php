@@ -2,12 +2,24 @@
 
 namespace dokuwiki\plugin\struct\meta;
 
-abstract class AccessTable {
+/**
+ * Class AccessTable
+ *
+ * Base class for data accessors
+ *
+ * @package dokuwiki\plugin\struct\meta
+ */
+abstract class AccessTable
+{
+
+    const DEFAULT_REV = 0;
+    const DEFAULT_LATEST = 1;
 
     /** @var  Schema */
     protected $schema;
     protected $pid;
-    protected $labels = array();
+    protected $rid;
+    protected $labels = [];
     protected $ts     = 0;
     /** @var \helper_plugin_sqlite */
     protected $sqlite;
@@ -16,54 +28,112 @@ abstract class AccessTable {
     protected $opt_skipempty = false;
 
     /**
-     * Factory Method to access a data or lookup table
-     *
-     * @param Schema $schema schema to load
-     * @param string|int $pid Page or row id to access
-     * @param int $ts Time at which the data should be read or written, 0 for now
-     * @return AccessTableData|AccessTableLookup
+     * @var string Name of single-value table
      */
-    public static function bySchema(Schema $schema, $pid, $ts = 0) {
-        if($schema->isLookup()) {
-            return new AccessTableLookup($schema, $pid, $ts);
-        } else {
-            return new AccessTableData($schema, $pid, $ts);
-        }
+    protected $stable;
+
+    /**
+     * @var string Name of multi-value table
+     */
+    protected $mtable;
+
+    /**
+     * @var array Column names for the single-value insert/update
+     */
+    protected $singleCols;
+
+    /**
+     * @var array Input values for the single-value insert/update
+     */
+    protected $singleValues;
+
+    /**
+     * @var array Input values for the multi-value inserts/updates
+     */
+    protected $multiValues;
+
+    public static function getPageAccess($tablename, $pid, $ts = 0)
+    {
+        $schema = new Schema($tablename, $ts);
+        return new AccessTableData($schema, $pid, $ts, 0);
+    }
+
+    public static function getSerialAccess($tablename, $pid, $rid = 0)
+    {
+        $schema = new Schema($tablename, 0);
+        return new AccessTableSerial($schema, $pid, 0, $rid);
+    }
+
+    public static function getLookupAccess($tablename, $rid = 0)
+    {
+        $schema = new Schema($tablename, 0);
+        return new AccessTableLookup($schema, '', 0, $rid);
     }
 
     /**
-     * Factory Method to access a data or lookup table
+     * Factory method returning the appropriate data accessor (page, lookup or serial)
      *
-     * @param string $tablename schema to load
-     * @param string|int $pid Page or row id to access
-     * @param int $ts Time at which the data should be read or written, 0 for now
+     * @deprecated
+     * @param Schema $schema schema to load
+     * @param string $pid Page id to access
+     * @param int $ts Time at which the data should be read or written
+     * @param int $rid Row id, 0 for page type data, otherwise autoincrement
      * @return AccessTableData|AccessTableLookup
      */
-    public static function byTableName($tablename, $pid, $ts = 0) {
-        $schema = new Schema($tablename, $ts);
-        return self::bySchema($schema, $pid, $ts);
+    public static function bySchema(Schema $schema, $pid, $ts = 0, $rid = 0)
+    {
+        if (self::isTypePage($pid, $ts)) {
+            return new AccessTableData($schema, $pid, $ts, $rid);
+        }
+        return new AccessTableLookup($schema, $pid, $ts, $rid);
+    }
+
+    /**
+     * Factory Method to access data
+     *
+     * @deprecated  Use specific methods since we can no longer
+     *              guarantee instantiating the required descendant class
+     * @param string $tablename schema to load
+     * @param string $pid Page id to access
+     * @param int $ts Time at which the data should be read or written
+     * @param int $rid Row id, 0 for page type data, otherwise autoincrement
+     * @return AccessTableData|AccessTableLookup
+     */
+    public static function byTableName($tablename, $pid, $ts = 0, $rid = 0)
+    {
+        // force loading the latest schema for anything other than page data,
+        // for which we might actually need the history
+        if (!self::isTypePage($pid, $ts)) {
+            $schema = new Schema($tablename, time());
+        } else {
+            $schema = new Schema($tablename, $ts);
+        }
+        return self::bySchema($schema, $pid, $ts, $rid);
     }
 
     /**
      * AccessTable constructor
      *
      * @param Schema $schema The schema valid at $ts
-     * @param string|int $pid
+     * @param string $pid Page id
      * @param int $ts Time at which the data should be read or written, 0 for now
+     * @param int $rid Row id: 0 for pages, autoincremented for other types
      */
-    public function __construct(Schema $schema, $pid, $ts = 0) {
+    public function __construct($schema, $pid, $ts = 0, $rid = 0)
+    {
         /** @var \helper_plugin_struct_db $helper */
         $helper = plugin_load('helper', 'struct_db');
         $this->sqlite = $helper->getDB();
 
-        if(!$schema->getId()) {
+        if (!$schema->getId()) {
             throw new StructException('Schema does not exist. Only data of existing schemas can be accessed');
         }
 
         $this->schema = $schema;
         $this->pid = $pid;
+        $this->rid = $rid;
         $this->setTimestamp($ts);
-        foreach($this->schema->getColumns() as $col) {
+        foreach ($this->schema->getColumns() as $col) {
             $this->labels[$col->getColref()] = $col->getType()->getLabel();
         }
     }
@@ -73,17 +143,29 @@ abstract class AccessTable {
      *
      * @return Schema
      */
-    public function getSchema() {
+    public function getSchema()
+    {
         return $this->schema;
     }
 
     /**
      * The current pid
      *
-     * @return int|string
+     * @return string
      */
-    public function getPid() {
+    public function getPid()
+    {
         return $this->pid;
+    }
+
+    /**
+     * The current rid
+     *
+     * @return int
+     */
+    public function getRid()
+    {
+        return $this->rid;
     }
 
     /**
@@ -102,7 +184,142 @@ abstract class AccessTable {
      * @param array $data typelabel => value for single fields or typelabel => array(value, value, ...) for multi fields
      * @return bool success of saving the data to the database
      */
-    abstract public function saveData($data);
+    public function saveData($data)
+    {
+        if (!$this->validateTypeData($data)) {
+            return false;
+        }
+
+        $this->stable = 'data_' . $this->schema->getTable();
+        $this->mtable = 'multi_' . $this->schema->getTable();
+
+        $colrefs = array_flip($this->labels);
+
+        foreach ($data as $colname => $value) {
+            if (!isset($colrefs[$colname])) {
+                throw new StructException("Unknown column %s in schema.", hsc($colname));
+            }
+
+            $this->singleCols[] = 'col' . $colrefs[$colname];
+            if (is_array($value)) {
+                foreach ($value as $index => $multivalue) {
+                    $this->multiValues[] = [$colrefs[$colname], $index + 1, $multivalue];
+                }
+                // copy first value to the single column
+                if (isset($value[0])) {
+                    $this->singleValues[] = $value[0];
+                } else {
+                    $this->singleValues[] = null;
+                }
+            } else {
+                $this->singleValues[] = $value;
+            }
+        }
+
+        $this->sqlite->query('BEGIN TRANSACTION');
+
+        $ok = $this->beforeSave();
+
+        // insert single values
+        $ok = $ok && $this->sqlite->query(
+            $this->getSingleSql(),
+            array_merge($this->getSingleNoninputValues(), $this->singleValues)
+        );
+
+        $ok = $ok && $this->afterSingleSave();
+
+        // insert multi values
+        if ($ok && $this->multiValues) {
+            $multisql = $this->getMultiSql();
+            $multiNoninputValues = $this->getMultiNoninputValues();
+            foreach ($this->multiValues as $value) {
+                $ok = $ok && $this->sqlite->query(
+                    $multisql,
+                    array_merge($multiNoninputValues, $value)
+                );
+            }
+        }
+
+        if (!$ok) {
+            $this->sqlite->query('ROLLBACK TRANSACTION');
+            return false;
+        }
+        $this->sqlite->query('COMMIT TRANSACTION');
+        return true;
+    }
+
+    /**
+     * Check whether all required data is present
+     *
+     * @param array $data
+     * @return bool
+     */
+    abstract protected function validateTypeData($data);
+
+    /**
+     * Names of non-input columns to be inserted into SQL query
+     *
+     * @return array
+     */
+    abstract protected function getSingleNoninputCols();
+
+    /**
+     * Values for non-input columns to be inserted into SQL query
+     * for single-value tables
+     *
+     * @return array
+     */
+    abstract protected function getSingleNoninputValues();
+
+    /**
+     * String template for single-value table
+     *
+     * @return string
+     */
+    protected function getSingleSql()
+    {
+        $cols = array_merge($this->getSingleNoninputCols(), $this->singleCols);
+        $cols = join(',', $cols);
+        $vals = array_merge($this->getSingleNoninputValues(), $this->singleValues);
+
+        return "INSERT INTO $this->stable ($cols) VALUES (" . trim(str_repeat('?,', count($vals)), ',') . ');';
+    }
+
+    /**
+     * Optional operations to be executed before saving data
+     *
+     * @return bool False if any of the operations failed and transaction should be rolled back
+     */
+    protected function beforeSave()
+    {
+        return true;
+    }
+
+    /**
+     * Optional operations to be executed after saving data to single-value table,
+     * before saving multivalues
+     *
+     * @return bool False if anything goes wrong and transaction should be rolled back
+     */
+    protected function afterSingleSave()
+    {
+        return true;
+    }
+
+    /**
+     * String template for multi-value table
+     *
+     * @return string
+     */
+    abstract protected function getMultiSql();
+
+    /**
+     * Values for non-input columns to be inserted into SQL query
+     * for multi-value tables
+     * @return array
+     */
+    abstract protected function getMultiNoninputValues();
+
 
     /**
      * Should empty or invisible (inpage) fields be returned?
@@ -112,8 +329,9 @@ abstract class AccessTable {
      * @param null|bool $set new value, null to read only
      * @return bool current value (after set)
      */
-    public function optionSkipEmpty($set = null) {
-        if(!is_null($set)) {
+    public function optionSkipEmpty($set = null)
+    {
+        if (!is_null($set)) {
             $this->opt_skipempty = $set;
         }
         return $this->opt_skipempty;
@@ -125,10 +343,11 @@ abstract class AccessTable {
      * @param Column $column
      * @return Value|null
      */
-    public function getDataColumn($column) {
+    public function getDataColumn($column)
+    {
         $data = $this->getData();
-        foreach($data as $value) {
-            if($value->getColumn() == $column) {
+        foreach ($data as $value) {
+            if ($value->getColumn() == $column) {
                 return $value;
             }
         }
@@ -140,7 +359,8 @@ abstract class AccessTable {
      *
      * @return Value[] a list of values saved for the current page
      */
-    public function getData() {
+    public function getData()
+    {
         $data = $this->getDataFromDB();
         $data = $this->consolidateData($data, false);
         return $data;
@@ -155,7 +375,8 @@ abstract class AccessTable {
      *
      * @return array
      */
-    public function getDataArray() {
+    public function getDataArray()
+    {
         $data = $this->getDataFromDB();
         $data = $this->consolidateData($data, true);
         return $data;
@@ -164,14 +385,15 @@ abstract class AccessTable {
     /**
      * Return the data in pseudo syntax
      */
-    public function getDataPseudoSyntax() {
+    public function getDataPseudoSyntax()
+    {
         $result = '';
         $data = $this->getData();
 
-        foreach($data as $value) {
+        foreach ($data as $value) {
             $key = $value->getColumn()->getFullQualifiedLabel();
             $value = $value->getDisplayValue();
-            if(is_array($value)) $value = join(', ', $value);
+            if (is_array($value)) $value = join(', ', $value);
             $result .= sprintf("% -20s : %s\n", $key, $value);
         }
         return $result;
@@ -181,8 +403,10 @@ abstract class AccessTable {
      * retrieve the data saved for the page from the database. Usually there is no need to call this function.
      * Call @see SchemaData::getData instead.
      */
-    protected function getDataFromDB() {
-        list($sql, $opt) = $this->buildGetDataSQL();
+    protected function getDataFromDB()
+    {
+        $idColumn = self::isTypePage($this->pid, $this->ts) ? 'pid' : 'rid';
+        list($sql, $opt) = $this->buildGetDataSQL($idColumn);
 
         $res = $this->sqlite->query($sql, $opt);
         $data = $this->sqlite->res2arr($res);
@@ -197,33 +421,33 @@ abstract class AccessTable {
      * @param bool $asarray return data as associative array (true) or as array of Values (false)
      * @return array|Value[]
      */
-    protected function consolidateData($DBdata, $asarray = false) {
+    protected function consolidateData($DBdata, $asarray = false)
+    {
         $data = array();
 
         $sep = Search::CONCAT_SEPARATOR;
 
-        foreach($this->schema->getColumns(false) as $col) {
-
+        foreach ($this->schema->getColumns(false) as $col) {
             // if no data saved yet, return empty strings
-            if($DBdata) {
+            if ($DBdata) {
                 $val = $DBdata[0]['out' . $col->getColref()];
             } else {
                 $val = '';
             }
 
             // multi val data is concatenated
-            if($col->isMulti()) {
+            if ($col->isMulti()) {
                 $val = explode($sep, $val);
                 $val = array_filter($val);
             }
 
             $value = new Value($col, $val);
 
-            if($this->opt_skipempty && $value->isEmpty()) continue;
-            if($this->opt_skipempty && !$col->isVisibleInPage()) continue; //FIXME is this a correct assumption?
+            if ($this->opt_skipempty && $value->isEmpty()) continue;
+            if ($this->opt_skipempty && !$col->isVisibleInPage()) continue; //FIXME is this a correct assumption?
 
             // for arrays, we return the raw value only
-            if($asarray) {
+            if ($asarray) {
                 $data[$col->getLabel()] = $value->getRawValue();
             } else {
                 $data[$col->getLabel()] = $value;
@@ -238,29 +462,29 @@ abstract class AccessTable {
      *
      * @return array Two fields: the SQL string and the parameters array
      */
-    protected function buildGetDataSQL() {
+    protected function buildGetDataSQL($idColumn = 'pid')
+    {
         $sep = Search::CONCAT_SEPARATOR;
         $stable = 'data_' . $this->schema->getTable();
         $mtable = 'multi_' . $this->schema->getTable();
 
         $QB = new QueryBuilder();
         $QB->addTable($stable, 'DATA');
-        $QB->addSelectColumn('DATA', 'pid', 'PID');
-        $QB->addGroupByStatement('DATA.pid');
+        $QB->addSelectColumn('DATA', $idColumn, strtoupper($idColumn));
+        $QB->addGroupByStatement("DATA.$idColumn");
 
-        foreach($this->schema->getColumns(false) as $col) {
-
+        foreach ($this->schema->getColumns(false) as $col) {
             $colref = $col->getColref();
             $colname = 'col' . $colref;
             $outname = 'out' . $colref;
 
-            if($col->getType()->isMulti()) {
+            if ($col->getType()->isMulti()) {
                 $tn = 'M' . $colref;
                 $QB->addLeftJoin(
                     'DATA',
                     $mtable,
                     $tn,
-                    "DATA.pid = $tn.pid AND DATA.rev = $tn.rev AND $tn.colref = $colref"
+                    "DATA.$idColumn = $tn.$idColumn AND DATA.rev = $tn.rev AND $tn.colref = $colref"
                 );
                 $col->getType()->select($QB, $tn, 'value', $outname);
                 $sel = $QB->getSelectStatement($outname);
@@ -271,8 +495,8 @@ abstract class AccessTable {
             }
         }
 
-        $pl = $QB->addValue($this->pid);
-        $QB->filters()->whereAnd("DATA.pid = $pl");
+        $pl = $QB->addValue($this->{$idColumn});
+        $QB->filters()->whereAnd("DATA.$idColumn = $pl");
         $pl = $QB->addValue($this->getLastRevisionTimestamp());
         $QB->filters()->whereAnd("DATA.rev = $pl");
 
@@ -282,8 +506,9 @@ abstract class AccessTable {
     /**
      * @param int $ts
      */
-    public function setTimestamp($ts) {
-        if($ts && $ts < $this->schema->getTimeStamp()) {
+    public function setTimestamp($ts)
+    {
+        if ($ts && $ts < $this->schema->getTimeStamp()) {
             throw new StructException('Given timestamp is not valid for current Schema');
         }
 
@@ -291,9 +516,17 @@ abstract class AccessTable {
     }
 
     /**
+     * Returns the timestamp from the current data
+     * @return int
+     */
+    public function getTimestamp()
+    {
+        return $this->ts;
+    }
+
+    /**
      * Return the last time an edit happened for this table for the currently set
-     * time and pid. When the current timestamp is 0, the newest revision is
-     * returned. Used in @see buildGetDataSQL()
+     * time and pid. Used in @see buildGetDataSQL()
      *
      * @return int
      */
@@ -305,9 +538,47 @@ abstract class AccessTable {
      * @param array $data
      * @return AccessDataValidator
      */
-    public function getValidator($data) {
+    public function getValidator($data)
+    {
         return new AccessDataValidator($this, $data);
     }
+
+    /**
+     * Returns true if data is of type "page"
+     *
+     * @param string $pid
+     * @param int $rev
+     * @param int $rid
+     * @return bool
+     */
+    public static function isTypePage($pid, $rev)
+    {
+        return $rev > 0;
+    }
+
+    /**
+     * Returns true if data is of type "lookup"
+     *
+     * @param string $pid
+     * @param int $rev
+     * @param int $rid
+     * @return bool
+     */
+    public static function isTypeLookup($pid, $rev)
+    {
+        return $pid === '';
+    }
+
+    /**
+     * Returns true if data is of type "serial"
+     *
+     * @param string $pid
+     * @param int $rev
+     * @param int $rid
+     * @return bool
+     */
+    public static function isTypeSerial($pid, $rev)
+    {
+        return $pid !== '' && $rev === 0;
+    }
 }
-
-

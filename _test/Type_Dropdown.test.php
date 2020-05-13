@@ -15,16 +15,34 @@ class Type_Dropdown_struct_test extends StructTest {
 
     protected function preparePages() {
         $this->loadSchemaJSON('dropdowns');
-        $this->saveData('test1', 'dropdowns', array('drop1' => '1', 'drop2' => '1', 'drop3' => 'John'));
-        $this->saveData('test2', 'dropdowns', array('drop1' => '2', 'drop2' => '2', 'drop3' => 'Jane'));
-        $this->saveData('test3', 'dropdowns', array('drop1' => '3', 'drop2' => '3', 'drop3' => 'Tarzan'));
+        $this->saveData(
+            'test1',
+            'dropdowns',
+            [
+                'drop1' => '["test1",1]', 'drop2' => '["test1",1]', 'drop3' => 'John'
+            ]
+        );
+        $this->saveData(
+            'test2',
+            'dropdowns',
+            [
+                'drop1' => '["test1",2]', 'drop2' => '["test1",2]', 'drop3' => 'Jane'
+            ]
+        );
+        $this->saveData(
+            'test3',
+            'dropdowns',
+            [
+                'drop1' => '["test1",3]', 'drop2' => '["test1",3]', 'drop3' => 'Tarzan'
+            ]
+        );
     }
 
 
     public function test_data() {
         $this->preparePages();
 
-        $access = AccessTable::byTableName('dropdowns', 'test1');
+        $access = AccessTable::getPageAccess('dropdowns', 'test1');
         $data = $access->getData();
 
         $this->assertEquals('John', $data['drop3']->getValue());

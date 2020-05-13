@@ -1,4 +1,5 @@
 <?php
+
 /**
  * DokuWiki Plugin struct (Helper Component)
  *
@@ -6,19 +7,18 @@
  * @author  Andreas Gohr, Michael Große <dokuwiki@cosmocode.de>
  */
 
-// must be run within Dokuwiki
 use dokuwiki\plugin\struct\meta\StructException;
 
-if(!defined('DOKU_INC')) die();
-
-class helper_plugin_struct_db extends DokuWiki_Plugin {
+class helper_plugin_struct_db extends DokuWiki_Plugin
+{
     /** @var helper_plugin_sqlite */
     protected $sqlite;
 
     /**
      * helper_plugin_struct_db constructor.
      */
-    public function __construct() {
+    public function __construct()
+    {
         $this->init();
     }
 
@@ -27,30 +27,31 @@ class helper_plugin_struct_db extends DokuWiki_Plugin {
      *
      * @throws Exception
      */
-    protected function init() {
+    protected function init()
+    {
         /** @var helper_plugin_sqlite $sqlite */
         $this->sqlite = plugin_load('helper', 'sqlite');
-        if(!$this->sqlite) {
-            if(defined('DOKU_UNITTEST')) throw new \Exception('Couldn\'t load sqlite.');
+        if (!$this->sqlite) {
+            if (defined('DOKU_UNITTEST')) throw new \Exception('Couldn\'t load sqlite.');
             return;
         }
 
         if ($this->sqlite->getAdapter() === null) {
-            if(defined('DOKU_UNITTEST')) throw new \Exception('Couldn\'t load PDO sqlite.');
+            if (defined('DOKU_UNITTEST')) throw new \Exception('Couldn\'t load PDO sqlite.');
             $this->sqlite = null;
             return;
         }
 
-        if($this->sqlite->getAdapter()->getName() != DOKU_EXT_PDO) {
-            if(defined('DOKU_UNITTEST')) throw new \Exception('Couldn\'t load PDO sqlite.');
+        if ($this->sqlite->getAdapter()->getName() != DOKU_EXT_PDO) {
+            if (defined('DOKU_UNITTEST')) throw new \Exception('Couldn\'t load PDO sqlite.');
             $this->sqlite = null;
             return;
         }
         $this->sqlite->getAdapter()->setUseNativeAlter(true);
 
         // initialize the database connection
-        if(!$this->sqlite->init('struct', DOKU_PLUGIN . 'struct/db/')) {
-            if(defined('DOKU_UNITTEST')) throw new \Exception('Couldn\'t init sqlite.');
+        if (!$this->sqlite->init('struct', DOKU_PLUGIN . 'struct/db/')) {
+            if (defined('DOKU_UNITTEST')) throw new \Exception('Couldn\'t init sqlite.');
             $this->sqlite = null;
             return;
         }
@@ -64,13 +65,14 @@ class helper_plugin_struct_db extends DokuWiki_Plugin {
      * @param bool $throw throw an Exception when sqlite not available?
      * @return helper_plugin_sqlite|null
      */
-    public function getDB($throw=true) {
+    public function getDB($throw = true)
+    {
         global $conf;
         $len = strlen($conf['metadir']);
-        if ($this->sqlite && $conf['metadir'] != substr($this->sqlite->getAdapter()->getDbFile(),0,$len)) {
+        if ($this->sqlite && $conf['metadir'] != substr($this->sqlite->getAdapter()->getDbFile(), 0, $len)) {
             $this->init();
         }
-        if(!$this->sqlite && $throw) {
+        if (!$this->sqlite && $throw) {
             throw new StructException('no sqlite');
         }
         return $this->sqlite;
@@ -81,10 +83,11 @@ class helper_plugin_struct_db extends DokuWiki_Plugin {
      *
      * You do not want to call this except for testing!
      */
-    public function resetDB() {
-        if(!$this->sqlite) return;
+    public function resetDB()
+    {
+        if (!$this->sqlite) return;
         $file = $this->sqlite->getAdapter()->getDbFile();
-        if(!$file) return;
+        if (!$file) return;
         unlink($file);
         clearstatcache(true, $file);
         $this->init();
@@ -96,7 +99,8 @@ class helper_plugin_struct_db extends DokuWiki_Plugin {
      * @param string ...
      * @return string
      */
-    public function STRUCT_JSON() {
+    public function STRUCT_JSON() // phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
+    {
         $args = func_get_args();
         return json_encode($args);
     }

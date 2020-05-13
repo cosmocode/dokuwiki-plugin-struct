@@ -16,10 +16,10 @@ class Type_Tag_struct_test extends StructTest {
         $this->loadSchemaJSON('tag');
 
         $this->waitForTick();
-        $this->saveData('page1', 'tag', array('tag' => 'Aragorn', 'tags'=>array('Faramir', 'Gollum')));
-        $this->saveData('page2', 'tag', array('tag' => 'Eldarion', 'tags'=>array('Saruman', 'Arwen')));
+        $this->saveData('page1', 'tag', array('tag' => 'Aragorn', 'tags'=>array('Faramir', 'Gollum')), time());
+        $this->saveData('page2', 'tag', array('tag' => 'Eldarion', 'tags'=>array('Saruman', 'Arwen')), time());
         $this->waitForTick();
-        $this->saveData('page1', 'tag', array('tag' => 'Treebeard', 'tags'=>array('Frodo', 'Arwen')));
+        $this->saveData('page1', 'tag', array('tag' => 'Treebeard', 'tags'=>array('Frodo', 'Arwen')), time());
     }
 
 

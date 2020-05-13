@@ -10,10 +10,11 @@ var InlineEditor = function ($table) {
 
         var $self = jQuery(this);
         var pid = $self.parent().data('pid');
+        var rid = $self.parent().data('rid');
+        var rev = $self.parent().data('rev');
         var field = $self.parents('table').find('tr th').eq($self.index()).data('field');
 
-        if (!pid) return;
-        if (!field) return;
+        if ((!pid && !rid) || !field) return;
 
         // prepare the edit overlay
         var $div = jQuery('<div class="struct_inlineditor"><form></form><div class="err"></div></div>');
@@ -22,6 +23,8 @@ var InlineEditor = function ($table) {
         var $save = jQuery('<button type="submit">Save</button>');
         var $cancel = jQuery('<button>Cancel</button>');
         $form.append(jQuery('<input type="hidden" name="pid">').val(pid));
+        $form.append(jQuery('<input type="hidden" name="rid">').val(rid));
+        $form.append(jQuery('<input type="hidden" name="rev">').val(rev));
         $form.append(jQuery('<input type="hidden" name="field">').val(field));
         $form.append('<input type="hidden" name="call" value="plugin_struct_inline_save">');
         $form.append(jQuery('<div class="ctl">').append($save).append($cancel));
@@ -34,6 +37,8 @@ var InlineEditor = function ($table) {
             {
                 call: 'plugin_struct_inline_editor',
                 pid: pid,
+                rid: rid,
+                rev: rev,
                 field: field
             },
             function (data) {
@@ -67,8 +72,10 @@ var InlineEditor = function ($table) {
                 $form.serialize()
             )
                 .done(function (data) {
-                    // save succeeded display new value and close editor
-                    $self.html(data);
+                    // save succeeded, display new value, update revision data and close editor
+                    const saved = JSON.parse(data);
+                    $self.html(saved['value']);
+                    $self.parent().data('rev', saved['rev']);
                     $div.remove();
                     // sums are now out of date - remove them til page is reloaded
                     $self.parents('table').find('tr.summarize').remove();

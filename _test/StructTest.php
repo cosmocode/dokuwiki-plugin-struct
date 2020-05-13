@@ -3,6 +3,7 @@
 namespace dokuwiki\plugin\struct\test;
 
 use dokuwiki\plugin\struct\meta\AccessTable;
+use dokuwiki\plugin\struct\test\mock\AccessTableData;
 use dokuwiki\plugin\struct\test\mock\Assignments;
 use dokuwiki\plugin\struct\meta\SchemaImporter;
 
@@ -39,14 +40,14 @@ abstract class StructTest extends \DokuWikiTest {
      * @param int $rev allows to create schemas back in time
      * @param bool $lookup create as a lookup schema
      */
-    protected function loadSchemaJSON($schema, $json = '', $rev = 0, $lookup = false) {
+    protected function loadSchemaJSON($schema, $json = '', $rev = 0) {
         if(!$json) $json = $schema;
         $file = __DIR__ . "/json/$json.struct.json";
         if(!file_exists($file)) {
             throw new \RuntimeException("$file does not exist");
         }
 
-        $importer = new SchemaImporter($schema, file_get_contents($file), $lookup);
+        $importer = new SchemaImporter($schema, file_get_contents($file));
 
         if(!$importer->build($rev)) {
             throw new \RuntimeException("build of $schema from $file failed");
@@ -88,22 +89,26 @@ abstract class StructTest extends \DokuWikiTest {
      * not the page and changelog entries.
      *
      * @param string $page
-     * @param string $schema
+     * @param string $table
      * @param array $data
      * @param int $rev allows to override the revision timestamp
      */
-    protected function saveData($page, $schema, $data, $rev = 0) {
-        if(!$rev) $rev = time();
-
+    protected function saveData($page, $table, $data, $rev = 0) {
         saveWikiText($page, "test for $page", "saved for testing");
-        $schemaData = AccessTable::byTableName($schema, $page, $rev);
-        $schemaData->saveData($data);
+        if (AccessTable::isTypePage($page, $rev)) {
+            $access = AccessTable::getPageAccess($table, $page, $rev);
+        } elseif(AccessTable::isTypeSerial($page, $rev)) {
+            $access = AccessTable::getSerialAccess($table, $page);
+        } else {
+            $access = AccessTable::getLookupAccess($table, $page);
+        }
+        $access->saveData($data);
         $assignments = Assignments::getInstance();
-        $assignments->assignPageSchema($page, $schema);
+        $assignments->assignPageSchema($page, $table);
     }
 
     /**
-     * Access the plugin's english language strings
+     * Access the plugin's English language strings
      *
      * @param string $key
      * @return string

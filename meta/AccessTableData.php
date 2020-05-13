@@ -9,20 +9,15 @@ namespace dokuwiki\plugin\struct\meta;
  * This class is for accessing the data stored for a page in a schema
  *
  */
-class AccessTableData extends AccessTable {
+class AccessTableData extends AccessTable
+{
 
-    /**
-     * AccessTableData constructor
-     *
-     * @param Schema $schema Which schema to access
-     * @param string $pid The page of which the data is for
-     * @param int $ts Time at which the data should be read or written, 0 for now
-     */
-    public function __construct(Schema $schema, $pid, $ts = 0) {
-        parent::__construct($schema, $pid, $ts);
-        if($this->schema->isLookup()) {
-            throw new StructException('wrong schema type. use factory methods!');
-        }
+    const DEFAULT_PAGE_RID = 0;
+
+    public function __construct($schema, $pid, $ts = 0, $rid = 0)
+    {
+        $ts = $ts ?: time();
+        parent::__construct($schema, $pid, $ts, $rid);
     }
 
     /**
@@ -32,11 +27,12 @@ class AccessTableData extends AccessTable {
      *
      * @return bool
      */
-    public function clearData() {
+    public function clearData()
+    {
         $data = array();
 
-        foreach($this->schema->getColumns() as $col) {
-            if($col->isMulti()) {
+        foreach ($this->schema->getColumns() as $col) {
+            if ($col->isMulti()) {
                 $data[$col->getLabel()] = array();
             } else {
                 $data[$col->getLabel()] = null;
@@ -47,84 +43,14 @@ class AccessTableData extends AccessTable {
     }
 
     /**
-     * Save the data to the database.
-     *
-     * We differentiate between single-value-column and multi-value-column by the value to the respective column-name,
-     * i.e. depending on if that is a string or an array, respectively.
-     *
-     * @param array $data typelabel => value for single fields or typelabel => array(value, value, ...) for multi fields
-     *
-     * @return bool success of saving the data to the database
-     */
-    public function saveData($data) {
-        $stable = 'data_' . $this->schema->getTable();
-        $mtable = 'multi_' . $this->schema->getTable();
-
-        if($this->ts == 0) throw new StructException("Saving with zero timestamp does not work.");
-
-        $colrefs = array_flip($this->labels);
-        $now = $this->ts;
-        $opt = array($this->pid, $now, 1);
-        $multiopts = array();
-        $singlecols = 'pid, rev, latest';
-        foreach ($data as $colname => $value) {
-            if(!isset($colrefs[$colname])) {
-                throw new StructException("Unknown column %s in schema.", hsc($colname));
-            }
-
-            $singlecols .= ",col" . $colrefs[$colname];
-            if (is_array($value)) {
-                foreach ($value as $index => $multivalue) {
-                    $multiopts[] = array($colrefs[$colname], $index+1, $multivalue,);
-                }
-                // copy first value to the single column
-                if(isset($value[0])) {
-                    $opt[] = $value[0];
-                } else {
-                    $opt[] = null;
-                }
-            } else {
-                $opt[] = $value;
-            }
-        }
-        $singlesql = "INSERT INTO $stable ($singlecols) VALUES (" . trim(str_repeat('?,',count($opt)),',') . ")";
-        /** @noinspection SqlResolve */
-        $multisql = "INSERT INTO $mtable (latest, rev, pid, colref, row, value) VALUES (?, ?,?,?,?,?)";
-
-        $this->sqlite->query('BEGIN TRANSACTION');
-
-        // remove latest status from previous data
-        /** @noinspection SqlResolve */
-        $ok = $this->sqlite->query( "UPDATE $stable SET latest = 0 WHERE latest = 1 AND pid = ?",array($this->pid));
-        /** @noinspection SqlResolve */
-        $ok = $ok && $this->sqlite->query( "UPDATE $mtable SET latest = 0 WHERE latest = 1 AND pid = ?",array($this->pid));
-
-        // insert single values
-        $ok = $ok && $this->sqlite->query($singlesql, $opt);
-
-
-        // insert multi values
-        foreach ($multiopts as $multiopt) {
-            $multiopt = array_merge(array(1, $now, $this->pid,), $multiopt);
-            $ok = $ok && $this->sqlite->query($multisql, $multiopt);
-        }
-
-        if (!$ok) {
-            $this->sqlite->query('ROLLBACK TRANSACTION');
-            return false;
-        }
-        $this->sqlite->query('COMMIT TRANSACTION');
-        return true;
-    }
-
-    /**
      * @return int
      */
-    protected function getLastRevisionTimestamp() {
+    protected function getLastRevisionTimestamp()
+    {
         $table = 'data_' . $this->schema->getTable();
         $where = "WHERE pid = ?";
         $opts = array($this->pid);
-        if($this->ts) {
+        if ($this->ts) {
             $where .= " AND rev <= ?";
             $opts[] = $this->ts;
         }
@@ -137,4 +63,64 @@ class AccessTableData extends AccessTable {
         return $ret;
     }
 
+    /**
+     * @inheritDoc
+     */
+    protected function validateTypeData($data)
+    {
+        if ($this->ts == 0) {
+            throw new StructException("Saving with zero timestamp does not work.");
+        }
+        return true;
+    }
+
+    /**
+     * Remove latest status from previous data
+     */
+    protected function beforeSave()
+    {
+        /** @noinspection SqlResolve */
+        $ok = $this->sqlite->query(
+            "UPDATE $this->stable SET latest = 0 WHERE latest = 1 AND pid = ?",
+            [$this->pid]
+        );
+        /** @noinspection SqlResolve */
+        return $ok && $this->sqlite->query(
+            "UPDATE $this->mtable SET latest = 0 WHERE latest = 1 AND pid = ?",
+            [$this->pid]
+        );
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function getSingleNoninputCols()
+    {
+        return ['rid, pid, rev, latest'];
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function getSingleNoninputValues()
+    {
+        return [self::DEFAULT_PAGE_RID, $this->pid, $this->ts, 1];
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function getMultiSql()
+    {
+        /** @noinspection SqlResolve */
+        return "INSERT INTO $this->mtable (latest, rev, pid, rid, colref, row, value) VALUES (?,?,?,?,?,?,?)";
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function getMultiNoninputValues()
+    {
+        return [AccessTable::DEFAULT_LATEST, $this->ts, $this->pid, self::DEFAULT_PAGE_RID];
+    }
 }

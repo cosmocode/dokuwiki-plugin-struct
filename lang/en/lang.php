@@ -13,8 +13,7 @@ $lang['headline'] = 'Structured Data';
 
 $lang['page schema'] = 'Page Schema:';
 $lang['lookup schema'] = 'Lookup Schema:';
-$lang['edithl page'] = 'Editing Page Schema <i>%s</i>';
-$lang['edithl lookup'] = 'Editing Lookup Schema <i>%s</i>';
+$lang['edithl'] = 'Editing schema <i>%s</i>';
 $lang['create'] = 'Create new Schema';
 $lang['schemaname'] = 'Schema Name:';
 $lang['save'] = 'Save';
@@ -84,7 +83,6 @@ $lang['Exception illegal option'] = 'The option \'<code>%s</code>\' is invalid f
 $lang['Exception noschemas'] = 'There have been no schemas given to load columns from';
 $lang['Exception nocolname'] = 'No column name given';
 $lang['Exception nolookupmix'] = 'You can not aggregate more than one Lookup or mix it with Page data';
-$lang['Exception nolookupassign'] = 'You can not assign Lookup schemas to pages';
 $lang['Exception No data saved'] = 'No data saved';
 $lang['Exception no sqlite'] = 'The struct plugin requires the sqlite plugin. Please install and enable it.';
 $lang['Exception column not in table'] = 'There is no column %s in schema %s.';
@@ -99,7 +97,12 @@ $lang['none']      = 'Nothing found';
 $lang['csvexport'] = 'CSV Export';
 
 $lang['admin_csvexport'] = 'Export raw data to a CSV file';
+$lang['admin_csv_page'] = 'page';
+$lang['admin_csv_lookup'] = 'lookup';
+$lang['admin_csv_serial'] = 'serial';
+$lang['admin_csvexport_datatype'] = 'Export data of type';
 $lang['admin_csvimport'] = 'Import raw data from a CSV file';
+$lang['admin_csvimport_datatype'] = 'Import data of type';
 $lang['admin_csvdone'] = 'CSV file imported';
 $lang['admin_csvhelp'] = 'Please refer to the manual on CSV Import for format details.';
 

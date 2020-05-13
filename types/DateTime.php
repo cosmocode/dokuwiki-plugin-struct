@@ -1,4 +1,5 @@
 <?php
+
 namespace dokuwiki\plugin\struct\types;
 
 use dokuwiki\plugin\struct\meta\DateFormatConverter;
@@ -6,7 +7,8 @@ use dokuwiki\plugin\struct\meta\QueryBuilder;
 use dokuwiki\plugin\struct\meta\QueryBuilderWhere;
 use dokuwiki\plugin\struct\meta\ValidationException;
 
-class DateTime extends Date {
+class DateTime extends Date
+{
 
     protected $config = array(
         'format' => '', // filled by constructor
@@ -23,7 +25,8 @@ class DateTime extends Date {
      * @param bool $ismulti
      * @param int $tid
      */
-    public function __construct($config = null, $label = '', $ismulti = false, $tid = 0) {
+    public function __construct($config = null, $label = '', $ismulti = false, $tid = 0)
+    {
         global $conf;
         $this->config['format'] = DateFormatConverter::toDate($conf['dformat']);
 
@@ -39,8 +42,9 @@ class DateTime extends Date {
      *
      * @return string html
      */
-    public function valueEditor($name, $rawvalue, $htmlID) {
-        if($this->config['prefilltoday'] && !$rawvalue) {
+    public function valueEditor($name, $rawvalue, $htmlID)
+    {
+        if ($this->config['prefilltoday'] && !$rawvalue) {
             $rawvalue = date('Y-m-d\TH:i');
         }
         $rawvalue = str_replace(' ', 'T', $rawvalue);
@@ -65,14 +69,15 @@ class DateTime extends Date {
      * @return string
      * @throws ValidationException
      */
-    public function validate($rawvalue) {
+    public function validate($rawvalue)
+    {
         $rawvalue = trim($rawvalue);
         list($date, $time) = preg_split('/[ |T]/', $rawvalue, 2);
         $date = trim($date);
         $time = trim($time);
 
         list($year, $month, $day) = explode('-', $date, 3);
-        if(!checkdate((int) $month, (int) $day, (int) $year)) {
+        if (!checkdate((int) $month, (int) $day, (int) $year)) {
             throw new ValidationException('invalid datetime format');
         }
         if ($this->config['pastonly'] && strtotime($rawvalue) > time()) {
@@ -85,7 +90,7 @@ class DateTime extends Date {
         list($h, $m) = explode(':', $time, 3); // drop seconds
         $h = (int) $h;
         $m = (int) $m;
-        if($h < 0 || $h > 23 || $m < 0 || $m > 59) {
+        if ($h < 0 || $h > 23 || $m < 0 || $m > 59) {
             throw new ValidationException('invalid datetime format');
         }
 
@@ -98,11 +103,12 @@ class DateTime extends Date {
      * @param string $colname
      * @param string $alias
      */
-    public function select(QueryBuilder $QB, $tablealias, $colname, $alias) {
+    public function select(QueryBuilder $QB, $tablealias, $colname, $alias)
+    {
         $col = "$tablealias.$colname";
 
         // when accessing the revision column we need to convert from Unix timestamp
-        if(is_a($this->context,'dokuwiki\plugin\struct\meta\RevisionColumn')) {
+        if (is_a($this->context, 'dokuwiki\plugin\struct\meta\RevisionColumn')) {
             $rightalias = $QB->generateTableAlias();
             $QB->addLeftJoin($tablealias, 'titles', $rightalias, "$tablealias.pid = $rightalias.pid");
             $col = "DATETIME($rightalias.lastrev, 'unixepoch', 'localtime')";
@@ -119,11 +125,12 @@ class DateTime extends Date {
      * @param string|\string[] $value
      * @param string $op
      */
-    public function filter(QueryBuilderWhere $add, $tablealias, $colname, $comp, $value, $op) {
+    public function filter(QueryBuilderWhere $add, $tablealias, $colname, $comp, $value, $op)
+    {
         $col = "$tablealias.$colname";
 
         // when accessing the revision column we need to convert from Unix timestamp
-        if(is_a($this->context,'dokuwiki\plugin\struct\meta\RevisionColumn')) {
+        if (is_a($this->context, 'dokuwiki\plugin\struct\meta\RevisionColumn')) {
             $QB = $add->getQB();
             $rightalias = $QB->generateTableAlias();
             $col = "DATETIME($rightalias.lastrev, 'unixepoch', 'localtime')";
@@ -131,11 +138,11 @@ class DateTime extends Date {
         }
 
         /** @var QueryBuilderWhere $add Where additionional queries are added to*/
-        if(is_array($value)) {
+        if (is_array($value)) {
             $add = $add->where($op); // sub where group
             $op = 'OR';
         }
-        foreach((array) $value as $item) {
+        foreach ((array) $value as $item) {
             $pl = $QB->addValue($item);
             $add->where($op, "$col $comp $pl");
         }
@@ -149,10 +156,11 @@ class DateTime extends Date {
      * @param string $colname
      * @param string $order
      */
-    public function sort(QueryBuilder $QB, $tablealias, $colname, $order) {
+    public function sort(QueryBuilder $QB, $tablealias, $colname, $order)
+    {
         $col = "$tablealias.$colname";
 
-        if(is_a($this->context,'dokuwiki\plugin\struct\meta\RevisionColumn')) {
+        if (is_a($this->context, 'dokuwiki\plugin\struct\meta\RevisionColumn')) {
             $rightalias = $QB->generateTableAlias();
             $QB->addLeftJoin($tablealias, 'titles', $rightalias, "$tablealias.pid = $rightalias.pid");
             $col = "$rightalias.lastrev";
@@ -160,5 +168,4 @@ class DateTime extends Date {
 
         $QB->addOrderBy("$col $order");
     }
-
 }

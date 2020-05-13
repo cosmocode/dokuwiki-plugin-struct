@@ -2,7 +2,7 @@
 
 namespace dokuwiki\plugin\struct\meta;
 
-if(!defined('JSON_PRETTY_PRINT')) define('JSON_PRETTY_PRINT', 0); // PHP 5.3 compatibility
+if (!defined('JSON_PRETTY_PRINT')) define('JSON_PRETTY_PRINT', 0); // PHP 5.3 compatibility
 
 /**
  * Class SchemaImporter
@@ -11,7 +11,8 @@ if(!defined('JSON_PRETTY_PRINT')) define('JSON_PRETTY_PRINT', 0); // PHP 5.3 com
  *
  * @package dokuwiki\plugin\struct\meta
  */
-class SchemaImporter extends SchemaBuilder {
+class SchemaImporter extends SchemaBuilder
+{
 
     /**
      * Import a schema using JSON
@@ -20,17 +21,17 @@ class SchemaImporter extends SchemaBuilder {
      *
      * @param string $table
      * @param string $json
-     * @param bool $islookup
      */
-    public function __construct($table, $json, $islookup=false) {
-        parent::__construct($table, array('islookup' => $islookup));
+    public function __construct($table, $json)
+    {
+        parent::__construct($table, []);
 
         // number of existing columns
         $existing = count($this->oldschema->getColumns());
 
         $input = json_decode($json, true);
-        if($input === null) {
-            switch(json_last_error()) {
+        if ($input === null) {
+            switch (json_last_error()) {
                 case JSON_ERROR_NONE:
                     $error = 'No errors';
                     break;
@@ -63,11 +64,11 @@ class SchemaImporter extends SchemaBuilder {
             'new' => array(),
         );
 
-        foreach($input['columns'] as $column) {
+        foreach ($input['columns'] as $column) {
             // config has to stay json
             $column['config'] = json_encode($column['config'], JSON_PRETTY_PRINT);
 
-            if(!empty($column['colref']) && $column['colref'] <= $existing) {
+            if (!empty($column['colref']) && $column['colref'] <= $existing) {
                 // update existing column
                 $data['cols'][$column['colref']] = $column;
             } else {
@@ -78,5 +79,4 @@ class SchemaImporter extends SchemaBuilder {
 
         $this->data = $data;
     }
-
 }

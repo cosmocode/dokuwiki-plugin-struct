@@ -8,7 +8,7 @@ class AccessTableData extends \dokuwiki\plugin\struct\meta\AccessTableData {
         return parent::getDataFromDB();
     }
 
-    public function buildGetDataSQL() {
-        return parent::buildGetDataSQL();
+    public function buildGetDataSQL($idColumn = 'pid') {
+        return parent::buildGetDataSQL($idColumn);
     }
 }

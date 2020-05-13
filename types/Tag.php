@@ -9,7 +9,8 @@ use dokuwiki\plugin\struct\meta\Schema;
 use dokuwiki\plugin\struct\meta\SearchConfigParameters;
 use dokuwiki\plugin\struct\meta\StructException;
 
-class Tag extends AbstractMultiBaseType {
+class Tag extends AbstractMultiBaseType
+{
 
     protected $config = array(
         'page' => '',
@@ -25,12 +26,13 @@ class Tag extends AbstractMultiBaseType {
      * @param string $mode
      * @return bool
      */
-    public function renderValue($value, \Doku_Renderer $R, $mode) {
+    public function renderValue($value, \Doku_Renderer $R, $mode)
+    {
         $context = $this->getContext();
         $filter = SearchConfigParameters::$PARAM_FILTER . '[' . $context->getTable() . '.' . $context->getLabel() . '*~]=' . $value;
 
         $page = trim($this->config['page']);
-        if(!$page) $page = cleanID($context->getLabel());
+        if (!$page) $page = cleanID($context->getLabel());
 
         $R->internallink($page . '?' . $filter, $value);
         return true;
@@ -41,16 +43,17 @@ class Tag extends AbstractMultiBaseType {
      *
      * @return array
      */
-    public function handleAjax() {
+    public function handleAjax()
+    {
         global $INPUT;
 
         // check minimum length
         $lookup = trim($INPUT->str('search'));
-        if(utf8_strlen($lookup) < $this->config['autocomplete']['mininput']) return array();
+        if (utf8_strlen($lookup) < $this->config['autocomplete']['mininput']) return array();
 
         // results wanted?
         $max = $this->config['autocomplete']['maxresult'];
-        if($max <= 0) return array();
+        if ($max <= 0) return array();
 
         $context = $this->getContext();
         $sql = $this->buildSQLFromContext($context);
@@ -64,7 +67,7 @@ class Tag extends AbstractMultiBaseType {
         $sqlite->res_close($res);
 
         $result = array();
-        foreach($rows as $row) {
+        foreach ($rows as $row) {
                 $result[] = array(
                     'label' => $row['value'],
                     'value' => $row['value'],
@@ -100,11 +103,10 @@ class Tag extends AbstractMultiBaseType {
                      WHERE 1 = 1\n";
         }
 
-        $schema = new Schema($context->getTable());
-        if (!$schema->isLookup()) {
-            $sql .= "AND PAGEEXISTS(D.pid) = 1\n";
-            $sql .= "AND GETACCESSLEVEL(D.pid) > 0\n";
-        }
+        $sql .= "AND ( D.pid = '' OR (";
+        $sql .= "PAGEEXISTS(D.pid) = 1\n";
+        $sql .= "AND GETACCESSLEVEL(D.pid) > 0\n";
+        $sql .= ")) ";
 
         $sql .= "AND D.latest = 1\n";
         $sql .= "AND value LIKE ?\n";
@@ -123,16 +125,16 @@ class Tag extends AbstractMultiBaseType {
      * @param string|string[] $value
      * @param string $op
      */
-    public function filter(QueryBuilderWhere $add, $tablealias, $colname, $comp, $value, $op) {
+    public function filter(QueryBuilderWhere $add, $tablealias, $colname, $comp, $value, $op)
+    {
         /** @var QueryBuilderWhere $add Where additionional queries are added to*/
-        if(is_array($value)) {
+        if (is_array($value)) {
             $add = $add->where($op); // sub where group
             $op = 'OR';
         }
-        foreach((array) $value as $item) {
+        foreach ((array) $value as $item) {
             $pl = $add->getQB()->addValue($item);
             $add->where($op, "LOWER(REPLACE($tablealias.$colname, ' ', '')) $comp LOWER(REPLACE($pl, ' ', ''))");
         }
     }
-
 }

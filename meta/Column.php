@@ -15,7 +15,8 @@ use dokuwiki\plugin\struct\types\AbstractBaseType;
  *
  * @package dokuwiki\plugin\struct\meta
  */
-class Column {
+class Column
+{
 
     /** @var int fields are sorted by this value */
     protected $sort;
@@ -24,7 +25,7 @@ class Column {
     /** @var int the column in the datatable. columns count from 1 */
     protected $colref;
     /** @var bool is this column still enabled? */
-    protected $enabled=true;
+    protected $enabled = true;
     /** @var  string backreference to the table this column is part of */
     protected $table;
 
@@ -36,7 +37,8 @@ class Column {
      * @param bool $enabled
      * @param string $table
      */
-    public function __construct($sort, AbstractBaseType $type, $colref=0, $enabled=true, $table='') {
+    public function __construct($sort, AbstractBaseType $type, $colref = 0, $enabled = true, $table = '')
+    {
         $this->sort = (int) $sort;
         $this->type = $type;
         $this->colref = (int) $colref;
@@ -47,57 +49,65 @@ class Column {
     /**
      * @return int
      */
-    public function getSort() {
+    public function getSort()
+    {
         return $this->sort;
     }
 
     /**
      * @return int
      */
-    public function getTid() {
+    public function getTid()
+    {
         return $this->type->getTid();
     }
 
     /**
      * @return string
      */
-    public function getLabel() {
+    public function getLabel()
+    {
         return $this->type->getLabel();
     }
 
     /**
      * @return string the label prepended with the table name
      */
-    public function getFullQualifiedLabel() {
-        if(!$this->table) throw new StructException('No table set for this column');
-        return $this->table .'.'. $this->getLabel();
+    public function getFullQualifiedLabel()
+    {
+        if (!$this->table) throw new StructException('No table set for this column');
+        return $this->table . '.' . $this->getLabel();
     }
 
     /**
      * @return string
      */
-    public function getTranslatedLabel() {
+    public function getTranslatedLabel()
+    {
         return $this->type->getTranslatedLabel();
     }
 
     /**
      * @return string
      */
-    public function getTranslatedHint() {
+    public function getTranslatedHint()
+    {
         return $this->type->getTranslatedHint();
     }
 
     /**
      * @return AbstractBaseType
      */
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
     /**
      * @return int
      */
-    public function getColref() {
+    public function getColref()
+    {
         return $this->colref;
     }
 
@@ -107,9 +117,10 @@ class Column {
      * @param bool $enforceSingleColumn Throw an exception if $this is a multi column
      * @return string
      */
-    public function getColName($enforceSingleColumn = true) {
-        if($enforceSingleColumn && $this->isMulti()) throw new StructException('Calling getColName on a multi value column makes no sense.');
-        return 'col'.$this->colref;
+    public function getColName($enforceSingleColumn = true)
+    {
+        if ($enforceSingleColumn && $this->isMulti()) throw new StructException('Calling getColName on a multi value column makes no sense.');
+        return 'col' . $this->colref;
     }
 
     /**
@@ -118,44 +129,50 @@ class Column {
      * @param bool $enforceSingleColumn Throw an exception if $this is a multi column
      * @return string
      */
-    public function getFullColName($enforceSingleColumn = true) {
+    public function getFullColName($enforceSingleColumn = true)
+    {
         $col = $this->getColName($enforceSingleColumn);
-        if($this->table) $col = 'data_'.$this->table.'.'.$col;
+        if ($this->table) $col = 'data_' . $this->table . '.' . $col;
         return $col;
     }
 
     /**
      * @return boolean
      */
-    public function isEnabled() {
+    public function isEnabled()
+    {
         return $this->enabled;
     }
 
     /**
      * @return string
      */
-    public function getTable() {
+    public function getTable()
+    {
         return $this->table;
     }
 
     /**
      * @return bool
      */
-    public function isMulti() {
+    public function isMulti()
+    {
         return $this->type->isMulti();
     }
 
     /**
      * @return bool
      */
-    public function isVisibleInEditor() {
+    public function isVisibleInEditor()
+    {
         return $this->getType()->isVisibleInEditor();
     }
 
     /**
      * @return bool
      */
-    public function isVisibleInPage() {
+    public function isVisibleInPage()
+    {
         return $this->getType()->isVisibleInPage();
     }
 
@@ -165,19 +182,20 @@ class Column {
      * @param bool $reload forces reloading the types
      * @return array
      */
-    static public function allTypes($reload=false) {
+    public static function allTypes($reload = false)
+    {
         static $map = null;
-        if(!is_null($map) && !$reload) return $map;
+        if (!is_null($map) && !$reload) return $map;
 
         // get our own types
         $map = array();
         $files = glob(DOKU_PLUGIN . 'struct/types/*.php');
-        foreach($files as $file) {
+        foreach ($files as $file) {
             $file = basename($file, '.php');
-            if(substr($file, 0, 8) == 'Abstract') continue;
-            if(substr($file, 0, 5) == 'Trait') continue;
-            if(substr($file, 0, 4) == 'Auto') continue;
-            $map[$file] = 'dokuwiki\\plugin\\struct\\types\\' .$file;
+            if (substr($file, 0, 8) == 'Abstract') continue;
+            if (substr($file, 0, 5) == 'Trait') continue;
+            if (substr($file, 0, 4) == 'Auto') continue;
+            $map[$file] = 'dokuwiki\\plugin\\struct\\types\\' . $file;
         }
 
         // let plugins add their own
@@ -186,5 +204,4 @@ class Column {
         ksort($map);
         return $map;
     }
-
 }

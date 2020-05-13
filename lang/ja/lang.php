@@ -70,7 +70,6 @@ $lang['Exception illegal option'] = 'この集約タイプでは、\'<code>%s</c
 $lang['Exception noschemas']   = '列から読み込むスキーマはありませんでした';
 $lang['Exception nocolname']   = '指定された列名はありません';
 $lang['Exception nolookupmix'] = '複数の検索を集約したり、ページデータと混ぜたりはできません';
-$lang['Exception nolookupassign'] = '検索スキーマはページに割当てできません';
 $lang['Exception No data saved'] = '保存されるデータはありません';
 $lang['Exception no sqlite']   = 'Struct プラグインには Sqlite プラグインが必要です。インストールして有効にしてください。';
 $lang['Exception column not in table'] = 'スキーマ %s 内にコラム %s がありません。';

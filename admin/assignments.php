@@ -1,4 +1,5 @@
 <?php
+
 /**
  * DokuWiki Plugin struct (Admin Component)
  *
@@ -11,14 +12,16 @@ use dokuwiki\plugin\struct\meta\Assignments;
 use dokuwiki\plugin\struct\meta\Schema;
 use dokuwiki\plugin\struct\meta\StructException;
 
-if(!defined('DOKU_INC')) die();
+if (!defined('DOKU_INC')) die();
 
-class admin_plugin_struct_assignments extends DokuWiki_Admin_Plugin {
+class admin_plugin_struct_assignments extends DokuWiki_Admin_Plugin
+{
 
     /**
      * @return int sort number in admin menu
      */
-    public function getMenuSort() {
+    public function getMenuSort()
+    {
         return 501;
     }
 
@@ -28,48 +31,51 @@ class admin_plugin_struct_assignments extends DokuWiki_Admin_Plugin {
      * @param string $language language code
      * @return string menu string
      */
-    public function getMenuText($language) {
+    public function getMenuText($language)
+    {
         return $this->getLang('menu_assignments');
     }
 
     /**
      * @return bool true if only access for superuser, false is for superusers and moderators
      */
-    public function forAdminOnly() {
+    public function forAdminOnly()
+    {
         return false;
     }
 
     /**
      * Should carry out any processing required by the plugin.
      */
-    public function handle() {
+    public function handle()
+    {
         global $INPUT;
         global $ID;
 
         try {
             $assignments = Assignments::getInstance();
-        } catch(StructException $e) {
+        } catch (StructException $e) {
             msg($e->getMessage(), -1);
             return false;
         }
 
-        if($INPUT->str('action') && $INPUT->arr('assignment') && checkSecurityToken()) {
+        if ($INPUT->str('action') && $INPUT->arr('assignment') && checkSecurityToken()) {
             $assignment = $INPUT->arr('assignment');
-            if(!blank($assignment['assign']) && !blank($assignment['tbl'])) {
-                if($INPUT->str('action') === 'delete') {
+            if (!blank($assignment['assign']) && !blank($assignment['tbl'])) {
+                if ($INPUT->str('action') === 'delete') {
                     $ok = $assignments->removePattern($assignment['assign'], $assignment['tbl']);
-                    if(!$ok) msg('failed to remove pattern', -1);
-                } else if($INPUT->str('action') === 'add') {
-                    if($assignment['assign'][0] == '/') {
-                        if(@preg_match($assignment['assign'], null) === false) {
+                    if (!$ok) msg('failed to remove pattern', -1);
+                } elseif ($INPUT->str('action') === 'add') {
+                    if ($assignment['assign'][0] == '/') {
+                        if (@preg_match($assignment['assign'], null) === false) {
                             msg('Invalid regular expression. Pattern not saved', -1);
                         } else {
                             $ok = $assignments->addPattern($assignment['assign'], $assignment['tbl']);
-                            if(!$ok) msg('failed to add pattern', -1);
+                            if (!$ok) msg('failed to add pattern', -1);
                         }
                     } else {
                         $ok = $assignments->addPattern($assignment['assign'], $assignment['tbl']);
-                        if(!$ok) msg('failed to add pattern', -1);
+                        if (!$ok) msg('failed to add pattern', -1);
                     }
                 }
             }
@@ -83,14 +89,15 @@ class admin_plugin_struct_assignments extends DokuWiki_Admin_Plugin {
     /**
      * Render HTML output, e.g. helpful text and a form
      */
-    public function html() {
+    public function html()
+    {
         global $ID;
 
         echo $this->locale_xhtml('assignments_intro');
 
         try {
             $ass = Assignments::getInstance();
-        } catch(StructException $e) {
+        } catch (StructException $e) {
             msg($e->getMessage(), -1);
             return false;
         }
@@ -104,31 +111,32 @@ class admin_plugin_struct_assignments extends DokuWiki_Admin_Plugin {
 
         // header
         echo '<tr>';
-        echo '<th>'.$this->getLang('assign_assign').'</th>';
-        echo '<th>'.$this->getLang('assign_tbl').'</th>';
+        echo '<th>' . $this->getLang('assign_assign') . '</th>';
+        echo '<th>' . $this->getLang('assign_tbl') . '</th>';
         echo '<th></th>';
         echo '</tr>';
 
         // existing assignments
-        foreach($assignments as $assignment) {
+        foreach ($assignments as $assignment) {
             $schema = $assignment['tbl'];
             $assignee = $assignment['pattern'];
 
             $link = wl(
-                $ID, array(
+                $ID,
+                array(
                 'do' => 'admin',
                 'page' => 'struct_assignments',
                 'action' => 'delete',
                 'sectok' => getSecurityToken(),
                 'assignment[tbl]' => $schema,
                 'assignment[assign]' => $assignee,
-            )
+                )
             );
 
             echo '<tr>';
             echo '<td>' . hsc($assignee) . '</td>';
             echo '<td>' . hsc($schema) . '</td>';
-            echo '<td><a class="deleteSchema" href="' . $link . '">'.$this->getLang('assign_del').'</a></td>';
+            echo '<td><a class="deleteSchema" href="' . $link . '">' . $this->getLang('assign_del') . '</a></td>';
             echo '</tr>';
         }
 
@@ -137,12 +145,12 @@ class admin_plugin_struct_assignments extends DokuWiki_Admin_Plugin {
         echo '<td><input type="text" name="assignment[assign]" /></td>';
         echo '<td>';
         echo '<select name="assignment[tbl]">';
-        foreach(Schema::getAll('page') as $table) {
+        foreach (Schema::getAll() as $table) {
             echo '<option value="' . hsc($table) . '">' . hsc($table) . '</option>';
         }
         echo '</select>';
         echo '</td>';
-        echo '<td><button type="submit" name="action" value="add">'.$this->getLang('assign_add').'</button></td>';
+        echo '<td><button type="submit" name="action" value="add">' . $this->getLang('assign_add') . '</button></td>';
         echo '</tr>';
 
         echo '</table>';
@@ -153,12 +161,12 @@ class admin_plugin_struct_assignments extends DokuWiki_Admin_Plugin {
      *
      * @return array
      */
-    public function getTOC() {
+    public function getTOC()
+    {
         /** @var admin_plugin_struct_schemas $plugin */
         $plugin = plugin_load('admin', 'struct_schemas');
         return $plugin->getTOC();
     }
-
 }
 
 // vim:ts=4:sw=4:et:

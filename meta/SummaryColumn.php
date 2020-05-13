@@ -12,7 +12,8 @@ use dokuwiki\plugin\struct\types\AutoSummary;
  *
  * @package dokuwiki\plugin\struct\meta
  */
-class SummaryColumn extends Column {
+class SummaryColumn extends Column
+{
 
     /**
      * PageColumn constructor.
@@ -21,13 +22,15 @@ class SummaryColumn extends Column {
      * @param PageMeta $type
      * @param string $table
      */
-    public function __construct($sort, AutoSummary $type, $table='') {
-        if($type->isMulti()) throw new StructException('SummaryColumns can not be multi value types!');
+    public function __construct($sort, AutoSummary $type, $table = '')
+    {
+        if ($type->isMulti()) throw new StructException('SummaryColumns can not be multi value types!');
         parent::__construct($sort, $type, 0, true, $table);
         $this->getType()->setContext($this);
     }
 
-    public function getColref() {
+    public function getColref()
+    {
         throw new StructException('Accessing the colref of a SummaryColumn makes no sense');
     }
 
@@ -35,7 +38,8 @@ class SummaryColumn extends Column {
      * @param bool $enforceSingleColumn ignored
      * @return string
      */
-    public function getColName($enforceSingleColumn = true) {
+    public function getColName($enforceSingleColumn = true)
+    {
         return 'lastsummary';
     }
 
@@ -43,22 +47,25 @@ class SummaryColumn extends Column {
      * @param bool $enforceSingleColumn ignored
      * @return string
      */
-    public function getFullColName($enforceSingleColumn = true) {
-        $col = 'titles.'.$this->getColName($enforceSingleColumn);
+    public function getFullColName($enforceSingleColumn = true)
+    {
+        $col = 'titles.' . $this->getColName($enforceSingleColumn);
         return $col;
     }
 
     /**
      * @return string always '%lastsummary%'
      */
-    public function getLabel() {
+    public function getLabel()
+    {
         return '%lastsummary%';
     }
 
     /**
      * @return string always '%lastsummary%'
      */
-    public function getFullQualifiedLabel() {
+    public function getFullQualifiedLabel()
+    {
         // There is only one pageid for each row because we JOIN on it
         // so we do not prefix it with the table
         return $this->getLabel();
@@ -67,10 +74,10 @@ class SummaryColumn extends Column {
     /**
      * @return string preconfigured label
      */
-    public function getTranslatedLabel() {
+    public function getTranslatedLabel()
+    {
         /** @var \helper_plugin_struct_config $helper */
         $helper = plugin_load('helper', 'struct_config');
         return $helper->getLang('summarylabel');
     }
-
 }

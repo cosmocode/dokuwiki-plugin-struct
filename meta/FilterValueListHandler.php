@@ -5,7 +5,8 @@ namespace dokuwiki\plugin\struct\meta;
 /**
  * Handler for the row value parser
  */
-class FilterValueListHandler {
+class FilterValueListHandler
+{
 
     protected $row = array();
     protected $current_row = 0;
@@ -14,7 +15,8 @@ class FilterValueListHandler {
     /**
      * @return array
      */
-    public function get_row() {
+    public function getRow()
+    {
         return $this->row;
     }
 
@@ -23,7 +25,8 @@ class FilterValueListHandler {
      * @param int state - the type of match made (see below)
      * @param int pos - byte index where match was made
      */
-    public function row($match, $state, $pos) {
+    public function row($match, $state, $pos)
+    {
         switch ($state) {
             // The start of the list...
             case DOKU_LEXER_ENTER:
@@ -48,7 +51,8 @@ class FilterValueListHandler {
      * @param int state - the type of match made (see below)
      * @param int pos - byte index where match was made
      */
-    public function single_quote_string($match, $state, $pos) {
+    public function singleQuoteString($match, $state, $pos)
+    {
         switch ($state) {
             case DOKU_LEXER_UNMATCHED:
                 $this->token .= $match;
@@ -62,7 +66,8 @@ class FilterValueListHandler {
      * @param int state - the type of match made (see below)
      * @param int pos - byte index where match was made
      */
-    public function escape_sequence($match, $state, $pos) {
+    public function escapeSequence($match, $state, $pos)
+    {
         //add escape character to the token
         $this->token .= $match[1];
         return true;
@@ -73,7 +78,8 @@ class FilterValueListHandler {
      * @param int state - the type of match made (see below)
      * @param int pos - byte index where match was made
      */
-    public function number($match, $state, $pos) {
+    public function number($match, $state, $pos)
+    {
         $this->token = $match;
         return true;
     }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * DokuWiki Plugin struct (Action Component)
  *
@@ -6,9 +7,8 @@
  * @author  Andreas Gohr, Michael Große <dokuwiki@cosmocode.de>
  */
 
-// must be run within Dokuwiki
 use dokuwiki\plugin\struct\meta\AccessTable;
-use dokuwiki\plugin\struct\meta\AccessTableData;
+use dokuwiki\plugin\struct\meta\AccessTableLookup;
 use dokuwiki\plugin\struct\meta\Column;
 use dokuwiki\plugin\struct\meta\LookupTable;
 use dokuwiki\plugin\struct\meta\Schema;
@@ -24,14 +24,14 @@ use dokuwiki\plugin\struct\meta\Value;
 class action_plugin_struct_lookup extends DokuWiki_Action_Plugin
 {
 
-    /** @var  AccessTableData */
-    protected $schemadata = null;
-
     /** @var  Column */
     protected $column = null;
 
-    /** @var String */
+    /** @var string */
     protected $pid = '';
+
+    /** @var int */
+    protected $rid = 0;
 
     /**
      * Registers a callback function for a given event
@@ -58,7 +58,6 @@ class action_plugin_struct_lookup extends DokuWiki_Action_Plugin
         $event->stopPropagation();
 
         try {
-
             if (substr($event->data, $len) == 'new') {
                 $this->lookupNew();
             }
@@ -70,7 +69,6 @@ class action_plugin_struct_lookup extends DokuWiki_Action_Plugin
             if (substr($event->data, $len) == 'delete') {
                 $this->lookupDelete();
             }
-
         } catch (StructException $e) {
             http_status(500);
             header('Content-Type: text/plain');
@@ -85,20 +83,20 @@ class action_plugin_struct_lookup extends DokuWiki_Action_Plugin
     {
         global $INPUT;
         $tablename = $INPUT->str('schema');
-        $pid = $INPUT->int('pid');
-        if (!$pid) {
-            throw new StructException('No pid given');
-        }
         if (!$tablename) {
             throw new StructException('No schema given');
         }
+
+        $this->rid = $INPUT->int('rid');
+        $this->validate();
+
         action_plugin_struct_inline::checkCSRF();
 
-        $schemadata = AccessTable::byTableName($tablename, $pid);
-        if (!$schemadata->getSchema()->isEditable()) {
+        $access = $this->getAccess($tablename);
+        if (!$access->getSchema()->isEditable()) {
             throw new StructException('lookup delete error: no permission for schema');
         }
-        $schemadata->clearData();
+        $access->clearData();
     }
 
     /**
@@ -109,20 +107,23 @@ class action_plugin_struct_lookup extends DokuWiki_Action_Plugin
         global $INPUT;
         $tablename = $INPUT->str('schema');
         $data = $INPUT->arr('entry');
+        $this->pid = $INPUT->str('pid');
         action_plugin_struct_inline::checkCSRF();
 
-        // create a new row based on the original aggregation config for the new pid
-        $access = AccessTable::byTableName($tablename, 0, 0);
+        // create a new row based on the original aggregation config
+        $access = $this->getAccess($tablename);
 
         /** @var helper_plugin_struct $helper */
         $helper = plugin_load('helper', 'struct');
         $helper->saveLookupData($access, $data);
 
-        $pid = $access->getPid();
         $config = json_decode($INPUT->str('searchconf'), true);
-        $config['filter'] = array(array('%rowid%', '=', $pid, 'AND'));
+        // update row id
+        $this->rid = $access->getRid();
+        $config = $this->addTypeFilter($config);
+
         $lookup = new LookupTable(
-            '', // current page doesn't matter
+            $this->pid,
             'xhtml',
             new Doku_Renderer_xhtml(),
             new SearchConfig($config)
@@ -164,7 +165,44 @@ class action_plugin_struct_lookup extends DokuWiki_Action_Plugin
         echo '<div class="err"></div>';
         echo '</fieldset>';
         echo '</div>';
-
     }
 
+    /**
+     * Returns data accessor
+     *
+     * @param string $tablename
+     * @return AccessTableLookup
+     */
+    protected function getAccess($tablename)
+    {
+        if ($this->pid) {
+            return AccessTable::getSerialAccess($tablename, $this->pid, $this->rid);
+        }
+        return AccessTable::getLookupAccess($tablename);
+    }
+
+    /**
+     * Adds filter to search config to differentiate data types
+     *
+     * @param array $config
+     * @return array
+     */
+    protected function addTypeFilter($config)
+    {
+        $config['filter'][] = ['%rowid%', '=', $this->rid, 'AND'];
+        if ($this->pid) {
+            $config['filter'][] = ['%pageid%', '=', $this->pid, 'AND'];
+        }
+        return $config;
+    }
+
+    /**
+     * Throws an exception if data is invalid
+     */
+    protected function validate()
+    {
+        if (!$this->rid) {
+            throw new StructException('No row id given');
+        }
+    }
 }
