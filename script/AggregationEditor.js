@@ -1,7 +1,7 @@
 /**
  * Lookup Editor
  */
-var LookupEditor = function (idx, table) {
+var AggregationEditor = function (idx, table) {
     var $table = jQuery(table);
     var $form = null;
     var formdata;
@@ -43,10 +43,10 @@ var LookupEditor = function (idx, table) {
                     jQuery.post(
                         DOKU_BASE + 'lib/exe/ajax.php',
                         {
-                            call: 'plugin_struct_lookup_delete',
+                            call: 'plugin_struct_aggregationeditor_delete',
                             schema: schema,
                             rid: rid,
-                            sectok: $me.parents('.structlookup').find('.struct_entry_form input[name=sectok]').val()
+                            sectok: $me.parents('.structaggregationeditor').find('.struct_entry_form input[name=sectok]').val()
                         }
                     )
                         .done(function () {
@@ -130,7 +130,7 @@ var LookupEditor = function (idx, table) {
     jQuery.post(
         DOKU_BASE + 'lib/exe/ajax.php',
         {
-            call: 'plugin_struct_lookup_new',
+            call: 'plugin_struct_aggregationeditor_new',
             schema: schema
         },
         function (data) {

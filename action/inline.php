@@ -8,8 +8,8 @@
  */
 
 use dokuwiki\plugin\struct\meta\AccessTable;
-use dokuwiki\plugin\struct\meta\AccessTableData;
-use dokuwiki\plugin\struct\meta\AccessTableLookup;
+use dokuwiki\plugin\struct\meta\AccessTablePage;
+use dokuwiki\plugin\struct\meta\AccessTableGlobal;
 use dokuwiki\plugin\struct\meta\Assignments;
 use dokuwiki\plugin\struct\meta\Column;
 use dokuwiki\plugin\struct\meta\Schema;
@@ -24,7 +24,7 @@ use dokuwiki\plugin\struct\meta\ValueValidator;
 class action_plugin_struct_inline extends DokuWiki_Action_Plugin
 {
 
-    /** @var  AccessTableData */
+    /** @var  AccessTablePage */
     protected $schemadata = null;
 
     /** @var  Column */
@@ -224,7 +224,7 @@ class action_plugin_struct_inline extends DokuWiki_Action_Plugin
             } elseif (AccessTable::isTypeSerial($pid, $rev)) {
                 $this->schemadata = AccessTable::getSerialAccess($table, $pid, $rid);
             } else {
-                $this->schemadata = AccessTable::getLookupAccess($table, $rid);
+                $this->schemadata = AccessTable::getGlobalAccess($table, $rid);
             }
         } catch (StructException $ignore) {
             return false;

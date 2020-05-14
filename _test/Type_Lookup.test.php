@@ -28,7 +28,7 @@ class Type_Lookup_struct_test extends StructTest {
         $pageMeta->setTitle('Another Title');
 
         $this->loadSchemaJSON('pageschema', '', 0);
-        $access = AccessTable::getLookupAccess('pageschema');
+        $access = AccessTable::getGlobalAccess('pageschema');
         $access->saveData(
             array(
                 'singlepage' => 'title1',
@@ -37,7 +37,7 @@ class Type_Lookup_struct_test extends StructTest {
                 'multititle' => array('title1'),
             )
         );
-        $access = AccessTable::getLookupAccess('pageschema');
+        $access = AccessTable::getGlobalAccess('pageschema');
         $access->saveData(
             array(
                 'singlepage' => 'title2',
@@ -46,7 +46,7 @@ class Type_Lookup_struct_test extends StructTest {
                 'multititle' => array('title2'),
             )
         );
-        $access = AccessTable::getLookupAccess('pageschema');
+        $access = AccessTable::getGlobalAccess('pageschema');
         $access->saveData(
             array(
                 'singlepage' => 'title3',
@@ -59,7 +59,7 @@ class Type_Lookup_struct_test extends StructTest {
 
     protected function prepareTranslation() {
         $this->loadSchemaJSON('translation', '', 0);
-        $access = AccessTable::getLookupAccess('translation');
+        $access = AccessTable::getGlobalAccess('translation');
         $access->saveData(
             array(
                 'en' => 'shoe',
@@ -68,7 +68,7 @@ class Type_Lookup_struct_test extends StructTest {
             )
         );
 
-        $access = AccessTable::getLookupAccess('translation');
+        $access = AccessTable::getGlobalAccess('translation');
         $access->saveData(
             array(
                 'en' => 'dog',
@@ -77,7 +77,7 @@ class Type_Lookup_struct_test extends StructTest {
             )
         );
 
-        $access = AccessTable::getLookupAccess('translation');
+        $access = AccessTable::getGlobalAccess('translation');
         $access->saveData(
             array(
                 'en' => 'cat',

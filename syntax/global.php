@@ -7,16 +7,16 @@
  * @author  Andreas Gohr, Michael Große <dokuwiki@cosmocode.de>
  */
 
-use dokuwiki\plugin\struct\meta\LookupTable;
+use dokuwiki\plugin\struct\meta\AggregationEditorTable;
 
 // must be run within Dokuwiki
 if (!defined('DOKU_INC')) die();
 
-class syntax_plugin_struct_lookup extends syntax_plugin_struct_table
+class syntax_plugin_struct_global extends syntax_plugin_struct_table
 {
 
     /** @var string which class to use for output */
-    protected $tableclass = LookupTable::class;
+    protected $tableclass = AggregationEditorTable::class;
 
     /**
      * Connect lookup pattern to lexer.
@@ -25,7 +25,10 @@ class syntax_plugin_struct_lookup extends syntax_plugin_struct_table
      */
     public function connectTo($mode)
     {
-        $this->Lexer->addSpecialPattern('----+ *struct lookup *-+\n.*?\n----+', $mode, 'plugin_struct_lookup');
+        $this->Lexer->addSpecialPattern('----+ *struct global *-+\n.*?\n----+', $mode, 'plugin_struct_global');
+
+        // deprecated:
+        $this->Lexer->addSpecialPattern('----+ *struct lookup *-+\n.*?\n----+', $mode, 'plugin_struct_global');
     }
 
     /**
@@ -59,7 +62,7 @@ class syntax_plugin_struct_lookup extends syntax_plugin_struct_table
      */
     protected function addTypeFilter($config)
     {
-        $config['filter'][] = ['%rowid%', '!=', (string)\dokuwiki\plugin\struct\meta\AccessTableData::DEFAULT_PAGE_RID, 'AND'];
+        $config['filter'][] = ['%rowid%', '!=', (string)\dokuwiki\plugin\struct\meta\AccessTablePage::DEFAULT_PAGE_RID, 'AND'];
         $config['filter'][] = ['%pageid%', '=*', '^(?![\s\S])', 'AND'];
         $config['withpid'] = 0; // flag for the editor to distinguish data types
         return $config;

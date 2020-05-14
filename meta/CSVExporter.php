@@ -5,8 +5,7 @@ namespace dokuwiki\plugin\struct\meta;
 /**
  * Class CSVExporter
  *
- * exports raw schema data to CSV. For lookup schemas this data can be reimported again through
- * CSVImporter
+ * exports raw schema data to CSV.
  *
  * Note this is different from syntax/csv.php
  *
@@ -15,7 +14,7 @@ namespace dokuwiki\plugin\struct\meta;
 class CSVExporter
 {
     const DATATYPE_PAGE = 'page';
-    const DATATYPE_LOOKUP = 'lookup';
+    const DATATYPE_GLOBAL = 'global';
     const DATATYPE_SERIAL = 'serial';
 
     protected $type = '';
@@ -36,13 +35,13 @@ class CSVExporter
         $search->addColumn('*');
         $result = $search->execute();
 
-        if ($this->type !== self::DATATYPE_LOOKUP) {
+        if ($this->type !== self::DATATYPE_GLOBAL) {
             $pids = $search->getPids();
         }
 
         echo $this->header($search->getColumns());
         foreach ($result as $i => $row) {
-            if ($this->type !== self::DATATYPE_LOOKUP) {
+            if ($this->type !== self::DATATYPE_GLOBAL) {
                 $pid = $pids[$i];
             } else {
                 $pid = '';
@@ -61,7 +60,7 @@ class CSVExporter
     {
         $row = '';
 
-        if ($this->type !== self::DATATYPE_LOOKUP) {
+        if ($this->type !== self::DATATYPE_GLOBAL) {
             $row .= $this->escape('pid');
             $row .= ',';
         }
@@ -83,7 +82,7 @@ class CSVExporter
     protected function row($values, $pid)
     {
         $row = '';
-        if ($this->type !== self::DATATYPE_LOOKUP) {
+        if ($this->type !== self::DATATYPE_GLOBAL) {
             $row .= $this->escape($pid);
             $row .= ',';
         }

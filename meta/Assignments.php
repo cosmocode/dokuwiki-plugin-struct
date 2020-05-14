@@ -20,9 +20,6 @@ class Assignments
     /** @var  array All the assignments patterns */
     protected $patterns;
 
-    /** @var  string[] All lookup schemas for error checking */
-    protected $lookups;
-
     /** @var Assignments */
     protected static $instance = null;
 

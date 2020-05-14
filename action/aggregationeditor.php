@@ -8,9 +8,9 @@
  */
 
 use dokuwiki\plugin\struct\meta\AccessTable;
-use dokuwiki\plugin\struct\meta\AccessTableLookup;
+use dokuwiki\plugin\struct\meta\AccessTableGlobal;
 use dokuwiki\plugin\struct\meta\Column;
-use dokuwiki\plugin\struct\meta\LookupTable;
+use dokuwiki\plugin\struct\meta\AggregationEditorTable;
 use dokuwiki\plugin\struct\meta\Schema;
 use dokuwiki\plugin\struct\meta\SearchConfig;
 use dokuwiki\plugin\struct\meta\StructException;
@@ -19,9 +19,9 @@ use dokuwiki\plugin\struct\meta\Value;
 /**
  * Class action_plugin_struct_lookup
  *
- * Handle lookup table editing
+ * Handle global and serial data table editing
  */
-class action_plugin_struct_lookup extends DokuWiki_Action_Plugin
+class action_plugin_struct_aggregationeditor extends DokuWiki_Action_Plugin
 {
 
     /** @var  Column */
@@ -50,8 +50,8 @@ class action_plugin_struct_lookup extends DokuWiki_Action_Plugin
      */
     public function handleAjax(Doku_Event $event, $param)
     {
-        $len = strlen('plugin_struct_lookup_');
-        if (substr($event->data, 0, $len) != 'plugin_struct_lookup_') {
+        $len = strlen('plugin_struct_aggregationeditor_');
+        if (substr($event->data, 0, $len) != 'plugin_struct_aggregationeditor_') {
             return;
         }
         $event->preventDefault();
@@ -59,15 +59,15 @@ class action_plugin_struct_lookup extends DokuWiki_Action_Plugin
 
         try {
             if (substr($event->data, $len) == 'new') {
-                $this->lookupNew();
+                $this->newRowEditor();
             }
 
             if (substr($event->data, $len) == 'save') {
-                $this->lookupSave();
+                $this->saveRow();
             }
 
             if (substr($event->data, $len) == 'delete') {
-                $this->lookupDelete();
+                $this->deleteRow();
             }
         } catch (StructException $e) {
             http_status(500);
@@ -77,9 +77,9 @@ class action_plugin_struct_lookup extends DokuWiki_Action_Plugin
     }
 
     /**
-     * Deletes a lookup row
+     * Deletes a row
      */
-    protected function lookupDelete()
+    protected function deleteRow()
     {
         global $INPUT;
         $tablename = $INPUT->str('schema');
@@ -100,9 +100,9 @@ class action_plugin_struct_lookup extends DokuWiki_Action_Plugin
     }
 
     /**
-     * Save one new lookup row
+     * Save one new row
      */
-    protected function lookupSave()
+    protected function saveRow()
     {
         global $INPUT;
         $tablename = $INPUT->str('schema');
@@ -122,20 +122,20 @@ class action_plugin_struct_lookup extends DokuWiki_Action_Plugin
         $this->rid = $access->getRid();
         $config = $this->addTypeFilter($config);
 
-        $lookup = new LookupTable(
+        $editorTable = new AggregationEditorTable(
             $this->pid,
             'xhtml',
             new Doku_Renderer_xhtml(),
             new SearchConfig($config)
         );
 
-        echo $lookup->getFirstRow();
+        echo $editorTable->getFirstRow();
     }
 
     /**
-     * Create the Editor for a new lookup row
+     * Create the Editor for a new row
      */
-    protected function lookupNew()
+    protected function newRowEditor()
     {
         global $INPUT;
         global $lang;
@@ -157,7 +157,7 @@ class action_plugin_struct_lookup extends DokuWiki_Action_Plugin
             echo $edit->makeField($field, "entry[$label]");
         }
         formSecurityToken(); // csrf protection
-        echo '<input type="hidden" name="call" value="plugin_struct_lookup_save" />';
+        echo '<input type="hidden" name="call" value="plugin_struct_aggregationeditor_save" />';
         echo '<input type="hidden" name="schema" value="' . hsc($tablename) . '" />';
 
         echo '<button type="submit">' . $lang['btn_save'] . '</button>';
@@ -171,14 +171,14 @@ class action_plugin_struct_lookup extends DokuWiki_Action_Plugin
      * Returns data accessor
      *
      * @param string $tablename
-     * @return AccessTableLookup
+     * @return AccessTableGlobal
      */
     protected function getAccess($tablename)
     {
         if ($this->pid) {
             return AccessTable::getSerialAccess($tablename, $this->pid, $this->rid);
         }
-        return AccessTable::getLookupAccess($tablename);
+        return AccessTable::getGlobalAccess($tablename);
     }
 
     /**

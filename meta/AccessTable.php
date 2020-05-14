@@ -55,7 +55,7 @@ abstract class AccessTable
     public static function getPageAccess($tablename, $pid, $ts = 0)
     {
         $schema = new Schema($tablename, $ts);
-        return new AccessTableData($schema, $pid, $ts, 0);
+        return new AccessTablePage($schema, $pid, $ts, 0);
     }
 
     public static function getSerialAccess($tablename, $pid, $rid = 0)
@@ -64,40 +64,40 @@ abstract class AccessTable
         return new AccessTableSerial($schema, $pid, 0, $rid);
     }
 
-    public static function getLookupAccess($tablename, $rid = 0)
+    public static function getGlobalAccess($tablename, $rid = 0)
     {
         $schema = new Schema($tablename, 0);
-        return new AccessTableLookup($schema, '', 0, $rid);
+        return new AccessTableGlobal($schema, '', 0, $rid);
     }
 
     /**
-     * Factory method returning the appropriate data accessor (page, lookup or serial)
+     * Factory method returning the appropriate data accessor (page, global or serial)
      *
-     * @deprecated
      * @param Schema $schema schema to load
      * @param string $pid Page id to access
      * @param int $ts Time at which the data should be read or written
      * @param int $rid Row id, 0 for page type data, otherwise autoincrement
-     * @return AccessTableData|AccessTableLookup
+     * @return AccessTablePage|AccessTableGlobal
+     * @deprecated
      */
     public static function bySchema(Schema $schema, $pid, $ts = 0, $rid = 0)
     {
         if (self::isTypePage($pid, $ts)) {
-            return new AccessTableData($schema, $pid, $ts, $rid);
+            return new AccessTablePage($schema, $pid, $ts, $rid);
         }
-        return new AccessTableLookup($schema, $pid, $ts, $rid);
+        return new AccessTableGlobal($schema, $pid, $ts, $rid);
     }
 
     /**
      * Factory Method to access data
      *
-     * @deprecated  Use specific methods since we can no longer
-     *              guarantee instantiating the required descendant class
      * @param string $tablename schema to load
      * @param string $pid Page id to access
      * @param int $ts Time at which the data should be read or written
      * @param int $rid Row id, 0 for page type data, otherwise autoincrement
-     * @return AccessTableData|AccessTableLookup
+     * @return AccessTablePage|AccessTableGlobal
+     *@deprecated  Use specific methods since we can no longer
+     *              guarantee instantiating the required descendant class
      */
     public static function byTableName($tablename, $pid, $ts = 0, $rid = 0)
     {
@@ -557,14 +557,14 @@ abstract class AccessTable
     }
 
     /**
-     * Returns true if data is of type "lookup"
+     * Returns true if data is of type "global"
      *
      * @param string $pid
      * @param int $rev
      * @param int $rid
      * @return bool
      */
-    public static function isTypeLookup($pid, $rev)
+    public static function isTypeGlobal($pid, $rev)
     {
         return $pid === '';
     }

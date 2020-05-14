@@ -5,9 +5,9 @@ namespace dokuwiki\plugin\struct\test;
 use dokuwiki\plugin\struct\meta\ConfigParser;
 use dokuwiki\plugin\struct\meta\PageMeta;
 use dokuwiki\plugin\struct\test\mock\AccessTable;
-use dokuwiki\plugin\struct\test\mock\AccessTableData;
+use dokuwiki\plugin\struct\test\mock\AccessTablePage;
 use dokuwiki\plugin\struct\test\mock\AggregationTable;
-use dokuwiki\plugin\struct\test\mock\LookupTable;
+use dokuwiki\plugin\struct\test\mock\AggregationEditorTable;
 use dokuwiki\plugin\struct\test\mock\SearchConfig;
 
 /**
@@ -159,17 +159,17 @@ class AggregationResults_struct_test extends StructTest
 
         // FIXME simulate addYypeFilter() from \syntax_plugin_struct_serial or \syntax_plugin_struct_lookup
         if ($id) {
-            $config['filter'][] = ['%rowid%', '!=', (string)AccessTableData::DEFAULT_PAGE_RID, 'AND'];
+            $config['filter'][] = ['%rowid%', '!=', (string)AccessTablePage::DEFAULT_PAGE_RID, 'AND'];
             $config['filter'][] = ['%pageid%', '=', $id, 'AND'];
         } else {
-            $config['filter'][] = ['%rowid%', '!=', (string)\dokuwiki\plugin\struct\meta\AccessTableData::DEFAULT_PAGE_RID, 'AND'];
+            $config['filter'][] = ['%rowid%', '!=', (string)\dokuwiki\plugin\struct\meta\AccessTablePage::DEFAULT_PAGE_RID, 'AND'];
             $config['filter'][] = ['%pageid%', '=*', '^(?![\s\S])', 'AND'];
         }
 
         if ($filters) array_push($config['filter'], $filters);
         $search = new SearchConfig($config);
 
-        $table = new LookupTable($id, 'xhtml', new \Doku_Renderer_xhtml(), $search);
+        $table = new AggregationEditorTable($id, 'xhtml', new \Doku_Renderer_xhtml(), $search);
         return $table->getResult();
     }
 
@@ -188,7 +188,7 @@ class AggregationResults_struct_test extends StructTest
         $pageMeta->setTitle('Another Title');
 
         $this->loadSchemaJSON('pageschema');
-        $access = AccessTable::getLookupAccess('pageschema');
+        $access = AccessTable::getGlobalAccess('pageschema');
         $access->saveData(
             array(
                 'singlepage' => 'title1',
@@ -197,7 +197,7 @@ class AggregationResults_struct_test extends StructTest
                 'multititle' => array('title1'),
             )
         );
-        $access = AccessTable::getLookupAccess('pageschema');
+        $access = AccessTable::getGlobalAccess('pageschema');
         $access->saveData(
             array(
                 'singlepage' => 'title2',
@@ -206,7 +206,7 @@ class AggregationResults_struct_test extends StructTest
                 'multititle' => array('title2'),
             )
         );
-        $access = AccessTable::getLookupAccess('pageschema');
+        $access = AccessTable::getGlobalAccess('pageschema');
         $access->saveData(
             array(
                 'singlepage' => 'title3',

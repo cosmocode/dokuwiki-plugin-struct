@@ -3,13 +3,13 @@
 namespace dokuwiki\plugin\struct\meta;
 
 /**
- * Class AccessTableLookup
+ * Class AccessTableGlobal
  *
- * Load and (more importantly) save data for Lookup Schemas
+ * Load and (more importantly) save data for Global Schemas
  *
  * @package dokuwiki\plugin\struct\meta
  */
-class AccessTableLookup extends AccessTable
+class AccessTableGlobal extends AccessTable
 {
     public function __construct($table, $pid, $ts = 0, $rid = 0)
     {

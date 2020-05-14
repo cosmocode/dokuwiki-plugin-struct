@@ -3,7 +3,7 @@
 namespace dokuwiki\plugin\struct\test\mock;
 
 use dokuwiki\plugin\struct\meta;
-use dokuwiki\plugin\struct\meta\AccessTableLookup;
+use dokuwiki\plugin\struct\meta\AccessTableGlobal;
 use dokuwiki\plugin\struct\meta\Schema;
 
 abstract class AccessTable extends meta\AccessTable {
@@ -11,31 +11,31 @@ abstract class AccessTable extends meta\AccessTable {
     public static function getPageAccess($tablename, $pid, $ts = 0)
     {
         $schema = new Schema($tablename, $ts);
-        return new AccessTableData($schema, $pid, $ts, 0);
+        return new AccessTablePage($schema, $pid, $ts, 0);
     }
 
     /**
-     * @deprecated
      * @param Schema $schema
      * @param int|string $pid
      * @param int $ts
      * @param int $rid
-     * @return AccessTableLookup|AccessTableData
+     * @return AccessTableGlobal|AccessTablePage
+     *@deprecated
      */
     public static function bySchema(Schema $schema, $pid, $ts = 0, $rid = 0) {
         if (self::isTypePage($pid, $ts, $rid)) {
-            return new AccessTableData($schema, $pid, $ts, $rid);
+            return new AccessTablePage($schema, $pid, $ts, $rid);
         }
-        return new AccessTableLookup($schema, $pid, $ts, $rid);
+        return new AccessTableGlobal($schema, $pid, $ts, $rid);
     }
 
     /**
-     * @deprecated
      * @param string $tablename
      * @param string $pid
      * @param int $ts
      * @param int $rid
-     * @return meta\AccessTableData|AccessTableLookup|AccessTableData
+     * @return meta\AccessTablePage|AccessTableGlobal|AccessTablePage
+     *@deprecated
      */
     public static function byTableName($tablename, $pid, $ts = 0, $rid = 0) {
         $schema = new Schema($tablename, $ts);

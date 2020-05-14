@@ -3,13 +3,13 @@
 namespace dokuwiki\plugin\struct\meta;
 
 /**
- * Class LookupTable
+ * Class AggregationEditorTable
  *
- * An AggregationTable for editing lookup tables
+ * An AggregationTable for editing global and serial tables
  *
  * @package dokuwiki\plugin\struct\meta
  */
-class LookupTable extends AggregationTable
+class AggregationEditorTable extends AggregationTable
 {
 
     /**
@@ -38,7 +38,7 @@ class LookupTable extends AggregationTable
         $config = hsc(json_encode($config));
 
         // wrapping div
-        $this->renderer->doc .= "<div class=\"structaggregation structlookup\" data-schema=\"$table\" data-searchconf=\"$config\">";
+        $this->renderer->doc .= "<div class=\"structaggregation structaggregationeditor\" data-schema=\"$table\" data-searchconf=\"$config\">";
 
         // unique identifier for this aggregation
         $this->renderer->info['struct_table_hash'] = md5(var_export($this->data, true));

@@ -2,7 +2,7 @@
 
 namespace dokuwiki\plugin\struct\test\mock;
 
-class AccessTableData extends \dokuwiki\plugin\struct\meta\AccessTableData {
+class AccessTablePage extends \dokuwiki\plugin\struct\meta\AccessTablePage {
 
     public function getDataFromDB() {
         return parent::getDataFromDB();
