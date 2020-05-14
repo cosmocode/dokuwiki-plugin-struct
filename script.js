@@ -2,7 +2,7 @@ jQuery(function() {
     /* DOKUWIKI:include script/functions.js */
     /* DOKUWIKI:include script/EntryEditor.js */
     /* DOKUWIKI:include script/SchemaEditor.js */
-    /* DOKUWIKI:include script/LookupEditor.js */
+    /* DOKUWIKI:include script/AggregationEditor.js */
     /* DOKUWIKI:include script/InlineEditor.js */
 
     function init() {
