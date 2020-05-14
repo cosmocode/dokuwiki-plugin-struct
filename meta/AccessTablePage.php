@@ -9,7 +9,7 @@ namespace dokuwiki\plugin\struct\meta;
  * This class is for accessing the data stored for a page in a schema
  *
  */
-class AccessTableData extends AccessTable
+class AccessTablePage extends AccessTable
 {
 
     const DEFAULT_PAGE_RID = 0;

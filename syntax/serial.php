@@ -7,9 +7,9 @@
  * @author  Andreas Gohr, Michael Große, Anna Dabrowska <dokuwiki@cosmocode.de>
  */
 
-use dokuwiki\plugin\struct\meta\AccessTableData;
+use dokuwiki\plugin\struct\meta\AccessTablePage;
 
-class syntax_plugin_struct_serial extends syntax_plugin_struct_lookup
+class syntax_plugin_struct_serial extends syntax_plugin_struct_global
 {
 
     /**
@@ -31,7 +31,7 @@ class syntax_plugin_struct_serial extends syntax_plugin_struct_lookup
     protected function addTypeFilter($config)
     {
         global $ID;
-        $config['filter'][] = ['%rowid%', '!=', (string)AccessTableData::DEFAULT_PAGE_RID, 'AND'];
+        $config['filter'][] = ['%rowid%', '!=', (string)AccessTablePage::DEFAULT_PAGE_RID, 'AND'];
         $config['filter'][] = ['%pageid%', '=', $ID, 'AND'];
         $config['withpid'] = 1; // flag for the editor to distinguish data types
         return $config;

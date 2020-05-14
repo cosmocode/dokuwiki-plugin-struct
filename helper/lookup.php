@@ -1,7 +1,7 @@
 <?php
 
 use dokuwiki\plugin\struct\meta\AccessTable;
-use dokuwiki\plugin\struct\meta\AccessTableLookup;
+use dokuwiki\plugin\struct\meta\AccessTableGlobal;
 use dokuwiki\plugin\struct\meta\StructException;
 
 /**
@@ -37,8 +37,8 @@ class helper_plugin_struct_lookup extends helper_plugin_bureaucracy_action
         }
 
         foreach ($tosave as $table => $data) {
-            $access = AccessTable::getLookupAccess($table);
-            if (!$access instanceof AccessTableLookup) continue;
+            $access = AccessTable::getGlobalAccess($table);
+            if (!$access instanceof AccessTableGlobal) continue;
 
             if (!$access->getSchema()->isEditable()) {
                 msg('lookup save error: no permission for schema', -1);

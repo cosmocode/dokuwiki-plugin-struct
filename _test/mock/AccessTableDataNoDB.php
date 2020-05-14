@@ -5,7 +5,7 @@ namespace dokuwiki\plugin\struct\test\mock;
 use dokuwiki\plugin\struct\meta\Column;
 
 
-class AccessTableDataNoDB extends AccessTableData {
+class AccessTableDataNoDB extends AccessTablePage {
 
 
     /** @noinspection PhpMissingParentConstructorInspection

@@ -9,7 +9,7 @@ namespace dokuwiki\plugin\struct\meta;
  *
  * @package dokuwiki\plugin\struct\meta
  */
-class AccessTableSerial extends AccessTableLookup
+class AccessTableSerial extends AccessTableGlobal
 {
     public function __construct($table, $pid, $ts = 0, $rid = 0)
     {

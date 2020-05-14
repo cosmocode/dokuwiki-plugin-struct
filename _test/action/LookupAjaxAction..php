@@ -6,7 +6,7 @@ use dokuwiki\plugin\struct\meta\AccessTable;
 use dokuwiki\plugin\struct\test\StructTest;
 
 /**
- * @covers action_plugin_struct_lookup
+ * @covers action_plugin_struct_aggregationeditor
  *
  * @group plugin_struct
  * @group plugins
@@ -28,11 +28,11 @@ class LookupAjaxAction extends StructTest
             'SecondFieldLongText' => "abc\ndef\n",
             'ThirdFieldWiki' => "  * hi\n  * ho",
         ];
-        $access = AccessTable::getLookupAccess('wikilookup');
+        $access = AccessTable::getGlobalAccess('wikilookup');
         $helper->saveLookupData($access, $saveDate);
     }
 
-    public function testSaveLookupDataEvent()
+    public function testSaveGlobalDataEvent()
     {
         $testLabel = 'testcontent';
         global $INPUT;
@@ -42,7 +42,7 @@ class LookupAjaxAction extends StructTest
             'schemas' => [['wikilookup', '']],
             'cols' => ['*']
         ]));
-        $call = 'plugin_struct_lookup_save';
+        $call = 'plugin_struct_aggregationeditor_save';
         $evt = new \Doku_Event('AJAX_CALL_UNKNOWN', $call);
 
         $this->expectOutputRegex('/\s*<tr.*' . $testLabel . '.*<\/td>\s*/');

@@ -3,7 +3,7 @@
 namespace dokuwiki\plugin\struct\test;
 
 use dokuwiki\plugin\struct\meta\AccessTable;
-use dokuwiki\plugin\struct\test\mock\AccessTableData;
+use dokuwiki\plugin\struct\test\mock\AccessTablePage;
 use dokuwiki\plugin\struct\test\mock\Assignments;
 use dokuwiki\plugin\struct\meta\SchemaImporter;
 
@@ -100,7 +100,7 @@ abstract class StructTest extends \DokuWikiTest {
         } elseif(AccessTable::isTypeSerial($page, $rev)) {
             $access = AccessTable::getSerialAccess($table, $page);
         } else {
-            $access = AccessTable::getLookupAccess($table, $page);
+            $access = AccessTable::getGlobalAccess($table, $page);
         }
         $access->saveData($data);
         $assignments = Assignments::getInstance();

@@ -8,7 +8,7 @@ jQuery(function() {
     function init() {
         EntryEditor(jQuery('#dw__editform, form.bureaucracy__plugin'));
         SchemaEditor();
-        jQuery('div.structlookup table').each(LookupEditor);
+        jQuery('div.structaggregationeditor table').each(AggregationEditor);
         InlineEditor(jQuery('div.structaggregation table'));
     }
 

@@ -34,7 +34,7 @@ class Bureaucracy_struct_test extends StructTest {
                 'lookup_second' => 'value second ' . $i
             );
 
-            $lookupData = AccessTable::getLookupAccess('bureaucracy_lookup');
+            $lookupData = AccessTable::getGlobalAccess('bureaucracy_lookup');
             $lookupData->saveData($data);
             $this->lookup[] = $lookupData;
         }

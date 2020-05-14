@@ -9,7 +9,7 @@
 
 use dokuwiki\plugin\struct\meta\AccessTable;
 use dokuwiki\plugin\struct\meta\Assignments;
-use dokuwiki\plugin\struct\meta\AccessTableData;
+use dokuwiki\plugin\struct\meta\AccessTablePage;
 use dokuwiki\plugin\struct\meta\StructException;
 
 class action_plugin_struct_diff extends DokuWiki_Action_Plugin

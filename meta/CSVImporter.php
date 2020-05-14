@@ -7,7 +7,7 @@ use dokuwiki\plugin\struct\types\Page;
 /**
  * Class CSVImporter
  *
- * Imports CSV data into a lookup schema
+ * Imports CSV data
  *
  * @package dokuwiki\plugin\struct\meta
  */
@@ -36,7 +36,7 @@ class CSVImporter
     protected $errors;
 
     /**
-     * @var string data type, must be one of page, lookup, serial
+     * @var string data type, must be one of page, global, serial
      */
     protected $type;
 
@@ -111,7 +111,7 @@ class CSVImporter
         $this->line++;
 
         // we might have to create a page column first
-        if ($this->type !== CSVExporter::DATATYPE_LOOKUP) {
+        if ($this->type !== CSVExporter::DATATYPE_GLOBAL) {
             $pageType = new Page(null, 'pid');
             $pidCol = new Column(0, $pageType, 0, true, $this->schema->getTable());
             $this->columns[] = $pidCol;
@@ -223,7 +223,7 @@ class CSVImporter
         if ($this->type === CSVExporter::DATATYPE_SERIAL) {
             $access = AccessTable::getSerialAccess($table, $pid);
         } else {
-            $access = AccessTable::getLookupAccess($table);
+            $access = AccessTable::getGlobalAccess($table);
         }
         $helper->saveLookupData($access, $data);
     }

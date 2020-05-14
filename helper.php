@@ -10,7 +10,7 @@
 // must be run within Dokuwiki
 use dokuwiki\plugin\struct\meta\AccessDataValidator;
 use dokuwiki\plugin\struct\meta\AccessTable;
-use dokuwiki\plugin\struct\meta\AccessTableLookup;
+use dokuwiki\plugin\struct\meta\AccessTableGlobal;
 use dokuwiki\plugin\struct\meta\Assignments;
 use dokuwiki\plugin\struct\meta\Schema;
 use dokuwiki\plugin\struct\meta\StructException;
