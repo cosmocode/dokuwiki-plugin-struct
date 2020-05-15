@@ -157,7 +157,7 @@ class action_plugin_struct_migration extends DokuWiki_Action_Plugin
                 LEFT OUTER JOIN types AS T
                     ON C.tid = T.id
                 WHERE C.sid = $sid
-                AND TYPE = 'Lookup'
+                AND TYPE LIKE '%Lookup'
             ";
             $res = $sqlite->query($s);
             $cols = $sqlite->res2arr($res);
