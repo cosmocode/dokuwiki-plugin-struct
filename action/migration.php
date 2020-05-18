@@ -165,12 +165,24 @@ class action_plugin_struct_migration extends DokuWiki_Action_Plugin
             if ($cols) {
                 foreach ($cols as $col) {
                     $colno = $col['COL'];
-                    $s = "UPDATE data_$name SET col$colno = '[" . '""' . ",'||col$colno||']' WHERE col$colno != ''";
+                    // simple lookup fields
+                    $s = "UPDATE data_$name SET col$colno = '[" . '""' . ",'||col$colno||']' WHERE col$colno != '' AND CAST(col$colno AS DECIMAL) = col$colno";
+                    $ok = $ok && $sqlite->query($s);
+                    if (!$ok) return false;
+                    // multi_
+                    $s = "UPDATE multi_$name SET value = '[" . '""' . ",'||value||']' WHERE colref=$colno AND CAST(value AS DECIMAL) = value";
                     $ok = $ok && $sqlite->query($s);
                     if (!$ok) return false;
 
+                    // lookup fields pointing to pages
+                    $colname = "col$colno";
+                    $f = 'UPDATE data_%s SET %s = \'["\'||%s||\'",0]\' WHERE %s != \'\' AND CAST(%s AS DECIMAL) != %s';
+                    $s = sprintf($f, $name, $colname, $colname, $colname, $colname, $colname);
+                    $ok = $ok && $sqlite->query($s);
+                    if (!$ok) return false;
                     // multi_
-                    $s = "UPDATE multi_$name SET value = '[" . '""' . ",'||value||']' WHERE colref=$colno";
+                    $f = 'UPDATE multi_%s SET value = \'["value",0]\' WHERE colref = %s AND CAST(value AS DECIMAL) != value';
+                    $s = sprintf($f, $name, $colno);
                     $ok = $ok && $sqlite->query($s);
                     if (!$ok) return false;
                 }
