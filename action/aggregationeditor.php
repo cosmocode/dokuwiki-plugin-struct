@@ -178,7 +178,7 @@ class action_plugin_struct_aggregationeditor extends DokuWiki_Action_Plugin
         if ($this->pid) {
             return AccessTable::getSerialAccess($tablename, $this->pid, $this->rid);
         }
-        return AccessTable::getGlobalAccess($tablename);
+        return AccessTable::getGlobalAccess($tablename, $this->rid);
     }
 
     /**
