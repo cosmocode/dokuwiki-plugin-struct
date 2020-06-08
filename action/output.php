@@ -45,37 +45,47 @@ class action_plugin_struct_output extends DokuWiki_Action_Plugin
     {
         global $ID;
         if (!page_exists($ID)) return;
-        $ins = -1;
-        $pos = 0;
-        foreach ($event->data->calls as $num => $call) {
-            // try to find the first header
-            if ($call[0] == 'header') {
-                $pos = $call[2];
-                $ins = $num;
-                break;
+
+        // display struct data at the bottom?
+        if ($this->getConf('bottomoutput')) {
+            $event->data->calls[] = [
+                'plugin',
+                ['struct_output', [], DOKU_LEXER_SPECIAL, ''],
+                null
+            ];
+        } else {
+            $ins = -1;
+            $pos = 0;
+            foreach ($event->data->calls as $num => $call) {
+                // try to find the first header
+                if ($call[0] == 'header') {
+                    $pos = $call[2];
+                    $ins = $num;
+                    break;
+                }
+
+                // abort when after we looked at the first 150 bytes
+                if (isset($call[3]) && $call[3] > 150) {
+                    break;
+                }
             }
 
-            // abort when after we looked at the first 150 bytes
-            if (isset($call[3]) && $call[3] > 150) {
-                break;
-            }
-        }
-
-        // insert our own call after the found position
-        array_splice(
-            $event->data->calls,
-            $ins + 1,
-            0,
-            array(
+            // insert our own call after the found position
+            array_splice(
+                $event->data->calls,
+                $ins + 1,
+                0,
                 array(
-                    'plugin',
                     array(
-                        'struct_output', array('pos' => $pos), DOKU_LEXER_SPECIAL, ''
-                    ),
-                    $pos
+                        'plugin',
+                        array(
+                            'struct_output', array('pos' => $pos), DOKU_LEXER_SPECIAL, ''
+                        ),
+                        $pos
+                    )
                 )
-            )
-        );
+            );
+        }
     }
 
     /**
