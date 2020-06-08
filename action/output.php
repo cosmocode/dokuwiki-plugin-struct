@@ -46,16 +46,12 @@ class action_plugin_struct_output extends DokuWiki_Action_Plugin
         global $ID;
         if (!page_exists($ID)) return;
 
+        $pos = 0;
         // display struct data at the bottom?
         if ($this->getConf('bottomoutput')) {
-            $event->data->calls[] = [
-                'plugin',
-                ['struct_output', [], DOKU_LEXER_SPECIAL, ''],
-                null
-            ];
+            $ins = count($event->data->calls);
         } else {
             $ins = -1;
-            $pos = 0;
             foreach ($event->data->calls as $num => $call) {
                 // try to find the first header
                 if ($call[0] == 'header') {
@@ -69,23 +65,23 @@ class action_plugin_struct_output extends DokuWiki_Action_Plugin
                     break;
                 }
             }
-
-            // insert our own call after the found position
-            array_splice(
-                $event->data->calls,
-                $ins + 1,
-                0,
-                array(
-                    array(
-                        'plugin',
-                        array(
-                            'struct_output', array('pos' => $pos), DOKU_LEXER_SPECIAL, ''
-                        ),
-                        $pos
-                    )
-                )
-            );
         }
+
+        // insert our own call after the found position
+        array_splice(
+            $event->data->calls,
+            $ins + 1,
+            0,
+            array(
+                array(
+                    'plugin',
+                    array(
+                        'struct_output', array('pos' => $pos), DOKU_LEXER_SPECIAL, ''
+                    ),
+                    $pos
+                )
+            )
+        );
     }
 
     /**
