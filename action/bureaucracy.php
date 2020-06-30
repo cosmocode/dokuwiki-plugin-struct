@@ -102,12 +102,16 @@ class action_plugin_struct_bureaucracy extends DokuWiki_Action_Plugin
             $search->addColumn($config['field']);
             $result = $search->execute();
             $pids = $search->getPids();
+            $rids = $search->getRids();
 
             $field->opt['struct_pids'] = array();
             $new_value = array();
             foreach ($value as $pid) {
                 for ($i = 0; $i < count($result); $i++) {
-                    if ($pids[$i] == $pid) {
+                    // lookups can reference pages or global data, so check both pid and rid
+                    $pid = json_decode($pid)[0] ?: $pid;
+                    $rid = json_decode($pid)[1];
+                    if (($pid && $pids[$i] === $pid) || ($rid && $rids[$i] === (string)$rid)) {
                         $field->opt['struct_pids'][] = $pid;
                         $new_value[] = $result[$i][0]->getDisplayValue();
                     }
