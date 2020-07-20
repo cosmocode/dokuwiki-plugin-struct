@@ -210,7 +210,7 @@ abstract class AccessTable
                 // copy first value to the single column
                 if (isset($value[0])) {
                     $this->singleValues[] = $value[0];
-                    if (strlen($value[0]) === 0) {
+                    if ($value[0] === '') {
                         $this->handleEmptyMulti($this->pid, $this->rid, $colrefs[$colname]);
                     }
                 } else {
