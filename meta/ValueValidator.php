@@ -41,7 +41,8 @@ class ValueValidator
             $rawvalue = $type->splitValues($rawvalue);
         }
         // strip empty fields from multi vals
-        if (is_array($rawvalue)) {
+        // but keep at least one so we can properly delete multivalues on update
+        if (is_array($rawvalue) && count($rawvalue) > 1) {
             $rawvalue = array_filter($rawvalue, array($this, 'filter'));
             $rawvalue = array_values($rawvalue); // reset the array keys
         }
