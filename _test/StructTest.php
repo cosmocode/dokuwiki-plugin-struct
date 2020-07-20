@@ -92,15 +92,16 @@ abstract class StructTest extends \DokuWikiTest {
      * @param string $table
      * @param array $data
      * @param int $rev allows to override the revision timestamp
+     * @param int $rid
      */
-    protected function saveData($page, $table, $data, $rev = 0) {
+    protected function saveData($page, $table, $data, $rev = 0, $rid = 0) {
         saveWikiText($page, "test for $page", "saved for testing");
         if (AccessTable::isTypePage($page, $rev)) {
             $access = AccessTable::getPageAccess($table, $page, $rev);
         } elseif(AccessTable::isTypeSerial($page, $rev)) {
             $access = AccessTable::getSerialAccess($table, $page);
         } else {
-            $access = AccessTable::getGlobalAccess($table, $page);
+            $access = AccessTable::getGlobalAccess($table, $rid);
         }
         $access->saveData($data);
         $assignments = Assignments::getInstance();
