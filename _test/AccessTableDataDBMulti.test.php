@@ -60,6 +60,18 @@ class AccessTableDataDBMulti_struct_test extends StructTest {
             ),
             789
         );
+
+        // global data
+        $this->saveData(
+            '',
+            'testtable',
+            [
+                'testMulitColumn2' => ['value1.1b', 'value1.2b'],
+                'testMulitColumn' => ['value2.1b', 'value2.2b']
+            ],
+            0,
+            1
+        );
     }
 
     public function test_getDataFromDB_currentRev() {
@@ -77,5 +89,59 @@ class AccessTableDataDBMulti_struct_test extends StructTest {
         );
 
         $this->assertEquals($expected_data, $actual_data, '');
+    }
+
+    public function test_getDataFromDB_deleteMultiPage() {
+
+        $this->saveData(
+            'testpage',
+            'testtable',
+            [
+                'testMulitColumn2' => '',
+                'testMulitColumn' => ['value2.1a'],
+            ]
+        );
+
+        $expected = [
+            [
+                'out1' => 'value1.1a' . Search::CONCAT_SEPARATOR . 'value1.2a',
+                'out2' => 'value2.1a' . Search::CONCAT_SEPARATOR . 'value2.2a',
+                'PID' => 'testpage',
+            ],
+        ];
+
+        $access = mock\AccessTable::getPageAccess('testtable', 'testpage');
+        $actual = $access->getDataFromDB();
+
+        $this->assertEquals($expected, $actual);
+    }
+
+    public function test_getDataFromDB_deleteMultiGlobal()
+    {
+
+        $this->saveData(
+            '',
+            'testtable',
+            [
+                'testMulitColumn2' => ['value1.1c', 'value1.2c'],
+                'testMulitColumn' => ['']
+            ],
+            0,
+            1
+        );
+
+        $expected = [
+            [
+                'out1' => 'value1.1c' . Search::CONCAT_SEPARATOR . 'value1.2c',
+                'out2' => '',
+                'RID' => '1',
+            ],
+        ];
+
+        $access = mock\AccessTable::getGlobalAccess('testtable', 1);
+        $actual = $access->getDataFromDB();
+
+        $this->assertEquals($expected, $actual);
+
     }
 }

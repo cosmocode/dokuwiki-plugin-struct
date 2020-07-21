@@ -118,4 +118,20 @@ class AccessTableGlobal extends AccessTable
         }
         return $ok;
     }
+
+    /**
+     * Add an optional query to clear any previous multi values if the first one is empty.
+     * Allows for deleting multi values from the inline editor.
+     *
+     * @param string $pid
+     * @param int $rid
+     * @param int $colref
+     */
+    protected function handleEmptyMulti($pid, $rid, $colref)
+    {
+        $this->optQueries[] = [
+            "DELETE FROM ? WHERE pid = ? AND rid = ? AND colref = ?",
+            'multi_' . $this->schema->getTable(), $pid, $rid, $colref
+        ];
+    }
 }

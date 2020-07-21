@@ -3,7 +3,6 @@
 namespace dokuwiki\plugin\struct\test\mock;
 
 use dokuwiki\plugin\struct\meta;
-use dokuwiki\plugin\struct\meta\AccessTableGlobal;
 use dokuwiki\plugin\struct\meta\Schema;
 
 abstract class AccessTable extends meta\AccessTable {
@@ -12,6 +11,12 @@ abstract class AccessTable extends meta\AccessTable {
     {
         $schema = new Schema($tablename, $ts);
         return new AccessTablePage($schema, $pid, $ts, 0);
+    }
+
+    public static function getGlobalAccess($tablename, $rid = 0)
+    {
+        $schema = new Schema($tablename, 0);
+        return new AccessTableGlobal($schema, '', 0, $rid);
     }
 
     /**

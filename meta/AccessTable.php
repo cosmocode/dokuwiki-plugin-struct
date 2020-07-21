@@ -27,6 +27,8 @@ abstract class AccessTable
     // options on how to retrieve data
     protected $opt_skipempty = false;
 
+    protected $optQueries = [];
+
     /**
      * @var string Name of single-value table
      */
@@ -208,6 +210,9 @@ abstract class AccessTable
                 // copy first value to the single column
                 if (isset($value[0])) {
                     $this->singleValues[] = $value[0];
+                    if ($value[0] === '') {
+                        $this->handleEmptyMulti($this->pid, $this->rid, $colrefs[$colname]);
+                    }
                 } else {
                     $this->singleValues[] = null;
                 }
@@ -239,6 +244,8 @@ abstract class AccessTable
                 );
             }
         }
+
+        $ok = $ok && $this->afterSave();
 
         if (!$ok) {
             $this->sqlite->query('ROLLBACK TRANSACTION');
@@ -304,6 +311,20 @@ abstract class AccessTable
     protected function afterSingleSave()
     {
         return true;
+    }
+
+    /**
+     * Executes final optional queries.
+     *
+     * @return bool False if anything goes wrong and transaction should be rolled back
+     */
+    protected function afterSave()
+    {
+        $ok = true;
+        foreach ($this->optQueries as $query) {
+            $ok = $ok && $this->sqlite->query(array_shift($query), $query);
+        }
+        return $ok;
     }
 
     /**
@@ -580,5 +601,17 @@ abstract class AccessTable
     public static function isTypeSerial($pid, $rev)
     {
         return $pid !== '' && $rev === 0;
+    }
+
+    /**
+     * Global and serial data require additional queries. They are put into query queue
+     * in ancestors of this method.
+     *
+     * @param string $pid
+     * @param int $rid
+     * @param int $colref
+     */
+    protected function handleEmptyMulti($pid, $rid, $colref)
+    {
     }
 }
