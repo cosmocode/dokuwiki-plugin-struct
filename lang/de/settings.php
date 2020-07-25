@@ -1,2 +1,7 @@
 <?php
-$lang['bottomoutput'] = 'Daten am Ende der Seite anzeigen';
+
+/**
+ * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
+ *
+ */
+$lang['bottomoutput']          = 'Daten am Ende der Seite anzeigen';

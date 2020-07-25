@@ -3,6 +3,7 @@
 /**
  * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
  *
+ * @author Axel Schwarzer <SchwarzerA@gmail.com>
  * @author Jürgen <hans-juergen.schuemmer@schuette.de>
  * @author Joerg <scooter22@gmx.de>
  * @author Andreas Gohr <andi@splitbrain.org>
@@ -73,8 +74,10 @@ $lang['Validation Exception bad color specification'] = 'muss im Format \'\'#RRG
 $lang['Exception illegal option'] = 'Die Option \'<code>%s</code>\' ist für diesen Aggregationstyp ungültig.';
 $lang['Exception noschemas']   = 'Keine Schemas für das Laden von Spalten angegeben';
 $lang['Exception nocolname']   = 'Kein Spaltenname angegeben';
+$lang['Exception nolookupmix'] = 'Sie können nicht mehr als eine Suche aggregieren oder mit Seitendaten mischen.';
 $lang['Exception No data saved'] = 'Keine Daten gespeichert';
 $lang['Exception no sqlite']   = 'Das \'Struct Plugin\' benötigt das \'Sqlite Plugin\'. Bitte installieren und aktivieren.';
+$lang['Exception column not in table'] = 'Das Schema %s enthält keine Spalte %s.';
 $lang['Warning: no filters for cloud'] = 'Filter werden in \'Struct Clouds\' nicht unterstützt';
 $lang['sort']                  = 'Nach dieser Spalte sortieren';
 $lang['next']                  = 'Nächste Seite';
