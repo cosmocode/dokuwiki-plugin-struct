@@ -34,7 +34,7 @@ class action_plugin_struct_bureaucracy extends DokuWiki_Action_Plugin
      */
     public function register(Doku_Event_Handler $controller)
     {
-        $controller->register_hook('PLUGIN_BUREAUCRACY_TEMPLATE_SAVE', 'BEFORE', $this, 'handleLookupFields');
+        $controller->register_hook('PLUGIN_BUREAUCRACY_PAGENAME', 'BEFORE', $this, 'handleLookupFields');
         $controller->register_hook('PLUGIN_BUREAUCRACY_TEMPLATE_SAVE', 'AFTER', $this, 'handleSave');
         $controller->register_hook('PLUGIN_BUREAUCRACY_FIELD_UNKNOWN', 'BEFORE', $this, 'handleSchema');
     }
