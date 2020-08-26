@@ -605,7 +605,7 @@ abstract class AccessTable
 
     /**
      * Global and serial data require additional queries. They are put into query queue
-     * in ancestors of this method.
+     * in descendants of this method.
      *
      * @param string $pid
      * @param int $rid
@@ -614,4 +614,22 @@ abstract class AccessTable
     protected function handleEmptyMulti($pid, $rid, $colref)
     {
     }
+
+    /**
+     * Clears all multi_ values for the current row.
+     * Executed when updating global and serial data. Otherwise removed (deselected) values linger in database.
+     *
+     * @return bool|\SQLiteResult
+     */
+    protected function clearMulti()
+    {
+        $colrefs = array_unique(array_map(function ($val) {
+            return $val[0];
+        }, $this->multiValues));
+        return $this->sqlite->query(
+            "DELETE FROM $this->mtable WHERE pid = ? AND rid = $this->rid AND rev = 0 AND colref IN (" . implode(',', $colrefs) .")",
+            $this->pid
+        );
+    }
+
 }
