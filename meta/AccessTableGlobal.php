@@ -116,6 +116,12 @@ class AccessTableGlobal extends AccessTable
                 $ok = false;
             }
         }
+
+        // FIXME this might replace handleEmptyMulti() but would it always be safe? in remote API context?
+        if (!empty($this->multiValues)) {
+            $ok = $ok && $this->clearMulti();
+        }
+
         return $ok;
     }
 
