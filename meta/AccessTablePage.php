@@ -75,18 +75,18 @@ class AccessTablePage extends AccessTable
     }
 
     /**
-     * Remove latest status from previous data
+     * Remove latest status from previous page data
      */
     protected function beforeSave()
     {
         /** @noinspection SqlResolve */
         $ok = $this->sqlite->query(
-            "UPDATE $this->stable SET latest = 0 WHERE latest = 1 AND pid = ?",
+            "UPDATE $this->stable SET latest = 0 WHERE latest = 1 AND pid = ? AND rid = 0",
             [$this->pid]
         );
         /** @noinspection SqlResolve */
         return $ok && $this->sqlite->query(
-            "UPDATE $this->mtable SET latest = 0 WHERE latest = 1 AND pid = ?",
+            "UPDATE $this->mtable SET latest = 0 WHERE latest = 1 AND pid = ? AND rid = 0",
             [$this->pid]
         );
     }
