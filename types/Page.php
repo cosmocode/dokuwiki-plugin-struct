@@ -39,7 +39,7 @@ class Page extends AbstractMultiBaseType
             list($id, $title) = \helper_plugin_struct::decodeJson($value);
         } else {
             $id = $value;
-            $title = null;
+            $title = $id; // cannot be empty or internallink() might hijack %pageid% and use headings
         }
 
         if (!$id) return true;
