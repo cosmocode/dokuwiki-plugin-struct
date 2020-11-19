@@ -154,6 +154,7 @@ class admin_plugin_struct_assignments extends DokuWiki_Admin_Plugin
         echo '</tr>';
 
         echo '</table>';
+        echo '</form>';
     }
 
     /**
