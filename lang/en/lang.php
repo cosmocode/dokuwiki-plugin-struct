@@ -98,7 +98,7 @@ $lang['csvexport'] = 'CSV Export';
 
 $lang['admin_csvexport'] = 'Export raw data to a CSV file';
 $lang['admin_csv_page'] = 'page';
-$lang['admin_csv_lookup'] = 'lookup';
+$lang['admin_csv_lookup'] = 'global';
 $lang['admin_csv_serial'] = 'serial';
 $lang['admin_csvexport_datatype'] = 'Export data of type';
 $lang['admin_csvimport'] = 'Import raw data from a CSV file';

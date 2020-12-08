@@ -207,13 +207,13 @@ class admin_plugin_struct_schemas extends DokuWiki_Admin_Plugin
         $form->addHTML($this->getLang('admin_csvexport_datatype'));
         $form->addTagClose('legend');
         $form->addRadioButton('exporttype', $this->getLang('admin_csv_page'))
-            ->val('page')
+            ->val(CSVExporter::DATATYPE_PAGE)
             ->attr('checked', 'checked')->addClass('edit block');
         $form->addRadioButton('exporttype', $this->getLang('admin_csv_lookup'))
-            ->val('lookup')
+            ->val(CSVExporter::DATATYPE_GLOBAL)
             ->addClass('edit block');
         $form->addRadioButton('exporttype', $this->getLang('admin_csv_serial'))
-            ->val('serial')
+            ->val(CSVExporter::DATATYPE_SERIAL)
             ->addClass('edit block');
         $form->addHTML('<br>');
         $form->addButton('exportcsv', $this->getLang('btn_export'));
@@ -224,14 +224,14 @@ class admin_plugin_struct_schemas extends DokuWiki_Admin_Plugin
         $form->addHTML($this->getLang('admin_csvimport_datatype'));
         $form->addTagClose('legend');
         $form->addRadioButton('importtype', $this->getLang('admin_csv_page'))
-            ->val('page')
+            ->val(CSVExporter::DATATYPE_PAGE)
             ->attr('checked', 'checked')
             ->addClass('edit block');
         $form->addRadioButton('importtype', $this->getLang('admin_csv_lookup'))
-            ->val('lookup')
+            ->val(CSVExporter::DATATYPE_GLOBAL)
             ->addClass('edit block');
         $form->addRadioButton('importtype', $this->getLang('admin_csv_serial'))
-            ->val('serial')
+            ->val(CSVExporter::DATATYPE_SERIAL)
             ->addClass('edit block');
         $form->addHTML('<br>');
         $form->addElement(new \dokuwiki\Form\InputElement('file', 'csvfile'))->attr('accept', '.csv');
