@@ -167,7 +167,7 @@ class action_plugin_struct_migration extends DokuWiki_Action_Plugin
                     $ok = $ok && $sqlite->query($s);
                     if (!$ok) return false;
                     // multi_
-                    $f = 'UPDATE multi_%s SET value = \'["value",0]\' WHERE colref = %s AND CAST(value AS DECIMAL) != value';
+                    $f = 'UPDATE multi_%s SET value = \'["\'||value||\'",0]\' WHERE colref = %s AND CAST(value AS DECIMAL) != value';
                     $s = sprintf($f, $name, $colno);
                     $ok = $ok && $sqlite->query($s);
                     if (!$ok) return false;
