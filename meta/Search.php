@@ -21,7 +21,7 @@ class Search
      * (order matters)
      */
     public static $COMPARATORS = array(
-        '<=', '>=', '=*', '=', '<', '>', '!=', '!~', '~', 'IN'
+        '<=', '>=', '=*', '=', '<', '>', '!=', '!~', '~', ' IN '
     );
 
     /** @var  \helper_plugin_sqlite */
@@ -173,7 +173,7 @@ class Search
             $value = $this->filterChangeToLike($value);
         }
 
-        if ($comp == 'IN' && !is_array($value)) {
+        if ($comp == ' IN ' && !is_array($value)) {
             $value = $this->parseFilterValueList($value);
             //col IN ('a', 'b', 'c') is equal to col = 'a' OR 'col = 'b' OR col = 'c'
             $comp = '=';
