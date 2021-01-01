@@ -7,6 +7,7 @@
  * @author  Andreas Gohr, Michael Große <dokuwiki@cosmocode.de>
  */
 
+use dokuwiki\Form\Form;
 use dokuwiki\plugin\struct\meta\AccessTable;
 use dokuwiki\plugin\struct\meta\Assignments;
 use dokuwiki\plugin\struct\meta\Value;
@@ -34,10 +35,32 @@ class action_plugin_struct_edit extends DokuWiki_Action_Plugin
     {
         // add the struct editor to the edit form;
         $controller->register_hook('HTML_EDITFORM_OUTPUT', 'BEFORE', $this, 'handleEditform');
+        $controller->register_hook('FORM_EDIT_OUTPUT', 'BEFORE', $this, 'addFromData');
+    }
+
+    /**
+     * Adds the html for the struct editors to the edit from
+     *
+     * Handles the FORM_EDIT_OUTPUT event
+     *
+     * @return bool
+     */
+    public function addFromData(Doku_Event $event, $_param)
+    {
+        $html = $this->getEditorHtml();
+
+        /** @var Form $form */
+        $form = $event->data;
+        $pos = $form->findPositionByAttribute( 'id', 'wiki__editbar'); // insert the form before the main buttons
+        $form->addHTML($html, $pos);
+
+        return true;
     }
 
     /**
      * Enhance the editing form with structural data editing
+     *
+     * TODO: Remove this after HTML_EDITFORM_OUTPUT is no longer released in DokuWiki stable
      *
      * @param Doku_Event $event event object by reference
      * @param mixed $param [the parameters passed as fifth argument to register_hook() when this
@@ -45,6 +68,21 @@ class action_plugin_struct_edit extends DokuWiki_Action_Plugin
      * @return bool
      */
     public function handleEditform(Doku_Event $event, $param)
+    {
+        $html = $this->getEditorHtml();
+
+        /** @var Doku_Form $form */
+        $form = $event->data;
+        $pos = $form->findElementById('wiki__editbar'); // insert the form before the main buttons
+        $form->insertElement($pos, $html);
+
+        return true;
+    }
+
+    /**
+     * @return string
+     */
+    private function getEditorHtml()
     {
         global $ID;
 
@@ -56,13 +94,7 @@ class action_plugin_struct_edit extends DokuWiki_Action_Plugin
             $html .= $this->createForm($table);
         }
 
-        /** @var Doku_Form $form */
-        $form = $event->data;
-        $html = "<div class=\"struct_entry_form\">$html</div>";
-        $pos = $form->findElementById('wiki__editbar'); // insert the form before the main buttons
-        $form->insertElement($pos, $html);
-
-        return true;
+        return "<div class=\"struct_entry_form\">$html</div>";
     }
 
     /**
