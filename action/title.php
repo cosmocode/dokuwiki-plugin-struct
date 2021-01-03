@@ -44,7 +44,7 @@ class action_plugin_struct_title extends DokuWiki_Action_Plugin
 
             // check if we already have data for the latest revision, or we risk redundant db writes
             $latest = $page->getPageData();
-            if (!$latest || (int) $latest['lastrev'] === $event->data['current']['last_change']['date']) {
+            if ($latest && (int) $latest['lastrev'] === $event->data['current']['last_change']['date']) {
                 return;
             }
 
