@@ -51,7 +51,7 @@ class action_plugin_struct_edit extends DokuWiki_Action_Plugin
 
         /** @var Form $form */
         $form = $event->data;
-        $pos = $form->findPositionByAttribute( 'id', 'wiki__editbar'); // insert the form before the main buttons
+        $pos = $form->findPositionByAttribute('id', 'wiki__editbar'); // insert the form before the main buttons
         $form->addHTML($html, $pos);
 
         return true;
