@@ -11,6 +11,11 @@ use dokuwiki\plugin\struct\meta\AccessTable;
 use dokuwiki\plugin\struct\meta\Assignments;
 use dokuwiki\plugin\struct\meta\StructException;
 
+use Twig\Environment;
+use Twig\Loader\FilesystemLoader;
+
+require_once __DIR__ . '/../vendor/autoload.php';
+
 class syntax_plugin_struct_output extends DokuWiki_Syntax_Plugin
 {
 
@@ -121,6 +126,12 @@ class syntax_plugin_struct_output extends DokuWiki_Syntax_Plugin
 
         if ($mode == 'xhtml') $R->doc .= self::XHTML_OPEN;
 
+        $path = __DIR__ . '/../templates';
+        $loader = new FilesystemLoader($path);
+        $twig = new Environment($loader, [
+            'debug' => $conf['allowdebug'],
+        ]);
+
         $hasdata = false;
         foreach ($tables as $table) {
             try {
@@ -133,34 +144,60 @@ class syntax_plugin_struct_output extends DokuWiki_Syntax_Plugin
             if (!count($data)) continue;
             $hasdata = true;
 
-            $R->table_open();
-
-            $R->tablethead_open();
-            $R->tablerow_open();
-            $R->tableheader_open(2);
-            $R->cdata($schemadata->getSchema()->getTranslatedLabel());
-            $R->tableheader_close();
-            $R->tablerow_close();
-            $R->tablethead_close();
-
-            $R->tabletbody_open();
+            /*
+             * This is quite a hack to let the data fields be rendered
+             * by the DokuWiki renderer before exposing them to the
+             * twig template. We can also let Twig do the rendering,
+             * but the results won't be consistent with what DokuWiki
+             * renders elsewhere, of course.
+             */
             foreach ($data as $field) {
-                $R->tablerow_open();
-                $R->tableheader_open();
-                $R->cdata($field->getColumn()->getTranslatedLabel());
-                $R->tableheader_close();
-                $R->tablecell_open();
-                if ($mode == 'xhtml') {
-                    $R->doc = substr($R->doc, 0, -1) .
-                        ' data-struct="' . hsc($field->getColumn()->getFullQualifiedLabel()) .
-                        '">';
-                }
+                $idx = strlen($R->doc);
                 $field->render($R, $mode);
-                $R->tablecell_close();
-                $R->tablerow_close();
+                $field->rendered = substr($R->doc, $idx);
+                $R->doc = substr($R->doc, 0, $idx);
             }
-            $R->tabletbody_close();
-            $R->table_close();
+
+            try {
+                $twigmarkup = $twig->render(
+                    $schemadata->getSchema()->getTable() . '.twig',
+                    [
+                        'schema' => $schemadata->getSchema(),
+                        'data' => $data
+                    ]
+                );
+
+                $R->doc .= $twigmarkup;
+            } catch (Exception $e) {
+                $R->table_open();
+
+                $R->tablethead_open();
+                $R->tablerow_open();
+                $R->tableheader_open(2);
+                $R->cdata($schemadata->getSchema()->getTranslatedLabel());
+                $R->tableheader_close();
+                $R->tablerow_close();
+                $R->tablethead_close();
+
+                $R->tabletbody_open();
+                foreach ($data as $field) {
+                    $R->tablerow_open();
+                    $R->tableheader_open();
+                    $R->cdata($field->getColumn()->getTranslatedLabel());
+                    $R->tableheader_close();
+                    $R->tablecell_open();
+                    if ($mode == 'xhtml') {
+                        $R->doc = substr($R->doc, 0, -1) .
+                            ' data-struct="' . hsc($field->getColumn()->getFullQualifiedLabel()) .
+                            '">';
+                    }
+                    $R->doc .= $field->rendered;
+                    $R->tablecell_close();
+                    $R->tablerow_close();
+                }
+                $R->tabletbody_close();
+                $R->table_close();
+            }
         }
 
         if ($mode == 'xhtml') $R->doc .= self::XHTML_CLOSE;

@@ -1,0 +1,21 @@
+<div class="table">
+    <table class="inline">
+        <thead>
+        <tr class="row0">
+            <th class="col0" colspan="2">
+                {{ schema.TranslatedLabel }}
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for value in data %}
+            <tr class="{{ loop.index }}">
+                <th class="col0">{{ value.column.TranslatedLabel }}</th>
+                <td class="col1" data-struct="{{ value.column.FullQualifiedLabel }}">
+                    {{ value.rendered }}
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
