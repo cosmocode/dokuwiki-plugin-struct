@@ -299,6 +299,28 @@ class action_plugin_struct_migration extends DokuWiki_Action_Plugin
     }
 
     /**
+     * Removes a temp table left over by migration 16
+     *
+     * @param helper_plugin_sqlite $sqlite
+     * @return bool
+     */
+    protected function migration18(helper_plugin_sqlite $sqlite)
+    {
+        $ok = true;
+        $sqlite->query('BEGIN TRANSACTION');
+
+        $sql = 'DROP TABLE IF EXISTS temp_schemas';
+        $ok = $ok && $sqlite->query($sql);
+
+        if (!$ok) {
+            $sqlite->query('ROLLBACK TRANSACTION');
+            return false;
+        }
+        $sqlite->query('COMMIT TRANSACTION');
+        return true;
+    }
+
+    /**
      * Returns a select statement to fetch Lookup columns in the current schema
      *
      * @param int $sid Id of the schema
