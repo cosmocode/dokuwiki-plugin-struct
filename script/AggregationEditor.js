@@ -1,39 +1,47 @@
 /**
- * Lookup Editor
+ * Aggregation table editor
  */
-var AggregationEditor = function (idx, table) {
-    var $table = jQuery(table);
-    var $form = null;
-    var formdata;
+const AggregationEditor = function (idx, table) {
+    const $table = jQuery(table);
+    let $form = null;
+    let formdata;
 
-    var schema = $table.parents('.structaggregation').data('schema');
+    const schema = $table.parents('.structaggregation').data('schema');
     if (!schema) return;
 
     /**
      * Adds delete row buttons to each row
      */
     function addDeleteRowButtons() {
+        const disableDeleteSerial = JSINFO.plugins.struct.disableDeleteSerial;
+
         $table.find('tr').each(function () {
-            var $me = jQuery(this);
+            const $me = jQuery(this);
 
             // already added here?
             if ($me.find('th.action, td.action').length) {
                 return;
             }
 
-            var rid = $me.data('rid');
+            const rid = $me.data('rid');
+            const pid = $me.data('pid');
+            let isDisabled = '';
 
             // empty header cells
             if (!rid) {
-                $me.append('<th class="action"></th>');
+                $me.append('<th class="action">' + LANG.plugins.struct.actions + '</th>');
                 return;
             }
 
             // delete buttons for rows
-            var $td = jQuery('<td class="action"></td>');
-            if (rid === '') return;
+            const $td = jQuery('<td class="action"></td>');
+            if (rid === '') return;  // skip button addition for page data
+            // disable button for serial data if so configured
+            if (rid && pid && disableDeleteSerial) {
+                isDisabled = ' disabled';
+            }
 
-            var $btn = jQuery('<button><i class="ui-icon ui-icon-trash"></i></button>')
+            const $btn = jQuery('<button' + isDisabled + '><i class="ui-icon ui-icon-trash"></i></button>')
                 .addClass('delete')
                 .attr('title', LANG.plugins.struct.lookup_delete)
                 .click(function (e) {
