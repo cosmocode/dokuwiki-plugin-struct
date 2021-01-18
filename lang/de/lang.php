@@ -35,6 +35,7 @@ $lang['del_fail']              = 'Die Schemanamen stimmten nicht überein. Schem
 $lang['del_ok']                = 'Schema wurde gelöscht';
 $lang['btn_delete']            = 'Löschen';
 $lang['js']['confirmAssignmentsDelete'] = 'Wollen Sie wirklich die Zuweisung von Schma "{0}" zu Seite/Namensraum "{1}" löschen?';
+$lang['js']['actions']         = 'Aktion';
 $lang['js']['lookup_delete']   = 'Lösche Eintrag';
 $lang['clear_confirm']         = 'Namen des Schema zur Bestätigung der Entfernung aller Daten eingeben';
 $lang['clear_fail']            = 'Die Schemanamen stimmten nicht überein. Daten wurden nicht entfernt';

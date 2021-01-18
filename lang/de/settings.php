@@ -5,3 +5,4 @@
  *
  */
 $lang['bottomoutput']          = 'Daten am Ende der Seite anzeigen';
+$lang['disableDeleteSerial']   = 'Löschen von serial Daten deaktivieren';

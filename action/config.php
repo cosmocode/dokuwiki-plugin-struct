@@ -22,6 +22,7 @@ class action_plugin_struct_config extends DokuWiki_Action_Plugin
     public function register(Doku_Event_Handler $controller)
     {
         $controller->register_hook('AJAX_CALL_UNKNOWN', 'BEFORE', $this, 'handleAjax');
+        $controller->register_hook('DOKUWIKI_STARTED', 'AFTER', $this, 'addJsinfo');
     }
 
     /**
@@ -46,5 +47,16 @@ class action_plugin_struct_config extends DokuWiki_Action_Plugin
 
         header('Content-Type: text/plain'); // we need the encoded string, not decoded by jQuery
         echo json_encode($type->getConfig());
+    }
+
+    /**
+     * Add config options to JSINFO
+     *
+     * @param Doku_Event $event
+     */
+    public function addJsinfo(Doku_Event $event)
+    {
+        global $JSINFO;
+        $JSINFO['plugins']['struct']['disableDeleteSerial'] = $this->getConf('disableDeleteSerial');
     }
 }
