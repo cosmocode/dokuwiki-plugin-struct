@@ -50,7 +50,7 @@ class syntax_plugin_struct_value extends DokuWiki_Syntax_Plugin
         /*
          * {{$schema.field}}
          * {{$pageid.schema.field}}
-         * TODO: {{$pageid.schema.field?filter&filter|filter+sum|default}}
+         * TODO: {{$pageid.schema.field?filter?&filter?|filter+sum|default}}
          * Page ID will default to $INFO['id'] if not supplied.
          * Any component can be placed in double quotes (needed to allow dots in components).
          */
