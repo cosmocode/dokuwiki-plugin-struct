@@ -26,7 +26,7 @@ class InlineConfigParser extends ConfigParser
         global $INFO;
 
         // Split into components
-        $components = explode('->', $inline);
+        $components = str_getcsv($inline, '.');
 
         // Start to build the main config array
         $lines = array();

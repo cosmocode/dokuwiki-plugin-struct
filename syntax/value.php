@@ -48,17 +48,11 @@ class syntax_plugin_struct_value extends DokuWiki_Syntax_Plugin
     public function connectTo($mode)
     {
         /*
-         * Full syntax:
-         * ---- struct value ----
-         * <config>
-         * ----
-         */
-        $this->Lexer->addSpecialPattern('----+ *struct value *-+\n.*?\n----+', $mode, 'plugin_struct_value');
-
-        /*
-         * Inline syntax (page ID will default to $ID$ if not supplied):
-         * {{$schema->field}}
-         * {{$pageid->schema->field}}
+         * {{$schema.field}}
+         * {{$pageid.schema.field}}
+         * TODO: {{$pageid.schema.field?filter&filter|filter+sum|default}}
+         * Page ID will default to $INFO['id'] if not supplied.
+         * Any component can be placed in double quotes (needed to allow dots in components).
          */
         $this->Lexer->addSpecialPattern('\{\{\$[^}]+\}\}', $mode, 'plugin_struct_value');
     }
