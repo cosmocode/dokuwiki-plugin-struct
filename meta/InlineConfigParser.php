@@ -23,6 +23,8 @@ class InlineConfigParser extends ConfigParser
     {
         // To support a fuller syntax, such as user-specified filters, tokenise here
 
+        global $INFO;
+
         // Split into components
         $components = explode('->', $inline);
 
@@ -39,7 +41,7 @@ class InlineConfigParser extends ConfigParser
             // At least schema and field supplied
             $lines[] = 'schema: ' . trim($components[0]);
             $lines[] = 'field: ' . trim($components[1]);
-            $lines[] = 'filter: %pageid% = ' . $GLOBALS['ID'];
+            $lines[] = 'filter: %pageid% = ' . $INFO['id'];
         }
 
         // Call original ConfigParser's constructor
