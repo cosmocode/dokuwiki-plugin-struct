@@ -57,9 +57,8 @@ class syntax_plugin_struct_value extends DokuWiki_Syntax_Plugin
 
         /*
          * Inline syntax (page ID will default to $ID$ if not supplied):
-         * {{$<schema>.<field>}}
-         * {{$<pageid>.<schema>.<field>}}
-         * Any <component> can be surrounded by quotes - see http://php.net/manual/function.str-getcsv.php
+         * {{$schema->field}}
+         * {{$pageid->schema->field}}
          */
         $this->Lexer->addSpecialPattern('\{\{\$[^}]+\}\}', $mode, 'plugin_struct_value');
     }
