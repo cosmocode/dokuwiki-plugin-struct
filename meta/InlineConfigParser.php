@@ -9,7 +9,8 @@ namespace dokuwiki\plugin\struct\meta;
  *
  * @package dokuwiki\plugin\struct\meta
  */
-class InlineConfigParser extends ConfigParser {
+class InlineConfigParser extends ConfigParser
+{
 
     /**
      * Parser constructor.
@@ -18,7 +19,8 @@ class InlineConfigParser extends ConfigParser {
      *
      * @param  string  $inline
      */
-    public function __construct($inline) {
+    public function __construct($inline)
+    {
         // To support a fuller syntax, such as user-specified filters, tokenise here
 
         // Split into components
@@ -26,12 +28,14 @@ class InlineConfigParser extends ConfigParser {
 
         // Protect against using single quotes
         foreach ($components as $component) {
-            if ( substr($component, 0, 1) == "'" ) {
+            if (substr($component, 0, 1) == "'") {
                 // Used single quotes rather than double - will need to rerun CSV extraction
                 $enclosure = "'";
             }
         }
-        if ($enclosure == "'") $components = str_getcsv($inline, '.', $enclosure);
+        if ($enclosure == "'") {
+            $components = str_getcsv($inline, '.', $enclosure);
+        }
 
         // Start to build the main config array
         $lines = array();
@@ -47,7 +51,7 @@ class InlineConfigParser extends ConfigParser {
             $lines[] = 'schema: ' . trim($components[0]);
             $lines[] = 'field: ' . trim($components[1]);
             $lines[] = 'filter: %pageid% = ' . $GLOBALS['ID'];
-        } 
+        }
 
         // Call original ConfigParser's constructor
         parent::__construct($lines);

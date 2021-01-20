@@ -9,7 +9,8 @@ namespace dokuwiki\plugin\struct\meta;
  * @license GPL 2 http://www.gnu.org/licenses/gpl-2.0.html
  * @author  Iain Hallam <iain@nineworlds.net>
  */
-class AggregationValue {
+class AggregationValue
+{
 
     /**
      * @var string the page id of the page this is rendered to
@@ -32,7 +33,7 @@ class AggregationValue {
      * @var Column the column to be displayed
      */
     protected $column;
-    
+
     /**
      * @var  Value[][] the search result
      */
@@ -59,7 +60,8 @@ class AggregationValue {
      * @param \Doku_Renderer $renderer
      * @param SearchConfig $searchConfig
      */
-    public function __construct($id, $mode, \Doku_Renderer $renderer, SearchConfig $searchConfig) {
+    public function __construct($id, $mode, \Doku_Renderer $renderer, SearchConfig $searchConfig)
+    {
         // Parameters
         $this->id = $id;
         $this->mode = $mode;
@@ -88,10 +90,11 @@ class AggregationValue {
 
     /**
      * Create the output on the renderer
-     * 
+     *
      * @param  int  $show_not_found  Whether to display the default text for no records
      */
-    public function render($show_not_found = 0) {
+    public function render($show_not_found = 0)
+    {
         $this->startScope();
 
         // Check that we actually got a result
@@ -113,9 +116,12 @@ class AggregationValue {
      *
      * @see finishScope()
      */
-    protected function startScope() {
+    protected function startScope()
+    {
         // wrapping span
-        if($this->mode != 'xhtml') return;
+        if ($this->mode != 'xhtml') {
+            return;
+        }
         $this->renderer->doc .= "<span class=\"structaggregation valueaggregation\">";
     }
 
@@ -124,16 +130,20 @@ class AggregationValue {
      *
      * @see startScope()
      */
-    protected function finishScope() {
+    protected function finishScope()
+    {
         // wrapping span
-        if($this->mode != 'xhtml') return;
+        if ($this->mode != 'xhtml') {
+            return;
+        }
         $this->renderer->doc .= '</span>';
     }
 
     /**
      * @param $resultrow
      */
-    protected function renderValue($resultrow) {
+    protected function renderValue($resultrow)
+    {
         // @var  Value  $value
         foreach ($resultrow as $column => $value) {
             if ($value->isEmpty()) {
@@ -148,6 +158,5 @@ class AggregationValue {
                 $this->renderer->doc .= '</span>';
             }
         }
-
     }
 }
