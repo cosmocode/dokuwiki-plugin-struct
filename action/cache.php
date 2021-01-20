@@ -1,4 +1,5 @@
 <?php
+
 use dokuwiki\plugin\struct\meta\Assignments;
 use dokuwiki\plugin\struct\meta\SearchConfig;
 use dokuwiki\plugin\struct\meta\SearchConfigParameters;
@@ -6,7 +7,8 @@ use dokuwiki\plugin\struct\meta\SearchConfigParameters;
 /**
  * Handle caching of pages containing struct aggregations
  */
-class action_plugin_struct_cache extends DokuWiki_Action_Plugin {
+class action_plugin_struct_cache extends DokuWiki_Action_Plugin
+{
 
     /**
      * Registers a callback function for a given event
@@ -14,16 +16,18 @@ class action_plugin_struct_cache extends DokuWiki_Action_Plugin {
      * @param Doku_Event_Handler $controller DokuWiki's event controller object
      * @return void
      */
-    public function register(Doku_Event_Handler $controller) {
-        $controller->register_hook('PARSER_CACHE_USE', 'BEFORE', $this, 'handle_cache_schemachange');
-        $controller->register_hook('PARSER_CACHE_USE', 'BEFORE', $this, 'handle_cache_aggregation');
-        $controller->register_hook('PARSER_CACHE_USE', 'AFTER', $this, 'handle_cache_dynamic');
+    public function register(Doku_Event_Handler $controller)
+    {
+        $controller->register_hook('PARSER_CACHE_USE', 'BEFORE', $this, 'handleCacheSchemachange');
+        $controller->register_hook('PARSER_CACHE_USE', 'BEFORE', $this, 'handleCacheAggregation');
+        $controller->register_hook('PARSER_CACHE_USE', 'AFTER', $this, 'handleCacheDynamic');
     }
 
     /**
      * @return string the refresh file
      */
-    public static function getSchemaRefreshFile() {
+    public static function getSchemaRefreshFile()
+    {
         global $conf;
         return $conf['cachedir'] . '/struct.schemarefresh';
     }
@@ -37,14 +41,15 @@ class action_plugin_struct_cache extends DokuWiki_Action_Plugin {
      *                           handler was registered]
      * @return bool
      */
-    public function handle_cache_schemachange(Doku_Event $event, $param) {
+    public function handleCacheSchemachange(Doku_Event $event, $param)
+    {
         /** @var \cache_parser $cache */
         $cache = $event->data;
-        if($cache->mode != 'xhtml') return true;
-        if(!$cache->page) return true; // not a page cache
+        if ($cache->mode != 'xhtml') return true;
+        if (!$cache->page) return true; // not a page cache
 
         $assignments = Assignments::getInstance();
-        if(!$assignments->getPageAssignments($cache->page)) return true; // no struct here
+        if (!$assignments->getPageAssignments($cache->page)) return true; // no struct here
 
         $cache->depends['files'][] = self::getSchemaRefreshFile();
         return true;
@@ -59,28 +64,29 @@ class action_plugin_struct_cache extends DokuWiki_Action_Plugin {
      *                           handler was registered]
      * @return bool
      */
-    public function handle_cache_aggregation(Doku_Event $event, $param) {
+    public function handleCacheAggregation(Doku_Event $event, $param)
+    {
         global $INPUT;
 
         /** @var \cache_parser $cache */
         $cache = $event->data;
-        if($cache->mode != 'xhtml') return true;
-        if(!$cache->page) return true; // not a page cache
+        if ($cache->mode != 'xhtml') return true;
+        if (!$cache->page) return true; // not a page cache
 
         $meta = p_get_metadata($cache->page, 'plugin struct');
-        if(isset($meta['hasaggregation'])) {
+        if (isset($meta['hasaggregation'])) {
             /** @var helper_plugin_struct_db $db */
             $db = plugin_load('helper', 'struct_db');
             // cache depends on last database save
             $sqlite = $db->getDB(false);
-            if($sqlite) {
+            if ($sqlite) {
                 $cache->depends['files'][] = $sqlite->getAdapter()->getDbFile();
             }
 
             // dynamic renders should never overwrite the default page cache
             // we need this in additon to handle_cache_dynamic() below because we can only
             // influence if a cache is used, not that it will be written
-            if(
+            if (
                 $INPUT->has(SearchConfigParameters::$PARAM_FILTER) ||
                 $INPUT->has(SearchConfigParameters::$PARAM_OFFSET) ||
                 $INPUT->has(SearchConfigParameters::$PARAM_SORT)
@@ -89,16 +95,15 @@ class action_plugin_struct_cache extends DokuWiki_Action_Plugin {
             }
 
             // cache depends on today's date
-            if($meta['hasaggregation'] & SearchConfig::$CACHE_DATE) {
+            if ($meta['hasaggregation'] & SearchConfig::$CACHE_DATE) {
                 $oldage = $cache->depends['age'];
                 $newage = time() - mktime(0, 0, 1); // time since first second today
                 $cache->depends['age'] = min($oldage, $newage);
             }
 
             // cache depends on current user
-            if($meta['hasaggregation'] & SearchConfig::$CACHE_USER) {
+            if ($meta['hasaggregation'] & SearchConfig::$CACHE_USER) {
                 $cache->key .= ';' . $INPUT->server->str('REMOTE_USER');
-
             }
 
             // rebuild cachename
@@ -116,20 +121,23 @@ class action_plugin_struct_cache extends DokuWiki_Action_Plugin {
      *                           handler was registered]
      * @return bool
      */
-    public function handle_cache_dynamic(Doku_Event $event, $param) {
+    public function handleCacheDynamic(Doku_Event $event, $param)
+    {
         /** @var \cache_parser $cache */
         $cache = $event->data;
-        if($cache->mode != 'xhtml') return true;
-        if(!$cache->page) return true; // not a page cache
+        if ($cache->mode != 'xhtml') return true;
+        if (!$cache->page) return true; // not a page cache
         global $INPUT;
 
         // disable cache use when one of these parameters is present
-        foreach(array(
+        foreach (
+            array(
                     SearchConfigParameters::$PARAM_FILTER,
                     SearchConfigParameters::$PARAM_OFFSET,
                     SearchConfigParameters::$PARAM_SORT
-                ) as $key) {
-            if($INPUT->has($key)) {
+                ) as $key
+        ) {
+            if ($INPUT->has($key)) {
                 $event->result = false;
                 return true;
             }
@@ -137,5 +145,4 @@ class action_plugin_struct_cache extends DokuWiki_Action_Plugin {
 
         return true;
     }
-
 }

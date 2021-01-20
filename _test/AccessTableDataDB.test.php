@@ -63,8 +63,8 @@ class AccessTableDataDB_struct_test extends StructTest {
     public function test_getDataFromDB_currentRev() {
 
         // act
-        $schemaData = mock\AccessTable::byTableName('testtable', 'testpage');
-        $actual_data = $schemaData->getDataFromDB();
+        $schemaData = mock\AccessTable::getPageAccess('testtable', 'testpage');
+        $actual_data = $schemaData->getDataFromDb();
 
         $expected_data = array(
             array(
@@ -80,7 +80,7 @@ class AccessTableDataDB_struct_test extends StructTest {
     public function test_getDataFromDB_oldRev() {
 
         // act
-        $schemaData = mock\AccessTable::byTableName('testtable', 'testpage', 200);
+        $schemaData = mock\AccessTable::getPageAccess('testtable', 'testpage', 200);
         $actual_data = $schemaData->getDataFromDB();
 
         $expected_data = array(
@@ -97,7 +97,7 @@ class AccessTableDataDB_struct_test extends StructTest {
     public function test_getData_currentRev() {
 
         // act
-        $schemaData = mock\AccessTable::byTableName('testtable', 'testpage');
+        $schemaData = mock\AccessTable::getPageAccess('testtable', 'testpage');
         $actual_data = $schemaData->getData();
 
         $expected_data = array(
@@ -114,7 +114,7 @@ class AccessTableDataDB_struct_test extends StructTest {
     public function test_getDataArray_currentRev() {
 
         // act
-        $schemaData = mock\AccessTable::byTableName('testtable', 'testpage');
+        $schemaData = mock\AccessTable::getPageAccess('testtable', 'testpage');
         $actual_data = $schemaData->getDataArray();
 
         $expected_data = array(
@@ -129,7 +129,7 @@ class AccessTableDataDB_struct_test extends StructTest {
     public function test_getData_currentRev2() {
 
         // act
-        $schemaData = mock\AccessTable::byTableName('testtable', 'testpage2');
+        $schemaData = mock\AccessTable::getPageAccess('testtable', 'testpage2');
         $actual_data = $schemaData->getData();
 
         $expected_data = array(
@@ -146,7 +146,7 @@ class AccessTableDataDB_struct_test extends StructTest {
     public function test_getData_oldRev() {
 
         // act
-        $schemaData = mock\AccessTable::byTableName('testtable', 'testpage', 200);
+        $schemaData = mock\AccessTable::getPageAccess('testtable', 'testpage', 200);
         $actual_data = $schemaData->getData();
 
         $expected_data = array(
@@ -172,7 +172,7 @@ class AccessTableDataDB_struct_test extends StructTest {
         );
 
         // act
-        $schemaData = meta\AccessTable::byTableName('testtable', 'testpage', time());
+        $schemaData = meta\AccessTable::getPageAccess('testtable', 'testpage');
         $result = $schemaData->saveData($testdata);
 
         // assert
@@ -214,7 +214,7 @@ class AccessTableDataDB_struct_test extends StructTest {
     public function test_getDataFromDB_clearData() {
 
         // act
-        $schemaData = mock\AccessTable::byTableName('testtable', 'testpage', time());
+        $schemaData = mock\AccessTable::getPageAccess('testtable', 'testpage');
         $schemaData->clearData();
         $actual_data = $schemaData->getDataFromDB();
 
@@ -232,7 +232,7 @@ class AccessTableDataDB_struct_test extends StructTest {
     public function test_getData_clearData() {
 
         // act
-        $schemaData = mock\AccessTable::byTableName('testtable', 'testpage', time());
+        $schemaData = mock\AccessTable::getPageAccess('testtable', 'testpage');
         $schemaData->clearData();
         $actual_data = $schemaData->getData();
 
@@ -250,7 +250,7 @@ class AccessTableDataDB_struct_test extends StructTest {
                 "value2.2_saved",
             )
         );
-        $schemaData = meta\AccessTable::byTableName('testtable', 'testpage', time());
+        $schemaData = meta\AccessTable::getPageAccess('testtable', 'testpage');
         $schemaData->saveData($testdata);
 
         // act
@@ -273,7 +273,7 @@ class AccessTableDataDB_struct_test extends StructTest {
                 "value2.2_saved",
             )
         );
-        $schemaData = meta\AccessTable::byTableName('testtable', 'testpage', time());
+        $schemaData = meta\AccessTable::getPageAccess('testtable', 'testpage');
         $schemaData->saveData($testdata);
 
         // act
@@ -309,7 +309,7 @@ class AccessTableDataDB_struct_test extends StructTest {
         $pageMeta->setTitle('DokuWiki Foobar Syntax');
         $pageMeta->savePageData();
 
-        $schemaData = meta\AccessTable::byTableName('pageschema', 'syntax', time());
+        $schemaData = meta\AccessTable::getPageAccess('pageschema', 'syntax');
         $actual_pseudodiff = $schemaData->getDataPseudoSyntax();
         $expected_pseudodiff = "pageschema.singlepage : wiki:dokuwiki
 pageschema.multipage : wiki:dokuwiki, wiki:syntax, wiki:welcome

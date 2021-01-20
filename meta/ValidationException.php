@@ -9,6 +9,7 @@ namespace dokuwiki\plugin\struct\meta;
  *
  * @package dokuwiki\plugin\struct\meta
  */
-class ValidationException extends StructException {
+class ValidationException extends StructException
+{
     protected $trans_prefix = 'Validation Exception ';
 }

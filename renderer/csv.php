@@ -8,7 +8,8 @@
  * @link https://tools.ietf.org/html/rfc4180
  * @link http://csvlint.io/
  */
-class renderer_plugin_struct_csv extends Doku_Renderer {
+class renderer_plugin_struct_csv extends Doku_Renderer
+{
 
     protected $first = false;
 
@@ -17,17 +18,18 @@ class renderer_plugin_struct_csv extends Doku_Renderer {
      *
      * @return bool
      */
-    function _doOutput() {
+    protected function doOutput()
+    {
         global $INPUT;
 
-        if(
+        if (
             !isset($this->info['struct_table_hash']) or
             $this->info['struct_table_hash'] != $INPUT->str('hash')
         ) {
             return false;
         }
 
-        if(!empty($this->info['struct_table_meta'])) {
+        if (!empty($this->info['struct_table_meta'])) {
             return false;
         }
 
@@ -39,14 +41,16 @@ class renderer_plugin_struct_csv extends Doku_Renderer {
      *
      * @return string
      */
-    function getFormat() {
+    public function getFormat()
+    {
         return 'struct_csv';
     }
 
     /**
      * Set proper headers
      */
-    function document_start() {
+    public function document_start() // phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
+    {
         global $ID;
         $filename = noNS($ID) . '.csv';
         $headers = array(
@@ -61,8 +65,9 @@ class renderer_plugin_struct_csv extends Doku_Renderer {
     /**
      * Opening a table row prevents the separator for the first following cell
      */
-    function tablerow_open() {
-        if(!$this->_doOutput()) return;
+    public function tablerow_open() // phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
+    {
+        if (!$this->doOutput()) return;
         $this->first = true;
     }
 
@@ -73,9 +78,10 @@ class renderer_plugin_struct_csv extends Doku_Renderer {
      * @param null $align ignored
      * @param int $rowspan ignored
      */
-    function tablecell_open($colspan = 1, $align = null, $rowspan = 1) {
-        if(!$this->_doOutput()) return;
-        if(!$this->first) {
+    public function tablecell_open($colspan = 1, $align = null, $rowspan = 1) // phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
+    {
+        if (!$this->doOutput()) return;
+        if (!$this->first) {
             $this->doc .= ",";
         }
         $this->first = false;
@@ -86,8 +92,9 @@ class renderer_plugin_struct_csv extends Doku_Renderer {
     /**
      * Close the text wrapper
      */
-    function tablecell_close() {
-        if(!$this->_doOutput()) return;
+    public function tablecell_close() // phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
+    {
+        if (!$this->doOutput()) return;
         $this->doc .= '"';
     }
 
@@ -98,22 +105,25 @@ class renderer_plugin_struct_csv extends Doku_Renderer {
      * @param null $align ignored
      * @param int $rowspan ignored
      */
-    function tableheader_open($colspan = 1, $align = null, $rowspan = 1) {
+    public function tableheader_open($colspan = 1, $align = null, $rowspan = 1) // phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
+    {
         $this->tablecell_open($colspan, $align, $rowspan);
     }
 
     /**
      * Alias for tablecell_close
      */
-    function tableheader_close() {
+    public function tableheader_close() // phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
+    {
         $this->tablecell_close();
     }
 
     /**
      * Add CRLF newline at the end of one line
      */
-    function tablerow_close() {
-        if(!$this->_doOutput()) return;
+    public function tablerow_close() // phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
+    {
+        if (!$this->doOutput()) return;
         $this->doc .= "\r\n";
     }
 
@@ -122,9 +132,10 @@ class renderer_plugin_struct_csv extends Doku_Renderer {
      *
      * @param string $text
      */
-    function cdata($text) {
-        if(!$this->_doOutput()) return;
-        if($text === '') return;
+    public function cdata($text)
+    {
+        if (!$this->doOutput()) return;
+        if ($text === '') return;
 
         $this->doc .= str_replace('"', '""', $text);
     }
@@ -132,133 +143,181 @@ class renderer_plugin_struct_csv extends Doku_Renderer {
 
     #region overrides using cdata for output
 
-    function internallink($link, $title = null) {
-        if(is_null($title) or is_array($title) or $title == '') {
+    public function internallink($link, $title = null)
+    {
+        if (is_null($title) or is_array($title) or $title == '') {
             $title = $this->_simpleTitle($link);
         }
         $this->cdata($title);
     }
 
-    function externallink($link, $title = null) {
-        if(is_null($title) or is_array($title) or $title == '') {
+    public function externallink($link, $title = null)
+    {
+        if (is_null($title) or is_array($title) or $title == '') {
             $title = $link;
         }
         $this->cdata($title);
     }
 
-    function emaillink($address, $name = null) {
+    public function emaillink($address, $name = null)
+    {
         $this->cdata($address);
     }
 
-    function plugin($name, $args, $state = '', $match = '') {
-        if(substr($name,0, 7) == 'struct_') {
+    public function plugin($name, $args, $state = '', $match = '')
+    {
+        if (substr($name, 0, 7) == 'struct_') {
             parent::plugin($name, $args, $state, $match);
         } else {
             $this->cdata($match);
         }
     }
 
-    function acronym($acronym) {
+    public function acronym($acronym)
+    {
         $this->cdata($acronym);
     }
 
-    function code($text, $lang = null, $file = null) {
+    public function code($text, $lang = null, $file = null)
+    {
         $this->cdata($text);
     }
 
-    function header($text, $level, $pos) {
+    public function header($text, $level, $pos)
+    {
         $this->cdata($text);
     }
 
-    function linebreak() {
+    public function linebreak()
+    {
         $this->cdata("\r\n");
     }
 
-    function unformatted($text) {
+    public function unformatted($text)
+    {
         $this->cdata($text);
     }
 
-    function php($text) {
+    public function php($text)
+    {
         $this->cdata($text);
     }
 
-    function phpblock($text) {
+    public function phpblock($text)
+    {
         $this->cdata($text);
     }
 
-    function html($text) {
+    public function html($text)
+    {
         $this->cdata($text);
     }
 
-    function htmlblock($text) {
+    public function htmlblock($text)
+    {
         $this->cdata($text);
     }
 
-    function preformatted($text) {
+    public function preformatted($text)
+    {
         $this->cdata($text);
     }
 
-    function file($text, $lang = null, $file = null) {
+    public function file($text, $lang = null, $file = null)
+    {
         $this->cdata($text);
     }
 
-    function smiley($smiley) {
+    public function smiley($smiley)
+    {
         $this->cdata($smiley);
     }
 
-    function entity($entity) {
+    public function entity($entity)
+    {
         $this->cdata($entity);
     }
 
-    function multiplyentity($x, $y) {
+    public function multiplyentity($x, $y)
+    {
         $this->cdata($x . 'x' . $y);
     }
 
-    function locallink($hash, $name = null) {
-        if(is_null($name) or is_array($name) or $name == '') {
+    public function locallink($hash, $name = null)
+    {
+        if (is_null($name) or is_array($name) or $name == '') {
             $name = $hash;
         }
         $this->cdata($name);
     }
 
-    function interwikilink($link, $title = null, $wikiName, $wikiUri) {
-        if(is_null($title) or is_array($title) or $title == '') {
+    public function interwikilink($link, $title, $wikiName, $wikiUri)
+    {
+        if (is_array($title) or $title == '') {
             $title = $wikiName . '>' . $link;
         }
         $this->cdata($title);
     }
 
-    function filelink($link, $title = null) {
-        if(is_null($title) or is_array($title) or $title == '') {
+    public function filelink($link, $title = null)
+    {
+        if (is_null($title) or is_array($title) or $title == '') {
             $title = $link;
         }
         $this->cdata($title);
     }
 
-    function windowssharelink($link, $title = null) {
-        if(is_null($title) or is_array($title) or $title == '') {
+    public function windowssharelink($link, $title = null)
+    {
+        if (is_null($title) or is_array($title) or $title == '') {
             $title = $link;
         }
         $this->cdata($title);
     }
 
-    function internalmedia($src, $title = null, $align = null, $width = null,
-                           $height = null, $cache = null, $linking = null) {
+    public function internalmedia(
+        $src,
+        $title = null,
+        $align = null,
+        $width = null,
+        $height = null,
+        $cache = null,
+        $linking = null
+    ) {
         $this->cdata($src);
     }
 
-    function externalmedia($src, $title = null, $align = null, $width = null,
-                           $height = null, $cache = null, $linking = null) {
+    public function externalmedia(
+        $src,
+        $title = null,
+        $align = null,
+        $width = null,
+        $height = null,
+        $cache = null,
+        $linking = null
+    ) {
         $this->cdata($src);
     }
 
-    function internalmedialink($src, $title = null, $align = null,
-                               $width = null, $height = null, $cache = null) {
+    public function internalmedialink(
+        $src,
+        $title = null,
+        $align = null,
+        $width = null,
+        $height = null,
+        $cache = null
+    ) {
         $this->cdata($src);
     }
 
-    function externalmedialink($src, $title = null, $align = null,
-                               $width = null, $height = null, $cache = null) {
+    public function externalmedialink(
+        $src,
+        $title = null,
+        $align = null,
+        $width = null,
+        $height = null,
+        $cache = null
+    ) {
         $this->cdata($src);
     }
 

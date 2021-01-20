@@ -273,7 +273,7 @@ class edit_struct_test extends StructTest {
         $pagelog = new \PageChangelog($page);
         $revisions = $pagelog->getRevisions(-1, 200);
         $revinfo = $pagelog->getRevisionInfo($revisions[0]);
-        $schemaData = meta\AccessTable::byTableName($schema, $page, 0);
+        $schemaData = meta\AccessTable::getPageAccess($schema, $page, $revisions[0]);
         $actual_struct_data = $schemaData->getDataArray();
         $expected_struct_data = array(
             'afirst' => 'foo',
@@ -335,7 +335,7 @@ class edit_struct_test extends StructTest {
         $pagelog = new \PageChangelog($page);
         $revisions = $pagelog->getRevisions(-1, 200);
         $revinfo = $pagelog->getRevisionInfo($revisions[0]);
-        $schemaData = meta\AccessTable::byTableName($schema, $page, 0);
+        $schemaData = meta\AccessTable::getPageAccess($schema, $page, $revisions[0]);
         $actual_struct_data = $schemaData->getDataArray();
         $expected_struct_data = array(
             'afirst' => 'foo2',
@@ -397,7 +397,7 @@ class edit_struct_test extends StructTest {
         $pagelog = new \PageChangelog($page);
         $revisions = $pagelog->getRevisions(-1, 200);
         $revinfo = $pagelog->getRevisionInfo($revisions[0]);
-        $schemaData = meta\AccessTable::byTableName($schema, $page, 0);
+        $schemaData = meta\AccessTable::getPageAccess($schema, $page, $revisions[0]);
         $actual_struct_data = $schemaData->getDataArray();
         $expected_struct_data = array(
             'afirst' => '',
@@ -478,7 +478,7 @@ class edit_struct_test extends StructTest {
         $pagelog = new \PageChangelog($page);
         $revisions = $pagelog->getRevisions(-1, 200);
         $revinfo = $pagelog->getRevisionInfo($revisions[0]);
-        $schemaData = meta\AccessTable::byTableName($schema, $page, 0);
+        $schemaData = meta\AccessTable::getPageAccess($schema, $page, $revisions[0]);
         $actual_struct_data = $schemaData->getDataArray();
         $expected_struct_data = array(
             'afirst' => 'foo',

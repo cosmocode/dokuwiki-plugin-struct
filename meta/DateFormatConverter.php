@@ -14,7 +14,8 @@ namespace dokuwiki\plugin\struct\meta;
  *
  * @package dokuwiki\plugin\struct\meta
  */
-class DateFormatConverter {
+class DateFormatConverter
+{
     protected static $strftime = array(
         // Day
         '%a' => 'D', // An abbreviated textual representation of the day    Sun through Sat
@@ -119,7 +120,8 @@ class DateFormatConverter {
      * @param string $strftime
      * @return string
      */
-    static public function toDate($strftime) {
+    public static function toDate($strftime)
+    {
         $date = $strftime;
 
         /* All characters that are not strftime placeholders need to be escaped */
@@ -161,7 +163,8 @@ class DateFormatConverter {
      * @param string $date
      * @return string
      */
-    static public function toStrftime($date) {
+    public static function toStrftime($date)
+    {
         /* date to strftime conversion */
         {
             // create negative lookbehind regex to match all unescaped known chars

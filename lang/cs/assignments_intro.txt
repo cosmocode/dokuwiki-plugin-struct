@@ -1,0 +1,8 @@
+====== Přiřazení schémat ======
+
+Zde můžete definovat vzory pro automatické přiřazování schémat stránkám. Kdykoliv se stránka shoduje s některým ze vzorů, zobrazí se vyhovující schémata.
+
+  * Jmenné prostory bez vnořených jmenných prostorů jsou přiřazeny jako ''<nowiki>namespace:*</nowiki>''.
+  * Jmenné prostory včetně vnořených jmenných prostorů jsou přiřazeny jako ''<nowiki>namespace:**</nowiki>''.
+  * Stránky jako obvykle se svým plným ID stránky.
+  * Regulární výrazy začínající a končící znakem ''/'' - jsou porovnány s '':'' prefixem plného ID stránky.

@@ -2,13 +2,13 @@
 
 namespace dokuwiki\plugin\struct\meta;
 
-
 /**
  * Class AggregationList
  *
  * @package dokuwiki\plugin\struct\meta
  */
-class AggregationList {
+class AggregationList
+{
 
     /**
      * @var string the page id of the page this is rendered to
@@ -52,7 +52,8 @@ class AggregationList {
      * @param \Doku_Renderer $renderer
      * @param SearchConfig $searchConfig
      */
-    public function __construct($id, $mode, \Doku_Renderer $renderer, SearchConfig $searchConfig) {
+    public function __construct($id, $mode, \Doku_Renderer $renderer, SearchConfig $searchConfig)
+    {
         $this->id = $id;
         $this->mode = $mode;
         $this->renderer = $renderer;
@@ -68,7 +69,8 @@ class AggregationList {
     /**
      * Create the list on the renderer
      */
-    public function render() {
+    public function render()
+    {
 
         $this->startScope();
 
@@ -94,9 +96,10 @@ class AggregationList {
      *
      * @see finishScope()
      */
-    protected function startScope() {
+    protected function startScope()
+    {
         // wrapping div
-        if($this->mode != 'xhtml') return;
+        if ($this->mode != 'xhtml') return;
         $this->renderer->doc .= "<div class=\"structaggregation listaggregation\">";
     }
 
@@ -105,16 +108,18 @@ class AggregationList {
      *
      * @see startScope()
      */
-    protected function finishScope() {
+    protected function finishScope()
+    {
         // wrapping div
-        if($this->mode != 'xhtml') return;
+        if ($this->mode != 'xhtml') return;
         $this->renderer->doc .= '</div>';
     }
 
     /**
      * @param $resultrow
      */
-    protected function renderListItem($resultrow) {
+    protected function renderListItem($resultrow)
+    {
         $sepbyheaders = $this->searchConfig->getConf()['sepbyheaders'];
         $headers = $this->searchConfig->getConf()['headers'];
 
@@ -144,6 +149,5 @@ class AggregationList {
                 $this->renderer->doc .= '</div>';
             }
         }
-
     }
 }

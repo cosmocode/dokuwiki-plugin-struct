@@ -1,39 +1,47 @@
 /**
- * Lookup Editor
+ * Aggregation table editor
  */
-var LookupEditor = function (idx, table) {
-    var $table = jQuery(table);
-    var $form = null;
-    var formdata;
+const AggregationEditor = function (idx, table) {
+    const $table = jQuery(table);
+    let $form = null;
+    let formdata;
 
-    var schema = $table.parents('.structaggregation').data('schema');
+    const schema = $table.parents('.structaggregation').data('schema');
     if (!schema) return;
 
     /**
      * Adds delete row buttons to each row
      */
     function addDeleteRowButtons() {
+        const disableDeleteSerial = JSINFO.plugins.struct.disableDeleteSerial;
+
         $table.find('tr').each(function () {
-            var $me = jQuery(this);
+            const $me = jQuery(this);
 
             // already added here?
             if ($me.find('th.action, td.action').length) {
                 return;
             }
 
-            var pid = $me.data('pid');
+            const rid = $me.data('rid');
+            const pid = $me.data('pid');
+            let isDisabled = '';
 
             // empty header cells
-            if (!pid) {
-                $me.append('<th class="action"></th>');
+            if (!rid) {
+                $me.append('<th class="action">' + LANG.plugins.struct.actions + '</th>');
                 return;
             }
 
             // delete buttons for rows
-            var $td = jQuery('<td class="action"></td>');
-            if (pid === '') return;
+            const $td = jQuery('<td class="action"></td>');
+            if (rid === '') return;  // skip button addition for page data
+            // disable button for serial data if so configured
+            if (rid && pid && disableDeleteSerial) {
+                isDisabled = ' disabled';
+            }
 
-            var $btn = jQuery('<button><i class="ui-icon ui-icon-trash"></i></button>')
+            const $btn = jQuery('<button' + isDisabled + '><i class="ui-icon ui-icon-trash"></i></button>')
                 .addClass('delete')
                 .attr('title', LANG.plugins.struct.lookup_delete)
                 .click(function (e) {
@@ -43,10 +51,10 @@ var LookupEditor = function (idx, table) {
                     jQuery.post(
                         DOKU_BASE + 'lib/exe/ajax.php',
                         {
-                            call: 'plugin_struct_lookup_delete',
+                            call: 'plugin_struct_aggregationeditor_delete',
                             schema: schema,
-                            pid: pid,
-                            sectok: $me.parents('.structlookup').find('.struct_entry_form input[name=sectok]').val()
+                            rid: rid,
+                            sectok: $me.parents('.structaggregationeditor').find('.struct_entry_form input[name=sectok]').val()
                         }
                     )
                         .done(function () {
@@ -79,6 +87,16 @@ var LookupEditor = function (idx, table) {
             name: 'searchconf',
             value: $agg.attr('data-searchconf')
         }).appendTo($form); // add the search config to the form
+
+        // if page id needs to be passed to backend, add pid
+        const searchconf = JSON.parse($agg.attr('data-searchconf'));
+        if (searchconf['withpid']) {
+            jQuery('<input>').attr({
+                type: 'hidden',
+                name: 'pid',
+                value: JSINFO.id
+            }).appendTo($form); // add the page id to the form
+        }
         $agg.append($form);
         EntryEditor($form);
 
@@ -120,7 +138,7 @@ var LookupEditor = function (idx, table) {
     jQuery.post(
         DOKU_BASE + 'lib/exe/ajax.php',
         {
-            call: 'plugin_struct_lookup_new',
+            call: 'plugin_struct_aggregationeditor_new',
             schema: schema
         },
         function (data) {

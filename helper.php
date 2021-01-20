@@ -1,4 +1,5 @@
 <?php
+
 /**
  * DokuWiki Plugin struct (Helper Component)
  *
@@ -9,11 +10,12 @@
 // must be run within Dokuwiki
 use dokuwiki\plugin\struct\meta\AccessDataValidator;
 use dokuwiki\plugin\struct\meta\AccessTable;
+use dokuwiki\plugin\struct\meta\AccessTableGlobal;
 use dokuwiki\plugin\struct\meta\Assignments;
 use dokuwiki\plugin\struct\meta\Schema;
 use dokuwiki\plugin\struct\meta\StructException;
 
-if(!defined('DOKU_INC')) die();
+if (!defined('DOKU_INC')) die();
 
 /**
  * The public interface for the struct plugin
@@ -26,21 +28,26 @@ if(!defined('DOKU_INC')) die();
  *
  * Remember to check permissions yourself!
  */
-class helper_plugin_struct extends DokuWiki_Plugin {
+class helper_plugin_struct extends DokuWiki_Plugin
+{
 
     /**
      * Get the structured data of a given page
      *
      * @param string $page The page to get data for
      * @param string|null $schema The schema to use null for all
-     * @param int $time A timestamp if you want historic data (0 for now)
+     * @param int $time A timestamp if you want historic data
      * @return array ('schema' => ( 'fieldlabel' => 'value', ...))
      * @throws StructException
      */
-    public function getData($page, $schema = null, $time = 0) {
+    public function getData($page, $schema = null, $time = 0)
+    {
         $page = cleanID($page);
+        if (!$time) {
+            $time = time();
+        }
 
-        if(is_null($schema)) {
+        if (is_null($schema)) {
             $assignments = Assignments::getInstance();
             $schemas = $assignments->getPageAssignments($page, false);
         } else {
@@ -48,8 +55,8 @@ class helper_plugin_struct extends DokuWiki_Plugin {
         }
 
         $result = array();
-        foreach($schemas as $schema) {
-            $schemaData = AccessTable::byTableName($schema, $page, $time);
+        foreach ($schemas as $schema) {
+            $schemaData = AccessTable::getPageAccess($schema, $page, $time);
             $result[$schema] = $schemaData->getDataArray();
         }
 
@@ -76,30 +83,52 @@ class helper_plugin_struct extends DokuWiki_Plugin {
      * @param string $page
      * @param array $data ('schema' => ( 'fieldlabel' => 'value', ...))
      * @param string $summary
+     * @param string $summary
      * @throws StructException
      */
-    public function saveData($page, $data, $summary = '') {
+    public function saveData($page, $data, $summary = '', $minor = false)
+    {
         $page = cleanID($page);
         $summary = trim($summary);
-        if(!$summary) $summary = $this->getLang('summary');
+        if (!$summary) $summary = $this->getLang('summary');
 
-        if(!page_exists($page)) throw new StructException("Page does not exist. You can not attach struct data");
+        if (!page_exists($page)) throw new StructException("Page does not exist. You can not attach struct data");
 
         // validate and see if anything changes
         $valid = AccessDataValidator::validateDataForPage($data, $page, $errors);
-        if($valid === false) {
+        if ($valid === false) {
             throw new StructException("Validation failed:\n%s", join("\n", $errors));
         }
-        if(!$valid) return; // empty array when no changes were detected
+        if (!$valid) return; // empty array when no changes were detected
 
-        $newrevision = self::createPageRevision($page, $summary);
+        $newrevision = self::createPageRevision($page, $summary, $minor);
 
         // save the provided data
         $assignments = Assignments::getInstance();
-        foreach($valid as $v) {
+        foreach ($valid as $v) {
             $v->saveData($newrevision);
             // make sure this schema is assigned
             $assignments->assignPageSchema($page, $v->getAccessTable()->getSchema()->getTable());
+        }
+    }
+
+    /**
+     * Save lookup data row
+     *
+     * @param AccessTable        $access the table into which to save the data
+     * @param array             $data   data to be saved in the form of [columnName => 'data']
+     */
+    public function saveLookupData(AccessTable $access, $data)
+    {
+        if (!$access->getSchema()->isEditable()) {
+            throw new StructException('lookup save error: no permission for schema');
+        }
+        $validator = $access->getValidator($data);
+        if (!$validator->validate()) {
+            throw new StructException("Validation failed:\n%s", implode("\n", $validator->getErrors()));
+        }
+        if (!$validator->saveData()) {
+            throw new StructException('No data saved');
         }
     }
 
@@ -111,7 +140,8 @@ class helper_plugin_struct extends DokuWiki_Plugin {
      * @param bool $minor
      * @return int the new revision
      */
-    static public function createPageRevision($page, $summary = '', $minor = false) {
+    public static function createPageRevision($page, $summary = '', $minor = false)
+    {
         $summary = trim($summary);
         // force a new page revision @see action_plugin_struct_entry::handle_pagesave_before()
         $GLOBALS['struct_plugin_force_page_save'] = true;
@@ -129,15 +159,16 @@ class helper_plugin_struct extends DokuWiki_Plugin {
      * @return Schema[]
      * @throws StructException
      */
-    public function getSchema($schema = null) {
-        if(is_null($schema)) {
+    public function getSchema($schema = null)
+    {
+        if (is_null($schema)) {
             $schemas = Schema::getAll();
         } else {
             $schemas = array($schema);
         }
 
         $result = array();
-        foreach($schemas as $table) {
+        foreach ($schemas as $table) {
             $result[$table] = new Schema($table);
         }
         return $result;
@@ -152,9 +183,15 @@ class helper_plugin_struct extends DokuWiki_Plugin {
      * @return array (page => (schema => true), ...)
      * @throws StructException
      */
-    public function getPages($schema = null) {
+    public function getPages($schema = null)
+    {
         $assignments = Assignments::getInstance();
         return $assignments->getPages($schema);
     }
 
+    public static function decodeJson($value)
+    {
+        if (!empty($value) && $value[0] !== '[') throw new StructException('Lookup expects JSON');
+        return json_decode($value);
+    }
 }

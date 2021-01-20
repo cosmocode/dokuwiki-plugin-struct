@@ -2,7 +2,9 @@
 
 namespace dokuwiki\plugin\struct\test;
 
+use dokuwiki\plugin\struct\meta\Column;
 use dokuwiki\plugin\struct\test\mock\Assignments;
+use dokuwiki\plugin\struct\test\mock\Lookup;
 use dokuwiki\plugin\struct\types\Decimal;
 use dokuwiki\plugin\struct\types\Text;
 
@@ -84,6 +86,17 @@ class Validator_struct_test extends StructTest {
         $value = array('  foo  ', '  bar  ');
         $this->assertTrue($validator->validateField($text, 'label', $value));
         $this->assertEquals(array('foo', 'bar'), $value);
+    }
+
+    public function test_validate_empty_multivalue() {
+        $lookup = new Lookup(null, '', true);
+        $col = new Column(10, $lookup);
+
+        $validator = new mock\ValueValidator();
+        $value = '';
+
+        $validator->validateValue($col, $value);
+        $this->assertEquals([''], $value);
     }
 
 }

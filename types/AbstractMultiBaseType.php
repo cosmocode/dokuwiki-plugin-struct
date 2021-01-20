@@ -11,7 +11,8 @@ namespace dokuwiki\plugin\struct\types;
  * @package dokuwiki\plugin\struct\types
  * @see Column
  */
-abstract class AbstractMultiBaseType extends AbstractBaseType {
+abstract class AbstractMultiBaseType extends AbstractBaseType
+{
 
     /**
      * @param string $name
@@ -20,7 +21,8 @@ abstract class AbstractMultiBaseType extends AbstractBaseType {
      *
      * @return string
      */
-    public function multiValueEditor($name, $rawvalues, $htmlID) {
+    public function multiValueEditor($name, $rawvalues, $htmlID)
+    {
         $value = join(', ', $rawvalues);
 
         return
@@ -31,5 +33,4 @@ abstract class AbstractMultiBaseType extends AbstractBaseType {
             $this->getLang('multi') .
             '</small>';
     }
-
 }

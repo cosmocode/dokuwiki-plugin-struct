@@ -7,7 +7,8 @@ namespace dokuwiki\plugin\struct\meta;
  *
  * Should be aquired through AccessDataTable::getValidator()
  */
-class AccessDataValidator extends ValueValidator {
+class AccessDataValidator extends ValueValidator
+{
 
     /** @var AccessTable */
     protected $access;
@@ -20,7 +21,8 @@ class AccessDataValidator extends ValueValidator {
      * @param AccessTable $access
      * @param array $data the data to validate (and save)
      */
-    public function __construct(AccessTable $access, $data) {
+    public function __construct(AccessTable $access, $data)
+    {
         parent::__construct();
         $this->access = $access;
         $this->data = $data;
@@ -38,26 +40,27 @@ class AccessDataValidator extends ValueValidator {
      * @param string[] $errors validation errors
      * @return AccessDataValidator[]|bool savable data or false on validation error
      */
-    static public function validateDataForPage($data, $pageid, &$errors) {
+    public static function validateDataForPage($data, $pageid, &$errors)
+    {
         $tosave = array();
         $valid = true;
         $errors = array();
 
         $assignments = Assignments::getInstance();
         $tables = $assignments->getPageAssignments($pageid);
-        foreach($tables as $table) {
-            $access = AccessTable::byTableName($table, $pageid);
+        foreach ($tables as $table) {
+            $access = AccessTable::getPageAccess($table, $pageid);
             $validation = $access->getValidator($data[$table]);
-            if(!$validation->validate()) {
+            if (!$validation->validate()) {
                 $valid = false;
                 $errors = array_merge($errors, $validation->getErrors());
             } else {
-                if($validation->hasChanges()) {
+                if ($validation->hasChanges()) {
                     $tosave[] = $validation;
                 }
             }
         }
-        if($valid) return $tosave;
+        if ($valid) return $tosave;
         return false;
     }
 
@@ -66,9 +69,10 @@ class AccessDataValidator extends ValueValidator {
      *
      * @return bool
      */
-    public function validate() {
+    public function validate()
+    {
         $result = true;
-        foreach($this->access->getSchema()->getColumns() as $col) {
+        foreach ($this->access->getSchema()->getColumns() as $col) {
             $label = $col->getType()->getLabel();
             $result = $result && $this->validateValue($col, $this->data[$label]);
         }
@@ -80,7 +84,8 @@ class AccessDataValidator extends ValueValidator {
      *
      * @return bool
      */
-    public function hasChanges() {
+    public function hasChanges()
+    {
         $olddata = $this->access->getDataArray();
         return ($olddata != $this->data);
     }
@@ -88,7 +93,8 @@ class AccessDataValidator extends ValueValidator {
     /**
      * @return AccessTable
      */
-    public function getAccessTable() {
+    public function getAccessTable()
+    {
         return $this->access;
     }
 
@@ -97,7 +103,8 @@ class AccessDataValidator extends ValueValidator {
      *
      * @return array
      */
-    public function getCleanData() {
+    public function getCleanData()
+    {
         return $this->data;
     }
 
@@ -109,9 +116,9 @@ class AccessDataValidator extends ValueValidator {
      * @param int $ts the timestamp to use when saving the data
      * @return bool
      */
-    public function saveData($ts = 0) {
+    public function saveData($ts = 0)
+    {
         $this->access->setTimestamp($ts);
         return $this->access->saveData($this->data);
     }
-
 }

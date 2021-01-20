@@ -1,4 +1,5 @@
 <?php
+
 /**
  * DokuWiki Plugin struct (Action Component)
  *
@@ -6,15 +7,13 @@
  * @author  Andreas Gohr, Michael Große <dokuwiki@cosmocode.de>
  */
 
-// must be run within Dokuwiki
 use dokuwiki\plugin\struct\meta\AccessTable;
 use dokuwiki\plugin\struct\meta\Assignments;
-use dokuwiki\plugin\struct\meta\AccessTableData;
+use dokuwiki\plugin\struct\meta\AccessTablePage;
 use dokuwiki\plugin\struct\meta\StructException;
 
-if(!defined('DOKU_INC')) die();
-
-class action_plugin_struct_diff extends DokuWiki_Action_Plugin {
+class action_plugin_struct_diff extends DokuWiki_Action_Plugin
+{
 
     /**
      * Registers a callback function for a given event
@@ -22,8 +21,9 @@ class action_plugin_struct_diff extends DokuWiki_Action_Plugin {
      * @param Doku_Event_Handler $controller DokuWiki's event controller object
      * @return void
      */
-    public function register(Doku_Event_Handler $controller) {
-        $controller->register_hook('IO_WIKIPAGE_READ', 'AFTER', $this, 'handle_diffload');
+    public function register(Doku_Event_Handler $controller)
+    {
+        $controller->register_hook('IO_WIKIPAGE_READ', 'AFTER', $this, 'handleDiffload');
     }
 
     /**
@@ -36,33 +36,33 @@ class action_plugin_struct_diff extends DokuWiki_Action_Plugin {
      *                           handler was registered]
      * @return bool
      */
-    public function handle_diffload(Doku_Event $event, $param) {
+    public function handleDiffload(Doku_Event $event, $param)
+    {
         global $ACT;
         global $INFO;
-        if($ACT != 'diff') return;
+        if ($ACT != 'diff') return;
         $id = $event->data[2];
         if (!blank($event->data[1])) {
             $id = $event->data[1] . ':' . $id;
         }
-        $rev = $event->data[3];
-        if($INFO['id'] != $id) return;
+        $rev = $event->data[3] ?: time();
+        if ($INFO['id'] != $id) return;
 
         $assignments = Assignments::getInstance();
         $tables = $assignments->getPageAssignments($id);
-        if(!$tables) return;
+        if (!$tables) return;
 
         $event->result .= "\n---- struct data ----\n";
-        foreach($tables as $table) {
+        foreach ($tables as $table) {
             try {
-                $schemadata = AccessTable::byTableName($table, $id, $rev);
-            } catch(StructException $ignored) {
+                $schemadata = AccessTable::getPageAccess($table, $id, $rev);
+            } catch (StructException $ignored) {
                 continue; // no such schema at this revision
             }
             $event->result .= $schemadata->getDataPseudoSyntax();
         }
         $event->result .= "----\n";
     }
-
 }
 
 // vim:ts=4:sw=4:et:

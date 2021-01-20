@@ -15,7 +15,8 @@ namespace dokuwiki\plugin\struct\meta;
  *
  * @package dokuwiki\plugin\struct\meta
  */
-class SchemaBuilder {
+class SchemaBuilder
+{
 
     /**
      * @var array The posted new data for the schema
@@ -54,10 +55,11 @@ class SchemaBuilder {
      * @param array $data The defining of the table (basically what get's posted in the schema editor form)
      * @see Schema::AdminEditor()
      */
-    public function __construct($table, $data) {
+    public function __construct($table, $data)
+    {
         $this->table = $table;
         $this->data = $data;
-        $this->oldschema = new Schema($table, 0, $data['islookup']);
+        $this->oldschema = new Schema($table, 0);
 
         $this->helper = plugin_load('helper', 'struct_db');
         $this->sqlite = $this->helper->getDB();
@@ -70,19 +72,16 @@ class SchemaBuilder {
      * @param int $time when to create this schema 0 for now
      * @return bool|int the new schema id on success
      */
-    public function build($time=0) {
+    public function build($time = 0)
+    {
         $this->time = $time;
         $this->fixLabelUniqueness();
 
         $this->sqlite->query('BEGIN TRANSACTION');
         $ok = true;
         // create the data table if new schema
-        if(!$this->oldschema->getId()) {
-            if($this->oldschema->isLookup()) {
-                $ok = $this->newLookupTable();
-            } else {
-                $ok = $this->newDataTable();
-            }
+        if (!$this->oldschema->getId()) {
+            $ok = $this->newDataTable();
         }
 
         // create a new schema
@@ -104,14 +103,15 @@ class SchemaBuilder {
     /**
      * Makes sure all labels in the schema to save are unique
      */
-    protected function fixLabelUniqueness() {
+    protected function fixLabelUniqueness()
+    {
         $labels = array();
 
-        if(isset($this->data['cols'])) foreach($this->data['cols'] as $idx => $column) {
+        if (isset($this->data['cols'])) foreach ($this->data['cols'] as $idx => $column) {
             $this->data['cols'][$idx]['label'] = $this->fixLabel($column['label'], $labels);
         }
 
-        if(isset($this->data['new'])) foreach($this->data['new'] as $idx => $column) {
+        if (isset($this->data['new'])) foreach ($this->data['new'] as $idx => $column) {
             $this->data['new'][$idx]['label'] = $this->fixLabel($column['label'], $labels);
         }
     }
@@ -123,15 +123,16 @@ class SchemaBuilder {
      * @param array $labels list of already assigned labels (will be filled)
      * @return string
      */
-    protected function fixLabel($wantedlabel, &$labels) {
+    protected function fixLabel($wantedlabel, &$labels)
+    {
         $wantedlabel = trim($wantedlabel);
         $fixedlabel = $wantedlabel;
         $idx = 1;
-        while(isset($labels[utf8_strtolower($fixedlabel)])) {
-            $fixedlabel = $wantedlabel.$idx++;
+        while (isset($labels[utf8_strtolower($fixedlabel)])) {
+            $fixedlabel = $wantedlabel . $idx++;
         }
         // did we actually do a rename? apply it.
-        if($fixedlabel != $wantedlabel) {
+        if ($fixedlabel != $wantedlabel) {
             msg(sprintf($this->helper->getLang('duplicate_label'), $wantedlabel, $fixedlabel), -1);
             $this->data['cols']['label'] = $fixedlabel;
         }
@@ -142,32 +143,34 @@ class SchemaBuilder {
     /**
      * Creates a new schema
      */
-    protected function newSchema() {
-        if(!$this->time) $this->time = time();
+    protected function newSchema()
+    {
+        if (!$this->time) $this->time = time();
 
         $config = $this->data['config'] ?: '{}';
 
         /** @noinspection SqlResolve */
-        $sql = "INSERT INTO schemas (tbl, ts, islookup, user, config) VALUES (?, ?, ?, ?, ?)";
-        $this->sqlite->query($sql, $this->table, $this->time, (int) $this->oldschema->isLookup(), $this->user, $config);
+        $sql = "INSERT INTO schemas (tbl, ts, user, config) VALUES (?, ?, ?, ?)";
+        $this->sqlite->query($sql, $this->table, $this->time, $this->user, $config);
         $res = $this->sqlite->query('SELECT last_insert_rowid()');
         $this->newschemaid = $this->sqlite->res2single($res);
         $this->sqlite->res_close($res);
-        if(!$this->newschemaid) return false;
+        if (!$this->newschemaid) return false;
         return true;
     }
 
     /**
      * Updates all the existing column infos and adds them to the new schema
      */
-    protected function updateColumns() {
-        foreach($this->oldschema->getColumns() as $column) {
+    protected function updateColumns()
+    {
+        foreach ($this->oldschema->getColumns() as $column) {
             $oldEntry = $column->getType()->getAsEntry();
             $oldTid   = $column->getTid();
             $newEntry = $oldEntry;
             $newTid   = $oldTid;
             $sort = $column->getSort();
-            if(isset($this->data['cols'][$column->getColref()])){
+            if (isset($this->data['cols'][$column->getColref()])) {
                 // todo I'm not too happy with this hardcoded here - we should probably have a list of fields at one place
                 $newEntry['config'] = $this->data['cols'][$column->getColref()]['config'];
                 $newEntry['label'] = $this->data['cols'][$column->getColref()]['label'];
@@ -177,11 +180,11 @@ class SchemaBuilder {
                 $enabled = (bool) $this->data['cols'][$column->getColref()]['isenabled'];
 
                 // when the type definition has changed, we create a new one
-                if(array_diff_assoc($oldEntry, $newEntry)) {
+                if (array_diff_assoc($oldEntry, $newEntry)) {
                     $ok = $this->sqlite->storeEntry('types', $newEntry);
-                    if(!$ok) return false;
+                    if (!$ok) return false;
                     $res = $this->sqlite->query('SELECT last_insert_rowid()');
-                    if(!$res) return false;
+                    if (!$res) return false;
                     $newTid = $this->sqlite->res2single($res);
                     $this->sqlite->res_close($res);
                     if ($oldEntry['ismulti'] == false && $newEntry['ismulti'] == '1') {
@@ -201,7 +204,7 @@ class SchemaBuilder {
                 'sort' => $sort
             );
             $ok = $this->sqlite->storeEntry('schema_cols', $schemaEntry);
-            if(!$ok) return false;
+            if (!$ok) return false;
         }
         return true;
     }
@@ -212,7 +215,8 @@ class SchemaBuilder {
      * @param string $table
      * @param int    $colref
      */
-    protected function migrateSingleToMulti($table, $colref) {
+    protected function migrateSingleToMulti($table, $colref)
+    {
         /** @noinspection SqlResolve */
         $sqlSelect = "SELECT pid, rev, col$colref AS value FROM data_$table WHERE latest = 1";
         $res = $this->sqlite->query($sqlSelect);
@@ -241,13 +245,14 @@ class SchemaBuilder {
      *
      * @return bool
      */
-    protected function addColumns() {
-        if(!isset($this->data['new'])) return true;
+    protected function addColumns()
+    {
+        if (!isset($this->data['new'])) return true;
 
-        $colref = count($this->oldschema->getColumns())+1;
+        $colref = count($this->oldschema->getColumns()) + 1;
 
-        foreach($this->data['new'] as $column) {
-            if(!$column['isenabled']) continue; // we do not add a disabled column
+        foreach ($this->data['new'] as $column) {
+            if (!$column['isenabled']) continue; // we do not add a disabled column
 
             // todo this duplicates the hardcoding as in  the function above
             $newEntry = array();
@@ -259,18 +264,18 @@ class SchemaBuilder {
 
 
             // only save if the column got a name
-            if(!$newEntry['label']) continue;
+            if (!$newEntry['label']) continue;
 
             // add new column to the data table
-            if(!$this->addDataTableColumn($colref)) {
+            if (!$this->addDataTableColumn($colref)) {
                 return false;
             }
 
             // save the type
             $ok = $this->sqlite->storeEntry('types', $newEntry);
-            if(!$ok) return false;
+            if (!$ok) return false;
             $res = $this->sqlite->query('SELECT last_insert_rowid()');
-            if(!$res) return false;
+            if (!$res) return false;
             $newTid = $this->sqlite->res2single($res);
             $this->sqlite->res_close($res);
 
@@ -284,7 +289,7 @@ class SchemaBuilder {
                 'sort' => $sort
             );
             $ok = $this->sqlite->storeEntry('schema_cols', $schemaEntry);
-            if(!$ok) return false;
+            if (!$ok) return false;
             $colref++;
         }
 
@@ -298,61 +303,30 @@ class SchemaBuilder {
      * @todo how do we want to handle indexes?
      * @return bool
      */
-    protected function newDataTable() {
+    protected function newDataTable()
+    {
         $ok = true;
 
         $tbl = 'data_' . $this->table;
         $sql = "CREATE TABLE $tbl (
-                    pid NOT NULL,
-                    rev INTEGER NOT NULL,
+                    pid TEXT DEFAULT '',
+                    rid INTEGER,
+                    rev INTEGER,
                     latest BOOLEAN NOT NULL DEFAULT 0,
-                    PRIMARY KEY(pid, rev)
+                    PRIMARY KEY(pid, rid, rev)
                 )";
         $ok = $ok && (bool) $this->sqlite->query($sql);
 
         $tbl = 'multi_' . $this->table;
         $sql = "CREATE TABLE $tbl (
                     colref INTEGER NOT NULL,
-                    pid NOT NULL,
-                    rev INTEGER NOT NULL,
+                    pid TEXT DEFAULT '',
+                    rid INTEGER,
+                    rev INTEGER,
                     latest INTEGER NOT NULL DEFAULT 0,
                     row INTEGER NOT NULL,
                     value,
-                    PRIMARY KEY(colref, pid, rev, row)
-                );";
-        $ok = $ok && (bool) $this->sqlite->query($sql);
-
-        return $ok;
-    }
-
-    /**
-     * Creates a new lookup table with no columns
-     *
-     * This is basically the same as @see newDataTable() but sets
-     * different primary keys and types
-     *
-     * @return bool
-     */
-    protected function newLookupTable() {
-        $ok = true;
-
-        $tbl = 'data_' . $this->table;
-        $sql = "CREATE TABLE $tbl (
-                    pid INTEGER PRIMARY KEY,
-                    rev INTEGER NOT NULL DEFAULT 0,
-                    latest BOOLEAN NOT NULL DEFAULT 1
-                )";
-        $ok = $ok && (bool) $this->sqlite->query($sql);
-
-        $tbl = 'multi_' . $this->table;
-        $sql = "CREATE TABLE $tbl (
-                    colref INTEGER NOT NULL,
-                    pid INTEGER NOT NULL,
-                    rev INTEGER NOT NULL DEFAULT 0,
-                    latest INTEGER NOT NULL DEFAULT 0,
-                    row INTEGER NOT NULL,
-                    value,
-                    PRIMARY KEY(colref, pid, row)
+                    PRIMARY KEY(colref, pid, rid, rev, row)
                 );";
         $ok = $ok && (bool) $this->sqlite->query($sql);
 
@@ -365,10 +339,11 @@ class SchemaBuilder {
      * @param int $index the new column index to add
      * @return bool
      */
-    protected function addDataTableColumn($index) {
+    protected function addDataTableColumn($index)
+    {
         $tbl = 'data_' . $this->table;
         $sql = " ALTER TABLE $tbl ADD COLUMN col$index DEFAULT ''";
-        if(! $this->sqlite->query($sql)) {
+        if (! $this->sqlite->query($sql)) {
             return false;
         }
         return true;
@@ -378,10 +353,9 @@ class SchemaBuilder {
      * @param string $user
      * @return SchemaBuilder
      */
-    public function setUser($user) {
+    public function setUser($user)
+    {
         $this->user = $user;
         return $this;
     }
-
-
 }

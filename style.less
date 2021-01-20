@@ -89,20 +89,23 @@
  * Bureaucracy form adjustments
  */
 .dokuwiki form.bureaucracy__plugin div.field {
-    display: block;
-    text-align: right;
+    display: flex;
+    justify-content: flex-end;
 
     label {
-        display: inline-block;
-        width: 47%;
+        clear: both; // this is somehow missing in the bootstrap template
+        flex-grow: 1;
     }
 
     span {
         line-height: 2em;
+        float: left;
+        text-align: right;
     }
 
     span.label {
         vertical-align: top;
+        width: 100%;
 
         // fixes for bootstrap3 template
         color: @ini_text;
@@ -132,6 +135,23 @@
     }
 }
 
+/*responsive - small screen*/
+@media (max-width: 480px) {
+    .dokuwiki form.bureaucracy__plugin div.field {
+        flex-wrap: wrap;
+        label {
+            > span {
+                text-align: left;
+                width: 100%;
+            }
+        }
+
+        span.input {
+            width: 100%;
+        }
+    }
+}
+
 /**
  * Tabs in the Schema Editor
  */
@@ -145,6 +165,10 @@
     fieldset {
         margin-bottom: 1em;
         width: 500px;
+
+        label.block {
+            font-weight: normal;
+        }
     }
 }
 
@@ -351,7 +375,7 @@ form.struct_newschema {
 /**
  * Lookup Aggregation Editor
  */
-.dokuwiki .structlookup {
+.dokuwiki .structaggregationeditor {
     table.inline {
         min-width: 100%;
 
@@ -396,7 +420,7 @@ form.struct_newschema {
 /**
  * Errors on AJAX
  */
-.dokuwiki .structlookup form,
+.dokuwiki .structaggregationeditor form,
 .dokuwiki .struct_inlineditor {
     .err {
         font-size: 90%;

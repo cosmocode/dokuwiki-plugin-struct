@@ -5,45 +5,47 @@ namespace dokuwiki\plugin\struct\meta;
 /**
  * Class CSVExporter
  *
- * exports raw schema data to CSV. For lookup schemas this data can be reimported again through
- * CSVImporter
+ * exports raw schema data to CSV.
  *
  * Note this is different from syntax/csv.php
  *
  * @package dokuwiki\plugin\struct\meta
  */
-class CSVExporter {
+class CSVExporter
+{
+    const DATATYPE_PAGE = 'page';
+    const DATATYPE_GLOBAL = 'global';
+    const DATATYPE_SERIAL = 'serial';
 
-    protected $islookup = false;
+    protected $type = '';
 
     /**
-     * CSVImporter constructor.
+     * CSVExporter constructor.
      *
-     * @throws StructException
      * @param string $table
+     * @param string $type
      */
-    public function __construct($table) {
+    public function __construct($table, $type)
+    {
+        // TODO make it nicer
+        $this->type = $type;
 
         $search = new Search();
         $search->addSchema($table);
         $search->addColumn('*');
         $result = $search->execute();
 
-        $this->islookup = $search->getSchemas()[0]->isLookup();
-        if(!$this->islookup) {
+        if ($this->type !== self::DATATYPE_GLOBAL) {
             $pids = $search->getPids();
-        } else {
-            $pids = array();
         }
 
         echo $this->header($search->getColumns());
-        foreach($result as $i => $row) {
-            if(!$this->islookup) {
+        foreach ($result as $i => $row) {
+            if ($this->type !== self::DATATYPE_GLOBAL) {
                 $pid = $pids[$i];
             } else {
-                $pid = 0;
+                $pid = '';
             }
-
             echo $this->row($row, $pid);
         }
     }
@@ -54,15 +56,16 @@ class CSVExporter {
      * @param Column[] $columns
      * @return string
      */
-    protected function header($columns) {
+    protected function header($columns)
+    {
         $row = '';
 
-        if(!$this->islookup) {
+        if ($this->type !== self::DATATYPE_GLOBAL) {
             $row .= $this->escape('pid');
             $row .= ',';
         }
 
-        foreach($columns as $i => $col) {
+        foreach ($columns as $i => $col) {
             $row .= $this->escape($col->getLabel());
             $row .= ',';
         }
@@ -76,19 +79,20 @@ class CSVExporter {
      * @param string $pid pid of this row
      * @return string
      */
-    protected function row($values, $pid) {
+    protected function row($values, $pid)
+    {
         $row = '';
-
-        if(!$this->islookup) {
+        if ($this->type !== self::DATATYPE_GLOBAL) {
             $row .= $this->escape($pid);
             $row .= ',';
         }
 
-        foreach($values as $value) {
+        foreach ($values as $value) {
             /** @var Value $value */
             $val = $value->getRawValue();
-            if(is_array($val)) $val = join(',', $val);
+            if (is_array($val)) $val = join(',', $val);
 
+            // FIXME check escaping of composite ids (JSON with """")
             $row .= $this->escape($val);
             $row .= ',';
         }
@@ -104,8 +108,8 @@ class CSVExporter {
      * @param string $str
      * @return string
      */
-    protected function escape($str) {
+    protected function escape($str)
+    {
         return '"' . str_replace('"', '""', $str) . '"';
     }
-
 }

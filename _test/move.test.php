@@ -19,8 +19,8 @@ class move_struct_test extends StructTest {
     protected $data1 = array(
         'page' => 'wiki:syntax',
         'pages' => array('wiki:syntax', 'wiki:welcome'),
-        'lookup' => 'page1',
-        'lookups' => array('page1', 'page2'),
+        'lookup' => '["page1",0]',
+        'lookups' => ['["page1",0]', '["page2",0]'],
         'media' => 'wiki:logo.png',
         'medias' => array('wiki:logo.png'),
         'title' => 'wiki:syntax',
@@ -30,8 +30,8 @@ class move_struct_test extends StructTest {
     protected $data2 = array(
         'page' => 'wiki:syntax#something',
         'pages' => array('wiki:syntax#something', 'wiki:welcome#something'),
-        'lookup' => 'page1',
-        'lookups' => array('page1', 'page2'),
+        'lookup' => '["page1",0]',
+        'lookups' => ['["page1",0]', '["page2",0]'],
         'media' => 'wiki:logo.png',
         'medias' => array('wiki:logo.png'),
         'title' => 'wiki:syntax#something',
@@ -53,10 +53,10 @@ class move_struct_test extends StructTest {
         parent::setUp();
         $this->loadSchemaJSON('moves');
 
-        $schemaData = meta\AccessTable::byTableName('moves', 'page1', time());
+        $schemaData = meta\AccessTable::getPageAccess('moves', 'page1');
         $schemaData->saveData($this->data1);
 
-        $schemaData = meta\AccessTable::byTableName('moves', 'page2', time());
+        $schemaData = meta\AccessTable::getPageAccess('moves', 'page2');
         $schemaData->saveData($this->data2);
     }
 
@@ -67,21 +67,21 @@ class move_struct_test extends StructTest {
         $event->trigger();
 
         // old page should be gone
-        $schemaData = meta\AccessTable::byTableName('moves', 'page1', 0);
+        $schemaData = meta\AccessTable::getPageAccess('moves', 'page1');
         $this->assertEquals($this->empty, $schemaData->getDataArray());
 
         // new page should have adjusted data
         $data = $this->data1;
-        $data['lookup'] = 'page3';
-        $data['lookups'] = array('page3', 'page2');
-        $schemaData = meta\AccessTable::byTableName('moves', 'page3', 0);
+        $data['lookup'] = '["page3",0]';
+        $data['lookups'] = ['["page3",0]', '["page2",0]'];
+        $schemaData = meta\AccessTable::getPageAccess('moves', 'page3');
         $this->assertEquals($data, $schemaData->getDataArray());
 
         // other page should have adjusted lookups
         $data = $this->data2;
-        $data['lookup'] = 'page3';
-        $data['lookups'] = array('page3', 'page2');
-        $schemaData = meta\AccessTable::byTableName('moves', 'page2', 0);
+        $data['lookup'] = '["page3",0]';
+        $data['lookups'] = ['["page3",0]', '["page2",0]'];
+        $schemaData = meta\AccessTable::getPageAccess('moves', 'page2');
         $this->assertEquals($data, $schemaData->getDataArray());
     }
 
@@ -96,7 +96,7 @@ class move_struct_test extends StructTest {
         $data['pages'] = array('foobar', 'wiki:welcome');
         $data['title'] = 'foobar';
         $data['titles'] = array('foobar', 'wiki:welcome');
-        $schemaData = meta\AccessTable::byTableName('moves', 'page1', 0);
+        $schemaData = meta\AccessTable::getPageAccess('moves', 'page1');
         $this->assertEquals($data, $schemaData->getDataArray());
 
         $data = $this->data2;
@@ -104,7 +104,7 @@ class move_struct_test extends StructTest {
         $data['pages'] = array('foobar#something', 'wiki:welcome#something');
         $data['title'] = 'foobar#something';
         $data['titles'] = array('foobar#something', 'wiki:welcome#something');
-        $schemaData = meta\AccessTable::byTableName('moves', 'page2', 0);
+        $schemaData = meta\AccessTable::getPageAccess('moves', 'page2');
         $this->assertEquals($data, $schemaData->getDataArray());
     }
 
@@ -117,13 +117,13 @@ class move_struct_test extends StructTest {
         $data = $this->data1;
         $data['media'] = 'foobar.png';
         $data['medias'] = array('foobar.png');
-        $schemaData = meta\AccessTable::byTableName('moves', 'page1', 0);
+        $schemaData = meta\AccessTable::getPageAccess('moves', 'page1');
         $this->assertEquals($data, $schemaData->getDataArray());
 
         $data = $this->data2;
         $data['media'] = 'foobar.png';
         $data['medias'] = array('foobar.png');
-        $schemaData = meta\AccessTable::byTableName('moves', 'page2', 0);
+        $schemaData = meta\AccessTable::getPageAccess('moves', 'page2');
         $this->assertEquals($data, $schemaData->getDataArray());
     }
 }

@@ -167,6 +167,32 @@ class Search_struct_test extends StructTest {
         $this->assertEquals(array('second data', 'more data', 'even more'), $result[0][3]->getValue());
     }
 
+    /**
+     * @group slow
+     */
+    public function test_search_lastsummary() {
+        sleep(1);
+        $summary = 'Summary';
+        saveWikiText('page01', "===== TestTitle =====\nabcd", $summary);
+        p_get_metadata('page01');
+
+        $search = new mock\Search();
+
+        $search->addSchema('schema1');
+        $search->addColumn('%pageid%');
+        $search->addColumn('%lastsummary%');
+        $search->addColumn('first');
+        $search->addColumn('second');
+
+        /** @var meta\Value[][] $result */
+        $result = $search->execute();
+
+        $this->assertEquals(2, count($result), 'result rows');
+        $this->assertEquals(4, count($result[0]), 'result columns');
+        $this->assertEquals($summary, $result[0][1]->getValue());
+        $this->assertEquals(array('second data', 'more data', 'even more'), $result[0][3]->getValue());
+    }
+
     public function test_search() {
         $search = new mock\Search();
 
@@ -350,5 +376,33 @@ class Search_struct_test extends StructTest {
         $search->addSchema('schema2', 'alias');
         $search->addColumn('nope.*');
         $this->assertEquals(0, count($search->getColumns()));
+    }
+
+    public function test_filterValueList() {
+        $search = new mock\Search();
+
+        //simple - single quote
+        $this->assertEquals(array('test'),
+            $this->callInaccessibleMethod($search, 'parseFilterValueList', array('("test")')));
+
+        //simple - double quote
+        $this->assertEquals(array('test'),
+            $this->callInaccessibleMethod($search, 'parseFilterValueList', array("('test')")));
+
+        //many elements
+        $this->assertEquals(array('test', 'test2', '18'),
+            $this->callInaccessibleMethod($search, 'parseFilterValueList', array('("test", \'test2\', 18)')));
+
+        $str = <<<'EOD'
+("t\"est", 't\'est2', 18)
+EOD;
+        //escape sequences
+        $this->assertEquals(array('t"est', "t'est2", '18'),
+            $this->callInaccessibleMethod($search, 'parseFilterValueList', array($str)));
+
+        //numbers
+        $this->assertEquals(array('18.7', '10e5', '-100'),
+            $this->callInaccessibleMethod($search, 'parseFilterValueList', array('(18.7, 10e5, -100)')));
+
     }
 }
