@@ -47,13 +47,7 @@ class syntax_plugin_struct_value extends DokuWiki_Syntax_Plugin
      */
     public function connectTo($mode)
     {
-        /*
-         * {{$schema.field}}
-         * {{$pageid.schema.field}}
-         * TODO: {{$pageid.schema.field?filter?&filter?|filter+sum|default}}
-         * Page ID will default to $INFO['id'] if not supplied.
-         * Any component can be placed in double quotes (needed to allow dots in components).
-         */
+        // {{$...}}
         $this->Lexer->addSpecialPattern('\{\{\$[^}]+\}\}', $mode, 'plugin_struct_value');
     }
 
@@ -71,25 +65,13 @@ class syntax_plugin_struct_value extends DokuWiki_Syntax_Plugin
         global $conf;
 
         try {
-            // Choose which parser to use
-            if (substr($match, 0, 3) == '{{$') {
-                // strip {{$ and }} markers
-                $inline = substr($match, 3, -2);
+            // strip {{$ and }} markers
+            $inline = substr($match, 3, -2);
 
-                // Parse inline syntax
-                $parser = new InlineConfigParser($inline);
-            } else {
-                $lines = explode("\n", $match);
-
-                // Strip off delimiter lines
-                array_shift($lines);
-                array_pop($lines);
-
-                // Parse full syntax
-                $parser = new ConfigParser($lines);
-            }
-
+            // Parse inline syntax
+            $parser = new InlineConfigParser($inline);
             $config = $parser->getConfig();
+
             return $config;
         } catch (StructException $e) {
             msg($e->getMessage(), -1, $e->getLine(), $e->getFile());
