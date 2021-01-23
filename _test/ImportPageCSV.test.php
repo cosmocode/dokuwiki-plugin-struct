@@ -22,15 +22,16 @@ class ImportPageCSV extends StructTest
 
     public function test_importExistingPageCSV()
     {
-        $csvImporter = new mock\CSVPageImporter('schema1', '');
+        $csvImporter = new mock\CSVPageImporter('schema1', '', 'page');
         $csvImporter->setTestData([
             ['pid', 'first', 'second', 'third', 'fourth'],
             ['wiki:syntax', 'e', 'f,i', 'g', 'h'],
         ]);
+        $assignment = mock\Assignments::getInstance();
+        $assignment->addPattern('wiki:syntax', 'schema1');
         $csvImporter->import();
 
-
-        $schemaData = mock\AccessTable::byTableName('schema1', 'wiki:syntax');
+        $schemaData = mock\AccessTable::getPageAccess('schema1', 'wiki:syntax');
         $actual_data = $schemaData->getDataFromDB();
 
         $expected_data = array(
@@ -46,13 +47,16 @@ class ImportPageCSV extends StructTest
         $this->assertSame($expected_data, $actual_data);
     }
 
+    /**
+     * Unknown header should be discarded/ignored
+     */
     public function test_importNewPageCSV()
     {
         // arrange
         global $INPUT;
         $INPUT->set('createPage', true);
         $pageID = 'new:page';
-        $csvImporter = new mock\CSVPageImporter('schema1', '');
+        $csvImporter = new mock\CSVPageImporter('schema1', '', 'page');
         $csvImporter->setTestData([
             ['pid', 'first', 'third', 'second', 'fourth', 'fifth'],
             [$pageID, 'a', 'c', 'b,e', 'd',],
@@ -70,10 +74,12 @@ fifth: @@fifth@@
 </ifnotempty>');
 
         // act
+        $assignment = mock\Assignments::getInstance();
+        $assignment->addPattern($pageID, 'schema1');
         $csvImporter->import();
 
         // assert
-        $schemaData = mock\AccessTable::byTableName('schema1', $pageID);
+        $schemaData = mock\AccessTable::getPageAccess('schema1', $pageID);
         $actual_data = $schemaData->getDataFromDB();
         $expected_data = array(
             array(

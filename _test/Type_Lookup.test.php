@@ -27,8 +27,8 @@ class Type_Lookup_struct_test extends StructTest {
         $pageMeta = new PageMeta('title3');
         $pageMeta->setTitle('Another Title');
 
-        $this->loadSchemaJSON('pageschema', '', 0, true);
-        $access = AccessTable::byTableName('pageschema', 0);
+        $this->loadSchemaJSON('pageschema', '', 0);
+        $access = AccessTable::getGlobalAccess('pageschema');
         $access->saveData(
             array(
                 'singlepage' => 'title1',
@@ -37,7 +37,7 @@ class Type_Lookup_struct_test extends StructTest {
                 'multititle' => array('title1'),
             )
         );
-        $access = AccessTable::byTableName('pageschema', 0);
+        $access = AccessTable::getGlobalAccess('pageschema');
         $access->saveData(
             array(
                 'singlepage' => 'title2',
@@ -46,7 +46,7 @@ class Type_Lookup_struct_test extends StructTest {
                 'multititle' => array('title2'),
             )
         );
-        $access = AccessTable::byTableName('pageschema', 0);
+        $access = AccessTable::getGlobalAccess('pageschema');
         $access->saveData(
             array(
                 'singlepage' => 'title3',
@@ -58,8 +58,8 @@ class Type_Lookup_struct_test extends StructTest {
     }
 
     protected function prepareTranslation() {
-        $this->loadSchemaJSON('translation', '', 0, true);
-        $access = AccessTable::byTableName('translation', 0);
+        $this->loadSchemaJSON('translation', '', 0);
+        $access = AccessTable::getGlobalAccess('translation');
         $access->saveData(
             array(
                 'en' => 'shoe',
@@ -68,7 +68,7 @@ class Type_Lookup_struct_test extends StructTest {
             )
         );
 
-        $access = AccessTable::byTableName('translation', 0);
+        $access = AccessTable::getGlobalAccess('translation');
         $access->saveData(
             array(
                 'en' => 'dog',
@@ -77,7 +77,7 @@ class Type_Lookup_struct_test extends StructTest {
             )
         );
 
-        $access = AccessTable::byTableName('translation', 0);
+        $access = AccessTable::getGlobalAccess('translation');
         $access->saveData(
             array(
                 'en' => 'cat',
@@ -89,23 +89,37 @@ class Type_Lookup_struct_test extends StructTest {
 
     protected function preparePages() {
         $this->loadSchemaJSON('dropdowns');
-        $this->saveData('test1', 'dropdowns', array('drop1' => '1', 'drop2' => '1', 'drop3' => 'John'));
-        $this->saveData('test2', 'dropdowns', array('drop1' => '2', 'drop2' => '2', 'drop3' => 'Jane'));
-        $this->saveData('test3', 'dropdowns', array('drop1' => '3', 'drop2' => '3', 'drop3' => 'Tarzan'));
+        $this->saveData(
+            'test1', 'dropdowns', array(
+                'drop1' => json_encode(['',1]), 'drop2' => json_encode(['',1]), 'drop3' => 'John'
+            ), time()
+        );
+        $this->saveData(
+            'test2', 'dropdowns', array(
+            'drop1' => json_encode(['',2]), 'drop2' => json_encode(['',2]), 'drop3' => 'Jane'
+            ),
+            time()
+        );
+        $this->saveData(
+            'test3', 'dropdowns', array(
+                'drop1' => json_encode(['',3]), 'drop2' => json_encode(['',3]), 'drop3' => 'Tarzan'
+            ),
+            time()
+        );
     }
 
     public function test_data() {
         $this->prepareLookup();
         $this->preparePages();
 
-        $access = AccessTable::byTableName('dropdowns', 'test1');
+        $access = AccessTable::getPageAccess('dropdowns', 'test1', time());
         $data = $access->getData();
 
-        $this->assertEquals('["1","[\\"title1\\",\\"This is a title\\"]"]', $data['drop1']->getValue());
-        $this->assertEquals('["1","title1"]', $data['drop2']->getValue());
+        $this->assertEquals('["[\\"\\",1]","[\\"title1\\",\\"This is a title\\"]"]', $data['drop1']->getValue());
+        $this->assertEquals('["[\\"\\",1]","title1"]', $data['drop2']->getValue());
 
-        $this->assertEquals('1', $data['drop1']->getRawValue());
-        $this->assertEquals('1', $data['drop2']->getRawValue());
+        $this->assertEquals('["",1]', $data['drop1']->getRawValue());
+        $this->assertEquals('["",1]', $data['drop2']->getRawValue());
 
         $this->assertEquals('This is a title', $data['drop1']->getDisplayValue());
         $this->assertEquals('title1', $data['drop2']->getDisplayValue());
@@ -139,9 +153,9 @@ class Type_Lookup_struct_test extends StructTest {
         );
         $expect = array(
             '' => '',
-            3 => 'cat',
-            2 => 'dog',
-            1 => 'shoe',
+            json_encode(['', 3]) => 'cat',
+            json_encode(['', 2]) => 'dog',
+            json_encode(['', 1]) => 'shoe',
         );
         $this->assertEquals($expect, $dropdown->getOptions());
 
@@ -171,9 +185,9 @@ class Type_Lookup_struct_test extends StructTest {
         );
         $expect = array(
             '' => '',
-            2 => 'Hund',
-            3 => 'Katze',
-            1 => 'Schuh',
+            json_encode(['', 2]) => 'Hund',
+            json_encode(['', 3]) => 'Katze',
+            json_encode(['', 1]) => 'Schuh',
         );
         $this->assertEquals($expect, $dropdown->getOptions());
 
@@ -190,9 +204,9 @@ class Type_Lookup_struct_test extends StructTest {
         );
         $expect = array(
             '' => '',
-            2 => 'chien',
-            3 => 'Chat',
-            1 => 'chaussure',
+            json_encode(['', 2]) => 'chien',
+            json_encode(['', 3]) => 'Chat',
+            json_encode(['', 1]) => 'chaussure',
         );
         $this->assertEquals($expect, $dropdown->getOptions());
     }
@@ -212,9 +226,9 @@ class Type_Lookup_struct_test extends StructTest {
         );
         $expect = array(
             '' => '',
-            3 => 'Another Title',
-            2 => 'This is a 2nd title',
-            1 => 'This is a title',
+            json_encode(['', 3]) => 'Another Title',
+            json_encode(['', 2]) => 'This is a 2nd title',
+            json_encode(['', 1]) => 'This is a title',
         );
         $this->assertEquals($expect, $dropdown->getOptions());
 
@@ -230,9 +244,9 @@ class Type_Lookup_struct_test extends StructTest {
         );
         $expect = array(
             '' => '',
-            1 => 'title1',
-            2 => 'title2',
-            3 => 'title3',
+            json_encode(['', 1]) => 'title1',
+            json_encode(['', 2]) => 'title2',
+            json_encode(['', 3]) => 'title3',
         );
         $this->assertEquals($expect, $dropdown->getOptions());
 

@@ -1,13 +1,17 @@
 <?php
+
 namespace dokuwiki\plugin\struct\types;
 
 use dokuwiki\plugin\struct\meta\ValidationException;
 
-class Date extends AbstractBaseType {
+class Date extends AbstractBaseType
+{
 
     protected $config = array(
         'format' => 'Y/m/d',
-        'prefilltoday' => false
+        'prefilltoday' => false,
+        'pastonly' => false,
+        'futureonly' => false
     );
 
     /**
@@ -18,9 +22,10 @@ class Date extends AbstractBaseType {
      * @param string $mode The mode the output is rendered in (eg. XHTML)
      * @return bool true if $mode could be satisfied
      */
-    public function renderValue($value, \Doku_Renderer $R, $mode) {
+    public function renderValue($value, \Doku_Renderer $R, $mode)
+    {
         $date = date_create($value);
-        if($date !== false) {
+        if ($date !== false) {
             $out = date_format($date, $this->config['format']);
         } else {
             $out = '';
@@ -39,8 +44,9 @@ class Date extends AbstractBaseType {
      *
      * @return string html
      */
-    public function valueEditor($name, $rawvalue, $htmlID) {
-        if($this->config['prefilltoday'] && !$rawvalue) {
+    public function valueEditor($name, $rawvalue, $htmlID)
+    {
+        if ($this->config['prefilltoday'] && !$rawvalue) {
             $rawvalue = date('Y-m-d');
         }
 
@@ -65,15 +71,21 @@ class Date extends AbstractBaseType {
      * @return int|string
      * @throws ValidationException
      */
-    public function validate($rawvalue) {
+    public function validate($rawvalue)
+    {
         $rawvalue = parent::validate($rawvalue);
         list($rawvalue) = explode(' ', $rawvalue, 2); // strip off time if there is any
 
         list($year, $month, $day) = explode('-', $rawvalue, 3);
-        if(!checkdate((int) $month, (int) $day, (int) $year)) {
+        if (!checkdate((int) $month, (int) $day, (int) $year)) {
             throw new ValidationException('invalid date format');
+        }
+        if ($this->config['pastonly'] && strtotime($rawvalue) > time()) {
+            throw new ValidationException('pastonly');
+        }
+        if ($this->config['futureonly'] && strtotime($rawvalue) < time()) {
+            throw new ValidationException('futureonly');
         }
         return sprintf('%d-%02d-%02d', $year, $month, $day);
     }
-
 }

@@ -1,9 +1,11 @@
 <?php
+
 namespace dokuwiki\plugin\struct\types;
 
 use dokuwiki\plugin\struct\meta\QueryBuilderWhere;
 
-class Wiki extends LongText {
+class Wiki extends LongText
+{
 
     /**
      * @param int|string $value
@@ -11,7 +13,8 @@ class Wiki extends LongText {
      * @param string $mode
      * @return bool
      */
-    public function renderValue($value, \Doku_Renderer $R, $mode) {
+    public function renderValue($value, \Doku_Renderer $R, $mode)
+    {
         if ($mode === 'struct_csv') {
             $R->doc .= $value;
             return true;

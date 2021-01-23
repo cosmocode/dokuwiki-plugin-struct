@@ -45,4 +45,23 @@ class QueryBuilderWhere_struct_test extends StructTest {
             $this->cleanWS($where->toSQL())
         );
     }
+
+    public function test_orsql() {
+        $QB = new QueryBuilder();
+        $where = new QueryBuilderWhere($QB);
+
+        $where->whereAnd("foo = ''");
+        $this->assertEquals(
+            $this->cleanWS("(foo = '')"),
+            $this->cleanWS($where->toSQL())
+        );
+
+        $sub = $where->whereSubOr();
+        $sub->whereAnd('bar = bar');
+        $sub->whereAnd('baz = baz');
+        $this->assertEquals(
+            $this->cleanWS("(foo = '' OR (bar = bar AND baz = baz))"),
+            $this->cleanWS($where->toSQL())
+        );
+    }
 }

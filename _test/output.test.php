@@ -3,6 +3,7 @@
 namespace dokuwiki\plugin\struct\test;
 
 use dokuwiki\plugin\struct\meta;
+use Doku_Event;
 
 /**
  * @group plugin_struct
@@ -19,6 +20,8 @@ class output_struct_test extends StructTest {
         parent::setUp();
 
         $this->loadSchemaJSON('schema1');
+        $this->loadSchemaJSON('schema_3');
+
         $page = 'page01';
         $includedPage = 'foo';
         $this->saveData(
@@ -29,6 +32,16 @@ class output_struct_test extends StructTest {
                 'second' => array('second data', 'more data', 'even more'),
                 'third' => 'third data',
                 'fourth' => 'fourth data'
+            )
+        );
+        $this->saveData(
+            $page,
+            'schema_3',
+            array(
+                'first_field' => 'first data',
+                'second field' => array('second data', 'more data', 'even more'),
+                'third%field' => 'third data',
+                'fourth.field?' => 'fourth data'
             )
         );
         $this->saveData(
@@ -98,5 +111,42 @@ Log for [[page01]]:
         $this->assertEquals('header', $instructions[1][0]);
         $this->assertEquals('plugin', $instructions[2][0], 'The struct data should be rendererd after the first headline');
         $this->assertEquals('struct_output', $instructions[2][1][0]);
+    }
+
+    /**
+     * Replace and clean up template placeholders
+     * provided by a dw2pdf event
+     */
+    public function test_dw2pdf_replacements()
+    {
+        $page = 'page01';
+        $replace = ['@ID@' => $page];
+        $content = <<< HTML
+<table class="pdffooter">
+    <tr>
+        <td style="text-align: left">ID: @ID@</td>
+        <td style="text-align: center">Version: @ID@@@PLUGIN_STRUCT_schema_3_version@~@PLUGIN_STRUCT_schema_3_first_field@</td>
+        <td style="text-align: right">Second data: @PLUGIN_STRUCT_schema_3_second field@</td>
+    </tr>
+</table>
+HTML;
+        $processed = <<< HTML
+<table class="pdffooter">
+    <tr>
+        <td style="text-align: left">ID: page01</td>
+        <td style="text-align: center">Version: page01@~first data</td>
+        <td style="text-align: right">Second data: second data, more data, even more</td>
+    </tr>
+</table>
+HTML;
+
+        $evdata = ['id' => $page, 'replace' => &$replace, 'content' => &$content];
+        $event = new Doku_Event('PLUGIN_DW2PDF_REPLACE', $evdata);
+        if ($event->advise_before()) {
+            $content = str_replace(array_keys($replace), array_values($replace), $content);
+        }
+        $event->advise_after();
+
+        $this->assertEquals($processed, $content);
     }
 }

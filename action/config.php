@@ -1,4 +1,5 @@
 <?php
+
 /**
  * DokuWiki Plugin struct (Action Component)
  *
@@ -6,13 +7,11 @@
  * @author  Andreas Gohr, Michael Große <dokuwiki@cosmocode.de>
  */
 
-// must be run within Dokuwiki
 use dokuwiki\plugin\struct\meta\Column;
 use dokuwiki\plugin\struct\types\AbstractBaseType;
 
-if(!defined('DOKU_INC')) die();
-
-class action_plugin_struct_config extends DokuWiki_Action_Plugin {
+class action_plugin_struct_config extends DokuWiki_Action_Plugin
+{
 
     /**
      * Registers a callback function for a given event
@@ -20,8 +19,10 @@ class action_plugin_struct_config extends DokuWiki_Action_Plugin {
      * @param Doku_Event_Handler $controller DokuWiki's event controller object
      * @return void
      */
-    public function register(Doku_Event_Handler $controller) {
-        $controller->register_hook('AJAX_CALL_UNKNOWN', 'BEFORE', $this, 'handle_ajax');
+    public function register(Doku_Event_Handler $controller)
+    {
+        $controller->register_hook('AJAX_CALL_UNKNOWN', 'BEFORE', $this, 'handleAjax');
+        $controller->register_hook('DOKUWIKI_STARTED', 'AFTER', $this, 'addJsinfo');
     }
 
     /**
@@ -31,8 +32,9 @@ class action_plugin_struct_config extends DokuWiki_Action_Plugin {
      * @param mixed $param [the parameters passed as fifth argument to register_hook() when this
      *                           handler was registered]
      */
-    public function handle_ajax(Doku_Event $event, $param) {
-        if($event->data != 'plugin_struct_config') return;
+    public function handleAjax(Doku_Event $event, $param)
+    {
+        if ($event->data != 'plugin_struct_config') return;
         $event->preventDefault();
         $event->stopPropagation();
         global $INPUT;
@@ -47,4 +49,14 @@ class action_plugin_struct_config extends DokuWiki_Action_Plugin {
         echo json_encode($type->getConfig());
     }
 
+    /**
+     * Add config options to JSINFO
+     *
+     * @param Doku_Event $event
+     */
+    public function addJsinfo(Doku_Event $event)
+    {
+        global $JSINFO;
+        $JSINFO['plugins']['struct']['disableDeleteSerial'] = $this->getConf('disableDeleteSerial');
+    }
 }

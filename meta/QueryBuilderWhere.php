@@ -6,7 +6,8 @@ namespace dokuwiki\plugin\struct\meta;
  * Class QueryWhere
  * @package dokuwiki\plugin\struct\meta
  */
-class QueryBuilderWhere {
+class QueryBuilderWhere
+{
 
     /** @var  QueryBuilderWhere[]|string */
     protected $statement;
@@ -22,10 +23,11 @@ class QueryBuilderWhere {
      * @param string $type The type of the statement, either 'AND' or 'OR'
      * @param null|string $statement The statement or null if this should hold sub statments
      */
-    public function __construct(QueryBuilder $QB, $type = 'AND', $statement = null) {
+    public function __construct(QueryBuilder $QB, $type = 'AND', $statement = null)
+    {
         $this->QB = $QB;
         $this->type = $type;
-        if($statement === null) {
+        if ($statement === null) {
             $this->statement = array();
         } else {
             $this->statement = $statement;
@@ -38,7 +40,8 @@ class QueryBuilderWhere {
      * @param string $statement
      * @return $this
      */
-    public function whereAnd($statement) {
+    public function whereAnd($statement)
+    {
         return $this->where('AND', $statement);
     }
 
@@ -48,7 +51,8 @@ class QueryBuilderWhere {
      * @param $statement
      * @return $this
      */
-    public function whereOr($statement) {
+    public function whereOr($statement)
+    {
         return $this->where('OR', $statement);
     }
 
@@ -57,7 +61,8 @@ class QueryBuilderWhere {
      *
      * @return QueryBuilderWhere
      */
-    public function whereSubAnd() {
+    public function whereSubAnd()
+    {
         return $this->where('AND', null);
     }
 
@@ -66,7 +71,8 @@ class QueryBuilderWhere {
      *
      * @return QueryBuilderWhere
      */
-    public function whereSubOr() {
+    public function whereSubOr()
+    {
         return $this->where('OR', null);
     }
 
@@ -78,17 +84,18 @@ class QueryBuilderWhere {
      * @return $this|QueryBuilderWhere
      * @throws StructException when this is not a sub clause
      */
-    public function where($op = 'AND', $statement = null) {
-        if(!is_array($this->statement)) {
+    public function where($op = 'AND', $statement = null)
+    {
+        if (!is_array($this->statement)) {
             throw new StructException('This WHERE is not a sub clause and can not have additional clauses');
         }
-        if($op != 'AND' && $op != 'OR') {
+        if ($op != 'AND' && $op != 'OR') {
             throw new StructException('Bad logical operator');
         }
         $where = new QueryBuilderWhere($this->QB, $op, $statement);
         $this->statement[] = $where;
 
-        if($statement) {
+        if ($statement) {
             return $this;
         } else {
             return $where;
@@ -98,7 +105,8 @@ class QueryBuilderWhere {
     /**
      * @return QueryBuilder
      */
-    public function getQB() {
+    public function getQB()
+    {
         return $this->QB;
     }
 
@@ -106,16 +114,17 @@ class QueryBuilderWhere {
      * @param bool $first is this the first where statement? Then the type is ignored
      * @return string
      */
-    public function toSQL($first = true) {
-        if(!$this->statement) return '';
+    public function toSQL($first = true)
+    {
+        if (!$this->statement) return '';
 
         $sql = ' ';
-        if(!$first) $sql .= $this->type . ' ';
+        if (!$first) $sql .= $this->type . ' ';
 
-        if(is_array($this->statement)) {
+        if (is_array($this->statement)) {
             $first = true;
             $sql .= '(';
-            foreach($this->statement as $where) {
+            foreach ($this->statement as $where) {
                 $sql .= $where->toSQL($first);
                 $first = false;
             }

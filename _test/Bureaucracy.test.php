@@ -3,7 +3,6 @@
 namespace dokuwiki\plugin\struct\test;
 
 use dokuwiki\plugin\bureaucracy\test\BureaucracyTest;
-use dokuwiki\plugin\struct\meta;
 use dokuwiki\plugin\struct\meta\AccessTable;
 
 /**
@@ -24,7 +23,7 @@ class Bureaucracy_struct_test extends StructTest {
     public function setUp() {
         parent::setUp();
 
-        $this->loadSchemaJSON('bureaucracy_lookup', '', 0, true);
+        $this->loadSchemaJSON('bureaucracy_lookup');
         $this->loadSchemaJSON('bureaucracy');
 
         //insert some data to lookup
@@ -34,7 +33,7 @@ class Bureaucracy_struct_test extends StructTest {
                 'lookup_second' => 'value second ' . $i
             );
 
-            $lookupData = AccessTable::byTableName('bureaucracy_lookup', 0);
+            $lookupData = AccessTable::getGlobalAccess('bureaucracy_lookup');
             $lookupData->saveData($data);
             $this->lookup[] = $lookupData;
         }
@@ -54,7 +53,7 @@ class Bureaucracy_struct_test extends StructTest {
 
         $lookup_field = plugin_load('helper', 'struct_field');
         $lookup_field->opt['label'] = 'bureaucracy.lookup_select';
-        //empty value
+        //empty lookup value
         $lookup_field->opt['value'] = '';
         //left pagename undefined
         //$lookup_field->opt['pagename'];
@@ -63,7 +62,7 @@ class Bureaucracy_struct_test extends StructTest {
         $lookup_field->initialize(array());
         $fields[] = $lookup_field;
 
-        //helper_plugin_bureaucracy_actiontemplate
+        /** @var  \helper_plugin_bureaucracy_actiontemplate $actiontemplate */
         $actiontemplate = plugin_load('helper', 'bureaucracy_actiontemplate');
         $actiontemplate->run($fields, '', array($template_id, $id, '_'));
 
@@ -77,8 +76,8 @@ class Bureaucracy_struct_test extends StructTest {
         $id = 'bureaucracy_lookup_replacement';
         //id of template page
         $template_id = 'template';
-        //pid of selected value
-        $lookup_pid = $this->lookup[0]->getPid();
+        //rid of selected value
+        $lookup_rid = $this->lookup[0]->getRid();
         //selected value
         $lookup_value = $this->lookup[0]->getData()['lookup_first']->getValue();
 
@@ -90,7 +89,7 @@ class Bureaucracy_struct_test extends StructTest {
 
         $lookup_field = plugin_load('helper', 'struct_field');
         $lookup_field->opt['label'] = 'bureaucracy.lookup_select';
-        $lookup_field->opt['value'] = $lookup_pid;
+        $lookup_field->opt['value'] = json_encode(['', $lookup_rid]);
         //left pagename undefined
         //$lookup_field->opt['pagename'];
 

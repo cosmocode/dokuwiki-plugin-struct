@@ -11,16 +11,14 @@ namespace dokuwiki\plugin\struct\meta;
  *
  * @package dokuwiki\plugin\struct\meta
  */
-class Assignments {
+class Assignments
+{
 
     /** @var \helper_plugin_sqlite|null */
     protected $sqlite;
 
     /** @var  array All the assignments patterns */
     protected $patterns;
-
-    /** @var  string[] All lookup schemas for error checking */
-    protected $lookups;
 
     /** @var Assignments */
     protected static $instance = null;
@@ -31,8 +29,9 @@ class Assignments {
      * @param bool $forcereload create a new instace to reload the assignment data
      * @return Assignments
      */
-    public static function getInstance($forcereload = false) {
-        if(is_null(self::$instance) or $forcereload) {
+    public static function getInstance($forcereload = false)
+    {
+        if (is_null(self::$instance) or $forcereload) {
             $class = get_called_class();
             self::$instance = new $class();
         }
@@ -44,13 +43,13 @@ class Assignments {
      *
      * Not public. Use Assignments::getInstance() instead
      */
-    protected function __construct() {
+    protected function __construct()
+    {
         /** @var \helper_plugin_struct_db $helper */
         $helper = plugin_load('helper', 'struct_db');
         $this->sqlite = $helper->getDB();
 
         $this->loadPatterns();
-        $this->lookups = Schema::getAll('lookup');
     }
 
 
@@ -58,7 +57,8 @@ class Assignments {
     /**
      * Load existing assignment patterns
      */
-    protected function loadPatterns() {
+    protected function loadPatterns()
+    {
         $sql = 'SELECT * FROM schema_assignments_patterns ORDER BY pattern';
         $res = $this->sqlite->query($sql);
         $this->patterns = $this->sqlite->res2arr($res);
@@ -72,11 +72,8 @@ class Assignments {
      * @param string $table
      * @return bool
      */
-    public function addPattern($pattern, $table) {
-        if(in_array($table, $this->lookups)) {
-            throw new StructException('nolookupassign');
-        }
-
+    public function addPattern($pattern, $table)
+    {
         // add the pattern
         $sql = 'REPLACE INTO schema_assignments_patterns (pattern, tbl) VALUES (?,?)';
         $ok = (bool) $this->sqlite->query($sql, array($pattern, $table));
@@ -96,7 +93,8 @@ class Assignments {
      * @param string $table
      * @return bool
      */
-    public function removePattern($pattern, $table) {
+    public function removePattern($pattern, $table)
+    {
         // remove the pattern
         $sql = 'DELETE FROM schema_assignments_patterns WHERE pattern = ? AND tbl = ?';
         $ok = (bool) $this->sqlite->query($sql, array($pattern, $table));
@@ -111,9 +109,9 @@ class Assignments {
         $this->sqlite->res_close($res);
 
         // reevalute the pages and unassign when needed
-        foreach($pagerows as $row) {
+        foreach ($pagerows as $row) {
             $tables = $this->getPageAssignments($row['pid'], true);
-            if(!in_array($table, $tables)) {
+            if (!in_array($table, $tables)) {
                 $this->deassignPageSchema($row['pid'], $table);
             }
         }
@@ -126,7 +124,8 @@ class Assignments {
      *
      * @param string $pid
      */
-    public function reevaluatePageAssignments($pid) {
+    public function reevaluatePageAssignments($pid)
+    {
         // reload patterns
         $this->loadPatterns();
         $tables = $this->getPageAssignments($pid, true);
@@ -138,8 +137,8 @@ class Assignments {
         $this->sqlite->res_close($res);
 
         // reevalute the tables and apply assignments
-        foreach($tablerows as $row) {
-            if(in_array($row['tbl'], $tables)) {
+        foreach ($tablerows as $row) {
+            if (in_array($row['tbl'], $tables)) {
                 $this->assignPageSchema($pid, $row['tbl']);
             } else {
                 $this->deassignPageSchema($pid, $row['tbl']);
@@ -155,11 +154,12 @@ class Assignments {
      * @param bool $full fully delete all previous assignments
      * @return bool
      */
-    public function clear($full=false) {
+    public function clear($full = false)
+    {
         $sql = 'DELETE FROM schema_assignments_patterns';
         $ok = (bool) $this->sqlite->query($sql);
 
-        if($full) {
+        if ($full) {
             $sql = 'DELETE FROM schema_assignments';
         } else {
             $sql = 'UPDATE schema_assignments SET assigned = 0';
@@ -179,7 +179,8 @@ class Assignments {
      * @param string $table
      * @return bool
      */
-    public function assignPageSchema($page, $table) {
+    public function assignPageSchema($page, $table)
+    {
         $sql = 'REPLACE INTO schema_assignments (pid, tbl, assigned) VALUES (?, ?, 1)';
         return (bool) $this->sqlite->query($sql, array($page, $table));
     }
@@ -191,7 +192,8 @@ class Assignments {
      * @param string $table
      * @return bool
      */
-    public function deassignPageSchema($page, $table) {
+    public function deassignPageSchema($page, $table)
+    {
         $sql = 'REPLACE INTO schema_assignments (pid, tbl, assigned) VALUES (?, ?, 0)';
         return (bool) $this->sqlite->query($sql, array($page, $table));
     }
@@ -201,7 +203,8 @@ class Assignments {
      *
      * @return array
      */
-    public function getAllPatterns() {
+    public function getAllPatterns()
+    {
         return $this->patterns;
     }
 
@@ -212,16 +215,16 @@ class Assignments {
      * @param bool $checkpatterns Should the current patterns be re-evaluated?
      * @return \string[] tables assigned
      */
-    public function getPageAssignments($page, $checkpatterns=true) {
+    public function getPageAssignments($page, $checkpatterns = true)
+    {
         $tables = array();
         $page = cleanID($page);
 
-        if($checkpatterns) {
+        if ($checkpatterns) {
             // evaluate patterns
             $pns = ':' . getNS($page) . ':';
-            foreach($this->patterns as $row) {
-                if($this->matchPagePattern($row['pattern'], $page, $pns)) {
-                    if(in_array($row['tbl'], $this->lookups)) continue; // wrong assignment
+            foreach ($this->patterns as $row) {
+                if ($this->matchPagePattern($row['pattern'], $page, $pns)) {
                     $tables[] = $row['tbl'];
                 }
             }
@@ -231,8 +234,7 @@ class Assignments {
             $res = $this->sqlite->query($sql, array($page));
             $list = $this->sqlite->res2arr($res);
             $this->sqlite->res_close($res);
-            foreach($list as $row) {
-                if(in_array($row['tbl'], $this->lookups)) continue; // wrong assignment
+            foreach ($list as $row) {
                 $tables[] = $row['tbl'];
             }
         }
@@ -247,15 +249,16 @@ class Assignments {
      * @param bool $assignedonly limit results to currently assigned only
      * @return array
      */
-    public function getPages($schema = null, $assignedonly = false) {
+    public function getPages($schema = null, $assignedonly = false)
+    {
         $sql = 'SELECT pid, tbl, assigned FROM schema_assignments WHERE 1=1';
 
         $opts = array();
-        if($schema) {
+        if ($schema) {
             $sql .= ' AND tbl = ?';
             $opts[] = $schema;
         }
-        if($assignedonly) {
+        if ($assignedonly) {
             $sql .= ' AND assigned = 1';
         }
 
@@ -266,10 +269,10 @@ class Assignments {
         $this->sqlite->res_close($res);
 
         $result = array();
-        foreach($list as $row) {
+        foreach ($list as $row) {
             $pid = $row['pid'];
             $tbl = $row['tbl'];
-            if(!isset($result[$pid])) $result[$pid] = array();
+            if (!isset($result[$pid])) $result[$pid] = array();
             $result[$pid][$tbl] = (bool) $row['assigned'];
         }
 
@@ -284,32 +287,33 @@ class Assignments {
      * @param string|null $pns optimization, the colon wrapped namespace of the page, set null for automatic
      * @return bool
      */
-    protected function matchPagePattern($pattern, $page, $pns = null) {
-        if(trim($pattern,':') == '**') return true; // match all
+    protected function matchPagePattern($pattern, $page, $pns = null)
+    {
+        if (trim($pattern, ':') == '**') return true; // match all
 
         // regex patterns
-        if($pattern{0} == '/') {
+        if ($pattern[0] == '/') {
             return (bool) preg_match($pattern, ":$page");
         }
 
-        if(is_null($pns)) {
+        if (is_null($pns)) {
             $pns = ':' . getNS($page) . ':';
         }
 
         $ans = ':' . cleanID($pattern) . ':';
-        if(substr($pattern, -2) == '**') {
+        if (substr($pattern, -2) == '**') {
             // upper namespaces match
-            if(strpos($pns, $ans) === 0) {
+            if (strpos($pns, $ans) === 0) {
                 return true;
             }
-        } else if(substr($pattern, -1) == '*') {
+        } elseif (substr($pattern, -1) == '*') {
             // namespaces match exact
-            if($ans == $pns) {
+            if ($ans == $pns) {
                 return true;
             }
         } else {
             // exact match
-            if(cleanID($pattern) == $page) {
+            if (cleanID($pattern) == $page) {
                 return true;
             }
         }
@@ -326,14 +330,15 @@ class Assignments {
      * @param string $ts
      * @return array
      */
-    public function getHistoricAssignments($page, $ts) {
+    public function getHistoricAssignments($page, $ts)
+    {
         $sql = "SELECT DISTINCT tbl FROM schemas WHERE ts <= ? ORDER BY ts DESC";
         $res = $this->sqlite->query($sql, $ts);
         $tables = $this->sqlite->res2arr($res);
         $this->sqlite->res_close($res);
 
         $assigned = array();
-        foreach($tables as $row) {
+        foreach ($tables as $row) {
             $table = $row['tbl'];
             /** @noinspection SqlResolve */
             $sql = "SELECT pid FROM data_$table WHERE pid = ? AND rev <= ? LIMIT 1";
@@ -341,7 +346,7 @@ class Assignments {
             $found = $this->sqlite->res2arr($res);
             $this->sqlite->res_close($res);
 
-            if($found) $assigned[] = $table;
+            if ($found) $assigned[] = $table;
         }
 
         return $assigned;
@@ -352,7 +357,8 @@ class Assignments {
      *
      * @param $table
      */
-    public function propagatePageAssignments($table) {
+    public function propagatePageAssignments($table)
+    {
         $sql = 'SELECT pid FROM schema_assignments WHERE tbl != ? OR assigned != 1';
         $res = $this->sqlite->query($sql, $table);
         $pagerows = $this->sqlite->res2arr($res);

@@ -165,6 +165,10 @@
     fieldset {
         margin-bottom: 1em;
         width: 500px;
+
+        label.block {
+            font-weight: normal;
+        }
     }
 }
 
@@ -371,7 +375,7 @@ form.struct_newschema {
 /**
  * Lookup Aggregation Editor
  */
-.dokuwiki .structlookup {
+.dokuwiki .structaggregationeditor {
     table.inline {
         min-width: 100%;
 
@@ -416,7 +420,7 @@ form.struct_newschema {
 /**
  * Errors on AJAX
  */
-.dokuwiki .structlookup form,
+.dokuwiki .structaggregationeditor form,
 .dokuwiki .struct_inlineditor {
     .err {
         font-size: 90%;

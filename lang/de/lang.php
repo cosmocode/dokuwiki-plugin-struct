@@ -3,6 +3,7 @@
 /**
  * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
  *
+ * @author Axel Schwarzer <SchwarzerA@gmail.com>
  * @author Jürgen <hans-juergen.schuemmer@schuette.de>
  * @author Joerg <scooter22@gmx.de>
  * @author Andreas Gohr <andi@splitbrain.org>
@@ -13,8 +14,7 @@ $lang['menu_assignments']      = 'Struct Schema Zuweisungen';
 $lang['headline']              = 'Strukturierte Daten';
 $lang['page schema']           = 'Seiten Schema';
 $lang['lookup schema']         = 'Lookup Schema';
-$lang['edithl page']           = 'Bearbeitung Seiten Schema <i>%s</i>';
-$lang['edithl lookup']         = 'Bearbeitung Lookup  Schema <i>%s</i>';
+$lang['edithl']                = 'Bearbeitung von Schema <i>%s</i>';
 $lang['create']                = 'Neues Schema anlegen';
 $lang['schemaname']            = 'Schema-Name:';
 $lang['save']                  = 'Speichern';
@@ -35,6 +35,7 @@ $lang['del_fail']              = 'Die Schemanamen stimmten nicht überein. Schem
 $lang['del_ok']                = 'Schema wurde gelöscht';
 $lang['btn_delete']            = 'Löschen';
 $lang['js']['confirmAssignmentsDelete'] = 'Wollen Sie wirklich die Zuweisung von Schma "{0}" zu Seite/Namensraum "{1}" löschen?';
+$lang['js']['actions']         = 'Aktion';
 $lang['js']['lookup_delete']   = 'Lösche Eintrag';
 $lang['clear_confirm']         = 'Namen des Schema zur Bestätigung der Entfernung aller Daten eingeben';
 $lang['clear_fail']            = 'Die Schemanamen stimmten nicht überein. Daten wurden nicht entfernt';
@@ -68,12 +69,16 @@ $lang['Validation Exception Url invalid'] = '%s ist keine gültige URL';
 $lang['Validation Exception Mail invalid'] = '%s ist keine gültige E-Mail-Adresse';
 $lang['Validation Exception invalid date format'] = 'muss vom Format \'\'YYYY-MM-DD\'\' sein';
 $lang['Validation Exception invalid datetime format'] = 'muss im Format \'\'YYYY-MM-DD HH:MM:SS\'\' sein';
+$lang['Validation Exception pastonly'] = 'darf nicht in der Zukunft liegen';
+$lang['Validation Exception futureonly'] = 'darf nicht in der Vergangenheit liegen';
 $lang['Validation Exception bad color specification'] = 'muss im Format \'\'#RRGGBB\'\' sein';
 $lang['Exception illegal option'] = 'Die Option \'<code>%s</code>\' ist für diesen Aggregationstyp ungültig.';
 $lang['Exception noschemas']   = 'Keine Schemas für das Laden von Spalten angegeben';
 $lang['Exception nocolname']   = 'Kein Spaltenname angegeben';
+$lang['Exception nolookupmix'] = 'Sie können nicht mehr als eine Suche aggregieren oder mit Seitendaten mischen.';
 $lang['Exception No data saved'] = 'Keine Daten gespeichert';
 $lang['Exception no sqlite']   = 'Das \'Struct Plugin\' benötigt das \'Sqlite Plugin\'. Bitte installieren und aktivieren.';
+$lang['Exception column not in table'] = 'Das Schema %s enthält keine Spalte %s.';
 $lang['Warning: no filters for cloud'] = 'Filter werden in \'Struct Clouds\' nicht unterstützt';
 $lang['sort']                  = 'Nach dieser Spalte sortieren';
 $lang['next']                  = 'Nächste Seite';
@@ -81,11 +86,25 @@ $lang['prev']                  = 'Vorherige Seite';
 $lang['none']                  = 'Nichts gefunden';
 $lang['csvexport']             = 'CSV-Export';
 $lang['admin_csvexport']       = 'Exportieren von Rohdaten in einer CSV-Datei';
+$lang['admin_csv_page']        = 'Seite';
+$lang['admin_csv_lookup']      = 'Global';
+$lang['admin_csv_serial']      = 'Serial';
+$lang['admin_csvexport_datatype'] = 'Diesen Datentyp exportieren';
 $lang['admin_csvimport']       = 'Importieren von Rohdaten aus einer CSV-Datei';
+$lang['admin_csvimport_datatype'] = 'Diesen Datentyp imortieren';
 $lang['admin_csvdone']         = 'CSV-Datei importiert';
 $lang['admin_csvhelp']         = 'Bitte konsultieren Sie das Handbuch zum CSV-Import (engl.) für Formatierungsdetails.';
 $lang['tablefilteredby']       = 'Filterung mit %s';
 $lang['tableresetfilter']      = 'Zeige alle (Filter/Sortierung löschen)';
+$lang['comparator =']          = 'ist gleich';
+$lang['comparator <']          = 'ist kleiner als';
+$lang['comparator >']          = 'ist größer als';
+$lang['comparator <=']         = 'ist kleiner oder gleich';
+$lang['comparator >=']         = 'ist größer oder gleich';
+$lang['comparator !=']         = 'ist ungleich';
+$lang['comparator <>']         = 'ist ungleich';
+$lang['comparator !~']         = 'enthält nicht';
+$lang['comparator *~']         = 'enthält';
 $lang['Exception schema missing'] = 'Schema %s existiert nicht!';
 $lang['no_lookup_for_page']    = 'Sie können den Lookup Editor nicht bei einem Seiten-Schema benutzen!';
 $lang['lookup new entry']      = 'Neuen Eintrag anlegen';

@@ -13,8 +13,7 @@ $lang['headline'] = 'Structured Data';
 
 $lang['page schema'] = 'Page Schema:';
 $lang['lookup schema'] = 'Lookup Schema:';
-$lang['edithl page'] = 'Editing Page Schema <i>%s</i>';
-$lang['edithl lookup'] = 'Editing Lookup Schema <i>%s</i>';
+$lang['edithl'] = 'Editing schema <i>%s</i>';
 $lang['create'] = 'Create new Schema';
 $lang['schemaname'] = 'Schema Name:';
 $lang['save'] = 'Save';
@@ -76,13 +75,14 @@ $lang['Validation Exception Url invalid'] = '%s is not a valid URL';
 $lang['Validation Exception Mail invalid'] = '%s is not a valid email address';
 $lang['Validation Exception invalid date format'] = 'must be of format YYYY-MM-DD';
 $lang['Validation Exception invalid datetime format'] = 'must be of format YYYY-MM-DD HH:MM';
+$lang['Validation Exception pastonly'] = 'must not lie in the future';
+$lang['Validation Exception futureonly'] = 'must not lie in the past';
 $lang['Validation Exception bad color specification'] = 'must be of format #RRGGBB';
 
 $lang['Exception illegal option'] = 'The option \'<code>%s</code>\' is invalid for this aggregation type.';
 $lang['Exception noschemas'] = 'There have been no schemas given to load columns from';
 $lang['Exception nocolname'] = 'No column name given';
 $lang['Exception nolookupmix'] = 'You can not aggregate more than one Lookup or mix it with Page data';
-$lang['Exception nolookupassign'] = 'You can not assign Lookup schemas to pages';
 $lang['Exception No data saved'] = 'No data saved';
 $lang['Exception no sqlite'] = 'The struct plugin requires the sqlite plugin. Please install and enable it.';
 $lang['Exception column not in table'] = 'There is no column %s in schema %s.';
@@ -97,17 +97,32 @@ $lang['none']      = 'Nothing found';
 $lang['csvexport'] = 'CSV Export';
 
 $lang['admin_csvexport'] = 'Export raw data to a CSV file';
+$lang['admin_csv_page'] = 'page';
+$lang['admin_csv_lookup'] = 'global';
+$lang['admin_csv_serial'] = 'serial';
+$lang['admin_csvexport_datatype'] = 'Export data of type';
 $lang['admin_csvimport'] = 'Import raw data from a CSV file';
+$lang['admin_csvimport_datatype'] = 'Import data of type';
 $lang['admin_csvdone'] = 'CSV file imported';
 $lang['admin_csvhelp'] = 'Please refer to the manual on CSV Import for format details.';
 
 $lang['tablefilteredby'] = 'Filtered by %s';
 $lang['tableresetfilter'] = 'Show all (remove filter/sort)';
+$lang['comparator =']  = 'equals';
+$lang['comparator <']  = 'is less than';
+$lang['comparator >']  = 'is greater than';
+$lang['comparator <='] = 'is less than or euqals';
+$lang['comparator >='] = 'is greater than or equals';
+$lang['comparator !='] = 'does not equal';
+$lang['comparator <>'] = 'does not equal';
+$lang['comparator !~'] = 'is not like';
+$lang['comparator *~'] = 'is like';
 
 $lang['Exception schema missing'] = "Schema %s does not exist!";
 
 $lang['no_lookup_for_page'] = 'You can\'t use the Lookup Editor on a page schema!';
 $lang['lookup new entry'] = 'Create new Entry';
+$lang['js']['actions'] = 'Actions';
 $lang['js']['lookup_delete'] = 'Delete Entry';
 
 $lang['bureaucracy_action_struct_lookup_thanks'] = 'The entry has been stored. <a href="%s">Add another entry</a>.';

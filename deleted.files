@@ -1,3 +1,11 @@
 _test/Type_Integer.test.php
 types/Integer.php
 meta/Page.php
+_test/mock/AccessTableData.php
+_test/mock/LookupTable.php
+meta/AccessTableLookup.php
+meta/AccessTableData.php
+meta/LookupTable.php
+script/LookupEditor.js
+action/lookup.php
+syntax/lookup.php

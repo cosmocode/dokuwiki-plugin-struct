@@ -17,7 +17,7 @@ class AggregationExportCSV extends StructTest
     public function setUp() {
         parent::setUp();
 
-        $this->loadSchemaJSON('wikilookup', '', 0, true);
+        $this->loadSchemaJSON('wikilookup', '');
 
         /** @var \helper_plugin_struct $helper */
         $helper = plugin_load('helper', 'struct');
@@ -27,7 +27,7 @@ class AggregationExportCSV extends StructTest
             'SecondFieldLongText' => "abc\ndef\n",
             'ThirdFieldWiki' => "  * hi\n  * ho",
         ];
-        $access = AccessTable::byTableName('wikilookup', 0, 0);
+        $access = AccessTable::getGlobalAccess('wikilookup');
         $helper->saveLookupData($access, $saveDate);
     }
 
