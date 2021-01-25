@@ -33,11 +33,11 @@ class syntax_plugin_struct_value extends DokuWiki_Syntax_Plugin
      */
     public function getSort()
     {
-        /* 155 to place above Doku_Parser_Mode_hr, which would otherwise
-         * take precedence
-         * See https://www.dokuwiki.org/devel:parser:getsort_list
+        /* 315 to place above Doku_Parser_Mode_media, which would
+         * otherwise take precedence. See
+         * https://www.dokuwiki.org/devel:parser:getsort_list
          */
-        return 155;
+        return 315;
     }
 
     /**
