@@ -7,6 +7,15 @@ namespace dokuwiki\plugin\struct\meta;
  *
  * Wrapper to convert inline syntax to full before instantiating ConfigParser
  *
+ * {{$schema.field}}
+ * {{$pageid.schema.field}}
+ * {{$... ? filter: ... and: ... or: ...}} or {{$... ? & ... | ...}}
+ * TODO: {{$... ? sum}} or {{$... ? +}}
+ * TODO: {{$... ? default: ...}} or {{$... ? ! ...}}
+ * Colons following key words must have no space preceding them.
+ * If no page ID or filter is supplied, filter: "%pageid% = $ID$" is added.
+ * Any component can be placed in double quotes (needed to allow space, dot or question mark in components).
+ *
  * @package dokuwiki\plugin\struct\meta
  */
 class InlineConfigParser extends ConfigParser
@@ -21,16 +30,6 @@ class InlineConfigParser extends ConfigParser
      */
     public function __construct($inline)
     {
-        /*
-         * {{$schema.field}}
-         * {{$pageid.schema.field}}
-         * {{$... ? filter: ... and: ... or: ...}} or {{$... ? & ... | ...}}
-         * TODO: {{$... ? sum}} or {{$... ? +}}
-         * TODO: {{$... ? default: ...}} or {{$... ? ! ...}}
-         * If no page ID or filter is supplied, filter: %pageid% = $ID$ is added.
-         * Any component can be placed in double quotes (needed to allow space, dot or question mark in components).
-         */
-
         // Start to build the main config array
         $lines     = array();  // Config lines to pass to full parser
 
