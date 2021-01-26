@@ -30,9 +30,11 @@ class syntax_plugin_struct_serial extends syntax_plugin_struct_global
      */
     protected function addTypeFilter($config)
     {
-        global $ID;
+        // we get the main ID instead of using $ID, so that serial data entry can be used via includes
+        // $INFO is not set yet so it can't be used
+        $id = getID();
         $config['filter'][] = ['%rowid%', '!=', (string)AccessTablePage::DEFAULT_PAGE_RID, 'AND'];
-        $config['filter'][] = ['%pageid%', '=', $ID, 'AND'];
+        $config['filter'][] = ['%pageid%', '=', $id, 'AND'];
         $config['withpid'] = 1; // flag for the editor to distinguish data types
         return $config;
     }
