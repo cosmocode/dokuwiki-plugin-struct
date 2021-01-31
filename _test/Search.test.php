@@ -26,6 +26,7 @@ class Search_struct_test extends StructTest {
         $as->assignPageSchema($page, 'schema2');
         saveWikiText($page, "===== TestTitle =====\nabc", "Summary");
         p_get_metadata($page);
+        $now = time();
         $this->saveData(
             $page,
             'schema1',
@@ -34,7 +35,8 @@ class Search_struct_test extends StructTest {
                 'second' => array('second data', 'more data', 'even more'),
                 'third' => 'third data',
                 'fourth' => 'fourth data'
-            )
+            ),
+            $now
         );
         $this->saveData(
             $page,
@@ -44,7 +46,8 @@ class Search_struct_test extends StructTest {
                 'asecond' => array('second data', 'more data', 'even more'),
                 'athird' => 'third data',
                 'afourth' => 'fourth data'
-            )
+            ),
+            $now
         );
 
         $as->assignPageSchema('test:document', 'schema1');
@@ -57,7 +60,8 @@ class Search_struct_test extends StructTest {
                 'second' => array('second', 'more'),
                 'third' => '',
                 'fourth' => 'fourth data'
-            )
+            ),
+            $now
         );
         $this->saveData(
             'test:document',
@@ -67,7 +71,8 @@ class Search_struct_test extends StructTest {
                 'asecond' => array('second data', 'more data', 'even more'),
                 'athird' => 'third data',
                 'afourth' => 'fourth data'
-            )
+            ),
+            $now
         );
 
         for($i = 10; $i <= 20; $i++) {
@@ -79,7 +84,8 @@ class Search_struct_test extends StructTest {
                     'asecond' => array("page$i second data"),
                     'athird' => "page$i third data",
                     'afourth' => "page$i fourth data"
-                )
+                ),
+                $now
             );
             $as->assignPageSchema("page$i", 'schema2');
         }
