@@ -42,13 +42,15 @@ class AccessTableDataReplacement_struct_test extends StructTest {
         $as->assignPageSchema('page2', 'bar');
         $as->assignPageSchema('page2', 'bar');
 
-
+        // page data is saved with a rev timestamp
+        $now = time();
         $this->saveData(
             'start',
             'foo',
             array(
                 'pages' => array('page1', 'page2')
-            )
+            ),
+            $now
         );
 
         $this->saveData(
@@ -56,7 +58,8 @@ class AccessTableDataReplacement_struct_test extends StructTest {
             'bar',
             array(
                 'data' => 'data of page1'
-            )
+            ),
+            $now
         );
 
         $this->saveData(
@@ -64,7 +67,8 @@ class AccessTableDataReplacement_struct_test extends StructTest {
             'bar',
             array(
                 'data' => 'data of page2'
-            )
+            ),
+            $now
         );
     }
 

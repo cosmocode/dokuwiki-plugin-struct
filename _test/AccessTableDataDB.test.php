@@ -299,7 +299,8 @@ class AccessTableDataDB_struct_test extends StructTest {
                 'multipage' => array('wiki:dokuwiki', 'wiki:syntax', 'wiki:welcome'),
                 'singletitle' => 'wiki:dokuwiki',
                 'multititle' => array('wiki:dokuwiki', 'wiki:syntax', 'wiki:welcome'),
-            )
+            ),
+            time()
         );
 
         // make sure titles for some pages are known (not for wiki:welcome)

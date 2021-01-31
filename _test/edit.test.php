@@ -26,7 +26,8 @@ class edit_struct_test extends StructTest {
                 'second' => array('second data', 'more data', 'even more'),
                 'third' => 'third data',
                 'fourth' => 'fourth data'
-            )
+            ),
+            time()
         );
     }
 

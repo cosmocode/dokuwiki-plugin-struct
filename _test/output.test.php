@@ -24,6 +24,7 @@ class output_struct_test extends StructTest {
 
         $page = 'page01';
         $includedPage = 'foo';
+        $now = time();
         $this->saveData(
             $page,
             'schema1',
@@ -32,7 +33,8 @@ class output_struct_test extends StructTest {
                 'second' => array('second data', 'more data', 'even more'),
                 'third' => 'third data',
                 'fourth' => 'fourth data'
-            )
+            ),
+            $now
         );
         $this->saveData(
             $page,
@@ -42,7 +44,8 @@ class output_struct_test extends StructTest {
                 'second field' => array('second data', 'more data', 'even more'),
                 'third%field' => 'third data',
                 'fourth.field?' => 'fourth data'
-            )
+            ),
+            $now
         );
         $this->saveData(
             $includedPage,
@@ -52,7 +55,8 @@ class output_struct_test extends StructTest {
                 'second' => array('second data', 'more data', 'even more'),
                 'third' => 'third data',
                 'fourth' => 'fourth data'
-            )
+            ),
+            $now
         );
     }
 
