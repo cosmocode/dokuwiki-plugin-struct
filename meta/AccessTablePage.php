@@ -43,23 +43,25 @@ class AccessTablePage extends AccessTable
     }
 
     /**
-     * @return int
+     * @return int|bool
      */
     protected function getLastRevisionTimestamp()
     {
         $table = 'data_' . $this->schema->getTable();
         $where = "WHERE pid = ?";
-        $opts = array($this->pid);
+        $opts = [$this->pid];
         if ($this->ts) {
-            $where .= " AND rev <= ?";
+            $where .= " AND REV > 0 AND rev <= ?";
             $opts[] = $this->ts;
         }
 
         /** @noinspection SqlResolve */
         $sql = "SELECT rev FROM $table $where ORDER BY rev DESC LIMIT 1";
         $res = $this->sqlite->query($sql, $opts);
-        $ret = (int) $this->sqlite->res2single($res);
+        $ret = $this->sqlite->res2single($res);
         $this->sqlite->res_close($res);
+        // make sure we don't cast empty result to 0 (serial data has rev = 0)
+        if ($ret !== false) $ret = (int) $ret;
         return $ret;
     }
 
