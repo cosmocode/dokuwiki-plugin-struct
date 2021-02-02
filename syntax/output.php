@@ -10,6 +10,7 @@
 use dokuwiki\plugin\struct\meta\AccessTable;
 use dokuwiki\plugin\struct\meta\Assignments;
 use dokuwiki\plugin\struct\meta\StructException;
+use dokuwiki\Extension\Event;
 
 class syntax_plugin_struct_output extends DokuWiki_Syntax_Plugin
 {
@@ -122,39 +123,20 @@ class syntax_plugin_struct_output extends DokuWiki_Syntax_Plugin
             } catch (StructException $ignored) {
                 continue; // no such schema at this revision
             }
-            $schemadata->optionSkipEmpty(true);
-            $data = $schemadata->getData();
-            if (!count($data)) continue;
-            $hasdata = true;
 
-            $renderer->table_open();
+            $rendercontext = array(
+                'renderer' => $renderer,
+                'format' => $format,
+                'meta' => p_get_metadata($ID),
+                'schemadata' => $schemadata,
+                'hasdata' => &$hasdata
+            );
 
-            $renderer->tablethead_open();
-            $renderer->tablerow_open();
-            $renderer->tableheader_open(2);
-            $renderer->cdata($schemadata->getSchema()->getTranslatedLabel());
-            $renderer->tableheader_close();
-            $renderer->tablerow_close();
-            $renderer->tablethead_close();
-
-            $renderer->tabletbody_open();
-            foreach ($data as $field) {
-                $renderer->tablerow_open();
-                $renderer->tableheader_open();
-                $renderer->cdata($field->getColumn()->getTranslatedLabel());
-                $renderer->tableheader_close();
-                $renderer->tablecell_open();
-                if ($format == 'xhtml') {
-                    $renderer->doc = substr($renderer->doc, 0, -1) .
-                        ' data-struct="' . hsc($field->getColumn()->getFullQualifiedLabel()) .
-                        '">';
-                }
-                $field->render($renderer, $format);
-                $renderer->tablecell_close();
-                $renderer->tablerow_close();
-            }
-            $renderer->tabletbody_close();
-            $renderer->table_close();
+            Event::createAndTrigger(
+                'PLUGIN_STRUCT_RENDER_SCHEMA_DATA',
+                $rendercontext,
+                array($this, 'renderSchemaData')
+            );
         }
 
         if ($format == 'xhtml') $renderer->doc .= self::XHTML_CLOSE;
@@ -165,6 +147,53 @@ class syntax_plugin_struct_output extends DokuWiki_Syntax_Plugin
         }
 
         return true;
+    }
+
+    /**
+     * Default schema data rendering (simple table view)
+     *
+     * @param array The render context including renderer and data
+     */
+    public function renderSchemaData($rendercontext)
+    {
+        $schemadata = $rendercontext['schemadata'];
+        $renderer = $rendercontext['renderer'];
+        $format = $rendercontext['format'];
+
+        $schemadata->optionSkipEmpty(true);
+        $data = $schemadata->getData();
+        if (!count($data))
+            return;
+
+        $rendercontext['hasdata'] = true;
+
+        $renderer->table_open();
+        $renderer->tablethead_open();
+        $renderer->tablerow_open();
+        $renderer->tableheader_open(2);
+        $renderer->cdata($schemadata->getSchema()->getTranslatedLabel());
+        $renderer->tableheader_close();
+        $renderer->tablerow_close();
+        $renderer->tablethead_close();
+
+        $renderer->tabletbody_open();
+        foreach ($data as $field) {
+            $renderer->tablerow_open();
+            $renderer->tableheader_open();
+            $renderer->cdata($field->getColumn()->getTranslatedLabel());
+            $renderer->tableheader_close();
+            $renderer->tablecell_open();
+            if ($format == 'xhtml') {
+                $renderer->doc = substr($renderer->doc, 0, -1) .
+                    ' data-struct="' . hsc($field->getColumn()->getFullQualifiedLabel()) .
+                    '">';
+            }
+            $field->render($renderer, $format);
+            $renderer->tablecell_close();
+            $renderer->tablerow_close();
+        }
+        $renderer->tabletbody_close();
+        $renderer->table_close();
     }
 }
 
