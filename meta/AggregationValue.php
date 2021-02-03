@@ -21,7 +21,7 @@ class AggregationValue
      */
     protected $mode;
     /**
-     * @var \Doku_Renderer the DokuWiki renderer used to create the output
+     * @var Doku_Renderer the DokuWiki renderer used to create the output
      */
     protected $renderer;
     /**
@@ -46,7 +46,7 @@ class AggregationValue
 
     /**
      * @todo we might be able to get rid of this helper and move this to SearchConfig
-     * @var \helper_plugin_struct_config
+     * @var helper_plugin_struct_config
      */
     protected $helper;
 
@@ -55,10 +55,10 @@ class AggregationValue
      *
      * You need to call @see render() on the resulting object.
      *
-     * @param string $id
-     * @param string $mode
-     * @param \Doku_Renderer $renderer
-     * @param SearchConfig $searchConfig
+     * @param  string         $id
+     * @param  string         $mode
+     * @param  Doku_Renderer  $renderer
+     * @param  SearchConfig   $searchConfig
      */
     public function __construct($id, $mode, \Doku_Renderer $renderer, SearchConfig $searchConfig)
     {

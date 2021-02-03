@@ -57,11 +57,11 @@ class syntax_plugin_struct_value extends DokuWiki_Syntax_Plugin
     /**
      * Handle matches of the struct syntax
      *
-     * @param string $match The match of the syntax
-     * @param int $state The state of the handler
-     * @param int $pos The position in the document
-     * @param Doku_Handler $handler The handler
-     * @return array Data for the renderer
+     * @param   string        $match    The match of the syntax
+     * @param   int           $state    The state of the handler
+     * @param   int           $pos      The position in the document
+     * @param   Doku_Handler  $handler  The handler
+     * @return  array                   Data for the renderer
      */
     public function handle($match, $state, $pos, Doku_Handler $handler)
     {
@@ -88,10 +88,10 @@ class syntax_plugin_struct_value extends DokuWiki_Syntax_Plugin
     /**
      * Render xhtml output or metadata
      *
-     * @param string $mode Renderer mode (supported modes: xhtml)
-     * @param Doku_Renderer $renderer The renderer
-     * @param array $data The data from the handler() function
-     * @return bool If rendering was successful.
+     * @param   string         $mode      Renderer mode (supported modes: xhtml)
+     * @param   Doku_Renderer  $renderer  The renderer
+     * @param   array          $data      The data from the handler() function
+     * @return  bool                      If rendering was successful.
      */
     public function render($mode, Doku_Renderer $renderer, $data)
     {
@@ -105,6 +105,7 @@ class syntax_plugin_struct_value extends DokuWiki_Syntax_Plugin
         $show_not_found = $this->getConf('show_not_found');
 
         try {
+            /** @var SearchConfig $search */
             $search = new SearchConfig($data);
 
             /** @var AggregationValue $value */
