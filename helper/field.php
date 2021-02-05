@@ -6,6 +6,7 @@ use dokuwiki\plugin\struct\meta\StructException;
 use dokuwiki\plugin\struct\meta\Value;
 use dokuwiki\plugin\struct\meta\ValueValidator;
 use dokuwiki\plugin\struct\types\Lookup;
+use dokuwiki\plugin\struct\types\Page;
 
 /**
  * Allows adding a single struct field as a bureaucracy field
@@ -96,12 +97,37 @@ class helper_plugin_struct_field extends helper_plugin_bureaucracy_field
         }
 
         // output the field
-        $value = new Value($this->column, $this->opt['value']);
-        if ($this->column->getType() instanceof Lookup) {
-            $value->setValue($this->opt['value'], true);
-        }
+        $value = $this->createValue();
         $field = $this->makeField($value, $params['name']);
         $form->addElement($field);
+    }
+
+    /**
+     * Returns a Value object for the current column.
+     * Special handling for Page and Lookup literal form values.
+     *
+     * @return Value
+     */
+    protected function createValue()
+    {
+        $preparedValue = $this->opt['value'];
+
+        // page fields might need to be JSON encoded depending on usetitles config
+        if (
+            $this->column->getType() instanceof Page
+            && $this->column->getType()->getConfig()['usetitles']
+        ) {
+            $preparedValue = json_encode([$this->opt['value'], null]);
+        }
+
+        $value = new Value($this->column, $preparedValue);
+
+        // no way to pass $israw parameter to constructor, so re-set the Lookup value
+        if ($this->column->getType() instanceof Lookup) {
+            $value->setValue($preparedValue, true);
+        }
+
+        return $value;
     }
 
     /**
