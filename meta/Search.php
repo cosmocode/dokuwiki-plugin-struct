@@ -638,8 +638,8 @@ class Search
 
         list($colname, $table) = $this->resolveColumn($colname);
 
-        // if table name given search only that, otherwise try all for matching column name
-        if ($table !== null) {
+        // if table name is given search only that, otherwise try all for matching column name
+        if ($table !== null && isset($this->schemas[$table])) {
             $schemas = array($table => $this->schemas[$table]);
         } else {
             $schemas = $this->schemas;

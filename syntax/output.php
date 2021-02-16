@@ -20,12 +20,6 @@ class syntax_plugin_struct_output extends DokuWiki_Syntax_Plugin
     const XHTML_CLOSE = '</div>';
 
     /**
-     * Class names of renderers which should NOT render struct data.
-     * All descendants are also blacklisted.
-     */
-    const BLACKLIST_RENDERER = array('Doku_Renderer_metadata');
-
-    /**
      * Regexp to check on which actions the struct data may be rendered
      */
     const WHITELIST_ACTIONS = '/^(show|export_.*)$/';
@@ -87,20 +81,20 @@ class syntax_plugin_struct_output extends DokuWiki_Syntax_Plugin
      *
      * Currently completely renderer agnostic
      *
-     * @param string $mode Renderer mode
-     * @param Doku_Renderer $R The renderer
+     * @param string $format Renderer format
+     * @param Doku_Renderer $renderer The renderer
      * @param array $data The data from the handler() function
      * @return bool If rendering was successful.
      */
-    public function render($mode, Doku_Renderer $R, $data)
+    public function render($format, Doku_Renderer $renderer, $data)
     {
         global $ACT;
         global $ID;
         global $INFO;
         global $REV;
 
-        foreach (self::BLACKLIST_RENDERER as $blacklisted) {
-            if ($R instanceof $blacklisted) {
+        foreach (helper_plugin_struct::BLACKLIST_RENDERER as $blacklisted) {
+            if ($renderer instanceof $blacklisted) {
                 return true;
             }
         }
@@ -119,7 +113,7 @@ class syntax_plugin_struct_output extends DokuWiki_Syntax_Plugin
         $tables = $assignments->getPageAssignments($ID);
         if (!$tables) return true;
 
-        if ($mode == 'xhtml') $R->doc .= self::XHTML_OPEN;
+        if ($format == 'xhtml') $renderer->doc .= self::XHTML_OPEN;
 
         $hasdata = false;
         foreach ($tables as $table) {
@@ -133,41 +127,41 @@ class syntax_plugin_struct_output extends DokuWiki_Syntax_Plugin
             if (!count($data)) continue;
             $hasdata = true;
 
-            $R->table_open();
+            $renderer->table_open();
 
-            $R->tablethead_open();
-            $R->tablerow_open();
-            $R->tableheader_open(2);
-            $R->cdata($schemadata->getSchema()->getTranslatedLabel());
-            $R->tableheader_close();
-            $R->tablerow_close();
-            $R->tablethead_close();
+            $renderer->tablethead_open();
+            $renderer->tablerow_open();
+            $renderer->tableheader_open(2);
+            $renderer->cdata($schemadata->getSchema()->getTranslatedLabel());
+            $renderer->tableheader_close();
+            $renderer->tablerow_close();
+            $renderer->tablethead_close();
 
-            $R->tabletbody_open();
+            $renderer->tabletbody_open();
             foreach ($data as $field) {
-                $R->tablerow_open();
-                $R->tableheader_open();
-                $R->cdata($field->getColumn()->getTranslatedLabel());
-                $R->tableheader_close();
-                $R->tablecell_open();
-                if ($mode == 'xhtml') {
-                    $R->doc = substr($R->doc, 0, -1) .
+                $renderer->tablerow_open();
+                $renderer->tableheader_open();
+                $renderer->cdata($field->getColumn()->getTranslatedLabel());
+                $renderer->tableheader_close();
+                $renderer->tablecell_open();
+                if ($format == 'xhtml') {
+                    $renderer->doc = substr($renderer->doc, 0, -1) .
                         ' data-struct="' . hsc($field->getColumn()->getFullQualifiedLabel()) .
                         '">';
                 }
-                $field->render($R, $mode);
-                $R->tablecell_close();
-                $R->tablerow_close();
+                $field->render($renderer, $format);
+                $renderer->tablecell_close();
+                $renderer->tablerow_close();
             }
-            $R->tabletbody_close();
-            $R->table_close();
+            $renderer->tabletbody_close();
+            $renderer->table_close();
         }
 
-        if ($mode == 'xhtml') $R->doc .= self::XHTML_CLOSE;
+        if ($format == 'xhtml') $renderer->doc .= self::XHTML_CLOSE;
 
         // if no data has been output, remove empty wrapper again
-        if ($mode == 'xhtml' && !$hasdata) {
-            $R->doc = substr($R->doc, 0, -1 * strlen(self::XHTML_OPEN . self::XHTML_CLOSE));
+        if ($format == 'xhtml' && !$hasdata) {
+            $renderer->doc = substr($renderer->doc, 0, -1 * strlen(self::XHTML_OPEN . self::XHTML_CLOSE));
         }
 
         return true;

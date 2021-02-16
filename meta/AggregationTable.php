@@ -212,7 +212,7 @@ class AggregationTable
         $this->renderer->tablerow_open();
 
         // additional column for row numbers
-        if ($this->data['rownumbers']) {
+        if (!empty($this->data['rownumbers'])) {
             $this->renderer->tableheader_open();
             $this->renderer->cdata('#');
             $this->renderer->tableheader_close();
@@ -395,7 +395,7 @@ class AggregationTable
         }
 
         // row number column
-        if ($this->data['rownumbers']) {
+        if (!empty($this->data['rownumbers'])) {
             $this->renderer->tablecell_open();
             $searchConfigConf = $this->searchConfig->getConf();
             $this->renderer->cdata($rownum + $searchConfigConf['offset'] + 1);
@@ -404,7 +404,8 @@ class AggregationTable
 
         /** @var Value $value */
         foreach ($row as $colnum => $value) {
-            $this->renderer->tablecell_open(1, $this->data['align'][$colnum]);
+            $align = isset( $this->data['align'][$colnum]) ?  $this->data['align'][$colnum] : null;
+            $this->renderer->tablecell_open(1, $align);
             $value->render($this->renderer, $this->mode);
             $this->renderer->tablecell_close();
 

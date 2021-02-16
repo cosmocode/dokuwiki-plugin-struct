@@ -110,6 +110,9 @@ class SearchConfig extends Search
     protected function applyFilterVars($filter)
     {
         global $INFO;
+        if(is_null($INFO)) {
+            $INFO = ['id' => null];
+        }
 
         // apply inexpensive filters first
         $filter = str_replace(

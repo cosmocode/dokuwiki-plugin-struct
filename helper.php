@@ -7,21 +7,17 @@
  * @author  Andreas Gohr, Michael Große <dokuwiki@cosmocode.de>
  */
 
-// must be run within Dokuwiki
 use dokuwiki\plugin\struct\meta\AccessDataValidator;
 use dokuwiki\plugin\struct\meta\AccessTable;
-use dokuwiki\plugin\struct\meta\AccessTableGlobal;
 use dokuwiki\plugin\struct\meta\Assignments;
 use dokuwiki\plugin\struct\meta\Schema;
 use dokuwiki\plugin\struct\meta\StructException;
-
-if (!defined('DOKU_INC')) die();
 
 /**
  * The public interface for the struct plugin
  *
  * 3rd party developers should always interact with struct data through this
- * helper plugin only. If additionional interface functionality is needed,
+ * helper plugin only. If additional interface functionality is needed,
  * it should be added here.
  *
  * All functions will throw StructExceptions when something goes wrong.
@@ -30,6 +26,15 @@ if (!defined('DOKU_INC')) die();
  */
 class helper_plugin_struct extends DokuWiki_Plugin
 {
+
+    /**
+     * Class names of renderers which should NOT render struct data.
+     * All descendants are also blacklisted.
+     */
+    const BLACKLIST_RENDERER = [
+        'Doku_Renderer_metadata',
+        '\renderer_plugin_qc'
+    ];
 
     /**
      * Get the structured data of a given page
@@ -189,6 +194,14 @@ class helper_plugin_struct extends DokuWiki_Plugin
         return $assignments->getPages($schema);
     }
 
+    /**
+     * Returns decoded JSON value or throws exception
+     * when passed parameter is not JSON
+     *
+     * @param string $value
+     * @return mixed
+     * @throws StructException
+     */
     public static function decodeJson($value)
     {
         if (!empty($value) && $value[0] !== '[') throw new StructException('Lookup expects JSON');
