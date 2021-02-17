@@ -20,8 +20,8 @@ var InlineEditor = function ($table) {
         var $div = jQuery('<div class="struct_inlineditor"><form></form><div class="err"></div></div>');
         var $form = $div.find('form');
         var $errors = $div.find('div.err').hide();
-        var $save = jQuery('<button type="submit">Save</button>');
-        var $cancel = jQuery('<button>Cancel</button>');
+        var $save = jQuery('<button type="submit">Speichern</button>');
+        var $cancel = jQuery('<button>Abbrechen</button>');
         $form.append(jQuery('<input type="hidden" name="pid">').val(pid));
         $form.append(jQuery('<input type="hidden" name="rid">').val(rid));
         $form.append(jQuery('<input type="hidden" name="rev">').val(rev));
