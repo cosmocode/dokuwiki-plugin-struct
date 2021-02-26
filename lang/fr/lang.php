@@ -3,6 +3,7 @@
 /**
  * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
  *
+ * @author zadaz <zadaz@example.com>
  * @author Schplurtz le Déboulonné <Schplurtz@laposte.net>
  * @author Nat <natdoub@hotmail.com>
  * @author salabdou <salabdou@gmail.com>
@@ -31,7 +32,7 @@ $lang['summarylabel']          = 'Dernier résumé';
 $lang['summary']               = 'Struct : données mises à jour';
 $lang['export']                = 'Exporter le schéma au format JSON';
 $lang['btn_export']            = 'Exporter';
-$lang['import']                = 'Importer un schéma depuis  JSON';
+$lang['import']                = 'Importer un schéma au format JSON';
 $lang['btn_import']            = 'Importer';
 $lang['import_warning']        = 'Attention : tous les champs précédemment remplis seront remplacés !';
 $lang['del_confirm']           = 'Entrez le nom du schéma pour confirmer sa suppression';
@@ -39,10 +40,11 @@ $lang['del_fail']              = 'Les noms de schémas sont différents. Le sch�
 $lang['del_ok']                = 'Le schéma a été supprimé.';
 $lang['btn_delete']            = 'Supprimer';
 $lang['js']['confirmAssignmentsDelete'] = 'Voulez-vous réellement supprimer l\'affectation du schéma "{0}" à la page/catégorie de page "{1}"?';
+$lang['js']['actions']         = 'Actions';
 $lang['js']['lookup_delete']   = 'Supprimer l\'entrée';
-$lang['clear_confirm']         = 'Entre le nom du schéma pour confirmer l\'effacement de toutes les données.';
+$lang['clear_confirm']         = 'Entrez le nom du schéma pour confirmer l\'effacement de toutes les données.';
 $lang['clear_fail']            = 'Les noms de schéma ne correspondent pas. Données non détruites.';
-$lang['clear_ok']              = 'Les données du schéma on été détruites.';
+$lang['clear_ok']              = 'Les données du schéma ont été détruites.';
 $lang['btn_clear']             = 'effacer';
 $lang['tab_edit']              = 'Editer le Schéma';
 $lang['tab_export']            = 'Import/Export';
@@ -53,7 +55,7 @@ $lang['editor_multi']          = 'Valeurs multiples ?';
 $lang['editor_conf']           = 'Configuration';
 $lang['editor_type']           = 'Type';
 $lang['editor_enabled']        = 'Activé';
-$lang['editor_editors']        = 'Liste à virgule d\'utilisateurs et de @groupes qui peuvent modifier les données du schéma (vide pour tous)';
+$lang['editor_editors']        = 'Liste à virgule d\'utilisateurs et de @groupes qui peuvent modifier les données du schéma (vide pour tous) :';
 $lang['assign_add']            = 'Ajouter';
 $lang['assign_del']            = 'Supprimer';
 $lang['assign_assign']         = 'Page / Catégorie';
@@ -82,7 +84,7 @@ $lang['Exception nolookupmix'] = 'Vous ne pouvez pas agréger plus d\'un schéma
 $lang['Exception No data saved'] = 'Aucune donnée sauvegardée';
 $lang['Exception no sqlite']   = 'Le greffon struct requiert le greffon sqlite. Merci de l\'installer et l\'activer.';
 $lang['Exception column not in table'] = 'Il n\'y a pas de colonne %s dans le schéma %s.';
-$lang['Warning: no filters for cloud'] = 'Les filtres ne sont pas supportés pour les nuages struct.';
+$lang['Warning: no filters for cloud'] = 'Les filtres ne sont pas utilisables pour les nuages struct.';
 $lang['sort']                  = 'Trier selon cette colonne';
 $lang['next']                  = 'Page suivante';
 $lang['prev']                  = 'Page précédente';
@@ -95,18 +97,18 @@ $lang['admin_csvexport_datatype'] = 'Exporter les données de type';
 $lang['admin_csvimport']       = 'Importer des données brutes depuis un fichier CSV';
 $lang['admin_csvimport_datatype'] = 'Implorter les données de type';
 $lang['admin_csvdone']         = 'Fichier CSV importé';
-$lang['admin_csvhelp']         = 'Veuillez vous référer au manuel sur l\'importation CSV pour les détails du format. (link to french struct doc)';
+$lang['admin_csvhelp']         = 'Veuillez vous référer au manuel sur l\'importation CSV pour les détails du format.';
 $lang['tablefilteredby']       = 'Filtre : %s';
 $lang['tableresetfilter']      = 'Tout montrer (Supprimer les filtres/le tri)';
-$lang['comparator =']          = 'égale';
+$lang['comparator =']          = 'vaut';
 $lang['comparator <']          = 'est inférieur à';
 $lang['comparator >']          = 'est supérieur à';
 $lang['comparator <=']         = 'est inférieur ou égal';
 $lang['comparator >=']         = 'est supérieur ou égal';
-$lang['comparator !=']         = 'n\'est pas égal à';
-$lang['comparator <>']         = 'n\'est pas égal à';
-$lang['comparator !~']         = 'n\'est pas comme';
-$lang['comparator *~']         = 'est comme';
+$lang['comparator !=']         = 'ne vaut pas';
+$lang['comparator <>']         = 'ne vaut pas';
+$lang['comparator !~']         = 'ne ressemble pas à';
+$lang['comparator *~']         = 'ressemble à';
 $lang['Exception schema missing'] = 'Le schéma %s n\'existe pas !';
 $lang['no_lookup_for_page']    = 'Vous ne pouvez pas utiliser l\'éditeur de consultation sur un schéma de page !';
 $lang['lookup new entry']      = 'Créer une nouvelle entrée';
