@@ -404,7 +404,7 @@ class AggregationTable
 
         /** @var Value $value */
         foreach ($row as $colnum => $value) {
-            $align = isset( $this->data['align'][$colnum]) ?  $this->data['align'][$colnum] : null;
+            $align = isset($this->data['align'][$colnum]) ?  $this->data['align'][$colnum] : null;
             $this->renderer->tablecell_open(1, $align);
             $value->render($this->renderer, $this->mode);
             $this->renderer->tablecell_close();
