@@ -47,10 +47,12 @@ class action_plugin_struct_output extends DokuWiki_Action_Plugin
         if (!page_exists($ID)) return;
 
         $pos = 0;
+        $ins = -1;
+
         // display struct data at the bottom?
         if ($this->getConf('bottomoutput')) {
             $ins = count($event->data->calls);
-        } else {
+        } else if (!$this->getConf('topoutput')) {
             $ins = -1;
             foreach ($event->data->calls as $num => $call) {
                 // try to find the first header

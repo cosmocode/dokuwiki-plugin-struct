@@ -10,3 +10,4 @@
  * @author Laynee <seedfloyd@gmail.com>
  */
 $lang['bottomoutput']          = 'Afficher les données au bas de la page';
+$lang['topoutput']             = 'Afficher les données en haut de la page';
