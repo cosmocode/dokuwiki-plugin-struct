@@ -95,12 +95,6 @@ class syntax_plugin_struct_table extends DokuWiki_Syntax_Plugin
     {
         if (!$data) return false;
 
-        foreach (helper_plugin_struct::BLACKLIST_RENDERER as $blacklisted) {
-            if ($renderer instanceof $blacklisted) {
-                return true;
-            }
-        }
-
         global $INFO;
         global $conf;
 
