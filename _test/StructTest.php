@@ -24,7 +24,7 @@ abstract class StructTest extends \DokuWikiTest {
      *
      * we always make sure the database is clear
      */
-    protected function tearDown() {
+    protected function tearDown() : void {
         parent::tearDown();
         /** @var \helper_plugin_struct_db $db */
         $db = plugin_load('helper', 'struct_db');

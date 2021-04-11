@@ -16,7 +16,7 @@ class AccessTableDataReplacement_struct_test extends StructTest {
     /** @var array alway enable the needed plugins */
     protected $pluginsEnabled = array('struct', 'sqlite');
 
-    public function setUp() {
+    public function setUp() : void {
         parent::setUp();
         $schemafoo = array();
         $schemafoo['new']['new1']['label'] = 'pages';

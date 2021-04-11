@@ -20,7 +20,7 @@ class AggregationResults_struct_test extends StructTest
 {
     protected $sqlite;
 
-    public function setUp()
+    public function setUp() : void
     {
         parent::setUp();
 

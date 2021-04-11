@@ -49,7 +49,7 @@ class move_struct_test extends StructTest {
         'titles' => array()
     );
 
-    public function setUp() {
+    public function setUp() : void {
         parent::setUp();
         $this->loadSchemaJSON('moves');
 

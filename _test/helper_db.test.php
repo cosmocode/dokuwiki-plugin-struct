@@ -10,7 +10,7 @@ use dokuwiki\plugin\struct\meta;
  */
 class helper_db_struct_test extends StructTest {
 
-    public function setUp() {
+    public function setUp() : void {
         parent::setUp();
 
         $this->loadSchemaJSON('schema1');

@@ -16,7 +16,7 @@ class output_struct_test extends StructTest {
     /** @var array add the extra plugins */
     protected $pluginsEnabled = array('struct', 'sqlite', 'log', 'include');
 
-    public function setUp() {
+    public function setUp() : void {
         parent::setUp();
 
         $this->loadSchemaJSON('schema1');
