@@ -611,7 +611,7 @@ class Search
      * @param string $colname may contain an alias
      * @return bool|Column
      */
-    public function findColumn($colname)
+    public function findColumn($colname, $strict = false)
     {
         if (!$this->schemas) throw new StructException('noschemas');
         $schema_list = array_keys($this->schemas);
@@ -638,11 +638,17 @@ class Search
 
         list($colname, $table) = $this->resolveColumn($colname);
 
-        // if table name is given search only that, otherwise try all for matching column name
+        /*
+         * If table name is given search only that, otherwise if no strict behavior
+         * is requested by the caller, try all assigned schemas for matching the
+         * column name.
+         */
         if ($table !== null && isset($this->schemas[$table])) {
             $schemas = array($table => $this->schemas[$table]);
-        } else {
+        } else if ($table === null || !$strict) {
             $schemas = $this->schemas;
+        } else {
+            return false;
         }
 
         // find it

@@ -155,8 +155,8 @@ class SearchConfig extends Search
 
         $key = $match[2];
 
-        // we try to resolve the key via current schema aliases first, otherwise take it literally
-        $column = $this->findColumn($key);
+        // we try to resolve the key via the assigned schemas first, otherwise take it literally
+        $column = $this->findColumn($key, true);
         if ($column) {
             $label = $column->getLabel();
             $table = $column->getTable();
