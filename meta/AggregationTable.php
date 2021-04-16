@@ -2,6 +2,8 @@
 
 namespace dokuwiki\plugin\struct\meta;
 
+use dokuwiki\Extension\Event;
+
 /**
  * Creates the table aggregation output
  *
@@ -93,6 +95,14 @@ class AggregationTable
     }
 
     /**
+     * Returns the page id for the table
+     */
+    public function getID()
+    {
+        return $this->id;
+    }
+
+    /**
      * Create the table on the renderer
      */
     public function render()
@@ -106,9 +116,33 @@ class AggregationTable
             return;
         }
 
-        // table open
         $this->startScope();
         $this->renderActiveFilters();
+
+        $rendercontext = array(
+            'table' => $this,
+            'renderer' => $this->renderer,
+            'search' => $this->searchConfig,
+            'columns' => $this->columns,
+            'data' => $this->result
+        );
+
+        Event::createAndTrigger(
+            'PLUGIN_STRUCT_RENDER_AGGREGATION_TABLE',
+            $rendercontext,
+            array($this, 'renderTable')
+        );
+
+        // export handle
+        $this->renderExportControls();
+        $this->finishScope();
+    }
+
+    /**
+     * Render the default aggregation table
+     */
+    public function renderTable($rendercontext)
+    {
         $this->renderer->table_open();
 
         // header
@@ -135,10 +169,6 @@ class AggregationTable
 
         // table close
         $this->renderer->table_close();
-
-        // export handle
-        $this->renderExportControls();
-        $this->finishScope();
     }
 
     /**
