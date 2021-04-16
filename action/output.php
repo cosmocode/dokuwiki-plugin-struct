@@ -53,7 +53,6 @@ class action_plugin_struct_output extends DokuWiki_Action_Plugin
         if ($this->getConf('bottomoutput')) {
             $ins = count($event->data->calls);
         } else if (!$this->getConf('topoutput')) {
-            $ins = -1;
             foreach ($event->data->calls as $num => $call) {
                 // try to find the first header
                 if ($call[0] == 'header') {
