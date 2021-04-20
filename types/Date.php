@@ -26,7 +26,8 @@ class Date extends AbstractBaseType
     {
         $date = date_create($value);
         if ($date !== false) {
-            $out = date_format($date, $this->config['format']);
+			setlocale(LC_TIME, $this->lang[$key]);
+            $out = strftime($this->config['format'], strtotime(date_format($date, 'm/d/Y')));
         } else {
             $out = '';
         }
