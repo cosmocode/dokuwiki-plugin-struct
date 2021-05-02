@@ -120,6 +120,7 @@ class AggregationTable
         $rendercontext = array(
             'table' => $this,
             'renderer' => $this->renderer,
+            'format' => $this->mode,
             'search' => $this->searchConfig,
             'columns' => $this->columns,
             'data' => $this->result
