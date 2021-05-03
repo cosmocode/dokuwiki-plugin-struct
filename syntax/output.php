@@ -10,7 +10,6 @@
 use dokuwiki\plugin\struct\meta\AccessTable;
 use dokuwiki\plugin\struct\meta\Assignments;
 use dokuwiki\plugin\struct\meta\StructException;
-use dokuwiki\Extension\Event;
 
 class syntax_plugin_struct_output extends DokuWiki_Syntax_Plugin
 {
@@ -132,7 +131,7 @@ class syntax_plugin_struct_output extends DokuWiki_Syntax_Plugin
                 'hasdata' => &$hasdata
             );
 
-            Event::createAndTrigger(
+            \Doku_Event::createAndTrigger(
                 'PLUGIN_STRUCT_RENDER_SCHEMA_DATA',
                 $rendercontext,
                 array($this, 'renderSchemaData')

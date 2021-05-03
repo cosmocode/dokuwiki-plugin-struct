@@ -2,8 +2,6 @@
 
 namespace dokuwiki\plugin\struct\meta;
 
-use dokuwiki\Extension\Event;
-
 /**
  * Creates the table aggregation output
  *
@@ -127,7 +125,7 @@ class AggregationTable
             'data' => $this->result
         );
 
-        Event::createAndTrigger(
+        \Doku_Event::createAndTrigger(
             'PLUGIN_STRUCT_RENDER_AGGREGATION_TABLE',
             $rendercontext,
             array($this, 'renderTable')
