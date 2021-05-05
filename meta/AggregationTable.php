@@ -125,11 +125,11 @@ class AggregationTable
             'data' => $this->result
         );
 
-        \Doku_Event::createAndTrigger(
+        $event = new \Doku_Event(
             'PLUGIN_STRUCT_RENDER_AGGREGATION_TABLE',
-            $rendercontext,
-            array($this, 'renderTable')
+            $rendercontext
         );
+        $event->trigger([$this, 'renderTable']);
 
         // export handle
         $this->renderExportControls();

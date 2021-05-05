@@ -131,11 +131,11 @@ class syntax_plugin_struct_output extends DokuWiki_Syntax_Plugin
                 'hasdata' => &$hasdata
             );
 
-            \Doku_Event::createAndTrigger(
+            $event = new \Doku_Event(
                 'PLUGIN_STRUCT_RENDER_SCHEMA_DATA',
-                $rendercontext,
-                array($this, 'renderSchemaData')
+                $rendercontext
             );
+            $event->trigger([$this, 'renderSchemaData']);
         }
 
         if ($format == 'xhtml') $renderer->doc .= self::XHTML_CLOSE;
