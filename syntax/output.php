@@ -98,9 +98,19 @@ class syntax_plugin_struct_output extends DokuWiki_Syntax_Plugin
                 return true;
             }
         }
+
         if ($ID != $INFO['id']) return true;
         if (!$INFO['exists']) return true;
-        if ($this->hasBeenRendered) return true;
+
+        /*
+         * When the dw2pdf plugin is used to export multiple pages in a
+         * single document, all the pages are rendered in a single instance
+         * of syntax_plugin_struct_output. We want to allow this usecase and
+         * only skip repeated calls for non-dw2pdf renderings.
+         */
+        if (!is_a($renderer, 'renderer_plugin_dw2pdf') && $this->hasBeenRendered)
+            return true;
+
         if (!preg_match(self::WHITELIST_ACTIONS, act_clean($ACT))) return true;
 
         // do not render the output twice on the same page, e.g. when another page has been included
