@@ -7,6 +7,8 @@
  * @author  Andreas Gohr, Michael Große <dokuwiki@cosmocode.de>
  */
 
+use dokuwiki\plugin\struct\meta\Schema;
+
 /**
  * Class action_plugin_struct_output
  *
@@ -106,7 +108,15 @@ class action_plugin_struct_output extends DokuWiki_Action_Plugin
         if (!$data) return;
 
         foreach ($data as $schema => $fields) {
+            $schemaObject = new Schema($schema);
             foreach ($fields as $field => $value) {
+                // format fields
+                $col = $schemaObject->findColumn($field);
+                if (is_a($col->getType(), '\dokuwiki\plugin\struct\types\Date')) {
+                    $format = $col->getType()->getConfig()['format'];
+                    $value = date($format, strtotime($value));
+                }
+
                 $placeholder = sprintf('@%s_%s_%s@', self::DW2PDF_PLACEHOLDER_PREFIX, $schema, $field);
                 $event->data['replace'][$placeholder] = is_array($value) ? implode(', ', $value) : $value;
             }
