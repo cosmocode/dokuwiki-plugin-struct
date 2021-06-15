@@ -84,8 +84,9 @@ class action_plugin_struct_inline extends DokuWiki_Action_Plugin
     {
         // silently fail when editing not possible
         if (!$this->initFromInput()) return;
-        if (auth_quickaclcheck($this->pid) < AUTH_EDIT) return;
         if (!$this->schemadata->getSchema()->isEditable()) return;
+        // only check page permissions for data with pid, skip for global data
+        if ($this->pid && auth_quickaclcheck($this->pid) < AUTH_EDIT) return;
         if (checklock($this->pid)) return;
 
         // lock page
