@@ -20,7 +20,7 @@ class Bureaucracy_struct_test extends StructTest {
     /** @var array of lookup data */
     protected $lookup = array();
 
-    public function setUp() {
+    public function setUp() : void {
         parent::setUp();
 
         $this->loadSchemaJSON('bureaucracy_lookup');

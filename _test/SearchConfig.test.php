@@ -66,6 +66,49 @@ class SearchConfig_struct_test extends StructTest {
         $this->assertEquals('', $searchConfig->applyFilterVars('$STRUCT.notexisting$'));
     }
 
+    public function test_filtervars_struct_other() {
+        global $INFO;
+        $INFO['id'] = 'foo:bar:baz';
+
+        // prepare some struct data
+        $sb = new meta\SchemaImporter('schema2', file_get_contents(__DIR__ . '/json/schema2.struct.json'));
+        $sb->build();
+        $sb = new meta\SchemaImporter('schema3', file_get_contents(__DIR__ . '/json/schema2int.struct.json'));
+        $sb->build();
+        $schemaData = meta\AccessTable::getPageAccess('schema2', $INFO['id'], time());
+        $schemaData->saveData(
+            array(
+                'afirst' => 'test',
+                'asecond' => array('multi1', 'multi2')
+            )
+        );
+        $schemaData = meta\AccessTable::getPageAccess('schema3', 'foo:test:baz', time());
+        $schemaData->saveData(
+            array(
+                'afirst' => 'test1',
+                'asecond' => array('multi1a', 'multi2a')
+            )
+        );
+
+        $searchConfig = new SearchConfig(array('schemas' => array(array('schema3', 'alias'))));
+        $this->assertEquals('', $searchConfig->applyFilterVars('$STRUCT.afirst$'));
+        $this->assertEquals('test', $searchConfig->applyFilterVars('$STRUCT.schema2.afirst$'));
+
+        $this->assertEquals('prepost', $searchConfig->applyFilterVars('pre$STRUCT.afirst$post'));
+        $this->assertEquals('pretestpost', $searchConfig->applyFilterVars('pre$STRUCT.schema2.afirst$post'));
+
+        $this->assertEquals('', $searchConfig->applyFilterVars('$STRUCT.asecond$'));
+        $this->assertEquals(array('multi1', 'multi2'), $searchConfig->applyFilterVars('$STRUCT.schema2.asecond$'));
+
+        $this->assertEquals('prepost', $searchConfig->applyFilterVars('pre$STRUCT.asecond$post'));
+        $this->assertEquals(array('premulti1post', 'premulti2post'), $searchConfig->applyFilterVars('pre$STRUCT.schema2.asecond$post'));
+
+        $this->assertEquals('', $searchConfig->applyFilterVars('$STRUCT.notexisting$'));
+
+        $this->assertEquals('', $searchConfig->applyFilterVars('$STRUCT.afirst$'));
+        $this->assertEquals('test', $searchConfig->applyFilterVars('$STRUCT.schema2.afirst$'));
+    }
+
     public function test_filtervars_user() {
         global $INFO, $USERINFO, $conf;
 

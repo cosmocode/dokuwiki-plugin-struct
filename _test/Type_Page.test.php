@@ -14,7 +14,7 @@ use dokuwiki\plugin\struct\types\Page;
  */
 class Type_Page_struct_test extends StructTest {
 
-    public function setUp() {
+    public function setUp() : void {
         parent::setUp();
 
         saveWikiText('syntax', 'dummy', 'test');

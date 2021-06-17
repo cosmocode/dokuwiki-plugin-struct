@@ -17,7 +17,7 @@ class AccessTableDataDB_struct_test extends StructTest {
     /** @var \helper_plugin_sqlite $sqlite */
     protected $sqlite;
 
-    public function setUp() {
+    public function setUp() : void {
         parent::setUp();
 
         /** @var \helper_plugin_struct_db $sqlite */

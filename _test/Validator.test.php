@@ -17,7 +17,7 @@ use dokuwiki\plugin\struct\types\Text;
  */
 class Validator_struct_test extends StructTest {
 
-    public function setUp() {
+    public function setUp() : void {
         parent::setUp();
 
         $this->loadSchemaJSON('schema1');
@@ -35,7 +35,7 @@ class Validator_struct_test extends StructTest {
         );
     }
 
-    protected function tearDown() {
+    protected function tearDown() : void {
         parent::tearDown();
 
         /** @var \helper_plugin_struct_db $sqlite */

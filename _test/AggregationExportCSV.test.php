@@ -14,7 +14,7 @@ use dokuwiki\plugin\struct\meta\ConfigParser;
 class AggregationExportCSV extends StructTest
 {
 
-    public function setUp() {
+    public function setUp() : void {
         parent::setUp();
 
         $this->loadSchemaJSON('wikilookup', '');

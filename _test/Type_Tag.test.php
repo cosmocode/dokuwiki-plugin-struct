@@ -11,7 +11,7 @@ use dokuwiki\plugin\struct\types\Tag;
  */
 class Type_Tag_struct_test extends StructTest {
 
-    public function setUp() {
+    public function setUp() : void {
         parent::setUp();
         $this->loadSchemaJSON('tag');
 

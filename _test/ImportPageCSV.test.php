@@ -13,7 +13,7 @@ use dokuwiki\plugin\struct\meta\Search;
 class ImportPageCSV extends StructTest
 {
 
-    public function setUp()
+    public function setUp() : void
     {
         parent::setUp();
 
