@@ -11,6 +11,8 @@ class Url extends Text
         'autoscheme' => 'https',
         'prefix' => '',
         'postfix' => '',
+        'fixedtitle' => '',
+        'autoshorten' => true,
     );
 
     /**
@@ -43,8 +45,36 @@ class Url extends Text
     public function renderValue($value, \Doku_Renderer $R, $mode)
     {
         $url = $this->buildURL($value);
-        $R->externallink($url);
+        $title = $this->generateTitle($url);
+        $R->externallink($url, $title);
         return true;
+    }
+
+    /**
+     * Make a label for the link
+     *
+     * @param $url
+     * @return string
+     */
+    protected function generateTitle($url) {
+        if($this->config['fixedtitle']) return $this->config['fixedtitle'];
+        if(!$this->config['autoshorten']) return $url;
+
+        $parsed = parse_url($url);
+
+        $title = $parsed['host'];
+        $title = preg_replace('/^www\./i', '', $title);
+        if(isset($parsed['path']) && $parsed['path'] === '/') {
+            unset($parsed['path']);
+        }
+        if(
+            isset($parsed['path']) ||
+            isset($parsed['query']) ||
+            isset($parsed['fragment'])
+        ) {
+            $title .= '/…';
+        }
+        return $title;
     }
 
     /**

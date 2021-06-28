@@ -51,6 +51,22 @@ class Type_Url_struct_test extends StructTest {
     }
 
     /**
+     * Provide data to test autoshortening feature
+     *
+     * @return array
+     */
+    public function generateAutoTitleProvider() {
+        return [
+            ['https://foobar.com', 'foobar.com'],
+            ['https://foobar.com/', 'foobar.com'],
+            ['https://www.foobar.com/', 'foobar.com'],
+            ['https://www.foobar.com/test', 'foobar.com/…'],
+            ['https://www.foobar.com/?test', 'foobar.com/…'],
+            ['https://www.foobar.com/#hash', 'foobar.com/…'],
+        ];
+    }
+
+    /**
      * @expectedException \dokuwiki\plugin\struct\meta\ValidationException
      * @dataProvider validateFailProvider
      */
@@ -66,5 +82,27 @@ class Type_Url_struct_test extends StructTest {
         $url = new Url(array('prefix' => $prefix, 'postfix' => $postfix, 'autoscheme' => $autoscheme));
         $url->validate($value);
         $this->assertTrue(true); // we simply check that no exceptions are thrown
+    }
+
+    /**
+     * @dataProvider generateAutoTitleProvider
+     */
+    public function test_generateAutoTitle($input, $title) {
+        $url = new Url(['autoshorten' => true]);
+        $result = $this->callInaccessibleMethod($url, 'generateTitle', [$input]);
+        $this->assertSame($title, $result);
+
+        $url = new Url(['autoshorten' => false]);
+        $result = $this->callInaccessibleMethod($url, 'generateTitle', [$input]);
+        $this->assertSame($input, $result);
+    }
+
+    public function test_generateFixedTitle() {
+        $input = 'https://www.foobar.com/long';
+        $title = 'oink';
+
+        $url = new Url(['fixedtitle' => $title]);
+        $result = $this->callInaccessibleMethod($url, 'generateTitle', [$input]);
+        $this->assertSame($title, $result);
     }
 }
