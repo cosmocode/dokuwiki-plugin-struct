@@ -1,4 +1,5 @@
 <?php
+
 /**
  * DokuWiki Plugin struct (Syntax Component)
  *
@@ -9,15 +10,9 @@
 // phpcs:disable PSR1.Files.SideEffects
 
 use dokuwiki\plugin\struct\meta\AggregationValue;
-use dokuwiki\plugin\struct\meta\ConfigParser;
 use dokuwiki\plugin\struct\meta\InlineConfigParser;
 use dokuwiki\plugin\struct\meta\SearchConfig;
 use dokuwiki\plugin\struct\meta\StructException;
-
-// must be run within Dokuwiki
-if (!defined('DOKU_INC')) {
-    die();
-}
 
 // phpcs:ignore PSR1.Classes.ClassDeclaration, Squiz.Classes.ValidClassName
 class syntax_plugin_struct_value extends DokuWiki_Syntax_Plugin

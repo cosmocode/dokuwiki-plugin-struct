@@ -21,7 +21,7 @@ class InlineConfigParser_struct_test extends StructTest
         $inline = '"testtable, another, foo bar"."%pageid%, count" ';
         $inline .= '?sort: ^count sort: "%pageid%, ^bam" align: "r,l,center,foo"';
         // Add InlineConfigParser-specific tests:
-        $inline .= '& "%pageid% != start" | "count = 1"';
+        $inline .= ' & "%pageid% != start" | "count = 1"';
 
         $configParser = new meta\InlineConfigParser($inline);
         $actual_config = $configParser->getConfig();

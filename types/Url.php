@@ -56,18 +56,19 @@ class Url extends Text
      * @param $url
      * @return string
      */
-    protected function generateTitle($url) {
-        if($this->config['fixedtitle']) return $this->config['fixedtitle'];
-        if(!$this->config['autoshorten']) return $url;
+    protected function generateTitle($url)
+    {
+        if ($this->config['fixedtitle']) return $this->config['fixedtitle'];
+        if (!$this->config['autoshorten']) return $url;
 
         $parsed = parse_url($url);
 
         $title = $parsed['host'];
         $title = preg_replace('/^www\./i', '', $title);
-        if(isset($parsed['path']) && $parsed['path'] === '/') {
+        if (isset($parsed['path']) && $parsed['path'] === '/') {
             unset($parsed['path']);
         }
-        if(
+        if (
             isset($parsed['path']) ||
             isset($parsed['query']) ||
             isset($parsed['fragment'])
