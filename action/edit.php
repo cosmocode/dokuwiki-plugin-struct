@@ -51,7 +51,9 @@ class action_plugin_struct_edit extends DokuWiki_Action_Plugin
 
         /** @var Form $form */
         $form = $event->data;
-        $pos = $form->findPositionByAttribute('id', 'wiki__editbar'); // insert the form before the main buttons
+        $pos = 0; // insert the form at the top
+        if (!$this->getConf('topoutput_edit'))
+            $pos = $form->findPositionByAttribute('id', 'wiki__editbar'); // insert the form before the main buttons
         $form->addHTML($html, $pos);
 
         return true;
@@ -73,7 +75,9 @@ class action_plugin_struct_edit extends DokuWiki_Action_Plugin
 
         /** @var Doku_Form $form */
         $form = $event->data;
-        $pos = $form->findElementById('wiki__editbar'); // insert the form before the main buttons
+        $pos = 0; // insert the form at the top
+        if (!$this->getConf('topoutput_edit'))
+            $pos = $form->findElementById('wiki__editbar'); // insert the form before the main buttons
         $form->insertElement($pos, $html);
 
         return true;

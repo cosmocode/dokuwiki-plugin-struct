@@ -6,4 +6,5 @@
  */
 $lang['bottomoutput']          = 'Daten am Ende der Seite anzeigen';
 $lang['topoutput']             = 'Daten am Anfang der Seite anzeigen';
+$lang['topoutput_edit']        = 'Eingabeformular am Anfang der Seite anzeigen';
 $lang['disableDeleteSerial']   = 'Löschen von serial Daten deaktivieren';
