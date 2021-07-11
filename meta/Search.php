@@ -97,6 +97,14 @@ class Search
     public function addColumn($colname)
     {
         if ($this->processWildcard($colname)) return; // wildcard?
+        if ($colname[0] == '-') { // remove column from previous wildcard lookup
+           $colname = substr($colname, 1); 
+           foreach($this->columns as $key => $col){
+             if ($col->getLabel() == $colname) unset($this->columns[$key]);
+           }
+           return;
+        }
+        
         $col = $this->findColumn($colname);
         if (!$col) return; //FIXME do we really want to ignore missing columns?
         $this->columns[] = $col;
