@@ -98,11 +98,11 @@ class Search
     {
         if ($this->processWildcard($colname)) return; // wildcard?
         if ($colname[0] == '-') { // remove column from previous wildcard lookup
-           $colname = substr($colname, 1); 
-           foreach($this->columns as $key => $col){
-             if ($col->getLabel() == $colname) unset($this->columns[$key]);
-           }
-           return;
+            $colname = substr($colname, 1);
+            foreach ($this->columns as $key => $col) {
+                if ($col->getLabel() == $colname) unset($this->columns[$key]);
+            }
+            return;
         }
         
         $col = $this->findColumn($colname);
