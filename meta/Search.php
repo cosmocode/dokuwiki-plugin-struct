@@ -104,7 +104,7 @@ class Search
             }
             return;
         }
-        
+
         $col = $this->findColumn($colname);
         if (!$col) return; //FIXME do we really want to ignore missing columns?
         $this->columns[] = $col;
