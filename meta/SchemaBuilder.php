@@ -63,7 +63,7 @@ class SchemaBuilder
 
         $this->helper = plugin_load('helper', 'struct_db');
         $this->sqlite = $this->helper->getDB();
-        $this->user = $_SERVER['REMOTE_USER'];
+        $this->user = $_SERVER['REMOTE_USER'] ?? '';
     }
 
     /**
@@ -147,7 +147,7 @@ class SchemaBuilder
     {
         if (!$this->time) $this->time = time();
 
-        $config = $this->data['config'] ?: '{}';
+        $config = $this->data['config'] ?? '{}';
 
         /** @noinspection SqlResolve */
         $sql = "INSERT INTO schemas (tbl, ts, user, config) VALUES (?, ?, ?, ?)";

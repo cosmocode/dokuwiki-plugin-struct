@@ -23,11 +23,15 @@ class AccessTableDataReplacement_struct_test extends StructTest {
         $schemafoo['new']['new1']['ismulti'] = 1;
         $schemafoo['new']['new1']['class'] = 'Page';
         $schemafoo['new']['new1']['isenabled'] = '1';
+        $schemafoo['new']['new1']['config'] = null;
+        $schemafoo['new']['new1']['sort'] = null;
 
         $schemabar['new']['new2']['label'] = 'data';
         $schemabar['new']['new2']['ismulti'] = 0;
         $schemabar['new']['new2']['class'] = 'Text';
         $schemabar['new']['new2']['isenabled'] = '1';
+        $schemabar['new']['new2']['config'] = null;
+        $schemabar['new']['new2']['sort'] = null;
 
         $builder_foo = new meta\SchemaBuilder('foo', $schemafoo);
         $builder_foo->build();

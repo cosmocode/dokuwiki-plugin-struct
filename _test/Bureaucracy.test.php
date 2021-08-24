@@ -51,7 +51,10 @@ class Bureaucracy_struct_test extends StructTest {
         //build form
         $fields = array();
 
+        /** @var \helper_plugin_struct_field $lookup_field */
         $lookup_field = plugin_load('helper', 'struct_field');
+
+        $lookup_field->opt['cmd'] = '';
         $lookup_field->opt['label'] = 'bureaucracy.lookup_select';
         //empty lookup value
         $lookup_field->opt['value'] = '';
@@ -59,7 +62,7 @@ class Bureaucracy_struct_test extends StructTest {
         //$lookup_field->opt['pagename'];
 
         //$args are ommited in struct_field
-        $lookup_field->initialize(array());
+        $lookup_field->initialize(['', $lookup_field->opt['label']]);
         $fields[] = $lookup_field;
 
         /** @var  \helper_plugin_bureaucracy_actiontemplate $actiontemplate */

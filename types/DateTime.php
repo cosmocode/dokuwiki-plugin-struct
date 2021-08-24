@@ -72,7 +72,7 @@ class DateTime extends Date
     public function validate($rawvalue)
     {
         $rawvalue = trim($rawvalue);
-        list($date, $time) = preg_split('/[ |T]/', $rawvalue, 2);
+        list($date, $time) = array_pad(preg_split('/[ |T]/', $rawvalue, 2), 2, '');
         $date = trim($date);
         $time = trim($time);
 
@@ -87,7 +87,7 @@ class DateTime extends Date
             throw new ValidationException('futureonly');
         }
 
-        list($h, $m) = explode(':', $time, 3); // drop seconds
+        list($h, $m) = array_pad(explode(':', $time, 3), 2, ''); // drop seconds
         $h = (int) $h;
         $m = (int) $m;
         if ($h < 0 || $h > 23 || $m < 0 || $m > 59) {
