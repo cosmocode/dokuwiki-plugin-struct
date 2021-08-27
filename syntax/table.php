@@ -93,6 +93,7 @@ class syntax_plugin_struct_table extends DokuWiki_Syntax_Plugin
      */
     public function render($format, Doku_Renderer $renderer, $data)
     {
+        if ($mode != 'xhtml') return false;
         if (!$data) return false;
 
         global $INFO;
