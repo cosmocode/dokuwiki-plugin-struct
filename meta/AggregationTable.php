@@ -308,7 +308,11 @@ class AggregationTable
 
             // output XHTML header
             $this->renderer->doc .= "<th $width $data>";
-            $this->renderer->doc .= '<a href="' . $link . '" class="' . $sortclass . '" title="' . $this->helper->getLang('sort') . '">' . hsc($header) . '</a>';
+            if (is_a($this->renderer, 'renderer_plugin_dw2pdf')) {
+              $this->renderer->doc .= hsc($header);
+            } else {
+              $this->renderer->doc .= '<a href="' . $link . '" class="' . $sortclass . '" title="' . $this->helper->getLang('sort') . '">' . hsc($header) . '</a>';
+            }
             $this->renderer->doc .= '</th>';
         }
 
