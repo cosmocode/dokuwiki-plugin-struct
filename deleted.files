@@ -9,3 +9,4 @@ meta/LookupTable.php
 script/LookupEditor.js
 action/lookup.php
 syntax/lookup.php
+_test/entry.test.php
