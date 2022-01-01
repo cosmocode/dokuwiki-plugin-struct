@@ -105,7 +105,6 @@ class syntax_plugin_struct_list extends DokuWiki_Syntax_Plugin
      */
     public function render($mode, Doku_Renderer $renderer, $data)
     {
-        if ($mode != 'xhtml') return false;
         if (!$data) return false;
         global $INFO;
         global $conf;

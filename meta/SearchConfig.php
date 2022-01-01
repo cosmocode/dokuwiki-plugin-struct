@@ -111,7 +111,9 @@ class SearchConfig extends Search
     {
         global $INFO;
         if (is_null($INFO)) {
-            $INFO = ['id' => null];
+            $pageinfo = pageinfo();
+        } else {
+            $pageinfo = $INFO;
         }
 
         // apply inexpensive filters first
@@ -124,9 +126,9 @@ class SearchConfig extends Search
                 '$TODAY$'
             ),
             array(
-                $INFO['id'],
-                getNS($INFO['id']),
-                noNS($INFO['id']),
+                $pageinfo['id'],
+                getNS($pageinfo['id']),
+                noNS($pageinfo['id']),
                 isset($_SERVER['REMOTE_USER']) ? $_SERVER['REMOTE_USER'] : '',
                 date('Y-m-d')
             ),
