@@ -14,7 +14,7 @@ use dokuwiki\plugin\struct\meta\StructException;
 class syntax_plugin_struct_output extends DokuWiki_Syntax_Plugin
 {
 
-    protected $hasBeenRendered = false;
+    protected $hasBeenRendered = array('metadata'=>false, 'xhtml'=>false);
 
     const XHTML_OPEN = '<div id="plugin__struct_output">';
     const XHTML_CLOSE = '</div>';
@@ -98,13 +98,22 @@ class syntax_plugin_struct_output extends DokuWiki_Syntax_Plugin
                 return true;
             }
         }
-        if ($ID != $INFO['id']) return true;
-        if (!$INFO['exists']) return true;
-        if ($this->hasBeenRendered) return true;
+
+        if (is_null($INFO)) {
+            // In metadata rendering mode, $INFO is null. So we have to compare global $ID and pageinfo().
+            if ($ID != pageinfo()['id']) return true;
+        } else {
+            if ($INFO['id'] != pageinfo()['id']) return true;
+        }
+
+        if ($format == 'metadata' and $this->hasBeenRendered['metadata']) return true;
+        if ($format == 'xhtml' and $this->hasBeenRendered['xhtml']) return true;
         if (!preg_match(self::WHITELIST_ACTIONS, act_clean($ACT))) return true;
 
         // do not render the output twice on the same page, e.g. when another page has been included
-        $this->hasBeenRendered = true;
+        if ($format == 'metadata') $this->hasBeenRendered['metadata'] = true;
+        if ($format == 'xhtml') $this->hasBeenRendered['xhtml'] = true;
+
         try {
             $assignments = Assignments::getInstance();
         } catch (StructException $e) {
@@ -112,7 +121,6 @@ class syntax_plugin_struct_output extends DokuWiki_Syntax_Plugin
         }
         $tables = $assignments->getPageAssignments($ID);
         if (!$tables) return true;
-
         if ($format == 'xhtml') $renderer->doc .= self::XHTML_OPEN;
 
         $hasdata = false;
