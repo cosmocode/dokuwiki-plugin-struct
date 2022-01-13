@@ -11,9 +11,11 @@ use dokuwiki\plugin\struct\types\Text;
  * @group plugin_struct
  * @group plugins
  */
-class Type_Text_struct_test extends StructTest {
+class Type_Text_struct_test extends StructTest
+{
 
-    public function data() {
+    public function data()
+    {
         return array(
             // simple
             array(
@@ -63,7 +65,7 @@ class Type_Text_struct_test extends StructTest {
                 'LIKE', // comp
                 '%val%', // value
                 '((T.col != \'\' AND ? || T.col LIKE ?))', // expect sql
-                array('before','%val%'), // expect opts
+                array('before', '%val%'), // expect opts
             ),
             array(
                 '', // prefix
@@ -71,7 +73,7 @@ class Type_Text_struct_test extends StructTest {
                 'LIKE', // comp
                 '%val%', // value
                 '((T.col != \'\' AND T.col || ? LIKE ?))', // expect sql
-                array('after','%val%'), // expect opts
+                array('after', '%val%'), // expect opts
             ),
             array(
                 'before', // prefix
@@ -79,7 +81,7 @@ class Type_Text_struct_test extends StructTest {
                 'LIKE', // comp
                 '%val%', // value
                 '((T.col != \'\' AND ? || T.col || ? LIKE ?))', // expect sql
-                array('before','after','%val%'), // expect opts
+                array('before', 'after', '%val%'), // expect opts
             ),
             // NOT LIKE
             array(
@@ -96,7 +98,7 @@ class Type_Text_struct_test extends StructTest {
                 'NOT LIKE', // comp
                 '%val%', // value
                 '((T.col != \'\' AND ? || T.col NOT LIKE ?))', // expect sql
-                array('before','%val%'), // expect opts
+                array('before', '%val%'), // expect opts
             ),
             array(
                 '', // prefix
@@ -104,7 +106,7 @@ class Type_Text_struct_test extends StructTest {
                 'NOT LIKE', // comp
                 '%val%', // value
                 '((T.col != \'\' AND T.col || ? NOT LIKE ?))', // expect sql
-                array('after','%val%'), // expect opts
+                array('after', '%val%'), // expect opts
             ),
             array(
                 'before', // prefix
@@ -112,7 +114,7 @@ class Type_Text_struct_test extends StructTest {
                 'NOT LIKE', // comp
                 '%val%', // value
                 '((T.col != \'\' AND ? || T.col || ? NOT LIKE ?))', // expect sql
-                array('before','after','%val%'), // expect opts
+                array('before', 'after', '%val%'), // expect opts
             ),
 
             // complex multi-value
@@ -122,7 +124,7 @@ class Type_Text_struct_test extends StructTest {
                 'NOT LIKE', // comp
                 array('%val1%', '%val2%'), // multiple values
                 '((T.col != \'\' AND (? || T.col || ? NOT LIKE ? OR ? || T.col || ? NOT LIKE ?)))', // expect sql
-                array('before','after','%val1%', 'before','after','%val2%',), // expect opts
+                array('before', 'after', '%val1%', 'before', 'after', '%val2%',), // expect opts
             ),
         );
 
@@ -131,7 +133,8 @@ class Type_Text_struct_test extends StructTest {
     /**
      * @dataProvider data
      */
-    public function test_filter($prefix, $postfix, $comp, $val, $e_sql, $e_opt) {
+    public function test_filter($prefix, $postfix, $comp, $val, $e_sql, $e_opt)
+    {
         $QB = new QueryBuilder();
 
         $text = new Text(array('prefix' => $prefix, 'postfix' => $postfix));

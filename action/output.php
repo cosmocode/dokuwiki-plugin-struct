@@ -20,7 +20,6 @@ use dokuwiki\plugin\struct\meta\Schema;
  */
 class action_plugin_struct_output extends DokuWiki_Action_Plugin
 {
-
     const DW2PDF_PLACEHOLDER_PREFIX = 'PLUGIN_STRUCT';
 
     /**
@@ -54,7 +53,7 @@ class action_plugin_struct_output extends DokuWiki_Action_Plugin
         // display struct data at the bottom?
         if ($this->getConf('bottomoutput')) {
             $ins = count($event->data->calls);
-        } else if (!$this->getConf('topoutput')) {
+        } elseif (!$this->getConf('topoutput')) {
             foreach ($event->data->calls as $num => $call) {
                 // try to find the first header
                 if ($call[0] == 'header') {

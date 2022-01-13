@@ -10,14 +10,16 @@ use dokuwiki\plugin\struct\types\Media;
  * @group plugin_struct
  * @group plugins
  */
-class Type_Media_struct_test extends StructTest {
+class Type_Media_struct_test extends StructTest
+{
 
     /**
      * Provides failing validation data
      *
      * @return array
      */
-    public function validateFailProvider() {
+    public function validateFailProvider()
+    {
         return array(
             array('image/jpeg, image/png', 'foo.gif'),
             array('image/jpeg, image/png', 'http://www.example.com/foo.gif'),
@@ -31,7 +33,8 @@ class Type_Media_struct_test extends StructTest {
      *
      * @return array
      */
-    public function validateSuccessProvider() {
+    public function validateSuccessProvider()
+    {
         return array(
             array('', 'foo.png'),
             array('', 'http://www.example.com/foo.png'),
@@ -48,7 +51,8 @@ class Type_Media_struct_test extends StructTest {
      * @expectedException \dokuwiki\plugin\struct\meta\ValidationException
      * @dataProvider validateFailProvider
      */
-    public function test_validate_fail($mime, $value) {
+    public function test_validate_fail($mime, $value)
+    {
         $integer = new Media(array('mime' => $mime));
         $integer->validate($value);
     }
@@ -56,13 +60,15 @@ class Type_Media_struct_test extends StructTest {
     /**
      * @dataProvider validateSuccessProvider
      */
-    public function test_validate_success($mime, $value) {
+    public function test_validate_success($mime, $value)
+    {
         $integer = new Media(array('mime' => $mime));
         $integer->validate($value);
         $this->assertTrue(true); // we simply check that no exceptions are thrown
     }
 
-    public function test_render_page_img() {
+    public function test_render_page_img()
+    {
         $R = new \Doku_Renderer_xhtml();
 
         $media = new Media(array('width' => 150, 'height' => 160, 'agg_width' => 180, 'agg_height' => 190));
@@ -80,7 +86,8 @@ class Type_Media_struct_test extends StructTest {
         $this->assertEquals(160, $img->attr('height')); // img param
     }
 
-    public function test_render_aggregation_img() {
+    public function test_render_aggregation_img()
+    {
         $R = new \Doku_Renderer_xhtml();
         $R->info['struct_table_hash'] = 'HASH';
 
@@ -99,7 +106,8 @@ class Type_Media_struct_test extends StructTest {
         $this->assertEquals(190, $img->attr('height')); // img param
     }
 
-    public function test_render_aggregation_pdf() {
+    public function test_render_aggregation_pdf()
+    {
         $R = new \Doku_Renderer_xhtml();
 
         $media = new Media(array('width' => 150, 'height' => 160, 'agg_width' => 180, 'agg_height' => 190, 'mime' => ''));
@@ -116,7 +124,8 @@ class Type_Media_struct_test extends StructTest {
         $this->assertEquals('foo.pdf', $a->text()); // name is link name
     }
 
-    public function test_render_aggregation_video() {
+    public function test_render_aggregation_video()
+    {
         $R = new \Doku_Renderer_xhtml();
 
         // local video requires an existing file to be rendered. we fake one

@@ -9,9 +9,11 @@ use dokuwiki\plugin\struct\meta\QueryBuilderWhere;
  * @group plugin_struct
  * @group plugins
  */
-class QueryBuilderWhere_struct_test extends StructTest {
+class QueryBuilderWhere_struct_test extends StructTest
+{
 
-    public function test_sql() {
+    public function test_sql()
+    {
         $QB = new QueryBuilder();
         $where = new QueryBuilderWhere($QB);
 
@@ -46,7 +48,8 @@ class QueryBuilderWhere_struct_test extends StructTest {
         );
     }
 
-    public function test_orsql() {
+    public function test_orsql()
+    {
         $QB = new QueryBuilder();
         $where = new QueryBuilderWhere($QB);
 

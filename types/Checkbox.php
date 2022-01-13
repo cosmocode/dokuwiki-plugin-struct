@@ -4,7 +4,6 @@ namespace dokuwiki\plugin\struct\types;
 
 class Checkbox extends AbstractBaseType
 {
-
     protected $config = array(
         'values' => 'one, two, three',
     );
@@ -57,9 +56,9 @@ class Checkbox extends AbstractBaseType
     /**
      * Multiple checkboxes
      *
-     * @param string    $name
+     * @param string $name
      * @param \string[] $rawvalues
-     * @param string    $htmlID
+     * @param string $htmlID
      *
      * @return string
      */

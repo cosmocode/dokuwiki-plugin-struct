@@ -9,7 +9,6 @@
 
 class helper_plugin_struct_config extends DokuWiki_Plugin
 {
-
     /**
      * @param string $val
      *

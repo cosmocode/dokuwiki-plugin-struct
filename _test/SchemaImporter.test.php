@@ -9,9 +9,11 @@ use dokuwiki\plugin\struct\meta;
  * @group plugins
  *
  */
-class SchemaImporter_struct_test extends StructTest {
+class SchemaImporter_struct_test extends StructTest
+{
 
-    public function test_export() {
+    public function test_export()
+    {
         $sb = new meta\SchemaBuilder(
             'schema1',
             array(
@@ -34,9 +36,10 @@ class SchemaImporter_struct_test extends StructTest {
         $this->assertEquals($expect, $actual);
     }
 
-    public function test_import_one() {
+    public function test_import_one()
+    {
         $sb = new meta\SchemaImporter('tag', file_get_contents(__DIR__ . '/json/tag.struct.json'));
-        $this->assertTrue((bool) $sb->build());
+        $this->assertTrue((bool)$sb->build());
 
         $schema = new meta\Schema('tag');
         $columns = $schema->getColumns();
@@ -48,9 +51,10 @@ class SchemaImporter_struct_test extends StructTest {
         $this->assertEquals('tags', $columns[1]->getLabel());
     }
 
-    public function test_import_export() {
+    public function test_import_export()
+    {
         $sb = new meta\SchemaImporter('foobar', file_get_contents(__DIR__ . '/json/schema1.struct.json'));
-        $this->assertTrue((bool) $sb->build());
+        $this->assertTrue((bool)$sb->build());
 
         $schema = new meta\Schema('foobar');
         $expect = json_decode(file_get_contents(__DIR__ . '/json/schema1.struct.json'), true);

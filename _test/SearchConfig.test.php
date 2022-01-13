@@ -10,9 +10,11 @@ use dokuwiki\plugin\struct\test\mock\SearchConfig;
  * @group plugins
  *
  */
-class SearchConfig_struct_test extends StructTest {
+class SearchConfig_struct_test extends StructTest
+{
 
-    public function test_filtervars_simple() {
+    public function test_filtervars_simple()
+    {
         global $INFO;
         $INFO['id'] = 'foo:bar:baz';
 
@@ -31,7 +33,8 @@ class SearchConfig_struct_test extends StructTest {
 
     }
 
-    public function test_filtervars_struct() {
+    public function test_filtervars_struct()
+    {
         global $INFO;
         $INFO['id'] = 'foo:bar:baz';
 
@@ -66,7 +69,8 @@ class SearchConfig_struct_test extends StructTest {
         $this->assertEquals('', $searchConfig->applyFilterVars('$STRUCT.notexisting$'));
     }
 
-    public function test_filtervars_struct_other() {
+    public function test_filtervars_struct_other()
+    {
         global $INFO;
         $INFO['id'] = 'foo:bar:baz';
 
@@ -109,7 +113,8 @@ class SearchConfig_struct_test extends StructTest {
         $this->assertEquals('test', $searchConfig->applyFilterVars('$STRUCT.schema2.afirst$'));
     }
 
-    public function test_filtervars_user() {
+    public function test_filtervars_user()
+    {
         global $INFO, $USERINFO, $conf;
 
         $searchConfig = new SearchConfig(array());
@@ -126,27 +131,28 @@ class SearchConfig_struct_test extends StructTest {
         $this->assertEquals(array('user', 'test'), $searchConfig->applyFilterVars('$USER.grps$'));
     }
 
-    public function test_cacheflags() {
+    public function test_cacheflags()
+    {
         $searchConfig = new SearchConfig(array());
 
         $flag = $searchConfig->determineCacheFlag(array('foo', 'bar'));
-        $this->assertTrue((bool) ($flag & SearchConfig::$CACHE_DEFAULT));
-        $this->assertFalse((bool) ($flag & SearchConfig::$CACHE_USER));
-        $this->assertFalse((bool) ($flag & SearchConfig::$CACHE_DATE));
+        $this->assertTrue((bool)($flag & SearchConfig::$CACHE_DEFAULT));
+        $this->assertFalse((bool)($flag & SearchConfig::$CACHE_USER));
+        $this->assertFalse((bool)($flag & SearchConfig::$CACHE_DATE));
 
         $flag = $searchConfig->determineCacheFlag(array('foo', '$USER$'));
-        $this->assertTrue((bool) ($flag & SearchConfig::$CACHE_DEFAULT));
-        $this->assertTrue((bool) ($flag & SearchConfig::$CACHE_USER));
-        $this->assertFalse((bool) ($flag & SearchConfig::$CACHE_DATE));
+        $this->assertTrue((bool)($flag & SearchConfig::$CACHE_DEFAULT));
+        $this->assertTrue((bool)($flag & SearchConfig::$CACHE_USER));
+        $this->assertFalse((bool)($flag & SearchConfig::$CACHE_DATE));
 
         $flag = $searchConfig->determineCacheFlag(array('foo', '$TODAY$'));
-        $this->assertTrue((bool) ($flag & SearchConfig::$CACHE_DEFAULT));
-        $this->assertFalse((bool) ($flag & SearchConfig::$CACHE_USER));
-        $this->assertTrue((bool) ($flag & SearchConfig::$CACHE_DATE));
+        $this->assertTrue((bool)($flag & SearchConfig::$CACHE_DEFAULT));
+        $this->assertFalse((bool)($flag & SearchConfig::$CACHE_USER));
+        $this->assertTrue((bool)($flag & SearchConfig::$CACHE_DATE));
 
         $flag = $searchConfig->determineCacheFlag(array('foo', '$TODAY$', '$USER$'));
-        $this->assertTrue((bool) ($flag & SearchConfig::$CACHE_DEFAULT));
-        $this->assertTrue((bool) ($flag & SearchConfig::$CACHE_USER));
-        $this->assertTrue((bool) ($flag & SearchConfig::$CACHE_DATE));
+        $this->assertTrue((bool)($flag & SearchConfig::$CACHE_DEFAULT));
+        $this->assertTrue((bool)($flag & SearchConfig::$CACHE_USER));
+        $this->assertTrue((bool)($flag & SearchConfig::$CACHE_DATE));
     }
 }

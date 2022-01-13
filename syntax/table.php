@@ -14,7 +14,6 @@ use dokuwiki\plugin\struct\meta\StructException;
 
 class syntax_plugin_struct_table extends DokuWiki_Syntax_Plugin
 {
-
     /** @var string which class to use for output */
     protected $tableclass = AggregationTable::class;
 

@@ -9,7 +9,6 @@ namespace dokuwiki\plugin\struct\meta;
  */
 class AggregationTable
 {
-
     /**
      * @var string the page id of the page this is rendered to
      */
@@ -68,12 +67,12 @@ class AggregationTable
     /**
      * Initialize the Aggregation renderer and executes the search
      *
-     * You need to call @see render() on the resulting object.
-     *
-     * @param string $id
+     * You need to call @param string $id
      * @param string $mode
      * @param \Doku_Renderer $renderer
      * @param SearchConfig $searchConfig
+     * @see render() on the resulting object.
+     *
      */
     public function __construct($id, $mode, \Doku_Renderer $renderer, SearchConfig $searchConfig)
     {
@@ -277,7 +276,7 @@ class AggregationTable
             $width = '';
             if (isset($this->data['widths'][$num]) && $this->data['widths'][$num] != '-') {
                 $width = ' style="min-width: ' . $this->data['widths'][$num] . ';' .
-                         'max-width: ' . $this->data['widths'][$num] . ';"';
+                    'max-width: ' . $this->data['widths'][$num] . ';"';
             }
 
             // prepare data attribute for inline edits
@@ -325,7 +324,7 @@ class AggregationTable
         if (!$this->data['dynfilters']) return false;
 
         $dynamic = $this->searchConfig->getDynamicParameters();
-        return (bool) $dynamic->getFilters();
+        return (bool)$dynamic->getFilters();
     }
 
     /**
@@ -433,7 +432,7 @@ class AggregationTable
 
         /** @var Value $value */
         foreach ($row as $colnum => $value) {
-            $align = isset($this->data['align'][$colnum]) ?  $this->data['align'][$colnum] : null;
+            $align = isset($this->data['align'][$colnum]) ? $this->data['align'][$colnum] : null;
             $this->renderer->tablecell_open(1, $align);
             $value->render($this->renderer, $this->mode);
             $this->renderer->tablecell_close();

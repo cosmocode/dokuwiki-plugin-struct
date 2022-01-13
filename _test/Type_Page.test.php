@@ -12,9 +12,11 @@ use dokuwiki\plugin\struct\types\Page;
  * @group plugin_struct
  * @group plugins
  */
-class Type_Page_struct_test extends StructTest {
+class Type_Page_struct_test extends StructTest
+{
 
-    public function setUp() : void {
+    public function setUp(): void
+    {
         parent::setUp();
 
         saveWikiText('syntax', 'dummy', 'test');
@@ -27,7 +29,8 @@ class Type_Page_struct_test extends StructTest {
 
     }
 
-    public function test_sort() {
+    public function test_sort()
+    {
 
         saveWikiText('title1', 'test', 'test');
         $pageMeta = new \dokuwiki\plugin\struct\meta\PageMeta('title1');
@@ -62,7 +65,8 @@ class Type_Page_struct_test extends StructTest {
     }
 
 
-    public function test_search() {
+    public function test_search()
+    {
         // prepare some data
         $this->loadSchemaJSON('pageschema');
         $this->saveData(
@@ -151,7 +155,8 @@ class Type_Page_struct_test extends StructTest {
     /**
      * This provides the testdata for @see Type_Page_struct_test::test_validate
      */
-    public static function validate_testdata() {
+    public static function validate_testdata()
+    {
         return array(
             array(
                 'namespace:page',
@@ -183,12 +188,14 @@ class Type_Page_struct_test extends StructTest {
      *
      * @dataProvider validate_testdata
      */
-    public function test_validate($rawvalue, $validatedValue, $msg) {
+    public function test_validate($rawvalue, $validatedValue, $msg)
+    {
         $page = new Page();
         $this->assertEquals($validatedValue, $page->validate($rawvalue), $msg);
     }
 
-    public function test_ajax_default() {
+    public function test_ajax_default()
+    {
         global $INPUT;
 
         $page = new Page(
@@ -222,7 +229,8 @@ class Type_Page_struct_test extends StructTest {
         $this->assertEquals(array(), $page->handleAjax());
     }
 
-    public function test_ajax_namespace() {
+    public function test_ajax_namespace()
+    {
         global $INPUT;
 
         $page = new Page(
@@ -240,7 +248,8 @@ class Type_Page_struct_test extends StructTest {
         $this->assertEquals(array(array('label' => 'syntax (wiki)', 'value' => 'wiki:syntax')), $page->handleAjax());
     }
 
-    public function test_ajax_postfix() {
+    public function test_ajax_postfix()
+    {
         global $INPUT;
 
         $page = new Page(

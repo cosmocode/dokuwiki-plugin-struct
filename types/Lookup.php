@@ -3,20 +3,19 @@
 namespace dokuwiki\plugin\struct\types;
 
 use dokuwiki\plugin\struct\meta\Column;
+use dokuwiki\plugin\struct\meta\PageColumn;
 use dokuwiki\plugin\struct\meta\QueryBuilder;
 use dokuwiki\plugin\struct\meta\QueryBuilderWhere;
+use dokuwiki\plugin\struct\meta\RevisionColumn;
+use dokuwiki\plugin\struct\meta\RowColumn;
 use dokuwiki\plugin\struct\meta\Schema;
 use dokuwiki\plugin\struct\meta\Search;
 use dokuwiki\plugin\struct\meta\SummaryColumn;
-use dokuwiki\plugin\struct\meta\Value;
-use dokuwiki\plugin\struct\meta\PageColumn;
-use dokuwiki\plugin\struct\meta\RevisionColumn;
 use dokuwiki\plugin\struct\meta\UserColumn;
-use dokuwiki\plugin\struct\meta\RowColumn;
+use dokuwiki\plugin\struct\meta\Value;
 
 class Lookup extends Dropdown
 {
-
     protected $config = array(
         'schema' => '',
         'field' => ''
@@ -208,11 +207,11 @@ class Lookup extends Dropdown
     /**
      * This is the value to be used as argument to a filter for another column.
      *
-     * In a sense this is the counterpart to the @see filter() function
-     *
-     * @param string $value
+     * In a sense this is the counterpart to the @param string $value
      *
      * @return string
+     * @see filter() function
+     *
      */
     public function compareValue($value)
     {

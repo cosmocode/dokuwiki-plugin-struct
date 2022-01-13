@@ -11,9 +11,11 @@ use dokuwiki\plugin\struct\test\mock\Dropdown;
  * @group plugin_struct
  * @group plugins
  */
-class Type_Dropdown_struct_test extends StructTest {
+class Type_Dropdown_struct_test extends StructTest
+{
 
-    protected function preparePages() {
+    protected function preparePages()
+    {
         $this->loadSchemaJSON('dropdowns');
         $now = time();
         $this->saveData(
@@ -43,7 +45,8 @@ class Type_Dropdown_struct_test extends StructTest {
     }
 
 
-    public function test_data() {
+    public function test_data()
+    {
         $this->preparePages();
 
         $access = AccessTable::getPageAccess('dropdowns', 'test1');
@@ -59,7 +62,8 @@ class Type_Dropdown_struct_test extends StructTest {
     }
 
 
-    public function test_getOptions() {
+    public function test_getOptions()
+    {
         // fixed values
         $dropdown = new Dropdown(
             array(

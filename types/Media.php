@@ -6,7 +6,6 @@ use dokuwiki\plugin\struct\meta\ValidationException;
 
 class Media extends AbstractBaseType
 {
-
     protected $config = array(
         'mime' => 'image/',
         'width' => 90,
@@ -96,7 +95,7 @@ class Media extends AbstractBaseType
     /**
      * Return the editor to edit a single value
      *
-     * @param string $name     the form name where this has to be stored
+     * @param string $name the form name where this has to be stored
      * @param string $rawvalue the current value
      *
      * @param string $htmlID

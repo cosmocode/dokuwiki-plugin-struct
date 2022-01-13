@@ -20,7 +20,7 @@ class SchemaEditor
     /** @var Schema the schema that is edited */
     protected $schema;
 
-    /** @var \DokuWiki_Plugin  */
+    /** @var \DokuWiki_Plugin */
     protected $hlp;
 
     /**

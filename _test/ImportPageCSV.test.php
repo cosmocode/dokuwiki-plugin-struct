@@ -13,7 +13,7 @@ use dokuwiki\plugin\struct\meta\Search;
 class ImportPageCSV extends StructTest
 {
 
-    public function setUp() : void
+    public function setUp(): void
     {
         parent::setUp();
 
@@ -64,7 +64,7 @@ class ImportPageCSV extends StructTest
         $templateFN = substr(wikiFN($pageID), 0, -1 * strlen('page.txt')) . '_template.txt';
         io_makeFileDir($templateFN);
         file_put_contents($templateFN,
-'====== @PAGE@ ======
+            '====== @PAGE@ ======
 <ifnotempty schema1.first>
 first: @@schema1.first@@
 </ifnotempty>

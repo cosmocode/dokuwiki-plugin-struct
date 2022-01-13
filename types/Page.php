@@ -14,7 +14,6 @@ use dokuwiki\plugin\struct\meta\QueryBuilderWhere;
  */
 class Page extends AbstractMultiBaseType
 {
-
     protected $config = array(
         'usetitles' => false,
         'autocomplete' => array(

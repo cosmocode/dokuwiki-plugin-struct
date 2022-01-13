@@ -2,7 +2,6 @@
 
 use dokuwiki\plugin\struct\meta\AccessTable;
 use dokuwiki\plugin\struct\meta\AccessTableGlobal;
-use dokuwiki\plugin\struct\meta\StructException;
 
 /**
  * Allows adding a lookup schema as a bureaucracy action
@@ -10,13 +9,12 @@ use dokuwiki\plugin\struct\meta\StructException;
  */
 class helper_plugin_struct_lookup extends helper_plugin_bureaucracy_action
 {
-
     /**
      * Performs struct_lookup action
      *
-     * @param helper_plugin_bureaucracy_field[] $fields  array with form fields
-     * @param string $thanks  thanks message
-     * @param array  $argv    array with entries: template, pagename, separator
+     * @param helper_plugin_bureaucracy_field[] $fields array with form fields
+     * @param string $thanks thanks message
+     * @param array $argv array with entries: template, pagename, separator
      * @return array|mixed
      *
      * @throws Exception

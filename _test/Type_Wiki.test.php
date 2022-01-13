@@ -10,14 +10,16 @@ use dokuwiki\plugin\struct\types\Wiki;
  * @group plugin_struct
  * @group plugins
  */
-class Type_Wiki_struct_test extends StructTest {
+class Type_Wiki_struct_test extends StructTest
+{
 
     /**
      * Provides failing validation data
      *
      * @return array
      */
-    public function validateProvider() {
+    public function validateProvider()
+    {
         return array(
             array("  * hi\n  * ho", "  * hi\n  * ho", '')
         );
@@ -26,7 +28,8 @@ class Type_Wiki_struct_test extends StructTest {
     /**
      * @dataProvider validateProvider
      */
-    public function test_validate($value, $expected_validated_result, $msg) {
+    public function test_validate($value, $expected_validated_result, $msg)
+    {
         $wiki = new Wiki();
         $actual_validated_result = $wiki->validate($value);
         $this->assertEquals($expected_validated_result, $actual_validated_result, $msg);

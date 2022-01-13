@@ -6,7 +6,6 @@ use dokuwiki\plugin\struct\meta\ValidationException;
 
 class Url extends Text
 {
-
     protected $config = array(
         'autoscheme' => 'https',
         'prefix' => '',

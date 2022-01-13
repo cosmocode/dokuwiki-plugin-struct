@@ -19,7 +19,6 @@ use dokuwiki\plugin\struct\meta\Value;
  */
 class action_plugin_struct_edit extends DokuWiki_Action_Plugin
 {
-
     /**
      * @var string The form name we use to transfer schema data
      */

@@ -11,9 +11,11 @@ use dokuwiki\plugin\struct\meta;
  * @group plugins
  *
  */
-class Search_struct_test extends StructTest {
+class Search_struct_test extends StructTest
+{
 
-    public function setUp() : void {
+    public function setUp(): void
+    {
         parent::setUp();
 
         $this->loadSchemaJSON('schema1');
@@ -75,7 +77,7 @@ class Search_struct_test extends StructTest {
             $now
         );
 
-        for($i = 10; $i <= 20; $i++) {
+        for ($i = 10; $i <= 20; $i++) {
             $this->saveData(
                 "page$i",
                 'schema2',
@@ -91,7 +93,8 @@ class Search_struct_test extends StructTest {
         }
     }
 
-    public function test_simple() {
+    public function test_simple()
+    {
         $search = new mock\Search();
 
         $search->addSchema('schema1');
@@ -109,7 +112,8 @@ class Search_struct_test extends StructTest {
         $this->assertEquals(array('second data', 'more data', 'even more'), $result[0][2]->getValue());
     }
 
-    public function test_simple_title() {
+    public function test_simple_title()
+    {
         $search = new mock\Search();
 
         $search->addSchema('schema1');
@@ -127,7 +131,8 @@ class Search_struct_test extends StructTest {
         $this->assertEquals(array('second data', 'more data', 'even more'), $result[0][2]->getValue());
     }
 
-    public function test_search_lasteditor() {
+    public function test_search_lasteditor()
+    {
         $search = new mock\Search();
 
         $search->addSchema('schema1');
@@ -149,7 +154,8 @@ class Search_struct_test extends StructTest {
     /**
      * @group slow
      */
-    public function test_search_lastupdate() {
+    public function test_search_lastupdate()
+    {
         sleep(1);
         saveWikiText('page01', "===== TestTitle =====\nabcd", "Summary");
         p_get_metadata('page01');
@@ -176,7 +182,8 @@ class Search_struct_test extends StructTest {
     /**
      * @group slow
      */
-    public function test_search_lastsummary() {
+    public function test_search_lastsummary()
+    {
         sleep(1);
         $summary = 'Summary';
         saveWikiText('page01', "===== TestTitle =====\nabcd", $summary);
@@ -199,7 +206,8 @@ class Search_struct_test extends StructTest {
         $this->assertEquals(array('second data', 'more data', 'even more'), $result[0][3]->getValue());
     }
 
-    public function test_search() {
+    public function test_search()
+    {
         $search = new mock\Search();
 
         $search->addSchema('schema1');
@@ -234,7 +242,7 @@ class Search_struct_test extends StructTest {
         $exception = false;
         try {
             $search->columns[5]->getColref();
-        } catch(meta\StructException $e) {
+        } catch (meta\StructException $e) {
             $exception = true;
         }
         $this->assertTrue($exception, "Struct exception expected for accesing colref of PageColumn");
@@ -275,7 +283,8 @@ class Search_struct_test extends StructTest {
         */
     }
 
-    public function test_ranges() {
+    public function test_ranges()
+    {
         $search = new mock\Search();
         $search->addSchema('schema2');
 
@@ -328,7 +337,8 @@ class Search_struct_test extends StructTest {
         $this->assertEquals('page11', $result[4][0]->getValue());
     }
 
-    public static function addFilter_testdata() {
+    public static function addFilter_testdata()
+    {
         return array(
             array('%pageid%', 'val', '<>', 'OR', array(array('%pageid%', 'val', '!=', 'OR')), false, 'replace <> comp'),
             array('%pageid%', 'val', '*~', 'OR', array(array('%pageid%', '%val%', 'LIKE', 'OR')), false, 'replace *~ comp'),
@@ -344,15 +354,16 @@ class Search_struct_test extends StructTest {
      * @dataProvider addFilter_testdata
      *
      */
-    public function test_addFilter($colname, $value, $comp, $type, $expected_filter, $expectException, $msg) {
+    public function test_addFilter($colname, $value, $comp, $type, $expected_filter, $expectException, $msg)
+    {
         $search = new mock\Search();
         $search->addSchema('schema2');
         $search->addColumn('%pageid%');
-        if($expectException !== false) $this->setExpectedException($expectException);
+        if ($expectException !== false) $this->setExpectedException($expectException);
 
         $search->addFilter($colname, $value, $comp, $type);
 
-        if(count($expected_filter) === 0) {
+        if (count($expected_filter) === 0) {
             $this->assertEquals(count($search->filter), 0, $msg);
             return;
         }
@@ -362,7 +373,8 @@ class Search_struct_test extends StructTest {
         $this->assertEquals($expected_filter[0][3], $search->filter[0][3], $msg);
     }
 
-    public function test_wildcard() {
+    public function test_wildcard()
+    {
         $search = new mock\Search();
         $search->addSchema('schema2', 'alias');
         $search->addColumn('*');
@@ -384,7 +396,8 @@ class Search_struct_test extends StructTest {
         $this->assertEquals(0, count($search->getColumns()));
     }
 
-    public function test_filterValueList() {
+    public function test_filterValueList()
+    {
         $search = new mock\Search();
 
         //simple - single quote

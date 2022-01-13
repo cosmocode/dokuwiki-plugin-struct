@@ -12,12 +12,14 @@ use dokuwiki\plugin\struct\meta\Search;
  * @group plugins
  *
  */
-class AccessTableDataDB_struct_test extends StructTest {
+class AccessTableDataDB_struct_test extends StructTest
+{
 
     /** @var \helper_plugin_sqlite $sqlite */
     protected $sqlite;
 
-    public function setUp() : void {
+    public function setUp(): void
+    {
         parent::setUp();
 
         /** @var \helper_plugin_struct_db $sqlite */
@@ -60,7 +62,8 @@ class AccessTableDataDB_struct_test extends StructTest {
         );
     }
 
-    public function test_getDataFromDB_currentRev() {
+    public function test_getDataFromDB_currentRev()
+    {
 
         // act
         $schemaData = mock\AccessTable::getPageAccess('testtable', 'testpage');
@@ -77,7 +80,8 @@ class AccessTableDataDB_struct_test extends StructTest {
         $this->assertEquals($expected_data, $actual_data);
     }
 
-    public function test_getDataFromDB_oldRev() {
+    public function test_getDataFromDB_oldRev()
+    {
 
         // act
         $schemaData = mock\AccessTable::getPageAccess('testtable', 'testpage', 200);
@@ -94,7 +98,8 @@ class AccessTableDataDB_struct_test extends StructTest {
         $this->assertEquals($expected_data, $actual_data, '');
     }
 
-    public function test_getData_currentRev() {
+    public function test_getData_currentRev()
+    {
 
         // act
         $schemaData = mock\AccessTable::getPageAccess('testtable', 'testpage');
@@ -106,12 +111,13 @@ class AccessTableDataDB_struct_test extends StructTest {
         );
 
         // assert
-        foreach($expected_data as $key => $value) {
+        foreach ($expected_data as $key => $value) {
             $this->assertEquals($value, $actual_data[$key]->getValue());
         }
     }
 
-    public function test_getDataArray_currentRev() {
+    public function test_getDataArray_currentRev()
+    {
 
         // act
         $schemaData = mock\AccessTable::getPageAccess('testtable', 'testpage');
@@ -126,7 +132,8 @@ class AccessTableDataDB_struct_test extends StructTest {
         $this->assertEquals($expected_data, $actual_data, '');
     }
 
-    public function test_getData_currentRev2() {
+    public function test_getData_currentRev2()
+    {
 
         // act
         $schemaData = mock\AccessTable::getPageAccess('testtable', 'testpage2');
@@ -138,12 +145,13 @@ class AccessTableDataDB_struct_test extends StructTest {
         );
 
         // assert
-        foreach($expected_data as $index => $value) {
+        foreach ($expected_data as $index => $value) {
             $this->assertEquals($value, $actual_data[$index]->getValue());
         }
     }
 
-    public function test_getData_oldRev() {
+    public function test_getData_oldRev()
+    {
 
         // act
         $schemaData = mock\AccessTable::getPageAccess('testtable', 'testpage', 200);
@@ -155,12 +163,13 @@ class AccessTableDataDB_struct_test extends StructTest {
         );
 
         // assert
-        foreach($expected_data as $index => $value) {
+        foreach ($expected_data as $index => $value) {
             $this->assertEquals($value, $actual_data[$index]->getValue());
         }
     }
 
-    public function test_saveData() {
+    public function test_saveData()
+    {
         // arrange
         $testdata = array(
             'testcolumn' => 'value1_saved',
@@ -211,7 +220,8 @@ class AccessTableDataDB_struct_test extends StructTest {
         $this->assertEquals($expected_saved_multi, $actual_saved_multi, 'multi value fields');
     }
 
-    public function test_getDataFromDB_clearData() {
+    public function test_getDataFromDB_clearData()
+    {
 
         // act
         $schemaData = mock\AccessTable::getPageAccess('testtable', 'testpage');
@@ -229,7 +239,8 @@ class AccessTableDataDB_struct_test extends StructTest {
         $this->assertEquals($expected_data, $actual_data, '');
     }
 
-    public function test_getData_clearData() {
+    public function test_getData_clearData()
+    {
 
         // act
         $schemaData = mock\AccessTable::getPageAccess('testtable', 'testpage');
@@ -241,7 +252,8 @@ class AccessTableDataDB_struct_test extends StructTest {
         $this->assertEquals(null, $actual_data['testcolumn']->getValue());
     }
 
-    public function test_getData_skipEmpty() {
+    public function test_getData_skipEmpty()
+    {
         // arrange
         $testdata = array(
             'testcolumn' => '',
@@ -264,7 +276,8 @@ class AccessTableDataDB_struct_test extends StructTest {
         $this->assertEquals($expected_data, $actual_data['testMulitColumn']->getValue());
     }
 
-    public function test_getDataArray_skipEmpty() {
+    public function test_getDataArray_skipEmpty()
+    {
         // arrange
         $testdata = array(
             'testcolumn' => '',
@@ -289,7 +302,8 @@ class AccessTableDataDB_struct_test extends StructTest {
         $this->assertEquals($expected_data, $actual_data);
     }
 
-    public function test_pseudodiff() {
+    public function test_pseudodiff()
+    {
         $this->loadSchemaJSON('pageschema');
         $this->saveData(
             'syntax',

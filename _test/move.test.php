@@ -14,7 +14,8 @@ use dokuwiki\plugin\struct\meta;
  *
  *
  */
-class move_struct_test extends StructTest {
+class move_struct_test extends StructTest
+{
 
     protected $data1 = array(
         'page' => 'wiki:syntax',
@@ -49,7 +50,8 @@ class move_struct_test extends StructTest {
         'titles' => array()
     );
 
-    public function setUp() : void {
+    public function setUp(): void
+    {
         parent::setUp();
         $this->loadSchemaJSON('moves');
 
@@ -60,7 +62,8 @@ class move_struct_test extends StructTest {
         $schemaData->saveData($this->data2);
     }
 
-    public function test_selfmove() {
+    public function test_selfmove()
+    {
         // fake move event
         $evdata = array('src_id' => 'page1', 'dst_id' => 'page3');
         $event = new \Doku_Event('PLUGIN_MOVE_PAGE_RENAME', $evdata);
@@ -85,7 +88,8 @@ class move_struct_test extends StructTest {
         $this->assertEquals($data, $schemaData->getDataArray());
     }
 
-    public function test_pagemove() {
+    public function test_pagemove()
+    {
         // fake move event
         $evdata = array('src_id' => 'wiki:syntax', 'dst_id' => 'foobar');
         $event = new \Doku_Event('PLUGIN_MOVE_PAGE_RENAME', $evdata);
@@ -108,7 +112,8 @@ class move_struct_test extends StructTest {
         $this->assertEquals($data, $schemaData->getDataArray());
     }
 
-    public function test_mediamove() {
+    public function test_mediamove()
+    {
         // fake move event
         $evdata = array('src_id' => 'wiki:logo.png', 'dst_id' => 'foobar.png');
         $event = new \Doku_Event('PLUGIN_MOVE_MEDIA_RENAME', $evdata);

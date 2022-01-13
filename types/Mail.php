@@ -6,7 +6,6 @@ use dokuwiki\plugin\struct\meta\ValidationException;
 
 class Mail extends Text
 {
-
     protected $config = array(
         'prefix' => '',
         'postfix' => '',

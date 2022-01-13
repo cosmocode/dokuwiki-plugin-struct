@@ -6,7 +6,6 @@ use dokuwiki\plugin\struct\meta\ValidationException;
 
 class Color extends AbstractBaseType
 {
-
     protected $config = array(
         'default' => '#ffffff'
     );
@@ -116,9 +115,9 @@ class Color extends AbstractBaseType
             return 0;
         }
 
-        $red   = hexdec(substr($color, 1, 2));
+        $red = hexdec(substr($color, 1, 2));
         $green = hexdec(substr($color, 3, 2));
-        $blue  = hexdec(substr($color, 5, 2));
+        $blue = hexdec(substr($color, 5, 2));
 
         $min = min([$red, $green, $blue]);
         $max = max([$red, $green, $blue]);

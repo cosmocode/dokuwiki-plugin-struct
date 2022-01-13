@@ -17,7 +17,6 @@ use dokuwiki\plugin\struct\types\AbstractBaseType;
  */
 class Column
 {
-
     /** @var int fields are sorted by this value */
     protected $sort;
     /** @var AbstractBaseType the type of this column */
@@ -39,10 +38,10 @@ class Column
      */
     public function __construct($sort, AbstractBaseType $type, $colref = 0, $enabled = true, $table = '')
     {
-        $this->sort = (int) $sort;
+        $this->sort = (int)$sort;
         $this->type = $type;
-        $this->colref = (int) $colref;
-        $this->enabled = (bool) $enabled;
+        $this->colref = (int)$colref;
+        $this->enabled = (bool)$enabled;
         $this->table = $table;
     }
 

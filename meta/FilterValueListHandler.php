@@ -7,7 +7,6 @@ namespace dokuwiki\plugin\struct\meta;
  */
 class FilterValueListHandler
 {
-
     protected $row = array();
     protected $current_row = 0;
     protected $token = '';

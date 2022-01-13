@@ -16,7 +16,6 @@ use dokuwiki\plugin\struct\types\Page;
  */
 class helper_plugin_struct_field extends helper_plugin_bureaucracy_field
 {
-
     /** @var  Column */
     public $column;
 
@@ -49,7 +48,7 @@ class helper_plugin_struct_field extends helper_plugin_bureaucracy_field
     {
         if (!$this->column) {
             $value = '';
-        //don't validate placeholders here
+            //don't validate placeholders here
         } elseif ($this->replace($value) == $value) {
             $validator = new ValueValidator();
             $this->error = !$validator->validateValue($this->column, $value);
@@ -162,9 +161,9 @@ class helper_plugin_struct_field extends helper_plugin_bureaucracy_field
     /**
      * Tries to find the correct column and schema
      *
-     * @throws StructException
      * @param string $colname
      * @return \dokuwiki\plugin\struct\meta\Column
+     * @throws StructException
      */
     protected function findColumn($colname)
     {

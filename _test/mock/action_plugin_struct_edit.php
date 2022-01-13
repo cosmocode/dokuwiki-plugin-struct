@@ -2,7 +2,8 @@
 
 namespace dokuwiki\plugin\struct\test\mock;
 
-class action_plugin_struct_edit extends \action_plugin_struct_edit {
+class action_plugin_struct_edit extends \action_plugin_struct_edit
+{
 
     /**
      * Create the form to edit schemadata
@@ -10,11 +11,13 @@ class action_plugin_struct_edit extends \action_plugin_struct_edit {
      * @param string $tablename
      * @return string The HTML for this schema's form
      */
-    public function createForm($tablename) {
+    public function createForm($tablename)
+    {
         return parent::createForm($tablename);
     }
 
-    public static function getVAR() {
+    public static function getVAR()
+    {
         return self::$VAR;
     }
 

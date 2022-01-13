@@ -13,7 +13,6 @@ use dokuwiki\plugin\struct\meta\StructException;
 
 class syntax_plugin_struct_output extends DokuWiki_Syntax_Plugin
 {
-
     protected $hasBeenRendered = false;
 
     const XHTML_OPEN = '<div id="plugin__struct_output">';

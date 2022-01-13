@@ -3,7 +3,7 @@
  *
  * @param {jQuery} $form The form where all the handlers are attached
  */
-var EntryEditor = function($form) {
+var EntryEditor = function ($form) {
 
     /** counter for copied multi templates */
     var copycount = 0;
@@ -16,7 +16,9 @@ var EntryEditor = function($form) {
     /**
      * Attach datepicker to date types, if lacking HTML5 support.
      */
-    var ftypetext = function() { return this.type === 'text'; };
+    var ftypetext = function () {
+        return this.type === 'text';
+    };
     $form.find('input.struct_date').filter(ftypetext).datepicker({
         dateFormat: 'yy-mm-dd',
         changeYear: true,

@@ -4,7 +4,6 @@ namespace dokuwiki\plugin\struct\meta;
 
 class PageMeta
 {
-
     /** @var \helper_plugin_sqlite */
     protected $sqlite;
 

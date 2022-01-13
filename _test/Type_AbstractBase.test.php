@@ -6,7 +6,8 @@ namespace dokuwiki\plugin\struct\test;
  * @group plugin_struct
  * @group plugins
  */
-class Type_AbstractBase_struct_test extends StructTest {
+class Type_AbstractBase_struct_test extends StructTest
+{
 
     protected $preset = array(
         'label' => array(
@@ -23,7 +24,8 @@ class Type_AbstractBase_struct_test extends StructTest {
     /**
      * Translation Init: empty config, no translation plugin
      */
-    public function test_trans_empty_noplugin() {
+    public function test_trans_empty_noplugin()
+    {
         global $conf;
         $conf['lang'] = 'en';
 
@@ -47,7 +49,8 @@ class Type_AbstractBase_struct_test extends StructTest {
     /**
      * Translation Init: preset config, no translation plugin
      */
-    public function test_trans_preset_noplugin() {
+    public function test_trans_preset_noplugin()
+    {
         global $conf;
         $conf['lang'] = 'en';
 
@@ -71,7 +74,8 @@ class Type_AbstractBase_struct_test extends StructTest {
     /**
      * Translation Init: empty config, translation plugin
      */
-    public function test_trans_empty_plugin() {
+    public function test_trans_empty_plugin()
+    {
         global $conf;
         $conf['lang'] = 'en';
         $conf['plugin']['translation']['translations'] = 'fr tr it de';
@@ -111,7 +115,8 @@ class Type_AbstractBase_struct_test extends StructTest {
     /**
      * Translation Init: preset config, translation plugin
      */
-    public function test_trans_preset_plugin() {
+    public function test_trans_preset_plugin()
+    {
         global $conf;
         $conf['lang'] = 'en';
         $conf['plugin']['translation']['translations'] = 'fr tr it de';

@@ -9,7 +9,6 @@ use dokuwiki\plugin\struct\types\AbstractBaseType;
  */
 class ValueValidator
 {
-
     /** @var  \helper_plugin_struct_db */
     protected $hlp;
 

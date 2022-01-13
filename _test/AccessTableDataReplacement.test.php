@@ -11,12 +11,14 @@ use dokuwiki\plugin\struct\meta;
  * @group plugins
  *
  */
-class AccessTableDataReplacement_struct_test extends StructTest {
+class AccessTableDataReplacement_struct_test extends StructTest
+{
 
     /** @var array alway enable the needed plugins */
     protected $pluginsEnabled = array('struct', 'sqlite');
 
-    public function setUp() : void {
+    public function setUp(): void
+    {
         parent::setUp();
         $schemafoo = array();
         $schemafoo['new']['new1']['label'] = 'pages';
@@ -72,7 +74,8 @@ class AccessTableDataReplacement_struct_test extends StructTest {
         );
     }
 
-    public function test_simple() {
+    public function test_simple()
+    {
         global $INFO;
         $INFO['id'] = 'start';
         $lines = array(
@@ -93,7 +96,8 @@ class AccessTableDataReplacement_struct_test extends StructTest {
         $this->assertEquals('data of page2', $result[1][1]->getValue());
     }
 
-    public function test_emptyfield() {
+    public function test_emptyfield()
+    {
         global $ID;
         $ID = 'no:data';
         $lines = array(
@@ -111,7 +115,8 @@ class AccessTableDataReplacement_struct_test extends StructTest {
         $this->assertEquals(0, count($result), 'if no pages a given, then none should be shown');
     }
 
-    public function dataProvider_DataFiltersAsSubQuery() {
+    public function dataProvider_DataFiltersAsSubQuery()
+    {
         return array(
             array(
                 array(
@@ -149,7 +154,8 @@ class AccessTableDataReplacement_struct_test extends StructTest {
     /**
      * @dataProvider dataProvider_DataFiltersAsSubQuery
      */
-    public function test_DataFiltersAsSubQuery($inputFilterLines, $expectedFilterWhere, $msg) {
+    public function test_DataFiltersAsSubQuery($inputFilterLines, $expectedFilterWhere, $msg)
+    {
         $lines = array(
             "schema    : bar",
             "cols      : %pageid%, data",
@@ -162,7 +168,9 @@ class AccessTableDataReplacement_struct_test extends StructTest {
 
         $search = new meta\SearchConfig($actual_config);
         list($sql,) = $search->getSQL();
-        $where = array_filter(explode("\n", $sql), function ($elem) {return strpos($elem,'WHERE') !== false;});
+        $where = array_filter(explode("\n", $sql), function ($elem) {
+            return strpos($elem, 'WHERE') !== false;
+        });
         $where = trim(reset($where));
 
         $baseWhere = "WHERE  (
@@ -175,7 +183,7 @@ class AccessTableDataReplacement_struct_test extends StructTest {
                 )
             AND data_bar.latest = 1";
 
-        $expected_where = $baseWhere . $expectedFilterWhere ." )";
+        $expected_where = $baseWhere . $expectedFilterWhere . " )";
         $this->assertEquals($this->cleanWS($expected_where), $this->cleanWS($where), $msg);
     }
 

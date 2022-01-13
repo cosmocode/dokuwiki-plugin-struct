@@ -12,7 +12,6 @@ use dokuwiki\plugin\struct\meta\StructException;
 
 class action_plugin_struct_ajax extends DokuWiki_Action_Plugin
 {
-
     /**
      * Registers a callback function for a given event
      *
@@ -58,8 +57,8 @@ class action_plugin_struct_ajax extends DokuWiki_Action_Plugin
     /**
      * Check the input variables and run the AJAX call
      *
-     * @throws StructException
      * @return mixed
+     * @throws StructException
      */
     protected function executeTypeAjax()
     {

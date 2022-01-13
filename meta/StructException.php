@@ -11,7 +11,6 @@ namespace dokuwiki\plugin\struct\meta;
  */
 class StructException extends \RuntimeException
 {
-
     protected $trans_prefix = 'Exception ';
 
     /**

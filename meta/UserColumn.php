@@ -13,7 +13,6 @@ use dokuwiki\plugin\struct\types\User;
  */
 class UserColumn extends Column
 {
-
     /**
      * PageColumn constructor.
      *

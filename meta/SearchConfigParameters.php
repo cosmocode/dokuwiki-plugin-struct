@@ -9,7 +9,6 @@ namespace dokuwiki\plugin\struct\meta;
  */
 class SearchConfigParameters
 {
-
     /** @var string parameter name to pass filters */
     public static $PARAM_FILTER = 'flt';
     /** @var string parameter name to pass offset */
@@ -115,11 +114,11 @@ class SearchConfigParameters
      * Adds another filter
      *
      * When there is a filter for that column already, the new filter overwrites it. Setting a
-     * blank value is the same as calling @see removeFilter()
-     *
-     * @param string|Column $column
+     * blank value is the same as calling @param string|Column $column
      * @param string $comp the comparator
      * @param string $value the value to compare against
+     * @see removeFilter()
+     *
      */
     public function addFilter($column, $comp, $value)
     {

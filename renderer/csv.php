@@ -10,7 +10,6 @@
  */
 class renderer_plugin_struct_csv extends Doku_Renderer
 {
-
     protected $first = false;
 
     /**

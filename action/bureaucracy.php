@@ -25,7 +25,6 @@ use dokuwiki\plugin\struct\types\Lookup;
  */
 class action_plugin_struct_bureaucracy extends DokuWiki_Action_Plugin
 {
-
     /**
      * Registers a callback function for a given event
      *

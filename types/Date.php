@@ -6,7 +6,6 @@ use dokuwiki\plugin\struct\meta\ValidationException;
 
 class Date extends AbstractBaseType
 {
-
     protected $config = array(
         'format' => 'Y/m/d',
         'prefilltoday' => false,
@@ -38,7 +37,7 @@ class Date extends AbstractBaseType
     /**
      * Return the editor to edit a single value
      *
-     * @param string $name     the form name where this has to be stored
+     * @param string $name the form name where this has to be stored
      * @param string $rawvalue the current value
      * @param string $htmlID
      *
@@ -77,7 +76,7 @@ class Date extends AbstractBaseType
         list($rawvalue) = explode(' ', $rawvalue, 2); // strip off time if there is any
 
         list($year, $month, $day) = explode('-', $rawvalue, 3);
-        if (!checkdate((int) $month, (int) $day, (int) $year)) {
+        if (!checkdate((int)$month, (int)$day, (int)$year)) {
             throw new ValidationException('invalid date format');
         }
         if ($this->config['pastonly'] && strtotime($rawvalue) > time()) {

@@ -11,7 +11,6 @@ namespace dokuwiki\plugin\struct\meta;
  */
 class Value
 {
-
     /** @var Column */
     protected $column;
 
@@ -127,7 +126,7 @@ class Value
             } else {
                 $raw = $this->column->getType()->rawValue($val);
             }
-            if ('' === (string) trim($raw)) continue;
+            if ('' === (string)trim($raw)) continue;
             $this->value[] = $val;
             $this->rawvalue[] = $raw;
             if ($israw) {
@@ -141,10 +140,10 @@ class Value
 
         // make single value again
         if (!$this->column->isMulti()) {
-            $this->value = (string) array_shift($this->value);
-            $this->rawvalue = (string) array_shift($this->rawvalue);
-            $this->display = (string) array_shift($this->display);
-            $this->compare = (string) array_shift($this->compare);
+            $this->value = (string)array_shift($this->value);
+            $this->rawvalue = (string)array_shift($this->rawvalue);
+            $this->display = (string)array_shift($this->display);
+            $this->compare = (string)array_shift($this->compare);
         }
     }
 
@@ -221,6 +220,6 @@ class Value
      */
     public function filter($input)
     {
-        return '' !== ((string) $input);
+        return '' !== ((string)$input);
     }
 }

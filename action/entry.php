@@ -7,10 +7,9 @@
  * @author  Andreas Gohr, Michael Große <dokuwiki@cosmocode.de>
  */
 
+use dokuwiki\plugin\struct\meta\AccessDataValidator;
 use dokuwiki\plugin\struct\meta\AccessTable;
 use dokuwiki\plugin\struct\meta\Assignments;
-use dokuwiki\plugin\struct\meta\AccessDataValidator;
-use dokuwiki\plugin\struct\meta\Value;
 
 /**
  * Class action_plugin_struct_entry
@@ -19,7 +18,6 @@ use dokuwiki\plugin\struct\meta\Value;
  */
 class action_plugin_struct_entry extends DokuWiki_Action_Plugin
 {
-
     /**
      * @var string The form name we use to transfer schema data
      */

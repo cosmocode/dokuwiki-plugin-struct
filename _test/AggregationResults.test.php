@@ -6,8 +6,8 @@ use dokuwiki\plugin\struct\meta\ConfigParser;
 use dokuwiki\plugin\struct\meta\PageMeta;
 use dokuwiki\plugin\struct\test\mock\AccessTable;
 use dokuwiki\plugin\struct\test\mock\AccessTablePage;
-use dokuwiki\plugin\struct\test\mock\AggregationTable;
 use dokuwiki\plugin\struct\test\mock\AggregationEditorTable;
+use dokuwiki\plugin\struct\test\mock\AggregationTable;
 use dokuwiki\plugin\struct\test\mock\SearchConfig;
 
 /**
@@ -20,7 +20,7 @@ class AggregationResults_struct_test extends StructTest
 {
     protected $sqlite;
 
-    public function setUp() : void
+    public function setUp(): void
     {
         parent::setUp();
 
@@ -82,7 +82,7 @@ class AggregationResults_struct_test extends StructTest
         $result = $this->fetchResult($schema, 'test0', ['first', '=', 'foo0', 'AND']);
         $this->assertEquals(1, count($result));
 
-        $result = $this->fetchResult($schema,'test0', ['first', '!=', 'foo0', 'AND']);
+        $result = $this->fetchResult($schema, 'test0', ['first', '!=', 'foo0', 'AND']);
         $this->assertEquals(0, count($result));
     }
 

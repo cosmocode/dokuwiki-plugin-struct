@@ -14,7 +14,6 @@ if (!defined('DOKU_INC')) die();
 
 class syntax_plugin_struct_global extends syntax_plugin_struct_table
 {
-
     /** @var string which class to use for output */
     protected $tableclass = AggregationEditorTable::class;
 

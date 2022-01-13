@@ -2,7 +2,6 @@
 
 namespace dokuwiki\plugin\struct\meta;
 
-use dokuwiki\plugin\struct\types\AbstractBaseType;
 use dokuwiki\plugin\struct\types\AutoSummary;
 
 /**
@@ -14,7 +13,6 @@ use dokuwiki\plugin\struct\types\AutoSummary;
  */
 class SummaryColumn extends Column
 {
-
     /**
      * PageColumn constructor.
      *

@@ -9,7 +9,6 @@ namespace dokuwiki\plugin\struct\meta;
  */
 class AccessDataValidator extends ValueValidator
 {
-
     /** @var AccessTable */
     protected $access;
 

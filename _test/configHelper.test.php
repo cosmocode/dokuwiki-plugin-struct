@@ -1,4 +1,5 @@
 <?php
+
 namespace dokuwiki\plugin\struct\test;
 
 /**
@@ -6,9 +7,11 @@ namespace dokuwiki\plugin\struct\test;
  * @group plugins
  *
  */
-class config_helper_struct_test extends StructTest {
+class config_helper_struct_test extends StructTest
+{
 
-    public static function filter_testdata() {
+    public static function filter_testdata()
+    {
         return array(
             array('a=b', array(0 => 'a', 1 => '=', 2 => 'b'), false, ''),
             array('a<b', array(0 => 'a', 1 => '<', 2 => 'b'), false, ''),
@@ -31,16 +34,18 @@ class config_helper_struct_test extends StructTest {
      * @param $expected_filter
      * @param string $msg
      */
-    public function test_parseFilter($input_filter, $expected_filter, $expectException, $msg) {
+    public function test_parseFilter($input_filter, $expected_filter, $expectException, $msg)
+    {
         $confHelper = new mock\helper_plugin_struct_config();
-        if($expectException !== false) $this->setExpectedException($expectException);
+        if ($expectException !== false) $this->setExpectedException($expectException);
 
         $actual_filter = $confHelper->parseFilter($input_filter);
 
         $this->assertSame($expected_filter, $actual_filter, $input_filter . ' ' . $msg);
     }
 
-    public function test_parseSort_asc() {
+    public function test_parseSort_asc()
+    {
         /** @var \helper_plugin_struct_config $confHelper */
         $confHelper = plugin_load('helper', 'struct_config');
         $teststring = "column";
@@ -50,7 +55,8 @@ class config_helper_struct_test extends StructTest {
         $this->assertEquals(array($teststring, true), $actual_sort);
     }
 
-    public function test_parseSort_desc() {
+    public function test_parseSort_desc()
+    {
         /** @var \helper_plugin_struct_config $confHelper */
         $confHelper = plugin_load('helper', 'struct_config');
         $teststring = "^column";

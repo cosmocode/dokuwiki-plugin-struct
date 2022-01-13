@@ -4,8 +4,7 @@ namespace dokuwiki\plugin\struct\meta;
 
 class CSVSerialImporter extends CSVImporter
 {
-
-    /** @var bool[]  */
+    /** @var bool[] */
     protected $createPage = [];
 
     /**
@@ -38,7 +37,7 @@ class CSVSerialImporter extends CSVImporter
      * or an empty one.
      *
      * @param string $pid
-     * @param array  $line
+     * @param array $line
      */
     protected function createPage($pid, $line)
     {
@@ -64,7 +63,7 @@ cols: *
      * Check if page id realy exists
      *
      * @param Column $col
-     * @param mixed  $rawvalue
+     * @param mixed $rawvalue
      * @return bool
      */
     protected function validateValue(Column $col, &$rawvalue)

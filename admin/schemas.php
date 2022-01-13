@@ -20,7 +20,6 @@ use dokuwiki\plugin\struct\meta\StructException;
 
 class admin_plugin_struct_schemas extends DokuWiki_Admin_Plugin
 {
-
     /**
      * @return int sort number in admin menu
      */
@@ -87,7 +86,7 @@ class admin_plugin_struct_schemas extends DokuWiki_Admin_Plugin
                     $datatype = $INPUT->str('importtype');
                     if ($datatype === CSVExporter::DATATYPE_PAGE) {
                         $csvImporter = new CSVPageImporter($table, $_FILES['csvfile']['tmp_name'], $datatype);
-                    } else if ($datatype === CSVExporter::DATATYPE_SERIAL) {
+                    } elseif ($datatype === CSVExporter::DATATYPE_SERIAL) {
                         $csvImporter = new CSVSerialImporter($table, $_FILES['csvfile']['tmp_name'], $datatype);
                     } else {
                         $csvImporter = new CSVImporter($table, $_FILES['csvfile']['tmp_name'], $datatype);
@@ -303,17 +302,17 @@ class admin_plugin_struct_schemas extends DokuWiki_Admin_Plugin
         $link = wl(
             $ID,
             array(
-                   'do' => 'admin',
-                   'page' => 'struct_assignments'
-               )
+                'do' => 'admin',
+                'page' => 'struct_assignments'
+            )
         );
         $toc[] = html_mktocitem($link, $this->getLang('menu_assignments'), 0, '');
         $slink = wl(
             $ID,
             array(
-                   'do' => 'admin',
-                   'page' => 'struct_schemas'
-               )
+                'do' => 'admin',
+                'page' => 'struct_schemas'
+            )
         );
         $toc[] = html_mktocitem($slink, $this->getLang('menu'), 0, '');
 
@@ -323,10 +322,10 @@ class admin_plugin_struct_schemas extends DokuWiki_Admin_Plugin
                 $link = wl(
                     $ID,
                     array(
-                           'do' => 'admin',
-                           'page' => 'struct_schemas',
-                           'table' => $table
-                       )
+                        'do' => 'admin',
+                        'page' => 'struct_schemas',
+                        'table' => $table
+                    )
                 );
 
                 $toc[] = html_mktocitem($link, hsc($table), 1, '');

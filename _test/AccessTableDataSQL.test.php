@@ -11,14 +11,16 @@ use dokuwiki\plugin\struct\meta\Search;
  * @group plugins
  *
  */
-class AccessTableDataSQL_struct_test extends StructTest {
+class AccessTableDataSQL_struct_test extends StructTest
+{
 
     /**
-     * Testdata for @see schemaDataSQL_struct_test::test_buildGetDataSQL
+     * Testdata for @return array
+     * @see schemaDataSQL_struct_test::test_buildGetDataSQL
      *
-     * @return array
      */
-    public static function buildGetDataSQL_testdata() {
+    public static function buildGetDataSQL_testdata()
+    {
         $schemadata = new mock\AccessTableDataNoDB('testtable', 'pagename', 27);
 
         /** @noinspection SqlResolve */
@@ -42,13 +44,13 @@ class AccessTableDataSQL_struct_test extends StructTest {
             array(
                 array(
                     'obj' => $schemadata,
-                    'singles' => array('dokuwiki\\plugin\\struct\\types\\Text','dokuwiki\\plugin\\struct\\types\\Text'),
+                    'singles' => array('dokuwiki\\plugin\\struct\\types\\Text', 'dokuwiki\\plugin\\struct\\types\\Text'),
                     'multis' => array('dokuwiki\\plugin\\struct\\types\\Text'),
                 ),
                 "SELECT DATA.pid AS PID,
                         DATA.col1 AS out1,
                         DATA.col2 AS out2,
-                        GROUP_CONCAT(M3.value,'".Search::CONCAT_SEPARATOR."') AS out3
+                        GROUP_CONCAT(M3.value,'" . Search::CONCAT_SEPARATOR . "') AS out3
                    FROM data_testtable AS DATA
                    LEFT OUTER JOIN multi_testtable AS M3
                      ON DATA.pid = M3.pid
@@ -64,11 +66,11 @@ class AccessTableDataSQL_struct_test extends StructTest {
                 array(
                     'obj' => $schemadata,
                     'singles' => array(),
-                    'multis' => array('dokuwiki\\plugin\\struct\\types\\Text','dokuwiki\\plugin\\struct\\types\\Text')
+                    'multis' => array('dokuwiki\\plugin\\struct\\types\\Text', 'dokuwiki\\plugin\\struct\\types\\Text')
                 ),
                 "SELECT DATA.pid AS PID,
-                        GROUP_CONCAT(M1.value,'".Search::CONCAT_SEPARATOR."') AS out1,
-                        GROUP_CONCAT(M2.value,'".Search::CONCAT_SEPARATOR."') AS out2
+                        GROUP_CONCAT(M1.value,'" . Search::CONCAT_SEPARATOR . "') AS out1,
+                        GROUP_CONCAT(M2.value,'" . Search::CONCAT_SEPARATOR . "') AS out2
                    FROM data_testtable AS DATA
                    LEFT OUTER JOIN multi_testtable AS M2
                      ON DATA.pid = M2.pid
@@ -97,7 +99,8 @@ class AccessTableDataSQL_struct_test extends StructTest {
      * @param array $expected_opt
      * @param string $msg
      */
-    public function test_buildGetDataSQL($testvals, $expected_sql, $expected_opt, $msg) {
+    public function test_buildGetDataSQL($testvals, $expected_sql, $expected_opt, $msg)
+    {
         /** @var mock\AccessTableDataNoDB $obj */
         $obj = $testvals['obj'];
         $obj->setColumns($testvals['singles'], $testvals['multis']);

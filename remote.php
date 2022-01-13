@@ -114,7 +114,7 @@ class remote_plugin_struct extends DokuWiki_Remote_Plugin
                 foreach ($schema->getColumns(false) as $column) {
                     $result[$name][] = array(
                         'name' => $column->getLabel(),
-                        'type' =>  array_pop(explode('\\', get_class($column->getType()))),
+                        'type' => array_pop(explode('\\', get_class($column->getType()))),
                         'ismulti' => $column->isMulti()
                     );
                 }
@@ -128,9 +128,9 @@ class remote_plugin_struct extends DokuWiki_Remote_Plugin
     /**
      * Get the data that would be shown in an aggregation
      *
-     * @param array  $schemas array of strings with the schema-names
-     * @param array  $cols array of strings with the columns
-     * @param array  $filter array of arrays with ['logic'=> 'and'|'or', 'condition' => 'your condition']
+     * @param array $schemas array of strings with the schema-names
+     * @param array $cols array of strings with the columns
+     * @param array $filter array of arrays with ['logic'=> 'and'|'or', 'condition' => 'your condition']
      * @param string $sort string indicating the column to sort by
      *
      * @return array array of rows, each row is an array of the column values

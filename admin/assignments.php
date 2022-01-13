@@ -16,7 +16,6 @@ if (!defined('DOKU_INC')) die();
 
 class admin_plugin_struct_assignments extends DokuWiki_Admin_Plugin
 {
-
     /**
      * @return int sort number in admin menu
      */
@@ -81,7 +80,6 @@ class admin_plugin_struct_assignments extends DokuWiki_Admin_Plugin
             }
 
 
-
             send_redirect(wl($ID, array('do' => 'admin', 'page' => 'struct_assignments'), true, '&'));
         }
     }
@@ -124,12 +122,12 @@ class admin_plugin_struct_assignments extends DokuWiki_Admin_Plugin
             $link = wl(
                 $ID,
                 array(
-                'do' => 'admin',
-                'page' => 'struct_assignments',
-                'action' => 'delete',
-                'sectok' => getSecurityToken(),
-                'assignment[tbl]' => $schema,
-                'assignment[assign]' => $assignee,
+                    'do' => 'admin',
+                    'page' => 'struct_assignments',
+                    'action' => 'delete',
+                    'sectok' => getSecurityToken(),
+                    'assignment[tbl]' => $schema,
+                    'assignment[assign]' => $assignee,
                 )
             );
 

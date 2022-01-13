@@ -8,7 +8,6 @@ namespace dokuwiki\plugin\struct\meta;
  */
 class QueryBuilder
 {
-
     /** @var array placeholder -> values */
     protected $values = array();
     /** @var array (alias -> statement */
@@ -53,14 +52,14 @@ class QueryBuilder
     /**
      * Add a new column selection statement
      *
-     * Basically the same as @see addSelectColumn() but accepts any statement. This is useful to
+     * Basically the same as @param string $statement
+     * @param string $alias
+     * @see addSelectColumn() but accepts any statement. This is useful to
      * select things like fixed strings or more complex function calls, but the correctness will not
      * be checked.
      *
      * If the alias already exists, the current statement for that alias will be overwritten.
      *
-     * @param string $statement
-     * @param string $alias
      */
     public function addSelectStatement($statement, $alias)
     {
@@ -160,9 +159,9 @@ class QueryBuilder
     /**
      * Add an GROUP BY clause
      *
-     * Like @see addGroupByColumn but accepts an arbitrary statement
+     * Like @param string $statement a single grouping clause
+     * @see addGroupByColumn but accepts an arbitrary statement
      *
-     * @param string $statement a single grouping clause
      */
     public function addGroupByStatement($statement)
     {
@@ -277,8 +276,8 @@ class QueryBuilder
      * @param array $array The initial array
      * @param array $pairs The array to insert
      * @param string $key_pos The position at which to insert
-     * @link https://gist.github.com/scribu/588429 simplified
      * @return array
+     * @link https://gist.github.com/scribu/588429 simplified
      */
     protected function arrayInsert($array, $pairs, $key_pos)
     {

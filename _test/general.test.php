@@ -1,4 +1,5 @@
 <?php
+
 namespace dokuwiki\plugin\struct\test;
 
 /**
@@ -7,13 +8,15 @@ namespace dokuwiki\plugin\struct\test;
  * @group plugin_struct
  * @group plugins
  */
-class general_plugin_struct_test extends \DokuWikiTest {
+class general_plugin_struct_test extends \DokuWikiTest
+{
 
     /**
      * Simple test to make sure the plugin.info.txt is in correct format
      */
-    public function test_plugininfo() {
-        $file = __DIR__.'/../plugin.info.txt';
+    public function test_plugininfo()
+    {
+        $file = __DIR__ . '/../plugin.info.txt';
         $this->assertFileExists($file);
 
         $info = confToHash($file);

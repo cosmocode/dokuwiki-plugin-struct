@@ -12,7 +12,6 @@ use dokuwiki\plugin\struct\types\AbstractBaseType;
 
 class action_plugin_struct_config extends DokuWiki_Action_Plugin
 {
-
     /**
      * Registers a callback function for a given event
      *

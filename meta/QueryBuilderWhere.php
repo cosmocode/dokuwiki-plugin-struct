@@ -8,7 +8,6 @@ namespace dokuwiki\plugin\struct\meta;
  */
 class QueryBuilderWhere
 {
-
     /** @var  QueryBuilderWhere[]|string */
     protected $statement;
     /** @var string */

@@ -5,13 +5,10 @@ namespace dokuwiki\plugin\struct\types;
 use dokuwiki\plugin\struct\meta\Column;
 use dokuwiki\plugin\struct\meta\QueryBuilder;
 use dokuwiki\plugin\struct\meta\QueryBuilderWhere;
-use dokuwiki\plugin\struct\meta\Schema;
 use dokuwiki\plugin\struct\meta\SearchConfigParameters;
-use dokuwiki\plugin\struct\meta\StructException;
 
 class Tag extends AbstractMultiBaseType
 {
-
     protected $config = array(
         'page' => '',
         'autocomplete' => array(
@@ -68,10 +65,10 @@ class Tag extends AbstractMultiBaseType
 
         $result = array();
         foreach ($rows as $row) {
-                $result[] = array(
-                    'label' => $row['value'],
-                    'value' => $row['value'],
-                );
+            $result[] = array(
+                'label' => $row['value'],
+                'value' => $row['value'],
+            );
         }
 
         return $result;
@@ -127,12 +124,12 @@ class Tag extends AbstractMultiBaseType
      */
     public function filter(QueryBuilderWhere $add, $tablealias, $colname, $comp, $value, $op)
     {
-        /** @var QueryBuilderWhere $add Where additionional queries are added to*/
+        /** @var QueryBuilderWhere $add Where additionional queries are added to */
         if (is_array($value)) {
             $add = $add->where($op); // sub where group
             $op = 'OR';
         }
-        foreach ((array) $value as $item) {
+        foreach ((array)$value as $item) {
             $pl = $add->getQB()->addValue($item);
             $add->where($op, "LOWER(REPLACE($tablealias.$colname, ' ', '')) $comp LOWER(REPLACE($pl, ' ', ''))");
         }

@@ -11,7 +11,6 @@ namespace dokuwiki\plugin\struct\meta;
  */
 class ConfigParser
 {
-
     protected $config = array();
 
     /**
@@ -61,7 +60,7 @@ class ConfigParser
                     $this->config['cols'] = $this->parseValues($val);
                     break;
                 case 'sepbyheaders':
-                    $this->config['sepbyheaders'] = (bool) $val;
+                    $this->config['sepbyheaders'] = (bool)$val;
                     break;
                 case 'head':
                 case 'header':
@@ -76,11 +75,11 @@ class ConfigParser
                     $this->config['widths'] = $this->parseWidths($val);
                     break;
                 case 'min':
-                    $this->config['min'] = abs((int) $val);
+                    $this->config['min'] = abs((int)$val);
                     break;
                 case 'limit':
                 case 'max':
-                    $this->config['limit'] = abs((int) $val);
+                    $this->config['limit'] = abs((int)$val);
                     break;
                 case 'order':
                 case 'sort':
@@ -102,16 +101,16 @@ class ConfigParser
                     }
                     break;
                 case 'dynfilters':
-                    $this->config['dynfilters'] = (bool) $val;
+                    $this->config['dynfilters'] = (bool)$val;
                     break;
                 case 'rownumbers':
-                    $this->config['rownumbers'] = (bool) $val;
+                    $this->config['rownumbers'] = (bool)$val;
                     break;
                 case 'summarize':
-                    $this->config['summarize'] = (bool) $val;
+                    $this->config['summarize'] = (bool)$val;
                     break;
                 case 'csv':
-                    $this->config['csv'] = (bool) $val;
+                    $this->config['csv'] = (bool)$val;
                     break;
                 case 'target':
                 case 'page':
@@ -128,7 +127,7 @@ class ConfigParser
         }
 
         // fill up headers - a NULL signifies that the column label is wanted
-        $this->config['headers'] = (array) $this->config['headers'];
+        $this->config['headers'] = (array)$this->config['headers'];
         $cnth = count($this->config['headers']);
         $cntf = count($this->config['cols']);
         for ($i = $cnth; $i < $cntf; $i++) {

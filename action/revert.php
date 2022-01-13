@@ -17,7 +17,6 @@ use dokuwiki\plugin\struct\meta\Assignments;
  */
 class action_plugin_struct_revert extends DokuWiki_Action_Plugin
 {
-
     /**
      * Registers a callback function for a given event
      *

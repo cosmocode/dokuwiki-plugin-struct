@@ -13,7 +13,6 @@ use dokuwiki\plugin\struct\types\Page;
  */
 class CSVImporter
 {
-
     /** @var  Schema */
     protected $schema;
 

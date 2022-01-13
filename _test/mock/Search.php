@@ -2,9 +2,10 @@
 
 namespace dokuwiki\plugin\struct\test\mock;
 
-use \dokuwiki\plugin\struct\meta;
+use dokuwiki\plugin\struct\meta;
 
-class Search extends meta\Search {
+class Search extends meta\Search
+{
     public $schemas = array();
     /** @var  meta\Column[] */
     public $columns = array();

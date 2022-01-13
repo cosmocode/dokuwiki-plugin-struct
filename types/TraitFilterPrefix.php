@@ -14,7 +14,6 @@ use dokuwiki\plugin\struct\meta\QueryBuilderWhere;
  */
 trait TraitFilterPrefix
 {
-
     /**
      * Comparisons are done against the full string (including prefix/postfix)
      *
@@ -37,7 +36,7 @@ trait TraitFilterPrefix
             $op = 'OR';
         }
         $QB = $add->getQB();
-        foreach ((array) $value as $item) {
+        foreach ((array)$value as $item) {
             $column = "$tablealias.$colname";
 
             if ($this->config['prefix']) {

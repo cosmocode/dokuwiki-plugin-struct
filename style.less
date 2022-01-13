@@ -2,154 +2,157 @@
  * The input entry form
  */
 .dokuwiki .struct_entry_form {
-    margin-bottom: 1em;
+  margin-bottom: 1em;
 
-    fieldset {
-        width: 100%;
-        padding: 0.5em 0;
-        display: table;
-        text-align: left;
+  fieldset {
+    width: 100%;
+    padding: 0.5em 0;
+    display: table;
+    text-align: left;
 
-        legend {
-            text-align: left;
-            padding-left: 17px;
-            cursor: pointer;
-            background: transparent url(../../images/open.png) 5px center no-repeat;
-            font-weight: bold;
-        }
+    legend {
+      text-align: left;
+      padding-left: 17px;
+      cursor: pointer;
+      background: transparent url(../../images/open.png) 5px center no-repeat;
+      font-weight: bold;
     }
+  }
 
-    fieldset.closed {
-        padding: 0;
+  fieldset.closed {
+    padding: 0;
 
-        div.field {
-            display: none;
-        }
-
-        legend {
-            display: block;
-            background: transparent url(../../images/closed.png) 5px center no-repeat;
-        }
-    }
     div.field {
+      display: none;
+    }
+
+    legend {
+      display: block;
+      background: transparent url(../../images/closed.png) 5px center no-repeat;
+    }
+  }
+
+  div.field {
+    display: block;
+
+    label {
+      display: inline-block;
+      text-align: left;
+      font-weight: normal;
+      width: 10em;
+
+      &:hover {
+        background-color: @ini_background_alt;
+      }
+
+      span.label {
         display: block;
+        box-sizing: border-box;
+        padding-left: 0.5em;
+        padding-top: 0.25em;
+        padding-bottom: 0.25em;
 
-        label {
-            display: inline-block;
-            text-align: left;
-            font-weight: normal;
-            width: 10em;
+        // fixes for bootstrap3 template
+        color: @ini_text;
+        font-size: 100%;
+        text-align: left;
+      }
 
-            &:hover {
-                background-color: @ini_background_alt;
-            }
+      span.label.hashint {
+        background: url(../../images/info.png) no-repeat right 5px center;
+      }
 
-            span.label {
-                display: block;
-                box-sizing: border-box;
-                padding-left: 0.5em;
-                padding-top: 0.25em;
-                padding-bottom: 0.25em;
+      span.input {
+        display: table-cell;
+        padding-left: 0.25em;
+        padding-top: 0.25em;
+        padding-bottom: 0.25em;
 
-                // fixes for bootstrap3 template
-                color: @ini_text;
-                font-size: 100%;
-                text-align: left;
-            }
-
-            span.label.hashint {
-                background: url(../../images/info.png) no-repeat right 5px center;
-            }
-
-            span.input {
-                display: table-cell;
-                padding-left: 0.25em;
-                padding-top: 0.25em;
-                padding-bottom: 0.25em;
-
-                input:not([type='checkbox']):not([type='color']), textarea, select {
-                    width: 380px;
-                }
-            }
+        input:not([type='checkbox']):not([type='color']), textarea, select {
+          width: 380px;
         }
+      }
     }
+  }
 
-    // this should not influence the design
-    .newtemplate {
-        display: inline;
-    }
-    // add some spacing to multi-value fields
-    .multiwrap {
-        display: inline-block;
-        margin: 0 0.25em 0.25em 0;
-    }
+  // this should not influence the design
+  .newtemplate {
+    display: inline;
+  }
+
+  // add some spacing to multi-value fields
+  .multiwrap {
+    display: inline-block;
+    margin: 0 0.25em 0.25em 0;
+  }
 }
 
 /**
  * Bureaucracy form adjustments
  */
 .dokuwiki form.bureaucracy__plugin div.field {
-    display: flex;
-    justify-content: flex-end;
+  display: flex;
+  justify-content: flex-end;
+
+  label {
+    clear: both; // this is somehow missing in the bootstrap template
+    flex-grow: 1;
+  }
+
+  span {
+    line-height: 2em;
+    float: left;
+    text-align: right;
+  }
+
+  span.label {
+    vertical-align: top;
+    width: 100%;
+
+    // fixes for bootstrap3 template
+    color: @ini_text;
+    font-size: 100%;
+  }
+
+  span.input {
+    width: 50%;
+    display: inline-block;
+    text-align: left;
+    padding-left: 0.25em;
+    color: @ini_text;
+
+    input, select, textarea {
+      width: 100%;
+    }
+
+    input[type='checkbox'] {
+      width: auto;
+      margin-right: 0;
+    }
 
     label {
-        clear: both; // this is somehow missing in the bootstrap template
-        flex-grow: 1;
+      text-align: left;
+      line-height: 1.5em;
     }
-
-    span {
-        line-height: 2em;
-        float: left;
-        text-align: right;
-    }
-
-    span.label {
-        vertical-align: top;
-        width: 100%;
-
-        // fixes for bootstrap3 template
-        color: @ini_text;
-        font-size: 100%;
-    }
-
-    span.input {
-        width: 50%;
-        display: inline-block;
-        text-align: left;
-        padding-left: 0.25em;
-        color: @ini_text;
-
-        input, select, textarea {
-            width: 100%;
-        }
-
-        input[type='checkbox'] {
-            width: auto;
-            margin-right: 0;
-        }
-
-        label {
-            text-align: left;
-            line-height: 1.5em;
-        }
-    }
+  }
 }
 
 /*responsive - small screen*/
 @media (max-width: 480px) {
-    .dokuwiki form.bureaucracy__plugin div.field {
-        flex-wrap: wrap;
-        label {
-            > span {
-                text-align: left;
-                width: 100%;
-            }
-        }
+  .dokuwiki form.bureaucracy__plugin div.field {
+    flex-wrap: wrap;
 
-        span.input {
-            width: 100%;
-        }
+    label {
+      > span {
+        text-align: left;
+        width: 100%;
+      }
     }
+
+    span.input {
+      width: 100%;
+    }
+  }
 }
 
 /**
@@ -157,123 +160,125 @@
  */
 #plugin__struct_delete,
 #plugin__struct_json {
-    border: 1px solid @ini_border;
-    border-top: none;
-    display: block;
-    padding: 2em;
+  border: 1px solid @ini_border;
+  border-top: none;
+  display: block;
+  padding: 2em;
 
-    fieldset {
-        margin-bottom: 1em;
-        width: 500px;
+  fieldset {
+    margin-bottom: 1em;
+    width: 500px;
 
-        label.block {
-            font-weight: normal;
-        }
+    label.block {
+      font-weight: normal;
     }
+  }
 }
 
 form.struct_newschema {
-    label {
-        display: block;
-        text-align: left;
+  label {
+    display: block;
+    text-align: left;
 
-        span {
-            display: inline-block;
-            width: 45%;
-            text-align: right;
-            padding-right: 1em;
-        }
+    span {
+      display: inline-block;
+      width: 45%;
+      text-align: right;
+      padding-right: 1em;
     }
+  }
 }
 
 /**
  * The Schema Editor
  */
 #plugin__struct_editor {
-    table.inline {
-        width: 100%;
+  table.inline {
+    width: 100%;
+    border-top: none;
+
+    tr:first-child {
+      border-top: none;
+
+      th {
         border-top: none;
+      }
+    }
+  }
 
-        tr:first-child {
-            border-top: none;
-
-            th {
-                border-top: none;
-            }
-        }
+  tr.disabled {
+    td {
+      opacity: 0.5;
     }
 
-    tr.disabled {
-        td {
-            opacity: 0.5;
-        }
+    // collapse config block
+    td.config > div {
+      overflow: auto;
+      height: 2em;
 
-        // collapse config block
-        td.config > div {
-            overflow: auto;
-            height: 2em;
-            div.jsoneditor-outer {
-                margin: 0;
-                padding: 0;
-            }
-        }
-
-        td.isenabled {
-            opacity: 1;
-        }
+      div.jsoneditor-outer {
+        margin: 0;
+        padding: 0;
+      }
     }
-    fieldset {
-        width: 100%;
-        padding-left: 0;
-        padding-right: 0;
-        margin-bottom: 1em;
 
-        div.jsoneditor {
-            margin: auto;
-        }
+    td.isenabled {
+      opacity: 1;
     }
+  }
+
+  fieldset {
+    width: 100%;
+    padding-left: 0;
+    padding-right: 0;
+    margin-bottom: 1em;
+
+    div.jsoneditor {
+      margin: auto;
+    }
+  }
 }
 
 /**
  * In page output
  */
 #plugin__struct_output {
-    margin-right: 16em; // space for the TOC
-    border: 1px solid @ini_border;
-    margin-bottom: 1.2em;
+  margin-right: 16em; // space for the TOC
+  border: 1px solid @ini_border;
+  margin-bottom: 1.2em;
 
-    div.table {
-        margin: 0;
+  div.table {
+    margin: 0;
 
-        table {
-            font-size: 90%;
-            width: 100%;
-            border: none;
-            margin: 0;
+    table {
+      font-size: 90%;
+      width: 100%;
+      border: none;
+      margin: 0;
 
-            td, th {
-                background-color: transparent;
-                vertical-align: top;
-                border: none;
-            }
+      td, th {
+        background-color: transparent;
+        vertical-align: top;
+        border: none;
+      }
 
-            tbody th {
-                width: 20%;
-                text-align: right;
+      tbody th {
+        width: 20%;
+        text-align: right;
 
-                &::after {
-                    content: ':';
-                }
-            }
-
-            thead th {
-                background-color: @ini_background_alt;
-                text-align: center;
-                font-size: 110%;
-                font-weight: normal;
-            }
+        &::after {
+          content: ':';
         }
+      }
+
+      thead th {
+        background-color: @ini_background_alt;
+        text-align: center;
+        font-size: 110%;
+        font-weight: normal;
+      }
     }
+  }
 }
 
 /**
@@ -281,139 +286,140 @@ form.struct_newschema {
  */
 .dokuwiki .structaggregation {
 
-    &.listaggregation > ul li div {
-        display: inline;
+  &.listaggregation > ul li div {
+    display: inline;
 
-        p {
-            display: inline;
-            margin: 0;
-        }
+    p {
+      display: inline;
+      margin: 0;
+    }
+  }
+
+  table th {
+    a {
+      color: @ini_link;
+      font-weight: bold;
+
+      &.sort-up::before {
+        content: '↑';
+      }
+
+      &.sort-down::before {
+        content: '↓';
+      }
+
+      &.next {
+        float: right;
+      }
     }
 
-    table th {
-        a {
-            color: @ini_link;
-            font-weight: bold;
-
-            &.sort-up::before {
-                content: '↑';
-            }
-            &.sort-down::before {
-                content: '↓';
-            }
-
-            &.next {
-                float: right;
-            }
-        }
-
-        input {
-            width: 20px;
-            background-image: url(../../tpl/dokuwiki/images/search.png);
-            background-repeat: no-repeat;
-            background-position: 2px center;
-            padding-left: 20px;
-        }
-
-        input:not([value]) {
-            opacity: 0.5;
-        }
-
-        input:focus {
-            width: auto;
-            opacity: 1;
-        }
+    input {
+      width: 20px;
+      background-image: url(../../tpl/dokuwiki/images/search.png);
+      background-repeat: no-repeat;
+      background-position: 2px center;
+      padding-left: 20px;
     }
 
-    img.media {
-        box-shadow: 1px 1px 5px 1px rgba(0, 0, 0, 0.5);
+    input:not([value]) {
+      opacity: 0.5;
     }
 
-    div.table {
-        margin-bottom: 2.4em;
+    input:focus {
+      width: auto;
+      opacity: 1;
     }
+  }
 
-    a.export {
-        float: left;
-        margin-top: -2.4em;
-        margin-left: 1em;
-        border: 1px solid @ini_border;
-        border-top: none;
-        border-bottom-right-radius: 4px;
-        border-bottom-left-radius: 4px;
-        padding: 2px 5px 2px 22px;
-        background-position-x: 2px;
-    }
+  img.media {
+    box-shadow: 1px 1px 5px 1px rgba(0, 0, 0, 0.5);
+  }
+
+  div.table {
+    margin-bottom: 2.4em;
+  }
+
+  a.export {
+    float: left;
+    margin-top: -2.4em;
+    margin-left: 1em;
+    border: 1px solid @ini_border;
+    border-top: none;
+    border-bottom-right-radius: 4px;
+    border-bottom-left-radius: 4px;
+    padding: 2px 5px 2px 22px;
+    background-position-x: 2px;
+  }
 }
 
 .dokuwiki .structcloud {
-    ul {
-        text-align: center;
+  ul {
+    text-align: center;
 
-        li {
-            list-style: none;
-            margin: 0 1em 0 0;
-            padding: 0;
-            display: inline-block;
+    li {
+      list-style: none;
+      margin: 0 1em 0 0;
+      padding: 0;
+      display: inline-block;
 
-            .struct_color, .struct_media {
-                a {
-                    display: block;
-                    height: 100%;
-                }
-            }
-
-            .struct_media a {
-                background-size: cover;
-                background-position: center;
-                box-shadow: 1px 1px 5px 1px rgba(0, 0, 0, 0.5)
-            }
+      .struct_color, .struct_media {
+        a {
+          display: block;
+          height: 100%;
         }
+      }
+
+      .struct_media a {
+        background-size: cover;
+        background-position: center;
+        box-shadow: 1px 1px 5px 1px rgba(0, 0, 0, 0.5)
+      }
     }
+  }
 }
 
 /**
  * Lookup Aggregation Editor
  */
 .dokuwiki .structaggregationeditor {
-    table.inline {
-        min-width: 100%;
+  table.inline {
+    min-width: 100%;
 
-        th.action {
-            width: 30px; //16px icon + margins
-        }
+    th.action {
+      width: 30px; //16px icon + margins
     }
+  }
 }
 
 /**
  * General Output styles
  */
 .dokuwiki div.struct_color {
-    width: 1.2em;
-    height: 1.2em;
-    display: inline-block;
-    margin-right: 0.5em;
+  width: 1.2em;
+  height: 1.2em;
+  display: inline-block;
+  margin-right: 0.5em;
 }
 
 /**
  * Inline Editor Overlay
  */
 .dokuwiki .struct_inlineditor {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 300px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 300px;
 
-    background-color: @ini_background;
-    color: @ini_text;
-    border: 1px solid @ini_border;
-    padding: 5px;
+  background-color: @ini_background;
+  color: @ini_text;
+  border: 1px solid @ini_border;
+  padding: 5px;
 
-    box-shadow: 5px 5px 10px 0 rgba(0, 0, 0, 0.5);
+  box-shadow: 5px 5px 10px 0 rgba(0, 0, 0, 0.5);
 
-    .ctl {
-        margin-top: 5px;
-    }
+  .ctl {
+    margin-top: 5px;
+  }
 
 }
 
@@ -422,12 +428,12 @@ form.struct_newschema {
  */
 .dokuwiki .structaggregationeditor form,
 .dokuwiki .struct_inlineditor {
-    .err {
-        font-size: 90%;
-        margin-top: 5px;
-        padding: 5px;
-        background-color: @ini_highlight;
-        color: @ini_text;
-        text-align: left;
-    }
+  .err {
+    font-size: 90%;
+    margin-top: 5px;
+    padding: 5px;
+    background-color: @ini_highlight;
+    color: @ini_text;
+    text-align: left;
+  }
 }

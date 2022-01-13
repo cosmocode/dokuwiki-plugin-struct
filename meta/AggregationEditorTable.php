@@ -11,7 +11,6 @@ namespace dokuwiki\plugin\struct\meta;
  */
 class AggregationEditorTable extends AggregationTable
 {
-
     /**
      * @var bool skip full table when no results found
      */

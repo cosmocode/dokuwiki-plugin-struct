@@ -3,27 +3,29 @@
 namespace dokuwiki\plugin\struct\test;
 
 use dokuwiki\plugin\struct\meta\Schema;
-use dokuwiki\plugin\struct\types\Tag;
 
 /**
  * @group plugin_struct
  * @group plugins
  */
-class Type_Tag_struct_test extends StructTest {
+class Type_Tag_struct_test extends StructTest
+{
 
-    public function setUp() : void {
+    public function setUp(): void
+    {
         parent::setUp();
         $this->loadSchemaJSON('tag');
 
         $this->waitForTick();
-        $this->saveData('page1', 'tag', array('tag' => 'Aragorn', 'tags'=>array('Faramir', 'Gollum')), time());
-        $this->saveData('page2', 'tag', array('tag' => 'Eldarion', 'tags'=>array('Saruman', 'Arwen')), time());
+        $this->saveData('page1', 'tag', array('tag' => 'Aragorn', 'tags' => array('Faramir', 'Gollum')), time());
+        $this->saveData('page2', 'tag', array('tag' => 'Eldarion', 'tags' => array('Saruman', 'Arwen')), time());
         $this->waitForTick();
-        $this->saveData('page1', 'tag', array('tag' => 'Treebeard', 'tags'=>array('Frodo', 'Arwen')), time());
+        $this->saveData('page1', 'tag', array('tag' => 'Treebeard', 'tags' => array('Frodo', 'Arwen')), time());
     }
 
 
-    public function test_autocomplete() {
+    public function test_autocomplete()
+    {
         global $INPUT;
         $schema = new Schema('tag');
 

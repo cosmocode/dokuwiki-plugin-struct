@@ -15,9 +15,11 @@ use dokuwiki\plugin\struct\types\Text;
  * @group plugins
  *
  */
-class Validator_struct_test extends StructTest {
+class Validator_struct_test extends StructTest
+{
 
-    public function setUp() : void {
+    public function setUp(): void
+    {
         parent::setUp();
 
         $this->loadSchemaJSON('schema1');
@@ -35,7 +37,8 @@ class Validator_struct_test extends StructTest {
         );
     }
 
-    protected function tearDown() : void {
+    protected function tearDown(): void
+    {
         parent::tearDown();
 
         /** @var \helper_plugin_struct_db $sqlite */
@@ -44,7 +47,8 @@ class Validator_struct_test extends StructTest {
         Assignments::reset();
     }
 
-    public function test_validate_nonArray() {
+    public function test_validate_nonArray()
+    {
         $label = 'label';
         $errormsg = sprintf($this->getLang('validation_prefix') . $this->getLang('Validation Exception Decimal needed'), $label);
         $integer = new Decimal();
@@ -55,7 +59,8 @@ class Validator_struct_test extends StructTest {
         $this->assertEquals(array($errormsg), $validator->getErrors());
     }
 
-    public function test_validate_array() {
+    public function test_validate_array()
+    {
         $label = 'label';
         $errormsg = sprintf($this->getLang('validation_prefix') . $this->getLang('Validation Exception Decimal needed'), $label);
         $integer = new Decimal();
@@ -66,7 +71,8 @@ class Validator_struct_test extends StructTest {
         $this->assertEquals(array($errormsg, $errormsg), $validator->getErrors());
     }
 
-    public function test_validate_blank() {
+    public function test_validate_blank()
+    {
         $integer = new Decimal();
 
         $validator = new mock\ValueValidator();
@@ -75,7 +81,8 @@ class Validator_struct_test extends StructTest {
         $this->assertEquals(array(), $validator->getErrors());
     }
 
-    public function test_validate_clean() {
+    public function test_validate_clean()
+    {
         $text = new Text();
 
         $validator = new mock\ValueValidator();
@@ -88,7 +95,8 @@ class Validator_struct_test extends StructTest {
         $this->assertEquals(array('foo', 'bar'), $value);
     }
 
-    public function test_validate_empty_multivalue() {
+    public function test_validate_empty_multivalue()
+    {
         $lookup = new Lookup(null, '', true);
         $col = new Column(10, $lookup);
 

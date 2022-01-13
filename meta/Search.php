@@ -2,11 +2,10 @@
 
 namespace dokuwiki\plugin\struct\meta;
 
+use dokuwiki\plugin\struct\types\AutoSummary;
 use dokuwiki\plugin\struct\types\DateTime;
 use dokuwiki\plugin\struct\types\Decimal;
 use dokuwiki\plugin\struct\types\Page;
-use dokuwiki\plugin\struct\types\AutoSummary;
-use dokuwiki\plugin\struct\types\Text;
 use dokuwiki\plugin\struct\types\User;
 
 class Search
@@ -305,9 +304,9 @@ class Search
     /**
      * Return the number of results (regardless of limit and offset settings)
      *
-     * Use this to implement paging. Important: this may only be called after running @see execute()
+     * Use this to implement paging. Important: this may only be called after running @return int
+     * @see execute()
      *
-     * @return int
      */
     public function getCount()
     {
@@ -318,9 +317,9 @@ class Search
     /**
      * Returns the PID associated with each result row
      *
-     * Important: this may only be called after running @see execute()
+     * Important: this may only be called after running @return \string[]
+     * @see execute()
      *
-     * @return \string[]
      */
     public function getPids()
     {
@@ -331,9 +330,9 @@ class Search
     /**
      * Returns the rid associated with each result row
      *
-     * Important: this may only be called after running @see execute()
+     * Important: this may only be called after running @return array
+     * @see execute()
      *
-     * @return array
      */
     public function getRids()
     {
@@ -344,9 +343,9 @@ class Search
     /**
      * Returns the rid associated with each result row
      *
-     * Important: this may only be called after running @see execute()
+     * Important: this may only be called after running @return array
+     * @see execute()
      *
-     * @return array
      */
     public function getRevs()
     {
@@ -360,9 +359,9 @@ class Search
      * The result is a two dimensional array of Value()s.
      *
      * This will always query for the full result (not using offset and limit) and then
-     * return the wanted range, setting the count (@see getCount) to the whole result number
+     * return the wanted range, setting the count (@return Value[][]
+     * @see getCount) to the whole result number
      *
-     * @return Value[][]
      */
     public function execute()
     {
@@ -653,7 +652,7 @@ class Search
          */
         if ($table !== null && isset($this->schemas[$table])) {
             $schemas = array($table => $this->schemas[$table]);
-        } else if ($table === null || !$strict) {
+        } elseif ($table === null || !$strict) {
             $schemas = $this->schemas;
         } else {
             return false;

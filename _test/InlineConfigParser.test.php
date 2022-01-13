@@ -27,31 +27,31 @@ class InlineConfigParser_struct_test extends StructTest
         $actual_config = $configParser->getConfig();
 
         $expected_config = [
-            'align'        => ['right', 'left', 'center', null],
-            'cols'         => ['%pageid%', 'count'],
-            'csv'          => true,
-            'dynfilters'   => false,
-            'filter'       => [
+            'align' => ['right', 'left', 'center', null],
+            'cols' => ['%pageid%', 'count'],
+            'csv' => true,
+            'dynfilters' => false,
+            'filter' => [
                 ['%pageid%', '!=', 'start', 'AND'],
-                ['count',    '=',  '1',     'OR' ],
+                ['count', '=', '1', 'OR'],
             ],
-            'headers'      => [null, null],
-            'limit'        => 0,
-            'rownumbers'   => false,
-            'schemas'      => [
-                ['testtable', ''   ],
-                ['another',   ''   ],
-                ['foo',       'bar'],
+            'headers' => [null, null],
+            'limit' => 0,
+            'rownumbers' => false,
+            'schemas' => [
+                ['testtable', ''],
+                ['another', ''],
+                ['foo', 'bar'],
             ],
             'sepbyheaders' => false,
-            'sort'         => [
-                ['count',    false],
-                ['%pageid%', true ],
-                ['bam',      false],
+            'sort' => [
+                ['count', false],
+                ['%pageid%', true],
+                ['bam', false],
             ],
-            'summarize'    => false,
-            'target'       => '',
-            'widths'       => [],
+            'summarize' => false,
+            'target' => '',
+            'widths' => [],
         ];
 
         $this->assertEquals($expected_config, $actual_config);

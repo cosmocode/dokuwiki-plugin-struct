@@ -102,7 +102,6 @@ class AccessTableGlobal extends AccessTable
 
     /**
      * Set new rid if this is a new insert
-
      * @return bool
      */
     protected function afterSingleSave()
