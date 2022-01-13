@@ -89,11 +89,11 @@ $lang['Exception column not in table'] = 'There is no column %s in schema %s.';
 
 $lang['Warning: no filters for cloud'] = 'Filters are not supported for struct clouds.';
 
-$lang['sort']      = 'Sort by this column';
-$lang['next']      = 'Next page';
-$lang['prev']      = 'Previous page';
+$lang['sort'] = 'Sort by this column';
+$lang['next'] = 'Next page';
+$lang['prev'] = 'Previous page';
 
-$lang['none']      = 'Nothing found';
+$lang['none'] = 'Nothing found';
 $lang['csvexport'] = 'CSV Export';
 
 $lang['admin_csvexport'] = 'Export raw data to a CSV file';
@@ -108,9 +108,9 @@ $lang['admin_csvhelp'] = 'Please refer to the manual on CSV Import for format de
 
 $lang['tablefilteredby'] = 'Filtered by %s';
 $lang['tableresetfilter'] = 'Show all (remove filter/sort)';
-$lang['comparator =']  = 'equals';
-$lang['comparator <']  = 'is less than';
-$lang['comparator >']  = 'is greater than';
+$lang['comparator ='] = 'equals';
+$lang['comparator <'] = 'is less than';
+$lang['comparator >'] = 'is greater than';
 $lang['comparator <='] = 'is less than or euqals';
 $lang['comparator >='] = 'is greater than or equals';
 $lang['comparator !='] = 'does not equal';

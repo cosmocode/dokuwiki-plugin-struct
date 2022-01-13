@@ -10,17 +10,20 @@ use dokuwiki\plugin\struct\types\User;
  * @group plugin_struct
  * @group plugins
  */
-class Type_User_struct_test extends StructTest {
+class Type_User_struct_test extends StructTest
+{
 
     /**
      * @expectedException \dokuwiki\plugin\struct\meta\ValidationException
      */
-    public function test_validate_fail() {
+    public function test_validate_fail()
+    {
         $user = new User();
         $user->validate('nosuchuser');
     }
 
-    public function test_validate_success() {
+    public function test_validate_success()
+    {
         $user = new User();
         $user->validate('testuser');
         $this->assertTrue(true); // we simply check that no exceptions are thrown
@@ -30,7 +33,8 @@ class Type_User_struct_test extends StructTest {
         $this->assertTrue(true); // we simply check that no exceptions are thrown
     }
 
-    public function test_ajax() {
+    public function test_ajax()
+    {
         global $INPUT;
 
         $user = new User(

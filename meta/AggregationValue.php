@@ -11,7 +11,6 @@ namespace dokuwiki\plugin\struct\meta;
  */
 class AggregationValue
 {
-
     /**
      * @var string the page id of the page this is rendered to
      */
@@ -53,12 +52,12 @@ class AggregationValue
     /**
      * Initialize the Aggregation renderer and executes the search
      *
-     * You need to call @see render() on the resulting object.
+     * You need to call @param string $id
+     * @param string $mode
+     * @param Doku_Renderer $renderer
+     * @param SearchConfig $searchConfig
+     * @see render() on the resulting object.
      *
-     * @param  string         $id
-     * @param  string         $mode
-     * @param  Doku_Renderer  $renderer
-     * @param  SearchConfig   $searchConfig
      */
     public function __construct($id, $mode, \Doku_Renderer $renderer, SearchConfig $searchConfig)
     {
@@ -91,7 +90,7 @@ class AggregationValue
     /**
      * Create the output on the renderer
      *
-     * @param  int  $show_not_found  Whether to display the default text for no records
+     * @param int $show_not_found Whether to display the default text for no records
      */
     public function render($show_not_found = 0)
     {

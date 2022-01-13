@@ -17,7 +17,6 @@ namespace dokuwiki\plugin\struct\meta;
  */
 class SchemaBuilder
 {
-
     /**
      * @var array The posted new data for the schema
      * @see Schema::AdminEditor()
@@ -42,7 +41,7 @@ class SchemaBuilder
     /** @var \helper_plugin_struct_db */
     protected $helper;
 
-    /** @var \helper_plugin_sqlite|null  */
+    /** @var \helper_plugin_sqlite|null */
     protected $sqlite;
 
     /** @var int the time for which this schema should be created - default to time() can be overriden for tests */
@@ -166,18 +165,19 @@ class SchemaBuilder
     {
         foreach ($this->oldschema->getColumns() as $column) {
             $oldEntry = $column->getType()->getAsEntry();
-            $oldTid   = $column->getTid();
+            $oldTid = $column->getTid();
             $newEntry = $oldEntry;
-            $newTid   = $oldTid;
+            $newTid = $oldTid;
             $sort = $column->getSort();
             if (isset($this->data['cols'][$column->getColref()])) {
-                // todo I'm not too happy with this hardcoded here - we should probably have a list of fields at one place
+                // todo I'm not too happy with this hardcoded here -
+                // we should probably have a list of fields at one place
                 $newEntry['config'] = $this->data['cols'][$column->getColref()]['config'];
                 $newEntry['label'] = $this->data['cols'][$column->getColref()]['label'];
                 $newEntry['ismulti'] = $this->data['cols'][$column->getColref()]['ismulti'];
                 $newEntry['class'] = $this->data['cols'][$column->getColref()]['class'];
                 $sort = $this->data['cols'][$column->getColref()]['sort'];
-                $enabled = (bool) $this->data['cols'][$column->getColref()]['isenabled'];
+                $enabled = (bool)$this->data['cols'][$column->getColref()]['isenabled'];
 
                 // when the type definition has changed, we create a new one
                 if (array_diff_assoc($oldEntry, $newEntry)) {
@@ -213,7 +213,7 @@ class SchemaBuilder
      * Write the latest value from an entry in a data_ table to the corresponding multi_table
      *
      * @param string $table
-     * @param int    $colref
+     * @param int $colref
      */
     protected function migrateSingleToMulti($table, $colref)
     {
@@ -300,8 +300,8 @@ class SchemaBuilder
      * Create a completely new data table with no columns yet also create the appropriate
      * multi value table for the schema
      *
-     * @todo how do we want to handle indexes?
      * @return bool
+     * @todo how do we want to handle indexes?
      */
     protected function newDataTable()
     {
@@ -315,7 +315,7 @@ class SchemaBuilder
                     latest BOOLEAN NOT NULL DEFAULT 0,
                     PRIMARY KEY(pid, rid, rev)
                 )";
-        $ok = $ok && (bool) $this->sqlite->query($sql);
+        $ok = $ok && (bool)$this->sqlite->query($sql);
 
         $tbl = 'multi_' . $this->table;
         $sql = "CREATE TABLE $tbl (
@@ -328,7 +328,7 @@ class SchemaBuilder
                     value,
                     PRIMARY KEY(colref, pid, rid, rev, row)
                 );";
-        $ok = $ok && (bool) $this->sqlite->query($sql);
+        $ok = $ok && (bool)$this->sqlite->query($sql);
 
         return $ok;
     }
@@ -343,7 +343,7 @@ class SchemaBuilder
     {
         $tbl = 'data_' . $this->table;
         $sql = " ALTER TABLE $tbl ADD COLUMN col$index DEFAULT ''";
-        if (! $this->sqlite->query($sql)) {
+        if (!$this->sqlite->query($sql)) {
             return false;
         }
         return true;

@@ -1,11 +1,9 @@
 <?php
 
-namespace  dokuwiki\plugin\struct\meta;
+namespace dokuwiki\plugin\struct\meta;
 
 trait TranslationUtilities
 {
-
-
     /**
      * Add the translatable keys to the configuration
      *

@@ -15,7 +15,6 @@ use dokuwiki\plugin\struct\meta\ValidationException;
  */
 class Decimal extends AbstractMultiBaseType
 {
-
     protected $config = array(
         'min' => '',
         'max' => '',
@@ -71,7 +70,7 @@ class Decimal extends AbstractMultiBaseType
         $rawvalue = parent::validate($rawvalue);
         $rawvalue = str_replace(',', '.', $rawvalue); // we accept both
 
-        if ((string) $rawvalue != (string) floatval($rawvalue)) {
+        if ((string)$rawvalue != (string)floatval($rawvalue)) {
             throw new ValidationException('Decimal needed');
         }
 
@@ -138,13 +137,13 @@ class Decimal extends AbstractMultiBaseType
         $add->where('AND', "$tablealias.$colname != ''"); // make sure the field isn't empty
         $op = 'AND';
 
-        /** @var QueryBuilderWhere $add Where additionional queries are added to*/
+        /** @var QueryBuilderWhere $add Where additionional queries are added to */
         if (is_array($value)) {
             $add = $add->where($op); // sub where group
             $op = 'OR';
         }
 
-        foreach ((array) $value as $item) {
+        foreach ((array)$value as $item) {
             $pl = $add->getQB()->addValue($item);
             $add->where($op, "CAST($tablealias.$colname AS DECIMAL) $comp CAST($pl AS DECIMAL)");
         }

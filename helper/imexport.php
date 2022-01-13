@@ -12,9 +12,7 @@ use dokuwiki\plugin\struct\meta\Schema;
 
 class helper_plugin_struct_imexport extends DokuWiki_Plugin
 {
-
     private $sqlite;
-
 
     /**
      * this possibly duplicates @see helper_plugin_struct::getSchema()

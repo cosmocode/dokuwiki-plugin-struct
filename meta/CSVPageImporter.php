@@ -4,10 +4,9 @@ namespace dokuwiki\plugin\struct\meta;
 
 class CSVPageImporter extends CSVImporter
 {
-
     protected $importedPids = array();
 
-    /** @var bool[]  */
+    /** @var bool[] */
     protected $createPage = [];
 
     /**
@@ -16,7 +15,8 @@ class CSVPageImporter extends CSVImporter
     protected function readHeaders()
     {
         parent::readHeaders();
-        if (!in_array('pid', $this->header)) throw new StructException('There is no "pid" header in the CSV. Schema not imported.');
+        if (!in_array('pid', $this->header))
+            throw new StructException('There is no "pid" header in the CSV. Schema not imported.');
     }
 
     /**
@@ -47,7 +47,7 @@ class CSVPageImporter extends CSVImporter
      * (i.e. without default values, formatting, etc. )
      *
      * @param string $pid
-     * @param array  $line
+     * @param array $line
      */
     protected function createPage($pid, $line)
     {
@@ -95,8 +95,8 @@ class CSVPageImporter extends CSVImporter
     /**
      * Replace conditional <ifnotempty fieldname></ifnotempty> tags
      *
-     * @param string   $text   The template
-     * @param string[] $keys   The array of qualified headers
+     * @param string $text The template
+     * @param string[] $keys The array of qualified headers
      * @param string[] $values The flat array of corresponding values
      *
      * @return string The template with the tags replaced
@@ -106,7 +106,7 @@ class CSVPageImporter extends CSVImporter
         return preg_replace_callback(
             '/<ifnotempty (.+?)>([^<]*?)<\/ifnotempty>/',
             function ($matches) use ($keys, $values) {
-                list (,$blockKey, $textIfNotEmpty) = $matches;
+                list (, $blockKey, $textIfNotEmpty) = $matches;
                 $index = array_search($blockKey, $keys, true);
                 if ($index === false) {
                     msg('Import error: Key "' . hsc($blockKey) . '" not found!', -1);
@@ -125,7 +125,7 @@ class CSVPageImporter extends CSVImporter
      * Check if page id realy exists
      *
      * @param Column $col
-     * @param mixed  $rawvalue
+     * @param mixed $rawvalue
      * @return bool
      */
     protected function validateValue(Column $col, &$rawvalue)

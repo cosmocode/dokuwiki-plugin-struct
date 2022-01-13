@@ -9,12 +9,8 @@
 
 use dokuwiki\plugin\struct\meta\AggregationEditorTable;
 
-// must be run within Dokuwiki
-if (!defined('DOKU_INC')) die();
-
 class syntax_plugin_struct_global extends syntax_plugin_struct_table
 {
-
     /** @var string which class to use for output */
     protected $tableclass = AggregationEditorTable::class;
 
@@ -60,7 +56,10 @@ class syntax_plugin_struct_global extends syntax_plugin_struct_table
      */
     protected function addTypeFilter($config)
     {
-        $config['filter'][] = ['%rowid%', '!=', (string)\dokuwiki\plugin\struct\meta\AccessTablePage::DEFAULT_PAGE_RID, 'AND'];
+        $config['filter'][] = [
+            '%rowid%', '!=',
+            (string)\dokuwiki\plugin\struct\meta\AccessTablePage::DEFAULT_PAGE_RID, 'AND'
+        ];
         $config['filter'][] = ['%pageid%', '=*', '^(?![\s\S])', 'AND'];
         $config['withpid'] = 0; // flag for the editor to distinguish data types
         return $config;

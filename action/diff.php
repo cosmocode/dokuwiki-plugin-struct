@@ -9,12 +9,10 @@
 
 use dokuwiki\plugin\struct\meta\AccessTable;
 use dokuwiki\plugin\struct\meta\Assignments;
-use dokuwiki\plugin\struct\meta\AccessTablePage;
 use dokuwiki\plugin\struct\meta\StructException;
 
 class action_plugin_struct_diff extends DokuWiki_Action_Plugin
 {
-
     /**
      * Registers a callback function for a given event
      *

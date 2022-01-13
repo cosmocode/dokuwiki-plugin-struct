@@ -9,7 +9,6 @@ namespace dokuwiki\plugin\struct\meta;
  */
 class AggregationList
 {
-
     /**
      * @var string the page id of the page this is rendered to
      */
@@ -45,12 +44,12 @@ class AggregationList
     /**
      * Initialize the Aggregation renderer and executes the search
      *
-     * You need to call @see render() on the resulting object.
-     *
-     * @param string $id
+     * You need to call @param string $id
      * @param string $mode
      * @param \Doku_Renderer $renderer
      * @param SearchConfig $searchConfig
+     * @see render() on the resulting object.
+     *
      */
     public function __construct($id, $mode, \Doku_Renderer $renderer, SearchConfig $searchConfig)
     {

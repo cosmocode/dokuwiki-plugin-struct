@@ -2,9 +2,6 @@
 
 namespace dokuwiki\plugin\struct\types;
 
-use dokuwiki\plugin\struct\meta\QueryBuilder;
-use dokuwiki\plugin\struct\meta\QueryBuilderWhere;
-
 class LongText extends AbstractMultiBaseType
 {
     use TraitFilterPrefix;

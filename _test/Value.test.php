@@ -10,20 +10,23 @@ use dokuwiki\plugin\struct\types\Text;
  * @group plugin_struct
  * @group plugins
  */
-class Value_struct_test extends StructTest {
+class Value_struct_test extends StructTest
+{
 
     /**
      * @param bool $multi
      * @return Column
      */
-    protected function makeColumn($multi) {
+    protected function makeColumn($multi)
+    {
         return new Column(10, new Text(null, '', $multi));
     }
 
     /**
      * Test setting and getting multi values
      */
-    public function test_multi() {
+    public function test_multi()
+    {
         $col = $this->makeColumn(true);
         $val = new Value($col, array('one', 'two'));
         $this->assertSame($col, $val->getColumn());
@@ -54,7 +57,8 @@ class Value_struct_test extends StructTest {
     /**
      * Test setting and getting single values
      */
-    public function test_single() {
+    public function test_single()
+    {
         $col = $this->makeColumn(false);
         $val = new Value($col, 'one');
         $this->assertSame($col, $val->getColumn());
@@ -88,7 +92,8 @@ class Value_struct_test extends StructTest {
     /**
      * empty values should not render
      */
-    public function test_blankrender() {
+    public function test_blankrender()
+    {
         $R = new \Doku_Renderer_xhtml();
 
         $val = new Value($this->makeColumn(false), '');

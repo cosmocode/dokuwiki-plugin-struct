@@ -11,9 +11,11 @@ use dokuwiki\plugin\struct\meta;
  * @group plugins
  *
  */
-class ConfigParser_struct_test extends StructTest {
+class ConfigParser_struct_test extends StructTest
+{
 
-    public function test_simple() {
+    public function test_simple()
+    {
         $lines = array(
             "schema    : testtable, another, foo bar",
             "cols      : %pageid%, count",
@@ -86,7 +88,8 @@ class ConfigParser_struct_test extends StructTest {
         $this->assertEquals($expected_config, $actual_config);
     }
 
-    public function test_width() {
+    public function test_width()
+    {
         $lines = array('width: 5, 15px, 23.4em, meh, 10em');
 
         $configParser = new meta\ConfigParser($lines);

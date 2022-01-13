@@ -4,8 +4,7 @@ namespace dokuwiki\plugin\struct\meta;
 
 class CSVSerialImporter extends CSVImporter
 {
-
-    /** @var bool[]  */
+    /** @var bool[] */
     protected $createPage = [];
 
     /**
@@ -14,7 +13,8 @@ class CSVSerialImporter extends CSVImporter
     protected function readHeaders()
     {
         parent::readHeaders();
-        if (!in_array('pid', $this->header)) throw new StructException('There is no "pid" header in the CSV. Schema not imported.');
+        if (!in_array('pid', $this->header))
+            throw new StructException('There is no "pid" header in the CSV. Schema not imported.');
     }
 
     /**
@@ -38,7 +38,7 @@ class CSVSerialImporter extends CSVImporter
      * or an empty one.
      *
      * @param string $pid
-     * @param array  $line
+     * @param array $line
      */
     protected function createPage($pid, $line)
     {
@@ -64,7 +64,7 @@ cols: *
      * Check if page id realy exists
      *
      * @param Column $col
-     * @param mixed  $rawvalue
+     * @param mixed $rawvalue
      * @return bool
      */
     protected function validateValue(Column $col, &$rawvalue)

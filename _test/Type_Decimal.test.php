@@ -12,14 +12,16 @@ use dokuwiki\plugin\struct\types\Decimal;
  * @group plugin_struct
  * @group plugins
  */
-class Type_Decimal_struct_test extends StructTest {
+class Type_Decimal_struct_test extends StructTest
+{
 
     /**
      * Provides failing validation data
      *
      * @return array
      */
-    public function validateFailProvider() {
+    public function validateFailProvider()
+    {
         return array(
             // same as integer:
             array('foo', '', ''),
@@ -41,7 +43,8 @@ class Type_Decimal_struct_test extends StructTest {
      *
      * @return array
      */
-    public function validateSuccessProvider() {
+    public function validateSuccessProvider()
+    {
         return array(
             // same as integer
             array('0', '', ''),
@@ -77,7 +80,8 @@ class Type_Decimal_struct_test extends StructTest {
      * @expectedException \dokuwiki\plugin\struct\meta\ValidationException
      * @dataProvider validateFailProvider
      */
-    public function test_validate_fail($value, $min, $max) {
+    public function test_validate_fail($value, $min, $max)
+    {
         $decimal = new Decimal(array('min' => $min, 'max' => $max));
         $decimal->validate($value);
     }
@@ -85,14 +89,16 @@ class Type_Decimal_struct_test extends StructTest {
     /**
      * @dataProvider validateSuccessProvider
      */
-    public function test_validate_success($value, $min, $max, $decpoint = '.') {
+    public function test_validate_success($value, $min, $max, $decpoint = '.')
+    {
         $decimal = new Decimal(array('min' => $min, 'max' => $max));
         $decimal->validate($value);
         $this->assertTrue(true); // we simply check that no exceptions are thrown
     }
 
 
-    public function valueProvider() {
+    public function valueProvider()
+    {
         return array(
             // $value, $expect, $roundto, $decpoint, $thousands, $trimzeros, $prefix='', $postfix=''
             array('5000', '5 000,00', '2', ',', ' ', false),
@@ -116,22 +122,24 @@ class Type_Decimal_struct_test extends StructTest {
     /**
      * @dataProvider valueProvider
      */
-    public function test_renderValue($value, $expect, $roundto, $decpoint, $thousands, $trimzeros, $prefix='', $postfix='') {
+    public function test_renderValue($value, $expect, $roundto, $decpoint, $thousands, $trimzeros, $prefix = '', $postfix = '')
+    {
         $decimal = new Decimal(array(
-                                   'roundto' => $roundto,
-                                   'decpoint' => $decpoint,
-                                   'thousands' => $thousands,
-                                   'trimzeros' => $trimzeros,
-                                   'prefix' => $prefix,
-                                   'postfix' => $postfix
-                               ));
+            'roundto' => $roundto,
+            'decpoint' => $decpoint,
+            'thousands' => $thousands,
+            'trimzeros' => $trimzeros,
+            'prefix' => $prefix,
+            'postfix' => $postfix
+        ));
         $R = new \Doku_Renderer_xhtml();
         $R->doc = '';
         $decimal->renderValue($value, $R, 'xhtml');
         $this->assertEquals($expect, $R->doc);
     }
 
-    public function test_sort() {
+    public function test_sort()
+    {
         $this->loadSchemaJSON('decimal');
         $this->waitForTick();
         $this->saveData('page1', 'decimal', array('field' => '5000'));
@@ -154,7 +162,8 @@ class Type_Decimal_struct_test extends StructTest {
         $this->assertEquals('page2', $result[3][0]->getValue());
     }
 
-    public function test_filter() {
+    public function test_filter()
+    {
         $this->loadSchemaJSON('decimal');
         $this->waitForTick();
         $this->saveData('page1', 'decimal', array('field' => '5000'));

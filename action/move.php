@@ -16,7 +16,6 @@ use dokuwiki\plugin\struct\types\Page;
 
 class action_plugin_struct_move extends DokuWiki_Action_Plugin
 {
-
     /** @var helper_plugin_sqlite */
     protected $db = null;
 

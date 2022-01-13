@@ -4,7 +4,6 @@ namespace dokuwiki\plugin\struct\meta;
 
 class AggregationCloud
 {
-
     /**
      * @var string the page id of the page this is rendered to
      */
@@ -43,12 +42,12 @@ class AggregationCloud
     /**
      * Initialize the Aggregation renderer and executes the search
      *
-     * You need to call @see render() on the resulting object.
-     *
-     * @param string $id
+     * You need to call @param string $id
      * @param string $mode
      * @param \Doku_Renderer $renderer
      * @param SearchConfig $searchConfig
+     * @see render() on the resulting object.
+     *
      */
     public function __construct($id, $mode, \Doku_Renderer $renderer, SearchCloud $searchConfig)
     {
@@ -144,7 +143,8 @@ class AggregationCloud
         $this->renderer->listcontent_open();
 
         if ($this->mode == 'xhtml') {
-            $this->renderer->doc .= "<div style='font-size:$weight%' data-count='$count' class='cloudtag struct_$type'>";
+            $this->renderer->doc .=
+                "<div style='font-size:$weight%' data-count='$count' class='cloudtag struct_$type'>";
         }
 
         $value->renderAsTagCloudLink($this->renderer, $this->mode, $target, $filter, $weight);

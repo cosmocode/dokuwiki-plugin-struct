@@ -2,8 +2,6 @@
 
 namespace dokuwiki\plugin\struct\test;
 
-use dokuwiki\plugin\struct\meta;
-
 /**
  * Tests for the diff-view of the struct plugin
  *
@@ -14,15 +12,18 @@ use dokuwiki\plugin\struct\meta;
  *
  *
  */
-class diff_struct_test extends StructTest {
+class diff_struct_test extends StructTest
+{
 
-    public function setUp() : void {
+    public function setUp(): void
+    {
         parent::setUp();
 
         $this->loadSchemaJSON('schema1');
     }
 
-    public function test_diff() {
+    public function test_diff()
+    {
         $page = 'test_save_page_without_new_text';
         $assignment = mock\Assignments::getInstance();
         $schema = 'schema1';
@@ -39,9 +40,9 @@ class diff_struct_test extends StructTest {
                 'fourth' => '42'
             )
         );
-        $request->setPost('struct_schema_data',$structData);
-        $request->setPost('wikitext',$wikitext);
-        $request->setPost('summary','content and struct data saved');
+        $request->setPost('struct_schema_data', $structData);
+        $request->setPost('wikitext', $wikitext);
+        $request->setPost('summary', 'content and struct data saved');
         $request->post(array('id' => $page, 'do' => 'save'), '/doku.php');
 
         $this->waitForTick(true);
@@ -56,9 +57,9 @@ class diff_struct_test extends StructTest {
                 'fourth' => '42'
             )
         );
-        $request->setPost('struct_schema_data',$structData);
-        $request->setPost('wikitext',$wikitext);
-        $request->setPost('summary','2nd revision');
+        $request->setPost('struct_schema_data', $structData);
+        $request->setPost('wikitext', $wikitext);
+        $request->setPost('summary', '2nd revision');
         $request->post(array('id' => $page, 'do' => 'save'), '/doku.php');
 
         // diff

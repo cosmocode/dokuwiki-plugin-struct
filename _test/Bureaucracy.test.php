@@ -12,7 +12,8 @@ use dokuwiki\plugin\struct\meta\AccessTable;
  * @group plugins
  *
  */
-class Bureaucracy_struct_test extends StructTest {
+class Bureaucracy_struct_test extends StructTest
+{
 
     /** @var array alway enable the needed plugins */
     protected $pluginsEnabled = array('struct', 'sqlite', 'bureaucracy');
@@ -20,16 +21,17 @@ class Bureaucracy_struct_test extends StructTest {
     /** @var array of lookup data */
     protected $lookup = array();
 
-    public function setUp() : void {
+    public function setUp(): void
+    {
         parent::setUp();
 
         $this->loadSchemaJSON('bureaucracy_lookup');
         $this->loadSchemaJSON('bureaucracy');
 
         //insert some data to lookup
-        for($i = 1; $i <= 10; ++$i) {
+        for ($i = 1; $i <= 10; ++$i) {
             $data = array(
-                'lookup_first'  => 'value first ' . $i,
+                'lookup_first' => 'value first ' . $i,
                 'lookup_second' => 'value second ' . $i
             );
 
@@ -39,7 +41,8 @@ class Bureaucracy_struct_test extends StructTest {
         }
     }
 
-    public function test_bureaucracy_lookup_replacement_empty() {
+    public function test_bureaucracy_lookup_replacement_empty()
+    {
         //page created by bureaucracy
         $id = 'bureaucracy_lookup_replacement_empty';
         //id of template page
@@ -71,7 +74,8 @@ class Bureaucracy_struct_test extends StructTest {
         $this->assertEquals('Value:', $page_content);
     }
 
-    public function test_bureaucracy_lookup_replacement() {
+    public function test_bureaucracy_lookup_replacement()
+    {
         //page created by bureaucracy
         $id = 'bureaucracy_lookup_replacement';
         //id of template page
@@ -106,7 +110,8 @@ class Bureaucracy_struct_test extends StructTest {
         $this->assertEquals('Value:' . $lookup_value, $page_content);
     }
 
-    public function test_bureaucracy_multi_field() {
+    public function test_bureaucracy_multi_field()
+    {
         $this->loadSchemaJSON('schema1');
 
         $formSyntax = [
@@ -131,8 +136,10 @@ class Bureaucracy_struct_test extends StructTest {
 }
 
 
-class bureaucracyTestWrapper extends BureaucracyTest {
-    public function send_form_action_template($form_syntax, $template_syntax, &$validation_errors, ...$values) {
+class bureaucracyTestWrapper extends BureaucracyTest
+{
+    public function send_form_action_template($form_syntax, $template_syntax, &$validation_errors, ...$values)
+    {
         return parent::send_form_action_template($form_syntax, $template_syntax, $validation_errors, ...$values);
     }
 }

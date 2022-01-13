@@ -11,16 +11,15 @@ namespace dokuwiki\plugin\struct\meta;
  */
 abstract class AccessTable
 {
-
-    const DEFAULT_REV = 0;
-    const DEFAULT_LATEST = 1;
+    public const DEFAULT_REV = 0;
+    public const DEFAULT_LATEST = 1;
 
     /** @var  Schema */
     protected $schema;
     protected $pid;
     protected $rid;
     protected $labels = [];
-    protected $ts     = 0;
+    protected $ts = 0;
     /** @var \helper_plugin_sqlite */
     protected $sqlite;
 
@@ -98,7 +97,7 @@ abstract class AccessTable
      * @param int $ts Time at which the data should be read or written
      * @param int $rid Row id, 0 for page type data, otherwise autoincrement
      * @return AccessTablePage|AccessTableGlobal
-     *@deprecated  Use specific methods since we can no longer
+     * @deprecated  Use specific methods since we can no longer
      *              guarantee instantiating the required descendant class
      */
     public static function byTableName($tablename, $pid, $ts = 0, $rid = 0)
@@ -390,11 +389,11 @@ abstract class AccessTable
     /**
      * returns the data saved for the page as associative array
      *
-     * The array returned is in the same format as used in @see saveData()
+     * The array returned is in the same format as used in @return array
+     * @see saveData()
      *
      * It always returns raw Values!
      *
-     * @return array
      */
     public function getDataArray()
     {
@@ -547,9 +546,9 @@ abstract class AccessTable
 
     /**
      * Return the last time an edit happened for this table for the currently set
-     * time and pid. Used in @see buildGetDataSQL()
+     * time and pid. Used in @return int
+     * @see buildGetDataSQL()
      *
-     * @return int
      */
     abstract protected function getLastRevisionTimestamp();
 
@@ -628,7 +627,7 @@ abstract class AccessTable
         }, $this->multiValues));
         return $this->sqlite->query(
             "DELETE FROM $this->mtable WHERE pid = ? AND rid = $this->rid AND rev = 0 AND colref IN (" .
-                implode(',', $colrefs) . ")",
+            implode(',', $colrefs) . ")",
             $this->pid
         );
     }

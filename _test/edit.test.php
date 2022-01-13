@@ -11,9 +11,11 @@ use dokuwiki\plugin\struct\meta;
  * @covers action_plugin_struct_revert
  * @covers action_plugin_struct_edit
  */
-class edit_struct_test extends StructTest {
+class edit_struct_test extends StructTest
+{
 
-    public function setUp() : void {
+    public function setUp(): void
+    {
         parent::setUp();
 
         $this->loadSchemaJSON('schema1');
@@ -31,12 +33,14 @@ class edit_struct_test extends StructTest {
         );
     }
 
-    protected function checkField(\phpQueryObject $pq, $schema, $name, $value) {
+    protected function checkField(\phpQueryObject $pq, $schema, $name, $value)
+    {
         $this->assertEquals(1, $pq->find("span.label:contains('$name')")->length, "Field $schema.$name not found");
         $this->assertEquals($value, $pq->find("input[name='struct_schema_data[$schema][$name]']")->val(), "Field $schema.$name has wrong value");
     }
 
-    public function test_createForm_storedData() {
+    public function test_createForm_storedData()
+    {
         $edit = new mock\action_plugin_struct_edit();
         global $ID;
         $ID = 'page01';
@@ -50,7 +54,8 @@ class edit_struct_test extends StructTest {
         $this->checkField($pq, 'schema1', 'fourth', 'fourth data');
     }
 
-    public function test_createForm_emptyData() {
+    public function test_createForm_emptyData()
+    {
         $edit = new mock\action_plugin_struct_edit();
         global $ID;
         $ID = 'page02';
@@ -64,7 +69,8 @@ class edit_struct_test extends StructTest {
         $this->checkField($pq, 'schema1', 'fourth', '');
     }
 
-    public function test_createForm_postData() {
+    public function test_createForm_postData()
+    {
         global $INPUT, $ID;
         $ID = 'page01';
         $structdata = array(
@@ -88,7 +94,8 @@ class edit_struct_test extends StructTest {
         $this->checkField($pq, 'schema1', 'fourth', 'fourth post data');
     }
 
-    public function test_edit_page_wo_schema() {
+    public function test_edit_page_wo_schema()
+    {
         $page = 'test_edit_page_wo_schema';
 
         $request = new \TestRequest();
@@ -99,7 +106,8 @@ class edit_struct_test extends StructTest {
         $this->assertEquals($structElement->html(), '');
     }
 
-    public function test_edit_page_with_schema() {
+    public function test_edit_page_with_schema()
+    {
         $page = 'test_edit_page_with_schema';
         $assignment = mock\Assignments::getInstance();
         $schema = 'schema2';
@@ -117,7 +125,8 @@ class edit_struct_test extends StructTest {
         $this->checkField($pq, 'schema2', 'afourth', '');
     }
 
-    public function test_preview_page_invaliddata() {
+    public function test_preview_page_invaliddata()
+    {
         $page = 'test_preview_page_invaliddata';
         $assignment = mock\Assignments::getInstance();
         $schema = 'schema2';
@@ -148,7 +157,8 @@ class edit_struct_test extends StructTest {
         $this->checkField($pq, 'schema2', 'afourth', 'Eve');
     }
 
-    public function test_preview_page_validdata() {
+    public function test_preview_page_validdata()
+    {
         $page = 'test_preview_page_validdata';
         $assignment = mock\Assignments::getInstance();
         $schema = 'schema2';
@@ -178,7 +188,8 @@ class edit_struct_test extends StructTest {
         $this->checkField($pq, 'schema2', 'afourth', '42');
     }
 
-    public function test_fail_saving_empty_page() {
+    public function test_fail_saving_empty_page()
+    {
         $page = 'test_fail_saving_empty_page';
         $assignment = mock\Assignments::getInstance();
         $schema = 'schema2';
@@ -205,7 +216,8 @@ class edit_struct_test extends StructTest {
         $this->assertEquals($expected_errormsg, $actual_errormsg, "An empty page should not be saved.");
     }
 
-    public function test_fail_saveing_page_with_invaliddata() {
+    public function test_fail_saveing_page_with_invaliddata()
+    {
         $page = 'test_fail_saveing_page_with_invaliddata';
         $assignment = mock\Assignments::getInstance();
         $schema = 'schema2';
@@ -251,7 +263,8 @@ class edit_struct_test extends StructTest {
         // todo: assert that no struct data has been saved
     }
 
-    public function test_save_page() {
+    public function test_save_page()
+    {
         $page = 'test_save_page';
         $assignment = mock\Assignments::getInstance();
         $schema = 'schema2';
@@ -293,7 +306,8 @@ class edit_struct_test extends StructTest {
     /**
      * @group slow
      */
-    public function test_save_page_without_new_text() {
+    public function test_save_page_without_new_text()
+    {
         $page = 'test_save_page_without_new_text';
         $assignment = mock\Assignments::getInstance();
         $schema = 'schema2';
@@ -355,7 +369,8 @@ class edit_struct_test extends StructTest {
     /**
      * @group slow
      */
-    public function test_delete_page() {
+    public function test_delete_page()
+    {
         $page = 'test_delete_page';
         $assignment = mock\Assignments::getInstance();
         $schema = 'schema2';
@@ -417,7 +432,8 @@ class edit_struct_test extends StructTest {
     /**
      * @group slow
      */
-    public function test_revert_page() {
+    public function test_revert_page()
+    {
         $page = 'test_revert_page';
         $assignment = mock\Assignments::getInstance();
         $schema = 'schema2';

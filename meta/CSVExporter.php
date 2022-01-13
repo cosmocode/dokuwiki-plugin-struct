@@ -13,9 +13,9 @@ namespace dokuwiki\plugin\struct\meta;
  */
 class CSVExporter
 {
-    const DATATYPE_PAGE = 'page';
-    const DATATYPE_GLOBAL = 'global';
-    const DATATYPE_SERIAL = 'serial';
+    public const DATATYPE_PAGE = 'page';
+    public const DATATYPE_GLOBAL = 'global';
+    public const DATATYPE_SERIAL = 'serial';
 
     protected $type = '';
 

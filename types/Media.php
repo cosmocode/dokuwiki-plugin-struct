@@ -6,7 +6,6 @@ use dokuwiki\plugin\struct\meta\ValidationException;
 
 class Media extends AbstractBaseType
 {
-
     protected $config = array(
         'mime' => 'image/',
         'width' => 90,
@@ -96,7 +95,7 @@ class Media extends AbstractBaseType
     /**
      * Return the editor to edit a single value
      *
-     * @param string $name     the form name where this has to be stored
+     * @param string $name the form name where this has to be stored
      * @param string $rawvalue the current value
      *
      * @param string $htmlID
@@ -135,7 +134,8 @@ class Media extends AbstractBaseType
             $image = ml($media, ['h' => $weight, 'w' => $weight]);
             $media_escaped = hsc($media);
             $R->doc .= "<div style=\"height:{$weight}px; width:{$weight}px\">";
-            $R->doc .= "<a href='$url' class='struct_image' style='background-image:url(\"$image\")' title='$media_escaped'>";
+            $R->doc .= "<a href='$url' class='struct_image' style='background-image:url(\"$image\")' 
+                        title='$media_escaped'>";
             $R->doc .= "<span class='a11y'>$media_escaped</span>";
             $R->doc .= "</a>";
             $R->doc .= "</div>";

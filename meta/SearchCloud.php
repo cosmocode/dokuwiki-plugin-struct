@@ -11,9 +11,7 @@ namespace dokuwiki\plugin\struct\meta;
  */
 class SearchCloud extends SearchConfig
 {
-
     protected $limit = '';
-
 
     /**
      * Transform the set search parameters into a statement

@@ -2,11 +2,8 @@
 
 namespace dokuwiki\plugin\struct\types;
 
-use dokuwiki\plugin\struct\meta\QueryBuilderWhere;
-
 class Wiki extends LongText
 {
-
     /**
      * @param int|string $value
      * @param \Doku_Renderer $R

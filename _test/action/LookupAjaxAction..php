@@ -14,7 +14,7 @@ use dokuwiki\plugin\struct\test\StructTest;
  */
 class LookupAjaxAction extends StructTest
 {
-    public function setUp() : void
+    public function setUp(): void
     {
         parent::setUp();
 

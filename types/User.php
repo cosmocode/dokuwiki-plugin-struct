@@ -9,7 +9,6 @@ use dokuwiki\plugin\struct\meta\ValidationException;
 
 class User extends AbstractMultiBaseType
 {
-
     protected $config = array(
         'existingonly' => true,
         'autocomplete' => array(
@@ -58,8 +57,8 @@ class User extends AbstractMultiBaseType
     /**
      * Autocompletion for user names
      *
-     * @todo should we have any security mechanism? Currently everybody can look up users
      * @return array
+     * @todo should we have any security mechanism? Currently everybody can look up users
      */
     public function handleAjax()
     {
@@ -80,9 +79,9 @@ class User extends AbstractMultiBaseType
         if ($max <= 0) return array();
 
         // find users by login, fill up with names if wanted
-        $logins = (array) $auth->retrieveUsers(0, $max, array('user' => $lookup));
+        $logins = (array)$auth->retrieveUsers(0, $max, array('user' => $lookup));
         if ((count($logins) < $max) && $this->config['autocomplete']['fullname']) {
-            $logins = array_merge($logins, (array) $auth->retrieveUsers(0, $max, array('name' => $lookup)));
+            $logins = array_merge($logins, (array)$auth->retrieveUsers(0, $max, array('name' => $lookup)));
         }
 
         // reformat result for jQuery UI Autocomplete

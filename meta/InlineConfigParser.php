@@ -20,29 +20,28 @@ namespace dokuwiki\plugin\struct\meta;
  */
 class InlineConfigParser extends ConfigParser
 {
-
     /**
      * Parser constructor.
      *
      * parses the given inline configuration
      *
-     * @param  string  $inline
+     * @param string $inline
      */
     public function __construct($inline)
     {
         // Start to build the main config array
-        $lines     = array();  // Config lines to pass to full parser
+        $lines = array();  // Config lines to pass to full parser
 
         // Extract components
-        $parts        = explode('?', $inline, 2);
-        $n_parts      = count($parts);
-        $components   = str_getcsv(trim($parts[0]), '.');
+        $parts = explode('?', $inline, 2);
+        $n_parts = count($parts);
+        $components = str_getcsv(trim($parts[0]), '.');
         $n_components = count($components);
 
         // Extract parameters if given
         if ($n_parts == 2) {
-            $filtering    = false;  // Whether to filter result to current page
-            $parameters   = str_getcsv(trim($parts[1]), ' ');
+            $filtering = false;  // Whether to filter result to current page
+            $parameters = str_getcsv(trim($parts[1]), ' ');
             $n_parameters = count($parameters);
 
             // Process parameters and add to config lines
@@ -56,7 +55,7 @@ class InlineConfigParser extends ConfigParser
                         break;
                     // Pass full text ending in : straight to config
                     case $p[-1] == ':' ? $p : '':
-                        if (in_array($p, ['filter', 'where', 'filterand', 'and', 'filteror','or'])) {
+                        if (in_array($p, ['filter', 'where', 'filterand', 'and', 'filteror', 'or'])) {
                             $filtering = true;
                         }
                         $lines[] = $p . ' ' . trim($parameters[$i + 1]);
@@ -92,7 +91,7 @@ class InlineConfigParser extends ConfigParser
             // At least schema and field supplied
             $lines[] = 'schema: ' . trim($components[0]);
             $lines[] = 'field: ' . trim($components[1]);
-            if (! $filtering) {
+            if (!$filtering) {
                 $lines[] = 'filter: %pageid% = $ID$';
             }
         }

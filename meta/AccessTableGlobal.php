@@ -52,7 +52,8 @@ class AccessTableGlobal extends AccessTable
         $vals = array_merge($this->getSingleNoninputValues(), $this->singleValues);
         $rid = $this->getRid() ?: "(SELECT (COALESCE(MAX(rid), 0 ) + 1) FROM $this->stable)";
 
-        return "REPLACE INTO $this->stable (rid, $cols) VALUES ($rid," . trim(str_repeat('?,', count($vals)), ',') . ');';
+        return "REPLACE INTO $this->stable (rid, $cols) 
+                      VALUES ($rid," . trim(str_repeat('?,', count($vals)), ',') . ');';
     }
 
     /**
@@ -102,7 +103,6 @@ class AccessTableGlobal extends AccessTable
 
     /**
      * Set new rid if this is a new insert
-
      * @return bool
      */
     protected function afterSingleSave()

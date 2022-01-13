@@ -2,9 +2,6 @@
 
 namespace dokuwiki\plugin\struct\test;
 
-use dokuwiki\plugin\struct\meta\SchemaBuilder;
-use dokuwiki\plugin\struct\meta\Schema;
-use dokuwiki\plugin\struct\meta;
 use dokuwiki\plugin\struct\meta\Search;
 
 /**
@@ -14,12 +11,14 @@ use dokuwiki\plugin\struct\meta\Search;
  * @group plugins
  *
  */
-class AccessTableDataDBMulti_struct_test extends StructTest {
+class AccessTableDataDBMulti_struct_test extends StructTest
+{
 
     /** @var \helper_plugin_sqlite $sqlite */
     protected $sqlite;
 
-    public function setUp() : void {
+    public function setUp(): void
+    {
         parent::setUp();
 
         /** @var \helper_plugin_struct_db $sqlite */
@@ -74,7 +73,8 @@ class AccessTableDataDBMulti_struct_test extends StructTest {
         );
     }
 
-    public function test_getDataFromDB_currentRev() {
+    public function test_getDataFromDB_currentRev()
+    {
 
         // act
         $schemaData = mock\AccessTable::getPageAccess('testtable', 'testpage');
@@ -91,7 +91,8 @@ class AccessTableDataDBMulti_struct_test extends StructTest {
         $this->assertEquals($expected_data, $actual_data, '');
     }
 
-    public function test_getDataFromDB_deleteMultiPage() {
+    public function test_getDataFromDB_deleteMultiPage()
+    {
 
         $this->saveData(
             'testpage',

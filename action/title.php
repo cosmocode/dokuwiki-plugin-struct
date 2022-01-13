@@ -7,8 +7,8 @@
  * @author  Andreas Gohr, Michael Große <dokuwiki@cosmocode.de>
  */
 
-use dokuwiki\plugin\struct\meta\StructException;
 use dokuwiki\plugin\struct\meta\PageMeta;
+use dokuwiki\plugin\struct\meta\StructException;
 
 /**
  * Class action_plugin_struct_title
@@ -17,7 +17,6 @@ use dokuwiki\plugin\struct\meta\PageMeta;
  */
 class action_plugin_struct_title extends DokuWiki_Action_Plugin
 {
-
     /**
      * Registers a callback function for a given event
      *
@@ -48,7 +47,7 @@ class action_plugin_struct_title extends DokuWiki_Action_Plugin
                 $latest &&
                 // external edits do not have last change info
                 isset($event->data['current']['last_change']['date']) &&
-                (int) $latest['lastrev'] === $event->data['current']['last_change']['date']
+                (int)$latest['lastrev'] === $event->data['current']['last_change']['date']
             ) {
                 return;
             }

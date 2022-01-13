@@ -9,7 +9,6 @@ use dokuwiki\plugin\struct\meta\SearchConfigParameters;
  */
 class action_plugin_struct_cache extends DokuWiki_Action_Plugin
 {
-
     /**
      * Registers a callback function for a given event
      *
@@ -132,10 +131,10 @@ class action_plugin_struct_cache extends DokuWiki_Action_Plugin
         // disable cache use when one of these parameters is present
         foreach (
             array(
-                    SearchConfigParameters::$PARAM_FILTER,
-                    SearchConfigParameters::$PARAM_OFFSET,
-                    SearchConfigParameters::$PARAM_SORT
-                ) as $key
+                     SearchConfigParameters::$PARAM_FILTER,
+                     SearchConfigParameters::$PARAM_OFFSET,
+                     SearchConfigParameters::$PARAM_SORT
+                 ) as $key
         ) {
             if ($INPUT->has($key)) {
                 $event->result = false;

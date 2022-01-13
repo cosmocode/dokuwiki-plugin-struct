@@ -9,10 +9,8 @@
 
 use dokuwiki\plugin\struct\meta\AccessTable;
 use dokuwiki\plugin\struct\meta\AccessTablePage;
-use dokuwiki\plugin\struct\meta\AccessTableGlobal;
 use dokuwiki\plugin\struct\meta\Assignments;
 use dokuwiki\plugin\struct\meta\Column;
-use dokuwiki\plugin\struct\meta\Schema;
 use dokuwiki\plugin\struct\meta\StructException;
 use dokuwiki\plugin\struct\meta\ValueValidator;
 
@@ -23,7 +21,6 @@ use dokuwiki\plugin\struct\meta\ValueValidator;
  */
 class action_plugin_struct_inline extends DokuWiki_Action_Plugin
 {
-
     /** @var  AccessTablePage */
     protected $schemadata = null;
 

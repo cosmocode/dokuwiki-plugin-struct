@@ -11,7 +11,6 @@ namespace dokuwiki\plugin\struct\meta;
  */
 class SearchConfig extends Search
 {
-
     /** @var int default aggregation caching (depends on last struct save) */
     public static $CACHE_DEFAULT = 1;
     /** @var int caching depends on current user */

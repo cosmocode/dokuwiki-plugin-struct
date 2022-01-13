@@ -9,8 +9,8 @@
 
 use dokuwiki\plugin\struct\meta\AccessTable;
 use dokuwiki\plugin\struct\meta\AccessTableGlobal;
-use dokuwiki\plugin\struct\meta\Column;
 use dokuwiki\plugin\struct\meta\AggregationEditorTable;
+use dokuwiki\plugin\struct\meta\Column;
 use dokuwiki\plugin\struct\meta\Schema;
 use dokuwiki\plugin\struct\meta\SearchConfig;
 use dokuwiki\plugin\struct\meta\StructException;
@@ -23,7 +23,6 @@ use dokuwiki\plugin\struct\meta\Value;
  */
 class action_plugin_struct_aggregationeditor extends DokuWiki_Action_Plugin
 {
-
     /** @var  Column */
     protected $column = null;
 

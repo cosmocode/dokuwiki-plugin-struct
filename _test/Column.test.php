@@ -10,9 +10,11 @@ use dokuwiki\plugin\struct\meta;
  * @group plugin_struct
  * @group plugins
  */
-class column_struct_test extends StructTest {
+class column_struct_test extends StructTest
+{
 
-    public function test_allTypes() {
+    public function test_allTypes()
+    {
 
         $expect = array(
             'Checkbox' => 'dokuwiki\\plugin\\struct\\types\\Checkbox',
@@ -36,7 +38,8 @@ class column_struct_test extends StructTest {
         $this->assertEquals($expect, meta\Column::allTypes(true));
     }
 
-    public function test_extendedTypes() {
+    public function test_extendedTypes()
+    {
 
         $expect = array(
             'Checkbox' => 'dokuwiki\\plugin\\struct\\types\\Checkbox',
@@ -69,7 +72,8 @@ class column_struct_test extends StructTest {
      * @param \Doku_Event $event
      * @param $param
      */
-    public function event(\Doku_Event $event, $param) {
+    public function event(\Doku_Event $event, $param)
+    {
         $event->data['test'] = 'some\\test\\class';
     }
 

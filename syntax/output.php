@@ -13,16 +13,15 @@ use dokuwiki\plugin\struct\meta\StructException;
 
 class syntax_plugin_struct_output extends DokuWiki_Syntax_Plugin
 {
-
     protected $hasBeenRendered = false;
 
-    const XHTML_OPEN = '<div id="plugin__struct_output">';
-    const XHTML_CLOSE = '</div>';
+    protected const XHTML_OPEN = '<div id="plugin__struct_output">';
+    protected const XHTML_CLOSE = '</div>';
 
     /**
      * Regexp to check on which actions the struct data may be rendered
      */
-    const WHITELIST_ACTIONS = '/^(show|export_.*)$/';
+    protected const WHITELIST_ACTIONS = '/^(show|export_.*)$/';
 
     /**
      * @return string Syntax mode type

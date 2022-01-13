@@ -6,7 +6,6 @@ use dokuwiki\plugin\struct\meta\ValidationException;
 
 class Color extends AbstractBaseType
 {
-
     protected $config = array(
         'default' => '#ffffff'
     );
@@ -35,7 +34,8 @@ class Color extends AbstractBaseType
     public function renderValue($value, \Doku_Renderer $R, $mode)
     {
         if ($mode == 'xhtml') {
-            $R->doc .= '<div title="' . hsc($value) . '" style="background-color:' . hsc($value) . ';" class="struct_color"></div>';
+            $R->doc .= '<div title="' . hsc($value) . '" style="background-color:' . hsc($value) . ';"
+                        class="struct_color"></div>';
         } else {
             $R->cdata($value);
         }
@@ -88,7 +88,9 @@ class Color extends AbstractBaseType
         if ($mode == 'xhtml') {
             $url = wl($page, $filter);
             $style = "background-color:$color;";
-            $R->doc .= "<a class='struct_color_tagcloud' href='$url' style='$style'><span class='a11y'>$color</span></a>";
+            $R->doc .= "<a class='struct_color_tagcloud' href='$url' style='$style'>
+                        <span class='a11y'>$color</span>
+                        </a>";
             return;
         }
         $R->internallink("$page?$filter", $color);
@@ -116,9 +118,9 @@ class Color extends AbstractBaseType
             return 0;
         }
 
-        $red   = hexdec(substr($color, 1, 2));
+        $red = hexdec(substr($color, 1, 2));
         $green = hexdec(substr($color, 3, 2));
-        $blue  = hexdec(substr($color, 5, 2));
+        $blue = hexdec(substr($color, 5, 2));
 
         $min = min([$red, $green, $blue]);
         $max = max([$red, $green, $blue]);

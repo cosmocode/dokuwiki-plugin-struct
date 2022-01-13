@@ -11,9 +11,11 @@ use dokuwiki\plugin\struct\meta;
  * @group plugins
  *
  */
-class SearchConfigParameter_struct_test extends StructTest {
+class SearchConfigParameter_struct_test extends StructTest
+{
 
-    public function setUp() : void {
+    public function setUp(): void
+    {
         parent::setUp();
 
         $this->loadSchemaJSON('schema1');
@@ -47,7 +49,7 @@ class SearchConfigParameter_struct_test extends StructTest {
             time()
         );
 
-        for($i=10; $i <=20; $i++) {
+        for ($i = 10; $i <= 20; $i++) {
             $as->assignPageSchema("page$i", 'schema2');
             $this->saveData(
                 "page$i",
@@ -63,7 +65,8 @@ class SearchConfigParameter_struct_test extends StructTest {
         }
     }
 
-    public function test_constructor() {
+    public function test_constructor()
+    {
         global $INPUT;
 
         $data = array(
@@ -111,15 +114,16 @@ class SearchConfigParameter_struct_test extends StructTest {
             array('schema1.first', '*~', 'test', 'AND'),
             array('schema2.afirst', '=', 'test2', 'AND')
         );
-        $params[meta\SearchConfigParameters::$PARAM_FILTER .'[schema1.first*~]'] = 'test';
-        $params[meta\SearchConfigParameters::$PARAM_FILTER .'[schema2.afirst=]'] = 'test2';
+        $params[meta\SearchConfigParameters::$PARAM_FILTER . '[schema1.first*~]'] = 'test';
+        $params[meta\SearchConfigParameters::$PARAM_FILTER . '[schema2.afirst=]'] = 'test2';
         $searchConfig = new meta\SearchConfig($data);
         $dynamic = $searchConfig->getDynamicParameters();
         $this->assertEquals($expect, $searchConfig->getConf());
         $this->assertEquals($params, $dynamic->getURLParameters());
     }
 
-    public function test_filter() {
+    public function test_filter()
+    {
         $data = array(
             'schemas' => array(
                 array('schema1', 'alias1'),
@@ -170,7 +174,8 @@ class SearchConfigParameter_struct_test extends StructTest {
         $this->assertEquals($expect, $dynamic->getFilters());
     }
 
-    public function test_sort() {
+    public function test_sort()
+    {
         $data = array(
             'schemas' => array(
                 array('schema1', 'alias1'),
@@ -207,7 +212,8 @@ class SearchConfigParameter_struct_test extends StructTest {
         $this->assertArrayNotHasKey(meta\SearchConfigParameters::$PARAM_SORT, $param);
     }
 
-    public function test_pagination() {
+    public function test_pagination()
+    {
         global $INPUT;
 
         $data = array(

@@ -12,9 +12,11 @@ use dokuwiki\plugin\struct\test\mock\Lookup;
  * @group plugin_struct
  * @group plugins
  */
-class Type_Lookup_struct_test extends StructTest {
+class Type_Lookup_struct_test extends StructTest
+{
 
-    protected function prepareLookup() {
+    protected function prepareLookup()
+    {
         saveWikiText('title1', 'test', 'test');
         $pageMeta = new PageMeta('title1');
         $pageMeta->setTitle('This is a title');
@@ -57,7 +59,8 @@ class Type_Lookup_struct_test extends StructTest {
         );
     }
 
-    protected function prepareTranslation() {
+    protected function prepareTranslation()
+    {
         $this->loadSchemaJSON('translation', '', 0);
         $access = AccessTable::getGlobalAccess('translation');
         $access->saveData(
@@ -87,28 +90,30 @@ class Type_Lookup_struct_test extends StructTest {
         );
     }
 
-    protected function preparePages() {
+    protected function preparePages()
+    {
         $this->loadSchemaJSON('dropdowns');
         $this->saveData(
             'test1', 'dropdowns', array(
-                'drop1' => json_encode(['',1]), 'drop2' => json_encode(['',1]), 'drop3' => 'John'
-            ), time()
+            'drop1' => json_encode(['', 1]), 'drop2' => json_encode(['', 1]), 'drop3' => 'John'
+        ), time()
         );
         $this->saveData(
             'test2', 'dropdowns', array(
-            'drop1' => json_encode(['',2]), 'drop2' => json_encode(['',2]), 'drop3' => 'Jane'
-            ),
+            'drop1' => json_encode(['', 2]), 'drop2' => json_encode(['', 2]), 'drop3' => 'Jane'
+        ),
             time()
         );
         $this->saveData(
             'test3', 'dropdowns', array(
-                'drop1' => json_encode(['',3]), 'drop2' => json_encode(['',3]), 'drop3' => 'Tarzan'
-            ),
+            'drop1' => json_encode(['', 3]), 'drop2' => json_encode(['', 3]), 'drop3' => 'Tarzan'
+        ),
             time()
         );
     }
 
-    public function test_data() {
+    public function test_data()
+    {
         $this->prepareLookup();
         $this->preparePages();
 
@@ -137,7 +142,8 @@ class Type_Lookup_struct_test extends StructTest {
         $this->assertContains('title1', $pq->find('a')->attr('href'));
     }
 
-    public function test_translation() {
+    public function test_translation()
+    {
         global $conf;
         $this->prepareTranslation();
 
@@ -211,7 +217,8 @@ class Type_Lookup_struct_test extends StructTest {
         $this->assertEquals($expect, $dropdown->getOptions());
     }
 
-    public function test_getOptions() {
+    public function test_getOptions()
+    {
         $this->prepareLookup();
 
         // lookup with titles

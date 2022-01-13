@@ -26,12 +26,11 @@ use dokuwiki\plugin\struct\meta\StructException;
  */
 class helper_plugin_struct extends DokuWiki_Plugin
 {
-
     /**
      * Class names of renderers which should NOT render struct data.
      * All descendants are also blacklisted.
      */
-    const BLACKLIST_RENDERER = [
+    public const BLACKLIST_RENDERER = [
         'Doku_Renderer_metadata',
         '\renderer_plugin_qc'
     ];
@@ -82,14 +81,14 @@ class helper_plugin_struct extends DokuWiki_Plugin
      * entry handle it, but that would be rather unclean and might be problematic when multiple
      * calls are done within the same request.
      *
-     * @todo should this try to lock the page?
-     *
-     *
      * @param string $page
      * @param array $data ('schema' => ( 'fieldlabel' => 'value', ...))
      * @param string $summary
      * @param string $summary
      * @throws StructException
+     * @todo should this try to lock the page?
+     *
+     *
      */
     public function saveData($page, $data, $summary = '', $minor = false)
     {
@@ -120,8 +119,8 @@ class helper_plugin_struct extends DokuWiki_Plugin
     /**
      * Save lookup data row
      *
-     * @param AccessTable        $access the table into which to save the data
-     * @param array             $data   data to be saved in the form of [columnName => 'data']
+     * @param AccessTable $access the table into which to save the data
+     * @param array $data data to be saved in the form of [columnName => 'data']
      */
     public function saveLookupData(AccessTable $access, $data)
     {

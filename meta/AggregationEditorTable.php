@@ -11,7 +11,6 @@ namespace dokuwiki\plugin\struct\meta;
  */
 class AggregationEditorTable extends AggregationTable
 {
-
     /**
      * @var bool skip full table when no results found
      */
@@ -38,7 +37,8 @@ class AggregationEditorTable extends AggregationTable
         $config = hsc(json_encode($config));
 
         // wrapping div
-        $this->renderer->doc .= "<div class=\"structaggregation structaggregationeditor\" data-schema=\"$table\" data-searchconf=\"$config\">";
+        $this->renderer->doc .= "<div class=\"structaggregation structaggregationeditor\" 
+                                      data-schema=\"$table\" data-searchconf=\"$config\">";
 
         // unique identifier for this aggregation
         $this->renderer->info['struct_table_hash'] = md5(var_export($this->data, true));

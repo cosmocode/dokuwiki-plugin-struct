@@ -2,7 +2,6 @@
 
 namespace dokuwiki\plugin\struct\test;
 
-use dokuwiki\plugin\struct\meta;
 use Doku_Event;
 
 /**
@@ -11,12 +10,14 @@ use Doku_Event;
  *
  * @covers \action_plugin_struct_output
  */
-class output_struct_test extends StructTest {
+class output_struct_test extends StructTest
+{
 
     /** @var array add the extra plugins */
     protected $pluginsEnabled = array('struct', 'sqlite', 'log', 'include');
 
-    public function setUp() : void {
+    public function setUp(): void
+    {
         parent::setUp();
 
         $this->loadSchemaJSON('schema1');
@@ -60,12 +61,13 @@ class output_struct_test extends StructTest {
         );
     }
 
-    public function test_output() {
+    public function test_output()
+    {
         global $ID;
         $page = 'page01';
         $ID = $page;
 
-        saveWikiText($page, "====== abc ======\ndef",'');
+        saveWikiText($page, "====== abc ======\ndef", '');
         $instructions = p_cached_instructions(wikiFN($page), false, $page);
         $this->assertEquals('document_start', $instructions[0][0]);
         $this->assertEquals('header', $instructions[1][0]);
@@ -73,13 +75,14 @@ class output_struct_test extends StructTest {
         $this->assertEquals('struct_output', $instructions[2][1][0]);
     }
 
-    public function test_include_missing_output() {
+    public function test_include_missing_output()
+    {
         global $ID;
         $page = 'page01';
         $includedPage = 'foo';
 
         saveWikiText($page, "====== abc ======\n{{page>foo}}\n", '');
-        saveWikiText($includedPage, "====== included page ======\nqwe\n",'');
+        saveWikiText($includedPage, "====== included page ======\nqwe\n", '');
 
 
         plugin_load('action', 'struct_output', true);
@@ -100,16 +103,17 @@ class output_struct_test extends StructTest {
 
     }
 
-    public function test_log_conflict() {
+    public function test_log_conflict()
+    {
         global $ID;
         $page = 'page01';
         $ID = $page;
 
         saveWikiText($page, "====== abc ======\n{{log}}\n", '');
-        saveWikiText($page.':log', '====== abc log ======
+        saveWikiText($page . ':log', '====== abc log ======
 Log for [[page01]]:
 
-  * 2017-02-24 10:54:13 //Example User//: foo bar','');
+  * 2017-02-24 10:54:13 //Example User//: foo bar', '');
         $instructions = p_cached_instructions(wikiFN($page), false, $page);
         $this->assertEquals('document_start', $instructions[0][0]);
         $this->assertEquals('header', $instructions[1][0]);
