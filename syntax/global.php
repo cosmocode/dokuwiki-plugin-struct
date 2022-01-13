@@ -46,8 +46,6 @@ class syntax_plugin_struct_global extends syntax_plugin_struct_table
         $config = parent::handle($match, $state, $pos, $handler);
         if (is_null($config)) return null;
 
-        $config = $this->addTypeFilter($config);
-
         // adjust some things for the lookup editor
         $config['cols'] = array('*'); // always select all columns
         if (isset($config['rownumbers'])) unset($config['rownumbers']); // this annoying to update dynamically

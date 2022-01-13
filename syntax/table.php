@@ -72,9 +72,6 @@ class syntax_plugin_struct_table extends DokuWiki_Syntax_Plugin
         try {
             $parser = new ConfigParser($lines);
             $config = $parser->getConfig();
-
-            $config = $this->addTypeFilter($config);
-
             return $config;
         } catch (StructException $e) {
             msg($e->getMessage(), -1, $e->getLine(), $e->getFile());
@@ -88,18 +85,19 @@ class syntax_plugin_struct_table extends DokuWiki_Syntax_Plugin
      *
      * @param string $format Renderer mode (supported modes: xhtml)
      * @param Doku_Renderer $renderer The renderer
-     * @param array $data The data from the handler() function
+     * @param array $config The parsed config data from the handler() function
      * @return bool If rendering was successful.
      */
-    public function render($format, Doku_Renderer $renderer, $data)
+    public function render($format, Doku_Renderer $renderer, $config)
     {
-        if (!$data) return false;
-
         global $INFO;
         global $conf;
 
+        if (!$config) return false;
+        $config = $this->addTypeFilter($config); // add type specific filters
+
         try {
-            $search = new SearchConfig($data);
+            $search = new SearchConfig($config);
             if ($format === 'struct_csv') {
                 // no pagination in export
                 $search->setLimit(0);
