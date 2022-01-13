@@ -118,7 +118,8 @@ class Column
      */
     public function getColName($enforceSingleColumn = true)
     {
-        if ($enforceSingleColumn && $this->isMulti()) throw new StructException('Calling getColName on a multi value column makes no sense.');
+        if ($enforceSingleColumn && $this->isMulti())
+            throw new StructException('Calling getColName on a multi value column makes no sense.');
         return 'col' . $this->colref;
     }
 

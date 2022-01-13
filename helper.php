@@ -30,7 +30,7 @@ class helper_plugin_struct extends DokuWiki_Plugin
      * Class names of renderers which should NOT render struct data.
      * All descendants are also blacklisted.
      */
-    const BLACKLIST_RENDERER = [
+    public const BLACKLIST_RENDERER = [
         'Doku_Renderer_metadata',
         '\renderer_plugin_qc'
     ];

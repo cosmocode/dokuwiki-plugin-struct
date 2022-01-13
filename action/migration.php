@@ -162,22 +162,34 @@ class action_plugin_struct_migration extends DokuWiki_Action_Plugin
                     $colname = "col$colno";
                     // lookup fields pointing to pages have to be migrated first!
                     // they rely on a simplistic not-a-number check, and already migrated lookups pass the test!
-                    $f = 'UPDATE data_%s SET %s = \'["\'||%s||\'",0]\' WHERE %s != \'\' AND CAST(%s AS DECIMAL) != %s';
+                    $f = 'UPDATE data_%s
+                             SET %s = \'["\'||%s||\'",0]\'
+                           WHERE %s != \'\'
+                             AND CAST(%s AS DECIMAL) != %s';
                     $s = sprintf($f, $name, $colname, $colname, $colname, $colname, $colname);
                     $ok = $ok && $sqlite->query($s);
                     if (!$ok) return false;
                     // multi_
-                    $f = 'UPDATE multi_%s SET value = \'["\'||value||\'",0]\' WHERE colref = %s AND CAST(value AS DECIMAL) != value';
+                    $f = 'UPDATE multi_%s
+                             SET value = \'["\'||value||\'",0]\'
+                           WHERE colref = %s
+                             AND CAST(value AS DECIMAL) != value';
                     $s = sprintf($f, $name, $colno);
                     $ok = $ok && $sqlite->query($s);
                     if (!$ok) return false;
 
                     // simple lookup fields
-                    $s = "UPDATE data_$name SET col$colno = '[" . '""' . ",'||col$colno||']' WHERE col$colno != '' AND CAST(col$colno AS DECIMAL) = col$colno";
+                    $s = "UPDATE data_$name
+                             SET col$colno = '[" . '""' . ",'||col$colno||']' 
+                           WHERE col$colno != ''
+                             AND CAST(col$colno AS DECIMAL) = col$colno";
                     $ok = $ok && $sqlite->query($s);
                     if (!$ok) return false;
                     // multi_
-                    $s = "UPDATE multi_$name SET value = '[" . '""' . ",'||value||']' WHERE colref=$colno AND CAST(value AS DECIMAL) = value";
+                    $s = "UPDATE multi_$name
+                             SET value = '[" . '""' . ",'||value||']'
+                           WHERE colref=$colno
+                             AND CAST(value AS DECIMAL) = value";
                     $ok = $ok && $sqlite->query($s);
                     if (!$ok) return false;
                 }
@@ -264,7 +276,11 @@ class action_plugin_struct_migration extends DokuWiki_Action_Plugin
                         list($pid, $rid, $rev, $colref, $rowno, $fixes) = $this->getFixedValues($row);
                         // now fix the values
                         if (!empty($fixes)) {
-                            $sql = "UPDATE data_$name SET " . implode(', ', $fixes) . " WHERE pid = ? and rid = ? AND rev = ?";
+                            $sql = "UPDATE data_$name 
+                                       SET " . implode(', ', $fixes) . "
+                                     WHERE pid = ?
+                                       AND rid = ?
+                                       AND rev = ?";
                             $params = [$pid, $rid, $rev];
                             $ok = $ok && $sqlite->query($sql, $params);
                         }
@@ -281,7 +297,13 @@ class action_plugin_struct_migration extends DokuWiki_Action_Plugin
                         list($pid, $rid, $rev, $colref, $rowno, $fixes) = $this->getFixedValues($row);
                         // now fix the values
                         if (!empty($fixes)) {
-                            $sql = "UPDATE multi_$name SET " . implode(', ', $fixes) . " WHERE pid = ? AND rid = ? AND rev = ? AND colref = ? AND row = ?";
+                            $sql = "UPDATE multi_$name 
+                                       SET " . implode(', ', $fixes) . "
+                                     WHERE pid = ?
+                                       AND rid = ?
+                                       AND rev = ?
+                                       AND colref = ?
+                                       AND row = ?";
                             $params = [$pid, $rid, $rev, $colref, $rowno];
                             $ok = $ok && $sqlite->query($sql, $params);
                         }

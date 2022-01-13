@@ -12,9 +12,6 @@ use dokuwiki\plugin\struct\meta\ConfigParser;
 use dokuwiki\plugin\struct\meta\SearchConfig;
 use dokuwiki\plugin\struct\meta\StructException;
 
-if (!defined('DOKU_INC')) die();
-
-
 class remote_plugin_struct extends DokuWiki_Remote_Plugin
 {
     /** @var helper_plugin_struct hlp */

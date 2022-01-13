@@ -351,7 +351,8 @@ class Assignments
     }
 
     /**
-     * fetch all pages where the schema isn't assigned, yet and reevaluate the page assignments for those pages and assign when needed
+     * fetch all pages where the schema isn't assigned, yet
+     * and reevaluate the page assignments for those pages and assign when needed
      *
      * @param $table
      */

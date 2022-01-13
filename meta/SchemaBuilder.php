@@ -170,7 +170,8 @@ class SchemaBuilder
             $newTid = $oldTid;
             $sort = $column->getSort();
             if (isset($this->data['cols'][$column->getColref()])) {
-                // todo I'm not too happy with this hardcoded here - we should probably have a list of fields at one place
+                // todo I'm not too happy with this hardcoded here -
+                // we should probably have a list of fields at one place
                 $newEntry['config'] = $this->data['cols'][$column->getColref()]['config'];
                 $newEntry['label'] = $this->data['cols'][$column->getColref()]['label'];
                 $newEntry['ismulti'] = $this->data['cols'][$column->getColref()]['ismulti'];

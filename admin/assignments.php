@@ -12,8 +12,6 @@ use dokuwiki\plugin\struct\meta\Assignments;
 use dokuwiki\plugin\struct\meta\Schema;
 use dokuwiki\plugin\struct\meta\StructException;
 
-if (!defined('DOKU_INC')) die();
-
 class admin_plugin_struct_assignments extends DokuWiki_Admin_Plugin
 {
     /**

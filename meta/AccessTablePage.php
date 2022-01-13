@@ -11,7 +11,7 @@ namespace dokuwiki\plugin\struct\meta;
  */
 class AccessTablePage extends AccessTable
 {
-    const DEFAULT_PAGE_RID = 0;
+    public const DEFAULT_PAGE_RID = 0;
 
     public function __construct($schema, $pid, $ts = 0, $rid = 0)
     {

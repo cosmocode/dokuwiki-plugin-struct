@@ -13,7 +13,7 @@ class Search
     /**
      * This separator will be used to concat multi values to flatten them in the result set
      */
-    const CONCAT_SEPARATOR = "\n!_-_-_-_-_!\n";
+    public const CONCAT_SEPARATOR = "\n!_-_-_-_-_!\n";
 
     /**
      * The list of known and allowed comparators
@@ -156,8 +156,10 @@ class Search
             $comp = '!=';
         }
 
-        if (!in_array($comp, self::$COMPARATORS)) throw new StructException("Bad comperator. Use " . join(',', self::$COMPARATORS));
-        if ($op != 'OR' && $op != 'AND') throw new StructException('Bad filter type . Only AND or OR allowed');
+        if (!in_array($comp, self::$COMPARATORS))
+            throw new StructException("Bad comperator. Use " . join(',', self::$COMPARATORS));
+        if ($op != 'OR' && $op != 'AND')
+            throw new StructException('Bad filter type . Only AND or OR allowed');
 
         $col = $this->findColumn($colname);
         if (!$col) return; // ignore missing columns, filter might have been for different schema
@@ -323,7 +325,8 @@ class Search
      */
     public function getPids()
     {
-        if ($this->result_pids === null) throw new StructException('PIDs are only accessible after executing the search');
+        if ($this->result_pids === null)
+            throw new StructException('PIDs are only accessible after executing the search');
         return $this->result_pids;
     }
 
@@ -336,7 +339,8 @@ class Search
      */
     public function getRids()
     {
-        if ($this->result_rids === null) throw new StructException('rids are only accessible after executing the search');
+        if ($this->result_rids === null)
+            throw new StructException('rids are only accessible after executing the search');
         return $this->result_rids;
     }
 
@@ -349,7 +353,8 @@ class Search
      */
     public function getRevs()
     {
-        if ($this->result_revs === null) throw new StructException('revs are only accessible after executing the search');
+        if ($this->result_revs === null)
+            throw new StructException('revs are only accessible after executing the search');
         return $this->result_revs;
     }
 

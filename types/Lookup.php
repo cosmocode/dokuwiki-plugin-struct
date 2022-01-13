@@ -248,7 +248,8 @@ class Lookup extends Dropdown
             $tablealias,
             $schema,
             $rightalias,
-            "$tablealias.$colname = STRUCT_JSON($rightalias.pid, CAST($rightalias.rid AS DECIMAL)) AND $rightalias.latest = 1"
+            "$tablealias.$colname = STRUCT_JSON($rightalias.pid, CAST($rightalias.rid AS DECIMAL)) " .
+            "AND $rightalias.latest = 1"
         );
         $column->getType()->select($QB, $rightalias, $field, $alias);
         $sql = $QB->getSelectStatement($alias);
@@ -282,7 +283,8 @@ class Lookup extends Dropdown
             $tablealias,
             $schema,
             $rightalias,
-            "$tablealias.$colname = STRUCT_JSON($rightalias.pid, CAST($rightalias.rid AS DECIMAL)) AND $rightalias.latest = 1"
+            "$tablealias.$colname = STRUCT_JSON($rightalias.pid, CAST($rightalias.rid AS DECIMAL)) AND " .
+            "$rightalias.latest = 1"
         );
         $column->getType()->filter($add, $rightalias, $field, $comp, $value, $op);
     }
@@ -310,7 +312,8 @@ class Lookup extends Dropdown
             $tablealias,
             $schema,
             $rightalias,
-            "$tablealias.$colname = STRUCT_JSON($rightalias.pid, CAST($rightalias.rid AS DECIMAL)) AND $rightalias.latest = 1"
+            "$tablealias.$colname = STRUCT_JSON($rightalias.pid, CAST($rightalias.rid AS DECIMAL)) AND " .
+            "$rightalias.latest = 1"
         );
         $column->getType()->sort($QB, $rightalias, $field, $order);
     }

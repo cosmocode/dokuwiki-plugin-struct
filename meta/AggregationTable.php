@@ -225,7 +225,12 @@ class AggregationTable
         }
 
         $this->renderer->doc .= '<div class="filter">';
-        $this->renderer->doc .= '<h4>' . sprintf($this->helper->getLang('tablefilteredby'), hsc(implode(' & ', $fltrs))) . '</h4>';
+        $this->renderer->doc .= '<h4>' .
+            sprintf(
+                $this->helper->getLang('tablefilteredby'),
+                hsc(implode(' & ', $fltrs))
+            ) .
+            '</h4>';
         $this->renderer->doc .= '<div class="resetfilter">';
         $this->renderer->internallink($this->id, $this->helper->getLang('tableresetfilter'));
         $this->renderer->doc .= '</div>';
@@ -307,7 +312,8 @@ class AggregationTable
 
             // output XHTML header
             $this->renderer->doc .= "<th $width $data>";
-            $this->renderer->doc .= '<a href="' . $link . '" class="' . $sortclass . '" title="' . $this->helper->getLang('sort') . '">' . hsc($header) . '</a>';
+            $this->renderer->doc .= '<a href="' . $link . '" class="' . $sortclass . '" ' .
+                'title="' . $this->helper->getLang('sort') . '">' . hsc($header) . '</a>';
             $this->renderer->doc .= '</th>';
         }
 
@@ -349,14 +355,15 @@ class AggregationTable
         // each column gets a form
         foreach ($this->columns as $column) {
             $this->renderer->doc .= '<th>';
-            {
-                $form = new \Doku_Form(array('method' => 'GET', 'action' => wl($this->id)));
-                unset($form->_hidden['sectok']); // we don't need it here
-                if (!$conf['userewrite']) $form->addHidden('id', $this->id);
 
-                // current value
-                $dynamic = $this->searchConfig->getDynamicParameters();
-                $filters = $dynamic->getFilters();
+            // BEGIN FORM
+            $form = new \Doku_Form(array('method' => 'GET', 'action' => wl($this->id)));
+            unset($form->_hidden['sectok']); // we don't need it here
+            if (!$conf['userewrite']) $form->addHidden('id', $this->id);
+
+            // current value
+            $dynamic = $this->searchConfig->getDynamicParameters();
+            $filters = $dynamic->getFilters();
             if (isset($filters[$column->getFullQualifiedLabel()])) {
                 list(, $current) = $filters[$column->getFullQualifiedLabel()];
                 $dynamic->removeFilter($column);
@@ -364,17 +371,20 @@ class AggregationTable
                 $current = '';
             }
 
-                // Add current request params
-                $params = $dynamic->getURLParameters();
+            // Add current request params
+            $params = $dynamic->getURLParameters();
             foreach ($params as $key => $val) {
                 $form->addHidden($key, $val);
             }
 
-                // add input field
-                $key = $column->getFullQualifiedLabel() . $column->getType()->getDefaultComparator();
-                $form->addElement(form_makeField('text', SearchConfigParameters::$PARAM_FILTER . '[' . $key . ']', $current, ''));
-                $this->renderer->doc .= $form->getForm();
-            }
+            // add input field
+            $key = $column->getFullQualifiedLabel() . $column->getType()->getDefaultComparator();
+            $form->addElement(
+                form_makeField('text', SearchConfigParameters::$PARAM_FILTER . '[' . $key . ']', $current, '')
+            );
+            $this->renderer->doc .= $form->getForm();
+            // END FORM
+
             $this->renderer->doc .= '</th>';
         }
         $this->renderer->doc .= '</tr>';
@@ -553,6 +563,7 @@ class AggregationTable
         // FIXME apply dynamic filters
         $link = exportlink($this->id, 'struct_csv', $params);
 
-        $this->renderer->doc .= '<a href="' . $link . '" class="export mediafile mf_csv">' . $this->helper->getLang('csvexport') . '</a>';
+        $this->renderer->doc .= '<a href="' . $link . '" class="export mediafile mf_csv">' .
+            $this->helper->getLang('csvexport') . '</a>';
     }
 }

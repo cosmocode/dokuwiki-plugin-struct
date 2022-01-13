@@ -34,7 +34,8 @@ class Color extends AbstractBaseType
     public function renderValue($value, \Doku_Renderer $R, $mode)
     {
         if ($mode == 'xhtml') {
-            $R->doc .= '<div title="' . hsc($value) . '" style="background-color:' . hsc($value) . ';" class="struct_color"></div>';
+            $R->doc .= '<div title="' . hsc($value) . '" style="background-color:' . hsc($value) . ';"
+                        class="struct_color"></div>';
         } else {
             $R->cdata($value);
         }
@@ -87,7 +88,9 @@ class Color extends AbstractBaseType
         if ($mode == 'xhtml') {
             $url = wl($page, $filter);
             $style = "background-color:$color;";
-            $R->doc .= "<a class='struct_color_tagcloud' href='$url' style='$style'><span class='a11y'>$color</span></a>";
+            $R->doc .= "<a class='struct_color_tagcloud' href='$url' style='$style'>
+                        <span class='a11y'>$color</span>
+                        </a>";
             return;
         }
         $R->internallink("$page?$filter", $color);

@@ -201,8 +201,11 @@ abstract class AbstractBaseType
      */
     public function getContext()
     {
-        if (is_null($this->context))
-            throw new StructException('Empty column context requested. Type was probably initialized outside of Schema.');
+        if (is_null($this->context)) {
+            throw new StructException(
+                'Empty column context requested. Type was probably initialized outside of Schema.'
+            );
+        }
         return $this->context;
     }
 
@@ -345,7 +348,7 @@ abstract class AbstractBaseType
      * @param string $mode The mode the output is rendered in (eg. XHTML)
      * @param string $page the target to which should be linked
      * @param string $filter the filter to apply to the aggregations on $page
-     * @param int $weight the scaled weight of the item. Will already be implemented as css font-size on the outside container
+     * @param int $weight the scaled weight of the item. implemented as css font-size on the outside container
      */
     public function renderTagCloudLink($value, \Doku_Renderer $R, $mode, $page, $filter, $weight)
     {

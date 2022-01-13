@@ -134,7 +134,8 @@ class Media extends AbstractBaseType
             $image = ml($media, ['h' => $weight, 'w' => $weight]);
             $media_escaped = hsc($media);
             $R->doc .= "<div style=\"height:{$weight}px; width:{$weight}px\">";
-            $R->doc .= "<a href='$url' class='struct_image' style='background-image:url(\"$image\")' title='$media_escaped'>";
+            $R->doc .= "<a href='$url' class='struct_image' style='background-image:url(\"$image\")' 
+                        title='$media_escaped'>";
             $R->doc .= "<span class='a11y'>$media_escaped</span>";
             $R->doc .= "</a>";
             $R->doc .= "</div>";

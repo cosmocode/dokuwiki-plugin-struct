@@ -12,9 +12,6 @@ use dokuwiki\plugin\struct\meta\ConfigParser;
 use dokuwiki\plugin\struct\meta\SearchConfig;
 use dokuwiki\plugin\struct\meta\StructException;
 
-// must be run within Dokuwiki
-if (!defined('DOKU_INC')) die();
-
 class syntax_plugin_struct_list extends DokuWiki_Syntax_Plugin
 {
     /** @var string which class to use for output */

@@ -11,8 +11,8 @@ namespace dokuwiki\plugin\struct\meta;
  */
 abstract class AccessTable
 {
-    const DEFAULT_REV = 0;
-    const DEFAULT_LATEST = 1;
+    public const DEFAULT_REV = 0;
+    public const DEFAULT_LATEST = 1;
 
     /** @var  Schema */
     protected $schema;

@@ -51,7 +51,7 @@ class PageMeta
     public function savePageData()
     {
         $sql = "REPLACE INTO titles (pid, title, lasteditor, lastrev, lastsummary) VALUES (?,?,?,?,?)";
-        $this->sqlite->query($sql, array($this->pid, $this->title, $this->lasteditor, $this->lastrev, $this->lastsummary));
+        $this->sqlite->query($sql, [$this->pid, $this->title, $this->lasteditor, $this->lastrev, $this->lastsummary]);
         $this->saveNeeded = false;
     }
 

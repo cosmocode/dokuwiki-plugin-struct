@@ -2,8 +2,6 @@
 
 namespace dokuwiki\plugin\struct\meta;
 
-if (!defined('JSON_PRETTY_PRINT')) define('JSON_PRETTY_PRINT', 0); // PHP 5.3 compatibility
-
 /**
  * Class SchemaImporter
  *

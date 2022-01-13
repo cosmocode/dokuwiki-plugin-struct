@@ -26,7 +26,8 @@ class Tag extends AbstractMultiBaseType
     public function renderValue($value, \Doku_Renderer $R, $mode)
     {
         $context = $this->getContext();
-        $filter = SearchConfigParameters::$PARAM_FILTER . '[' . $context->getTable() . '.' . $context->getLabel() . '*~]=' . $value;
+        $filter = SearchConfigParameters::$PARAM_FILTER .
+            '[' . $context->getTable() . '.' . $context->getLabel() . '*~]=' . $value;
 
         $page = trim($this->config['page']);
         if (!$page) $page = cleanID($context->getLabel());

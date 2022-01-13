@@ -143,7 +143,8 @@ class AggregationCloud
         $this->renderer->listcontent_open();
 
         if ($this->mode == 'xhtml') {
-            $this->renderer->doc .= "<div style='font-size:$weight%' data-count='$count' class='cloudtag struct_$type'>";
+            $this->renderer->doc .=
+                "<div style='font-size:$weight%' data-count='$count' class='cloudtag struct_$type'>";
         }
 
         $value->renderAsTagCloudLink($this->renderer, $this->mode, $target, $filter, $weight);

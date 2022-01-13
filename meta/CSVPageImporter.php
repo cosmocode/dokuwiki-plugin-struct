@@ -15,7 +15,8 @@ class CSVPageImporter extends CSVImporter
     protected function readHeaders()
     {
         parent::readHeaders();
-        if (!in_array('pid', $this->header)) throw new StructException('There is no "pid" header in the CSV. Schema not imported.');
+        if (!in_array('pid', $this->header))
+            throw new StructException('There is no "pid" header in the CSV. Schema not imported.');
     }
 
     /**

@@ -20,7 +20,7 @@ use dokuwiki\plugin\struct\meta\Schema;
  */
 class action_plugin_struct_output extends DokuWiki_Action_Plugin
 {
-    const DW2PDF_PLACEHOLDER_PREFIX = 'PLUGIN_STRUCT';
+    protected const DW2PDF_PLACEHOLDER_PREFIX = 'PLUGIN_STRUCT';
 
     /**
      * Registers a callback function for a given event
