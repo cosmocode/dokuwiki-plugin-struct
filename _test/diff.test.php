@@ -75,13 +75,13 @@ class diff_struct_test extends StructTest
         $this->assertEquals(2, $added->length);
         $this->assertEquals(2, $deleted->length);
 
-        $this->assertContains('bar', $deleted->eq(0)->html());
-        $this->assertContains('baz', $deleted->eq(0)->html());
-        $this->assertContains('bar2', $added->eq(0)->html());
-        $this->assertContains('baz2', $added->eq(0)->html());
+        $this->assertStringContainsString('bar', $deleted->eq(0)->html());
+        $this->assertStringContainsString('baz', $deleted->eq(0)->html());
+        $this->assertStringContainsString('bar2', $added->eq(0)->html());
+        $this->assertStringContainsString('baz2', $added->eq(0)->html());
 
-        $this->assertContains('foobar', $deleted->eq(1)->html());
-        $this->assertContains('foobar2', $added->eq(1)->html());
+        $this->assertStringContainsString('foobar', $deleted->eq(1)->html());
+        $this->assertStringContainsString('foobar2', $added->eq(1)->html());
     }
 
 }

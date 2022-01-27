@@ -133,13 +133,13 @@ class Type_Lookup_struct_test extends StructTest
         $data['drop1']->render($R, 'xhtml');
         $pq = \phpQuery::newDocument($R->doc);
         $this->assertEquals('This is a title', $pq->find('a')->text());
-        $this->assertContains('title1', $pq->find('a')->attr('href'));
+        $this->assertStringContainsString('title1', $pq->find('a')->attr('href'));
 
         $R = new \Doku_Renderer_xhtml();
         $data['drop2']->render($R, 'xhtml');
         $pq = \phpQuery::newDocument($R->doc);
         $this->assertEquals('title1', $pq->find('a')->text());
-        $this->assertContains('title1', $pq->find('a')->attr('href'));
+        $this->assertStringContainsString('title1', $pq->find('a')->attr('href'));
     }
 
     public function test_translation()
