@@ -2,6 +2,7 @@
 
 namespace dokuwiki\plugin\struct\test;
 
+use dokuwiki\plugin\struct\meta\ValidationException;
 use dokuwiki\plugin\struct\types\Url;
 
 /**
@@ -71,11 +72,11 @@ class Type_Url_struct_test extends StructTest
     }
 
     /**
-     * @expectedException \dokuwiki\plugin\struct\meta\ValidationException
      * @dataProvider validateFailProvider
      */
     public function test_validate_fail($value, $prefix, $postfix, $autoscheme)
     {
+        $this->expectException(ValidationException::class);
         $url = new Url(array('prefix' => $prefix, 'postfix' => $postfix, 'autoscheme' => $autoscheme));
         $url->validate($value);
     }

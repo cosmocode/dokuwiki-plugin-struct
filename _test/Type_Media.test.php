@@ -2,6 +2,7 @@
 
 namespace dokuwiki\plugin\struct\test;
 
+use dokuwiki\plugin\struct\meta\ValidationException;
 use dokuwiki\plugin\struct\types\Media;
 
 /**
@@ -48,11 +49,11 @@ class Type_Media_struct_test extends StructTest
     }
 
     /**
-     * @expectedException \dokuwiki\plugin\struct\meta\ValidationException
      * @dataProvider validateFailProvider
      */
     public function test_validate_fail($mime, $value)
     {
+        $this->expectException(ValidationException::class);
         $integer = new Media(array('mime' => $mime));
         $integer->validate($value);
     }

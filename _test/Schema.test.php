@@ -3,6 +3,7 @@
 namespace dokuwiki\plugin\struct\test;
 
 use dokuwiki\plugin\struct\meta\Schema;
+use dokuwiki\plugin\struct\meta\StructException;
 
 /**
  * @group plugin_struct
@@ -65,11 +66,9 @@ class schema_struct_test extends StructTest
         $this->assertSame($expected_cleaned_name, $actual_cleaned_name, $input_name);
     }
 
-    /**
-     * @expectedException \dokuwiki\plugin\struct\meta\StructException
-     */
     public function test_deletefail()
     {
+        $this->expectException(StructException::class);
         $schema = new Schema('foo');
         $schema->delete();
     }
