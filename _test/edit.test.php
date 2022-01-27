@@ -505,7 +505,7 @@ class edit_struct_test extends StructTest
         );
 
         $this->assertEquals(3, count($revisions), 'there should be 3 (three) revisions');
-        $this->assertContains('restored', $revinfo['sum']);
+        $this->assertStringContainsString('restored', $revinfo['sum']);
         $this->assertEquals(DOKU_CHANGE_TYPE_REVERT, $revinfo['type']);
         $this->assertEquals($expected_struct_data, $actual_struct_data);
         // todo: timestamps?

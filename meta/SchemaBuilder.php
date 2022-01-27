@@ -98,7 +98,7 @@ class SchemaBuilder
         }
         $this->sqlite->query('COMMIT TRANSACTION');
 
-        return $this->newschemaid;
+        return (int) $this->newschemaid;
     }
 
     /**
@@ -148,7 +148,7 @@ class SchemaBuilder
     {
         if (!$this->time) $this->time = time();
 
-        $config = $this->data['config'] ?: '{}';
+        $config = $this->data['config'] ?? '{}';
 
         /** @noinspection SqlResolve */
         $sql = "INSERT INTO schemas (tbl, ts, user, config) VALUES (?, ?, ?, ?)";

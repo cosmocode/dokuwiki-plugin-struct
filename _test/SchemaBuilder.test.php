@@ -109,11 +109,11 @@ class schemaBuilder_struct_test extends StructTest
         $actual_schema = $this->sqlite->res2row($res);
         $this->sqlite->res_close($res);
 
-        $this->assertSame('1', $result);
+        $this->assertSame(1, $result);
         $this->assertEquals($expected_tableSQL, $tableSQL);
         $this->assertEquals($expected_types, $actual_types);
         $this->assertEquals($expected_cols, $actual_cols);
-        $this->assertEquals('1', $actual_schema['id']);
+        $this->assertEquals(1, $actual_schema['id']);
         $this->assertEquals($testname, $actual_schema['tbl']);
         $this->assertEquals('', $actual_schema['chksum']);
         $this->assertTrue((int)$actual_schema['ts'] > 0, 'timestamp should be larger than 0');
@@ -136,7 +136,7 @@ class schemaBuilder_struct_test extends StructTest
 
         $builder = new SchemaBuilder($testname, $initialdata);
         $result = $builder->build();
-        $this->assertSame($result, '1', 'Prerequiste setup  in order to have basis which to change during act');
+        $this->assertSame(1, $result, 'Prerequiste setup  in order to have basis which to change during act');
 
         $updatedata = array();
         $updatedata['id'] = "1";
@@ -172,8 +172,8 @@ class schemaBuilder_struct_test extends StructTest
         );
 
         // assert
-        $this->assertSame($result, '2');
-        $this->assertEquals($actual_types, $expected_types);
+        $this->assertSame(2, $result);
+        $this->assertEquals($expected_types, $actual_types);
 
     }
 }
