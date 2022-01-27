@@ -2,6 +2,7 @@
 
 namespace dokuwiki\plugin\struct\test;
 
+use dokuwiki\plugin\struct\meta\ValidationException;
 use dokuwiki\plugin\struct\types\User;
 
 /**
@@ -13,11 +14,9 @@ use dokuwiki\plugin\struct\types\User;
 class Type_User_struct_test extends StructTest
 {
 
-    /**
-     * @expectedException \dokuwiki\plugin\struct\meta\ValidationException
-     */
     public function test_validate_fail()
     {
+        $this->expectException(ValidationException::class);
         $user = new User();
         $user->validate('nosuchuser');
     }

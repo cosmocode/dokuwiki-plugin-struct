@@ -56,13 +56,15 @@ class SchemaBuilder
      */
     public function __construct($table, $data)
     {
+        global $INPUT;
+
         $this->table = $table;
         $this->data = $data;
         $this->oldschema = new Schema($table, 0);
 
         $this->helper = plugin_load('helper', 'struct_db');
         $this->sqlite = $this->helper->getDB();
-        $this->user = $_SERVER['REMOTE_USER'];
+        $this->user = $INPUT->server->str('REMOTE_USER');
     }
 
     /**

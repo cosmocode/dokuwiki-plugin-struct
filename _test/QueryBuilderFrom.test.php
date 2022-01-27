@@ -3,6 +3,7 @@
 namespace dokuwiki\plugin\struct\test;
 
 use dokuwiki\plugin\struct\meta\QueryBuilder;
+use dokuwiki\plugin\struct\meta\StructException;
 
 /**
  * @group plugin_struct
@@ -31,33 +32,27 @@ class QueryBuilderFrom_struct_test extends StructTest
         $this->assertEquals(array(), $actual_opts);
     }
 
-    /**
-     * @expectedException \dokuwiki\plugin\struct\meta\StructException
-     */
     public function test_table_alias_exception()
     {
+        $this->expectException(StructException::class);
         $qb = new QueryBuilder();
 
         $qb->addTable('first', 'T1');
         $qb->addTable('second', 'T1');
     }
 
-    /**
-     * @expectedException \dokuwiki\plugin\struct\meta\StructException
-     */
     public function test_leftjoin_missing_alias_exception()
     {
+        $this->expectException(StructException::class);
         $qb = new QueryBuilder();
 
         $qb->addTable('first', 'T1');
         $qb->addLeftJoin('T2', 'third', 'T3', 'T2.bar = T3.bar');
     }
 
-    /**
-     * @expectedException \dokuwiki\plugin\struct\meta\StructException
-     */
     public function test_leftjoin_existing_alias_exception()
     {
+        $this->expectException(StructException::class);
         $qb = new QueryBuilder();
 
         $qb->addTable('first', 'T1');

@@ -2,6 +2,7 @@
 
 namespace dokuwiki\plugin\struct\test;
 
+use dokuwiki\plugin\struct\meta\StructException;
 use dokuwiki\plugin\struct\test\mock\QueryBuilder;
 
 /**
@@ -45,11 +46,9 @@ class QueryBuilderOther_struct_test extends StructTest
         $this->assertEquals(array(), $actual_opts);
     }
 
-    /**
-     * @expectedException \dokuwiki\plugin\struct\meta\StructException
-     */
     public function test_groupby_missing_alias()
     {
+        $this->expectException(StructException::class);
         $qb = new QueryBuilder();
 
         $qb->addTable('first', 'T1');

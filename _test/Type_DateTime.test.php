@@ -2,6 +2,7 @@
 
 namespace dokuwiki\plugin\struct\test;
 
+use dokuwiki\plugin\struct\meta\ValidationException;
 use dokuwiki\plugin\struct\types\DateTime;
 
 /**
@@ -53,12 +54,11 @@ class Type_DateTime_struct_test extends StructTest
 
     /**
      * @dataProvider validate_fail
-     * @expectedException \dokuwiki\plugin\struct\meta\ValidationException
      */
     public function test_validation_fail($input)
     {
+        $this->expectException(ValidationException::class);
         $date = new DateTime();
-
         $date->validate($input);
     }
 }

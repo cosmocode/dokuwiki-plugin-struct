@@ -2,6 +2,7 @@
 
 namespace dokuwiki\plugin\struct\test;
 
+use dokuwiki\plugin\struct\meta\ValidationException;
 use dokuwiki\plugin\struct\meta\Value;
 use dokuwiki\plugin\struct\test\mock\Search;
 use dokuwiki\plugin\struct\types\Decimal;
@@ -77,11 +78,11 @@ class Type_Decimal_struct_test extends StructTest
 
 
     /**
-     * @expectedException \dokuwiki\plugin\struct\meta\ValidationException
      * @dataProvider validateFailProvider
      */
     public function test_validate_fail($value, $min, $max)
     {
+        $this->expectException(ValidationException::class);
         $decimal = new Decimal(array('min' => $min, 'max' => $max));
         $decimal->validate($value);
     }

@@ -2,6 +2,7 @@
 
 namespace dokuwiki\plugin\struct\test;
 
+use dokuwiki\plugin\struct\meta\ValidationException;
 use dokuwiki\plugin\struct\types\Color;
 
 /**
@@ -59,10 +60,10 @@ class Type_Color_struct_test extends StructTest
 
     /**
      * @dataProvider validate_fail
-     * @expectedException \dokuwiki\plugin\struct\meta\ValidationException
      */
     public function test_validation_fail($input)
     {
+        $this->expectException(ValidationException::class);
         $date = new Color();
 
         $date->validate($input);
