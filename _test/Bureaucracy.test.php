@@ -2,7 +2,6 @@
 
 namespace dokuwiki\plugin\struct\test;
 
-use dokuwiki\plugin\bureaucracy\test\BureaucracyTest;
 use dokuwiki\plugin\struct\meta\AccessTable;
 
 /**
@@ -24,6 +23,10 @@ class Bureaucracy_struct_test extends StructTest
     public function setUp(): void
     {
         parent::setUp();
+
+        if(!class_exists('\dokuwiki\plugin\bureaucracy\test\BureaucracyTest')) {
+            $this->markTestSkipped('bureaucracy plugin not available');
+        }
 
         $this->loadSchemaJSON('bureaucracy_lookup');
         $this->loadSchemaJSON('bureaucracy');
@@ -121,25 +124,24 @@ class Bureaucracy_struct_test extends StructTest
         $templateSyntax = "staticPrefix @@schema1.first@@ staticPostfix\nmulti: @@schema1.second@@ multipost";
         $values = ['foo', ['bar', 'baz']];
 
-        $bWrapper = new bureaucracyTestWrapper();
-        $actualWikitext = $bWrapper->send_form_action_template(
-            $formSyntax,
-            $templateSyntax,
-            $errors,
-            ...$values
+        $errors = [];
+        $bTest = new \dokuwiki\plugin\bureaucracy\test\BureaucracyTest();
+        $actualWikitext = $this->callInaccessibleMethod(
+            $bTest,
+            'send_form_action_template',
+            array_merge(
+                [
+                    $formSyntax,
+                    $templateSyntax,
+                    &$errors
+                ],
+                $values
+
+            )
         );
 
         $expectedSyntax = "staticPrefix foo staticPostfix\nmulti: bar, baz multipost";
         $this->assertEquals($expectedSyntax, $actualWikitext);
         $this->assertEmpty($errors);
-    }
-}
-
-
-class bureaucracyTestWrapper extends BureaucracyTest
-{
-    public function send_form_action_template($form_syntax, $template_syntax, &$validation_errors, ...$values)
-    {
-        return parent::send_form_action_template($form_syntax, $template_syntax, $validation_errors, ...$values);
     }
 }
