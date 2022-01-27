@@ -108,6 +108,7 @@ class SearchConfig extends Search
      */
     protected function applyFilterVars($filter)
     {
+        global $INPUT;
         global $INFO;
         if (is_null($INFO)) {
             $INFO = ['id' => null];
@@ -126,7 +127,7 @@ class SearchConfig extends Search
                 $INFO['id'],
                 getNS($INFO['id']),
                 noNS($INFO['id']),
-                isset($_SERVER['REMOTE_USER']) ? $_SERVER['REMOTE_USER'] : '',
+                $INPUT->server->str('REMOTE_USER'),
                 date('Y-m-d')
             ),
             $filter

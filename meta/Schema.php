@@ -313,10 +313,11 @@ class Schema
     public function isEditable()
     {
         global $USERINFO;
+        global $INPUT;
         if ($this->config['allowed editors'] === '') return true;
-        if (blank($_SERVER['REMOTE_USER'])) return false;
+        if ($INPUT->server->str('REMOTE_USER') === '') return false;
         if (auth_isadmin()) return true;
-        return auth_isMember($this->config['allowed editors'], $_SERVER['REMOTE_USER'], $USERINFO['grps']);
+        return auth_isMember($this->config['allowed editors'], $INPUT->server->str('REMOTE_USER'), $USERINFO['grps']);
     }
 
     /**
