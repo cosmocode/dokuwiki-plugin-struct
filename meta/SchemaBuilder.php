@@ -98,7 +98,7 @@ class SchemaBuilder
         }
         $this->sqlite->query('COMMIT TRANSACTION');
 
-        return $this->newschemaid;
+        return (int) $this->newschemaid;
     }
 
     /**
