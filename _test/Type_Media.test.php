@@ -79,11 +79,11 @@ class Type_Media_struct_test extends StructTest
         $a = $pq->find('a');
         $img = $pq->find('img');
 
-        $this->assertContains('fetch.php', $a->attr('href')); // direct link goes to fetch
+        $this->assertStringContainsString('fetch.php', $a->attr('href')); // direct link goes to fetch
         $this->assertEquals('lightbox', $a->attr('rel')); // lightbox single mode
-        $this->assertContains('w=150', $img->attr('src')); // fetch param
+        $this->assertStringContainsString('w=150', $img->attr('src')); // fetch param
         $this->assertEquals(150, $img->attr('width')); // img param
-        $this->assertContains('h=160', $img->attr('src')); // fetch param
+        $this->assertStringContainsString('h=160', $img->attr('src')); // fetch param
         $this->assertEquals(160, $img->attr('height')); // img param
     }
 
@@ -99,11 +99,11 @@ class Type_Media_struct_test extends StructTest
         $a = $pq->find('a');
         $img = $pq->find('img');
 
-        $this->assertContains('fetch.php', $a->attr('href')); // direct link goes to fetch
+        $this->assertStringContainsString('fetch.php', $a->attr('href')); // direct link goes to fetch
         $this->assertEquals('lightbox[gal-HASH]', $a->attr('rel')); // lightbox single mode
-        $this->assertContains('w=180', $img->attr('src')); // fetch param
+        $this->assertStringContainsString('w=180', $img->attr('src')); // fetch param
         $this->assertEquals(180, $img->attr('width')); // img param
-        $this->assertContains('h=190', $img->attr('src')); // fetch param
+        $this->assertStringContainsString('h=190', $img->attr('src')); // fetch param
         $this->assertEquals(190, $img->attr('height')); // img param
     }
 
@@ -118,7 +118,7 @@ class Type_Media_struct_test extends StructTest
         $a = $pq->find('a');
         $img = $pq->find('img');
 
-        $this->assertContains('fetch.php', $a->attr('href')); // direct link goes to fetch
+        $this->assertStringContainsString('fetch.php', $a->attr('href')); // direct link goes to fetch
         $this->assertTrue($a->hasClass('mediafile')); // it's a media link
         $this->assertEquals('', $a->attr('rel')); // no lightbox
         $this->assertEquals(0, $img->length); // no image
@@ -141,8 +141,8 @@ class Type_Media_struct_test extends StructTest
         $vid = $pq->find('video');
         $src = $pq->find('source');
 
-        $this->assertContains('fetch.php', $a->attr('href')); // direct link goes to fetch
-        $this->assertContains('fetch.php', $src->attr('src')); // direct link goes to fetch
+        $this->assertStringContainsString('fetch.php', $a->attr('href')); // direct link goes to fetch
+        $this->assertStringContainsString('fetch.php', $src->attr('src')); // direct link goes to fetch
         $this->assertEquals(150, $vid->attr('width')); // video param
         $this->assertEquals(160, $vid->attr('height')); // video param
     }
