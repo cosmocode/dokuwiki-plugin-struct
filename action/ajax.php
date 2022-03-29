@@ -27,10 +27,8 @@ class action_plugin_struct_ajax extends DokuWiki_Action_Plugin
      * Pass Ajax call to a type
      *
      * @param Doku_Event $event event object by reference
-     * @param mixed $param [the parameters passed as fifth argument to register_hook() when this
-     *                           handler was registered]
      */
-    public function handleAjax(Doku_Event $event, $param)
+    public function handleAjax(Doku_Event $event)
     {
         if ($event->data != 'plugin_struct') return;
         $event->preventDefault();
@@ -50,8 +48,7 @@ class action_plugin_struct_ajax extends DokuWiki_Action_Plugin
             http_status(500);
         }
 
-        $json = new JSON();
-        echo $json->encode($result);
+        echo json_encode($result);
     }
 
     /**

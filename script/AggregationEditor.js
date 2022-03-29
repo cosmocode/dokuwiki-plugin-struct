@@ -79,6 +79,11 @@ const AggregationEditor = function (idx, table) {
     function addForm(data) {
         if ($form) $form.remove();
         var $agg = $table.parents('.structaggregation');
+        const searchconf = JSON.parse($agg.attr('data-searchconf'));
+        const withpid = searchconf['withpid'];
+        const isPageEditor = JSINFO.plugins.struct.isPageEditor;
+
+        if (withpid && !isPageEditor) return;
 
         $form = jQuery('<form></form>');
         $form.html(data);
@@ -89,8 +94,7 @@ const AggregationEditor = function (idx, table) {
         }).appendTo($form); // add the search config to the form
 
         // if page id needs to be passed to backend, add pid
-        const searchconf = JSON.parse($agg.attr('data-searchconf'));
-        if (searchconf['withpid']) {
+        if (withpid) {
             jQuery('<input>').attr({
                 type: 'hidden',
                 name: 'pid',
