@@ -258,7 +258,7 @@ class SchemaBuilder
 
             // todo this duplicates the hardcoding as in  the function above
             $newEntry = array();
-            $newEntry['config'] = $column['config'];
+            $newEntry['config'] = $column['config'] ?? '{}';
             $newEntry['label'] = $column['label'];
             $newEntry['ismulti'] = $column['ismulti'];
             $newEntry['class'] = $column['class'];

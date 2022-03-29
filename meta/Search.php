@@ -584,7 +584,7 @@ class Search
             $table = $schema_list[0];
         }
 
-        $schema = $this->schemas[$table];
+        $schema = $this->schemas[$table] ?? null;
         if (!$schema) return false;
         $this->columns = array_merge($this->columns, $schema->getColumns(false));
         return true;

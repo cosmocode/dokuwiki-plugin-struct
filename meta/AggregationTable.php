@@ -339,7 +339,7 @@ class AggregationTable
     protected function renderDynamicFilters()
     {
         if ($this->mode != 'xhtml') return;
-        if (!$this->data['dynfilters']) return;
+        if (empty($this->data['dynfilters'])) return;
         if (is_a($this->renderer, 'renderer_plugin_dw2pdf')) {
             return;
         }
@@ -448,7 +448,7 @@ class AggregationTable
             $this->renderer->tablecell_close();
 
             // summarize
-            if ($this->data['summarize'] && is_numeric($value->getValue())) {
+            if (!empty($this->data['summarize']) && is_numeric($value->getValue())) {
                 if (!isset($this->sums[$colnum])) {
                     $this->sums[$colnum] = 0;
                 }
