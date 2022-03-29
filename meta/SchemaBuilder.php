@@ -64,14 +64,14 @@ class SchemaBuilder
 
         $this->helper = plugin_load('helper', 'struct_db');
         $this->sqlite = $this->helper->getDB();
-        $this->user = $INPUT->server->str('REMOTE_USER');
+        $this->user = $_SERVER['REMOTE_USER'] ?? '';
     }
 
     /**
      * Create the new schema
      *
      * @param int $time when to create this schema 0 for now
-     * @return bool|int the new schema id on success
+     * @return int the new schema id on success
      */
     public function build($time = 0)
     {
@@ -98,7 +98,7 @@ class SchemaBuilder
         }
         $this->sqlite->query('COMMIT TRANSACTION');
 
-        return (int) $this->newschemaid;
+        return (int)$this->newschemaid;
     }
 
     /**
