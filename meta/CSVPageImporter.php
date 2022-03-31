@@ -28,7 +28,7 @@ class CSVPageImporter extends CSVImporter
     {
         //create new page revision
         $pid = cleanID($values[0]);
-        if ($this->createPage[$pid]) {
+        if (isset($this->createPage[$pid])) {
             $this->createPage($pid, $values);
         }
         // make sure this schema is assigned

@@ -7,7 +7,7 @@ use dokuwiki\plugin\struct\meta\AccessTable;
 /**
  * Tests for the integration with Bureaucracy plugin
  *
- * @group plugin_struct
+ * @group plugin_structb
  * @group plugins
  *
  */
@@ -57,15 +57,18 @@ class Bureaucracy_struct_test extends StructTest
         //build form
         $fields = array();
 
+        /** @var \helper_plugin_struct_field $lookup_field */
         $lookup_field = plugin_load('helper', 'struct_field');
+
+        $lookup_field->opt['cmd'] = '';
         $lookup_field->opt['label'] = 'bureaucracy.lookup_select';
         //empty lookup value
-        $lookup_field->opt['value'] = '';
+        $lookup_field->opt['value'] = '["",1]';
         //left pagename undefined
         //$lookup_field->opt['pagename'];
 
         //$args are ommited in struct_field
-        $lookup_field->initialize(array());
+        $lookup_field->initialize(['', $lookup_field->opt['label']]);
         $fields[] = $lookup_field;
 
         /** @var  \helper_plugin_bureaucracy_actiontemplate $actiontemplate */

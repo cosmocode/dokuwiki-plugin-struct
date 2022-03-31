@@ -71,7 +71,7 @@ class DateTime extends Date
     public function validate($rawvalue)
     {
         $rawvalue = trim($rawvalue);
-        list($date, $time) = preg_split('/[ |T]/', $rawvalue, 2);
+        list($date, $time) = array_pad(preg_split('/[ |T]/', $rawvalue, 2), 2, '');
         $date = trim($date);
         $time = trim($time);
 
@@ -86,7 +86,7 @@ class DateTime extends Date
             throw new ValidationException('futureonly');
         }
 
-        list($h, $m) = explode(':', $time, 3); // drop seconds
+        list($h, $m) = array_pad(explode(':', $time, 3), 2, ''); // drop seconds
         $h = (int)$h;
         $m = (int)$m;
         if ($h < 0 || $h > 23 || $m < 0 || $m > 59) {
@@ -136,7 +136,7 @@ class DateTime extends Date
             $QB->addLeftJoin($tablealias, 'titles', $rightalias, "$tablealias.pid = $rightalias.pid");
         }
 
-        /** @var QueryBuilderWhere $add Where additionional queries are added to */
+        /** @var QueryBuilderWhere $add Where additional queries are added to */
         if (is_array($value)) {
             $add = $add->where($op); // sub where group
             $op = 'OR';

@@ -110,8 +110,8 @@ class SearchConfig extends Search
     {
         global $INPUT;
         global $INFO;
-        if (is_null($INFO)) {
-            $INFO = ['id' => null];
+        if (!isset($INFO['id'])) {
+            $INFO['id'] = null;
         }
 
         // apply inexpensive filters first
@@ -161,7 +161,7 @@ class SearchConfig extends Search
             $label = $column->getLabel();
             $table = $column->getTable();
         } else {
-            list($table, $label) = explode('.', $key);
+            list($table, $label) = array_pad(explode('.', $key), 2, '');
         }
 
         // get the data from the current page

@@ -55,7 +55,7 @@ class Page extends AbstractMultiBaseType
      */
     public function validate($rawvalue)
     {
-        list($page, $fragment) = explode('#', $rawvalue, 2);
+        list($page, $fragment) = array_pad(explode('#', $rawvalue, 2), 2, '');
         return cleanID($page) . (strlen(cleanID($fragment)) > 0 ? '#' . cleanID($fragment) : '');
     }
 
