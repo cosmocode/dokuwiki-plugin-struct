@@ -62,13 +62,11 @@ class Bureaucracy_struct_test extends StructTest
 
         $lookup_field->opt['cmd'] = '';
         $lookup_field->opt['label'] = 'bureaucracy.lookup_select';
-        //empty lookup value
-        $lookup_field->opt['value'] = '["",1]';
-        //left pagename undefined
-        //$lookup_field->opt['pagename'];
 
-        //$args are ommited in struct_field
-        $lookup_field->initialize(['', $lookup_field->opt['label']]);
+        $lookup_field->initialize([$lookup_field->opt['cmd'], $lookup_field->opt['label']]);
+
+        //empty lookup value
+        $lookup_field->opt['value'] = json_encode([]);
         $fields[] = $lookup_field;
 
         /** @var  \helper_plugin_bureaucracy_actiontemplate $actiontemplate */
@@ -98,13 +96,12 @@ class Bureaucracy_struct_test extends StructTest
         $fields = array();
 
         $lookup_field = plugin_load('helper', 'struct_field');
+        $lookup_field->opt['cmd'] = '';
         $lookup_field->opt['label'] = 'bureaucracy.lookup_select';
-        $lookup_field->opt['value'] = json_encode(['', $lookup_rid]);
-        //left pagename undefined
-        //$lookup_field->opt['pagename'];
 
-        //$args are ommited in struct_field
-        $lookup_field->initialize(array());
+        $lookup_field->initialize([$lookup_field->opt['cmd'], $lookup_field->opt['label']]);
+        $lookup_field->opt['value'] = json_encode(['', $lookup_rid]);
+
         $fields[] = $lookup_field;
 
         /* @var \helper_plugin_bureaucracy_actiontemplate $actiontemplate */

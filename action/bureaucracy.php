@@ -122,7 +122,7 @@ class action_plugin_struct_bureaucracy extends DokuWiki_Action_Plugin
             if ($field->column->isMulti()) {
                 $field->opt['value'] = $new_value;
             } else {
-                $event->data['values'][$field->column->getFullQualifiedLabel()] = $new_value[0];
+                $event->data['values'][$field->column->getFullQualifiedLabel()] = $new_value[0] ?? '';
             }
         }
         return true;
