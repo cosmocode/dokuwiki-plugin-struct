@@ -30,11 +30,6 @@ class Schema
     /** @var string name of the associated table */
     protected $table = '';
 
-    /**
-     * @var string the current checksum of this schema
-     */
-    protected $chksum = '';
-
     /** @var Column[] all the colums */
     protected $columns = array();
 
@@ -93,7 +88,6 @@ class Schema
             $result = array_shift($schema);
             $this->id = $result['id'];
             $this->user = $result['user'];
-            $this->chksum = isset($result['chksum']) ? $result['chksum'] : '';
             $this->ts = $result['ts'];
             $config = json_decode($result['config'], true);
         }
@@ -233,7 +227,6 @@ class Schema
 
         // a deleted schema should not be used anymore, but let's make sure it's somewhat sane anyway
         $this->id = 0;
-        $this->chksum = '';
         $this->columns = array();
         $this->maxsort = 0;
         $this->ts = 0;
@@ -253,14 +246,6 @@ class Schema
         $this->sqlite->query($sql, 'multi_' . $this->table);
         $this->sqlite->query('COMMIT TRANSACTION');
         $this->sqlite->query('VACUUM');
-    }
-
-    /**
-     * @return string
-     */
-    public function getChksum()
-    {
-        return $this->chksum;
     }
 
     /**

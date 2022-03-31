@@ -35,6 +35,7 @@ class AggregationExportCSV extends StructTest
     public function test_wikiColumn()
     {
         global $INPUT;
+        global $INFO;
 
         $syntaxPrefix = ['---- struct table ----'];
         $syntaxConfig = ['schema: wikilookup', 'cols: *'];
@@ -48,6 +49,7 @@ def","  * hi
         $configParser = new ConfigParser($syntaxConfig);
         $INPUT->set('hash', md5(var_export($configParser->getConfig(), true)));
 
+        $INFO['id'] = 'unit_test';
         $ins = p_get_instructions($syntax);
         $renderedCSV = p_render('struct_csv', $ins, $info);
         $actualCSV = str_replace("\r", '', $renderedCSV);

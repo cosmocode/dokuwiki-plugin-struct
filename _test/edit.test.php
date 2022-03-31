@@ -446,6 +446,9 @@ class edit_struct_test extends StructTest
         $_SERVER['REMOTE_USER'] = 'admin'; //now it's testing as admin
         global $default_server_vars;
         $default_server_vars['REMOTE_USER'] = 'admin';  //Hack until Issue #1099 is fixed
+        global $USERINFO;
+        $USERINFO['name'] = 'admin';
+        $USERINFO['mail'] = 'admin@example.com';
         $USERINFO['grps'] = array('admin', 'user');
 
         // first save;

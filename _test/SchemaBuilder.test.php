@@ -115,7 +115,6 @@ class schemaBuilder_struct_test extends StructTest
         $this->assertEquals($expected_cols, $actual_cols);
         $this->assertEquals(1, $actual_schema['id']);
         $this->assertEquals($testname, $actual_schema['tbl']);
-        $this->assertEquals('', $actual_schema['chksum']);
         $this->assertTrue((int)$actual_schema['ts'] > 0, 'timestamp should be larger than 0');
     }
 

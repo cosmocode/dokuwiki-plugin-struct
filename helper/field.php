@@ -143,7 +143,7 @@ class helper_plugin_struct_field extends helper_plugin_bureaucracy_field
         $class = $hint ? 'hashint' : '';
         $lclass = $this->error ? 'bureaucracy_error' : '';
         $colname = $field->getColumn()->getFullQualifiedLabel();
-        $required = $this->opt['optional'] ? '' : ' <sup>*</sup>';
+        $required = !empty($this->opt['optional']) ? '' : ' <sup>*</sup>';
 
         $id = uniqid('struct__', true);
         $input = $field->getValueEditor($name, $id);
