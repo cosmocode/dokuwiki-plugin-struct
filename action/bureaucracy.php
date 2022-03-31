@@ -109,8 +109,10 @@ class action_plugin_struct_bureaucracy extends DokuWiki_Action_Plugin
             foreach ($value as $pid) {
                 for ($i = 0; $i < count($result); $i++) {
                     // lookups can reference pages or global data, so check both pid and rid
-                    $pid = json_decode($pid)[0] ?: $pid;
-                    $rid = json_decode($pid)[1];
+                    // make sure not to double decode pid!
+                    $originalPid = $pid;
+                    $pid = json_decode($pid)[0] ?? $pid;
+                    $rid = json_decode($originalPid)[1] ?? null;
                     if (($pid && $pids[$i] === $pid) || ($rid && $rids[$i] === (string)$rid)) {
                         $field->opt['struct_pids'][] = $pid;
                         $new_value[] = $result[$i][0]->getDisplayValue();
