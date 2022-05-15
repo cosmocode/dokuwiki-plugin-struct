@@ -36,8 +36,10 @@ class SearchConfig extends Search
     /**
      * SearchConfig constructor.
      * @param array $config The parsed configuration for this search
+     * @param bool $renderMetadata If this is true, then dynamic filters will not be parsed.
+     *                             This is for metadata rendering.
      */
-    public function __construct($config)
+    public function __construct($config, $renderMetadata=false)
     {
         parent::__construct();
 
@@ -54,8 +56,10 @@ class SearchConfig extends Search
         if (!empty($config['filters'])) $this->cacheFlag = $this->determineCacheFlag($config['filters']);
 
         // apply dynamic paramters
-        $this->dynamicParameters = new SearchConfigParameters($this);
-        $config = $this->dynamicParameters->updateConfig($config);
+        if (!$renderMetadata) {
+            $this->dynamicParameters = new SearchConfigParameters($this);
+            $config = $this->dynamicParameters->updateConfig($config);
+        }
 
         // configure search from configuration
         if (!empty($config['filter'])) foreach ($config['filter'] as $filter) {
@@ -66,7 +70,7 @@ class SearchConfig extends Search
             $this->addSort($sort[0], $sort[1]);
         }
 
-        if (!empty($config['limit'])) {
+        if (!empty($config['limit']) && !$renderMetadata) {
             $this->setLimit($config['limit']);
         }
 
@@ -108,10 +112,14 @@ class SearchConfig extends Search
      */
     protected function applyFilterVars($filter)
     {
-        global $INPUT;
         global $INFO;
+        
         if (!isset($INFO['id'])) {
             $INFO['id'] = null;
+        if (is_null($INFO)) {
+            $pageinfo = pageinfo();
+        } else {
+            $pageinfo = $INFO;
         }
 
         // apply inexpensive filters first
@@ -124,10 +132,10 @@ class SearchConfig extends Search
                 '$TODAY$'
             ),
             array(
-                $INFO['id'],
-                getNS($INFO['id']),
-                noNS($INFO['id']),
-                $INPUT->server->str('REMOTE_USER'),
+                $pageinfo['id'],
+                getNS($pageinfo['id']),
+                noNS($pageinfo['id']),
+                isset($_SERVER['REMOTE_USER']) ? $_SERVER['REMOTE_USER'] : '',
                 date('Y-m-d')
             ),
             $filter

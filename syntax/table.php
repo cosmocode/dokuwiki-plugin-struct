@@ -96,7 +96,7 @@ class syntax_plugin_struct_table extends DokuWiki_Syntax_Plugin
         $config = $this->addTypeFilter($config); // add type specific filters
 
         try {
-            $search = new SearchConfig($config);
+            $search = new SearchConfig($config, $format == 'metadata');
             if ($format === 'struct_csv') {
                 // no pagination in export
                 $search->setLimit(0);
