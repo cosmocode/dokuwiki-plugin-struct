@@ -97,8 +97,15 @@ class syntax_plugin_struct_output extends DokuWiki_Syntax_Plugin
                 return true;
             }
         }
-        if ($ID != pageinfo()['id']) return true;
-        if (!page_exists($ID)) return true;
+
+        if (!isset($INFO)) {
+            $pagename = pageinfo()['id'];
+        } else {
+            $pagename = $INFO['id'];
+        }
+
+        if ($ID != $pagename) return true;
+        if (!page_exists($pagename)) return true;
         if ($this->hasBeenRendered['metadata'] && $format == 'metadata') return true;
         if ($this->hasBeenRendered['xhtml'] && $format == 'xhtml') return true;
         if (!preg_match(self::WHITELIST_ACTIONS, act_clean($ACT))) return true;
