@@ -36,10 +36,10 @@ class SearchConfig extends Search
     /**
      * SearchConfig constructor.
      * @param array $config The parsed configuration for this search
-     * @param bool $renderMetadata If this is true, then dynamic filters will not be parsed.
+     * @param bool $applyDynamicFilter If this is true, then dynamic filters will not be parsed.
      *                             This is for metadata rendering.
      */
-    public function __construct($config, $renderMetadata=false)
+    public function __construct($config, $applyDynamicFilter=false)
     {
         parent::__construct();
 
@@ -56,7 +56,7 @@ class SearchConfig extends Search
         if (!empty($config['filters'])) $this->cacheFlag = $this->determineCacheFlag($config['filters']);
 
         // apply dynamic paramters
-        if (!$renderMetadata) {
+        if (!$applyDynamicFilter) {
             $this->dynamicParameters = new SearchConfigParameters($this);
             $config = $this->dynamicParameters->updateConfig($config);
         }
@@ -70,7 +70,7 @@ class SearchConfig extends Search
             $this->addSort($sort[0], $sort[1]);
         }
 
-        if (!empty($config['limit']) && !$renderMetadata) {
+        if (!empty($config['limit']) && !$applyDynamicFilter) {
             $this->setLimit($config['limit']);
         }
 
@@ -114,8 +114,6 @@ class SearchConfig extends Search
     {
         global $INFO;
         
-        if (!isset($INFO['id'])) {
-            $INFO['id'] = null;
         if (is_null($INFO)) {
             $pageinfo = pageinfo();
         } else {
