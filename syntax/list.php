@@ -103,16 +103,23 @@ class syntax_plugin_struct_list extends DokuWiki_Syntax_Plugin
      */
     public function render($mode, Doku_Renderer $renderer, $data)
     {
+        if ($mode != "metadata" && $mode != "xhtml") return false;
         if (!$data) return false;
         global $INFO;
         global $conf;
+
+        if (is_null($INFO)) {
+            $pageinfo = pageinfo();
+        } else {
+            $pageinfo = $INFO;
+        }
 
         try {
             $this->checkForInvalidOptions($data);
             $search = new SearchConfig($data);
 
             /** @var AggregationList $list */
-            $list = new $this->tableclass($INFO['id'], $mode, $renderer, $search);
+            $list = new $this->tableclass($pageinfo['id'], $mode, $renderer, $search);
             $list->render();
 
             if ($mode == 'metadata') {

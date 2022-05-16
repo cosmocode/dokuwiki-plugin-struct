@@ -85,14 +85,22 @@ class syntax_plugin_struct_cloud extends DokuWiki_Syntax_Plugin
      */
     public function render($mode, Doku_Renderer $renderer, $data)
     {
+        if ($mode != "metadata" && $mode != "xhtml") return false;
         if (!$data) return false;
         if (!empty($data['filter'])) {
             msg($this->getLang('Warning: no filters for cloud'), -1);
         }
         global $INFO, $conf;
+
+        if (is_null($INFO)) {
+            $pageinfo = pageinfo();
+        } else {
+            $pageinfo = $INFO;
+        }
+
         try {
             $search = new SearchCloud($data);
-            $cloud = new AggregationCloud($INFO['id'], $mode, $renderer, $search);
+            $cloud = new AggregationCloud($pageinfo['id'], $mode, $renderer, $search);
             $cloud->render();
             if ($mode == 'metadata') {
                 /** @var Doku_Renderer_metadata $renderer */
