@@ -96,7 +96,7 @@ class syntax_plugin_struct_list extends DokuWiki_Syntax_Plugin
     /**
      * Render xhtml output or metadata
      *
-     * @param string $mode Renderer mode (supported modes: xhtml)
+     * @param string $mode Renderer mode
      * @param Doku_Renderer $renderer The renderer
      * @param array $data The data from the handler() function
      * @return bool If rendering was successful.
@@ -108,7 +108,7 @@ class syntax_plugin_struct_list extends DokuWiki_Syntax_Plugin
         global $INFO;
         global $conf;
 
-        if (is_null($INFO)) {
+        if (is_null($INFO) || $mode == "metadata") {
             $pageinfo = pageinfo();
         } else {
             $pageinfo = $INFO;
@@ -126,6 +126,7 @@ class syntax_plugin_struct_list extends DokuWiki_Syntax_Plugin
                 /** @var Doku_Renderer_metadata $renderer */
                 $renderer->meta['plugin']['struct']['hasaggregation'] = $search->getCacheFlag();
             }
+            
         } catch (StructException $e) {
             msg($e->getMessage(), -1, $e->getLine(), $e->getFile());
             if ($conf['allowdebug']) msg('<pre>' . hsc($e->getTraceAsString()) . '</pre>', -1);

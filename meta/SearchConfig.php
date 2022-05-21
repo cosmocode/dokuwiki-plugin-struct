@@ -36,10 +36,9 @@ class SearchConfig extends Search
     /**
      * SearchConfig constructor.
      * @param array $config The parsed configuration for this search
-     * @param bool $applyDynamicFilter If this is true, then dynamic filters will not be parsed.
-     *                             This is for metadata rendering.
+     * @param bool $isMetadataRender If this is true, then dynamic filters will not be parsed.
      */
-    public function __construct($config, $applyDynamicFilter=false)
+    public function __construct($config, $isMetadataRender=false)
     {
         parent::__construct();
 
@@ -56,21 +55,21 @@ class SearchConfig extends Search
         if (!empty($config['filters'])) $this->cacheFlag = $this->determineCacheFlag($config['filters']);
 
         // apply dynamic paramters
-        if (!$applyDynamicFilter) {
+        if (!$isMetadataRender) {
             $this->dynamicParameters = new SearchConfigParameters($this);
             $config = $this->dynamicParameters->updateConfig($config);
         }
 
         // configure search from configuration
         if (!empty($config['filter'])) foreach ($config['filter'] as $filter) {
-            $this->addFilter($filter[0], $this->applyFilterVars($filter[2]), $filter[1], $filter[3]);
+            $this->addFilter($filter[0], $this->applyFilterVars($filter[2], $isMetadataRender), $filter[1], $filter[3]);
         }
 
         if (!empty($config['sort'])) foreach ($config['sort'] as $sort) {
             $this->addSort($sort[0], $sort[1]);
         }
 
-        if (!empty($config['limit']) && !$applyDynamicFilter) {
+        if (!empty($config['limit']) && !$isMetadataRender) {
             $this->setLimit($config['limit']);
         }
 
@@ -110,11 +109,11 @@ class SearchConfig extends Search
      * @param string $filter
      * @return string|string[] Result may be an array when a multi column placeholder is used
      */
-    protected function applyFilterVars($filter)
+    protected function applyFilterVars($filter, $isMetadataRender=false)
     {
         global $INFO;
         
-        if (is_null($INFO)) {
+        if (is_null($INFO) || $isMetadataRender) {
             $pageinfo = pageinfo();
         } else {
             $pageinfo = $INFO;

@@ -98,7 +98,7 @@ class syntax_plugin_struct_output extends DokuWiki_Syntax_Plugin
             }
         }
 
-        if (!isset($INFO)) {
+        if (!isset($INFO) || $format == "metadata") {
             $pagename = pageinfo()['id'];
         } else {
             $pagename = $INFO['id'];
@@ -117,7 +117,7 @@ class syntax_plugin_struct_output extends DokuWiki_Syntax_Plugin
         else if ($format == 'xhtml') {
             $this->hasBeenRendered['xhtml'] = true;
         }
-        
+
         try {
             $assignments = Assignments::getInstance();
         } catch (StructException $e) {
