@@ -67,7 +67,5 @@ function formatString(format) {
  * Custom onSelect handler for struct img button
  */
 window.insertStructMedia = function (edid, mediaid, opts, align) {
-    // escape dots in field id, bureaucracy plugin uses dots and it can break jQuery selectors
-    edid = edid.split('.').join('\\.');
-    jQuery('#' + edid).val(mediaid).change();
+    jQuery(document.getElementById(edid)).val(mediaid).change();
 };
