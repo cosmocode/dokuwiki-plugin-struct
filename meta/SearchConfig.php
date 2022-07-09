@@ -236,11 +236,15 @@ class SearchConfig extends Search
      *
      * Note: This call returns a clone of the parameters as they were initialized
      *
-     * @return SearchConfigParameters
+     * @return SearchConfigParameters|null
      */
     public function getDynamicParameters()
     {
-        return clone $this->dynamicParameters;
+        if (isset($this->dynamicParameters)) {
+            return clone $this->dynamicParameters;
+        } else {
+            return null;
+        }
     }
 
     /**

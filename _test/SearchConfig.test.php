@@ -131,6 +131,30 @@ class SearchConfig_struct_test extends StructTest
         $this->assertEquals(array('user', 'test'), $searchConfig->applyFilterVars('$USER.grps$'));
     }
 
+    public function test_metadata_render()
+    {
+        $searchConfig = new SearchConfig(array("limit" => 50), true);
+        $reflection = new \ReflectionClass(get_class($searchConfig));
+        $rangeVar = $reflection->getProperty('range_end');
+        $rangeVar->setAccessible(true);
+        $dynamicFilterVar = $reflection->getProperty('dynamicParameters');
+        $dynamicFilterVar->setAccessible(true);
+
+        $this->assertTrue($rangeVar->getValue($searchConfig) == 0);
+        $this->assertTrue(is_null($dynamicFilterVar->getValue($searchConfig)));
+        $this->assertTrue(is_null($searchConfig->getDynamicParameters()));
+
+        $searchConfig = new SearchConfig(array("limit" => 50), false);
+        $this->assertTrue($rangeVar->getValue($searchConfig) == 50);
+        $this->assertFalse(is_null($dynamicFilterVar->getValue($searchConfig)));
+        $this->assertFalse(is_null($searchConfig->getDynamicParameters()));
+
+        $searchConfig = new SearchConfig(array("limit" => 50));
+        $this->assertTrue($rangeVar->getValue($searchConfig) == 50);
+        $this->assertFalse(is_null($dynamicFilterVar->getValue($searchConfig)));
+        $this->assertFalse(is_null($searchConfig->getDynamicParameters()));
+    }
+
     public function test_cacheflags()
     {
         $searchConfig = new SearchConfig(array());
