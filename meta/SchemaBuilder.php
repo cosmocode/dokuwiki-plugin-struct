@@ -231,14 +231,17 @@ class SchemaBuilder
                 continue;
             }
             $valueString[] = "(?, ?, ?, ?, ?, ?)";
-            $arguments = array_merge($arguments, array($colref, $values['pid'], $values['rev'], $values['published'], 1, $values['value']));
+            $arguments = array_merge(
+                $arguments,
+                [$colref, $values['pid'], $values['rev'], $values['published'], 1, $values['value']]
+            );
         }
         if (empty($valueString)) {
             return;
         }
         $valueString = join(',', $valueString);
         /** @noinspection SqlResolve */
-        $sqlInsert = "INSERT OR REPLACE INTO multi_$table (colref, pid, rev, published, row, value) VALUES $valueString";
+        $sqlInsert = "INSERT OR REPLACE INTO multi_$table (colref, pid, rev, published, row, value) VALUES $valueString"; // phpcs:ignore
         $this->sqlite->query($sqlInsert, $arguments);
     }
 

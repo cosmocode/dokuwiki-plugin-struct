@@ -9,7 +9,6 @@ use dokuwiki\plugin\struct\types\Decimal;
  */
 class PublishedColumn extends PageColumn
 {
-
     /** @noinspection PhpMissingParentConstructorInspection
      * @param int $sort
      * @param Decimal $type
