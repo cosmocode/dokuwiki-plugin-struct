@@ -59,6 +59,9 @@ class helper_plugin_struct_db extends DokuWiki_Plugin
         // register our JSON function with variable parameters
         // todo this might be useful to be moved into the sqlite plugin
         $this->sqlite->create_function('STRUCT_JSON', array($this, 'STRUCT_JSON'), -1);
+
+        // this function is meant to be overwritten by plugins
+        $this->sqlite->create_function('IS_PUBLISHER', array($this, 'IS_PUBLISHER'), -1);
     }
 
     /**
@@ -103,6 +106,16 @@ class helper_plugin_struct_db extends DokuWiki_Plugin
     {
         $args = func_get_args();
         return json_encode($args);
+    }
+
+    /**
+     * This dummy implementation can be overwritten by a plugin
+     *
+     * @return bool
+     */
+    public function IS_PUBLISHER() // phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
+    {
+        return true;
     }
 }
 
