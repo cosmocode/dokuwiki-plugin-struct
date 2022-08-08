@@ -20,6 +20,7 @@ $lang['save'] = 'Save';
 $lang['createhint'] = 'Please note: schemas can not be renamed later';
 $lang['pagelabel'] = 'Page';
 $lang['rowlabel'] = 'Row #';
+$lang['publishedlabel'] = 'Published';
 $lang['revisionlabel'] = 'Last Updated';
 $lang['userlabel'] = 'Last Editor';
 $lang['summarylabel'] = 'Last Summary';

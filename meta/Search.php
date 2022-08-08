@@ -647,6 +647,9 @@ class Search
         if ($colname == '%rowid%') {
             return new RowColumn(0, new Decimal(), $schema_list[0]);
         }
+        if ($colname == '%published%') {
+            return new PublishedColumn(0, new Decimal(), $schema_list[0]);
+        }
 
         list($colname, $table) = $this->resolveColumn($colname);
 
