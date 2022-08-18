@@ -53,7 +53,7 @@ class Schema
      */
     public function __construct($table, $ts = 0)
     {
-        $baseconfig = array('allowed editors' => '');
+        $baseconfig = array('allowed editors' => '', 'noedit' => false);
 
         /** @var \helper_plugin_struct_db $helper */
         $helper = plugin_load('helper', 'struct_db');

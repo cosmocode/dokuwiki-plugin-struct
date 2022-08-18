@@ -14,6 +14,7 @@ $lang['headline'] = 'Structured Data';
 $lang['page schema'] = 'Page Schema:';
 $lang['lookup schema'] = 'Lookup Schema:';
 $lang['edithl'] = 'Editing schema <i>%s</i>';
+$lang['noedit'] = 'This schema is not editable.';
 $lang['create'] = 'Create new Schema';
 $lang['schemaname'] = 'Schema Name:';
 $lang['save'] = 'Save';
