@@ -96,7 +96,7 @@ class syntax_plugin_struct_table extends DokuWiki_Syntax_Plugin
         $config = $this->addTypeFilter($config); // add type specific filters
 
         try {
-            $search = new SearchConfig($config);
+            $search = new SearchConfig($config, $this->getDb());
             if ($format === 'struct_csv') {
                 // no pagination in export
                 $search->setLimit(0);
@@ -117,6 +117,18 @@ class syntax_plugin_struct_table extends DokuWiki_Syntax_Plugin
         }
 
         return true;
+    }
+
+    /**
+     * SearchConfig will be initialized with this database
+     *
+     * @return helper_plugin_sqlite
+     */
+    protected function getDb()
+    {
+        /** @var \helper_plugin_struct_db $dbHelper */
+        $dbHelper = plugin_load('helper', 'struct_db');
+        return $dbHelper->getDB();
     }
 
     /**
