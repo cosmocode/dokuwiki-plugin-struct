@@ -7,6 +7,7 @@
  * @author  Andreas Gohr, Michael Große <dokuwiki@cosmocode.de>
  */
 
+use dokuwiki\Extension\Event;
 use dokuwiki\plugin\struct\meta\StructException;
 
 class helper_plugin_struct_db extends DokuWiki_Plugin
@@ -62,6 +63,15 @@ class helper_plugin_struct_db extends DokuWiki_Plugin
 
         // this function is meant to be overwritten by plugins
         $this->sqlite->create_function('IS_PUBLISHER', array($this, 'IS_PUBLISHER'), -1);
+
+        // collect and register custom functions from other plugins
+        $functions = [];
+        Event::createAndTrigger('STRUCT_PLUGIN_SQLITE_FUNCTION', $functions);
+        foreach ($functions as $fn) {
+            if (isset($fn['obj']) && isset($fn['name']) && is_callable([$fn['obj'], $fn['name']])) {
+                $this->sqlite->create_function($fn['name'], [$fn['obj'], $fn['name']], -1);
+            }
+        }
     }
 
     /**
