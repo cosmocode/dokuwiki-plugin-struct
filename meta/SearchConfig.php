@@ -37,9 +37,9 @@ class SearchConfig extends Search
      * SearchConfig constructor.
      * @param array $config The parsed configuration for this search
      */
-    public function __construct($config, $db = null)
+    public function __construct($config)
     {
-        parent::__construct($db);
+        parent::__construct();
 
         // setup schemas and columns
         if (!empty($config['schemas'])) foreach ($config['schemas'] as $schema) {

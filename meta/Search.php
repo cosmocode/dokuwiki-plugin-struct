@@ -61,16 +61,17 @@ class Search
 
     /**
      * Search constructor.
-     * @param \helper_plugin_sqlite
      */
-    public function __construct($db = null)
+    public function __construct()
     {
-        if (is_null($db)) {
-            /** @var \helper_plugin_struct_db $helper */
-            $helper = plugin_load('helper', 'struct_db');
-            $db = $helper->getDB();
-        }
-        $this->sqlite = $db;
+        /** @var  $dbHelper */
+        $this->dbHelper = plugin_load('helper', 'struct_db');
+        $this->sqlite = $this->dbHelper->getDB();
+    }
+
+    public function getDb()
+    {
+        return $this->sqlite;
     }
 
     /**
@@ -468,7 +469,6 @@ class Search
                 $QB->addSelectColumn($datatable, 'rid');
                 $QB->addSelectColumn($datatable, 'pid', 'PID');
                 $QB->addSelectColumn($datatable, 'rev');
-                $QB->addSelectColumn($datatable, 'published');
                 $QB->addSelectColumn('schema_assignments', 'assigned', 'ASSIGNED');
                 $QB->addGroupByColumn($datatable, 'pid');
                 $QB->addGroupByColumn($datatable, 'rid');
