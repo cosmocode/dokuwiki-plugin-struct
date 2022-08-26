@@ -603,7 +603,7 @@ class Search
         if (!$this->schemas) throw new StructException('noschemas');
 
         // resolve the alias or table name
-        @list($table, $colname) = explode('.', $colname, 2);
+        @list($table, $colname) = array_pad(explode('.', $colname, 2), 2, '');
         if (!$colname) {
             $colname = $table;
             $table = null;

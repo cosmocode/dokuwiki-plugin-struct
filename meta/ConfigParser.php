@@ -181,7 +181,7 @@ class ConfigParser
         $schemas = array();
         $parts = explode(',', $val);
         foreach ($parts as $part) {
-            @list($table, $alias) = explode(' ', trim($part));
+            @list($table, $alias) = array_pad(explode(' ', trim($part)), 2, '');
             $table = trim($table);
             $alias = trim($alias);
             if (!$table) continue;
