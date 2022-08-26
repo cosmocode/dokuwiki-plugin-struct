@@ -2,6 +2,7 @@
 
 namespace dokuwiki\plugin\struct\meta;
 
+use dokuwiki\Extension\Event;
 use dokuwiki\plugin\struct\types\AbstractBaseType;
 
 /**
@@ -199,7 +200,7 @@ class Column
         }
 
         // let plugins add their own
-        trigger_event('PLUGIN_STRUCT_TYPECLASS_INIT', $map);
+        Event::createAndTrigger('PLUGIN_STRUCT_TYPECLASS_INIT', $map);
 
         ksort($map);
         return $map;

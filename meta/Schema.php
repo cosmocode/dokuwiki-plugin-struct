@@ -3,6 +3,7 @@
 namespace dokuwiki\plugin\struct\meta;
 
 use dokuwiki\plugin\struct\types\AbstractBaseType;
+use dokuwiki\Utf8\PhpString;
 
 /**
  * Class Schema
@@ -336,7 +337,7 @@ class Schema
     public function findColumn($name)
     {
         foreach ($this->columns as $col) {
-            if ($col->isEnabled() && utf8_strtolower($col->getLabel()) == utf8_strtolower($name)) {
+            if ($col->isEnabled() &&  PhpString::strtolower($col->getLabel()) == PhpString::strtolower($name)) {
                 return $col;
             }
         }

@@ -2,6 +2,8 @@
 
 namespace dokuwiki\plugin\struct\meta;
 
+use dokuwiki\Utf8\PhpString;
+
 /**
  * Class SchemaBuilder
  *
@@ -129,7 +131,7 @@ class SchemaBuilder
         $wantedlabel = trim($wantedlabel);
         $fixedlabel = $wantedlabel;
         $idx = 1;
-        while (isset($labels[utf8_strtolower($fixedlabel)])) {
+        while (isset($labels[PhpString::strtolower($fixedlabel)])) {
             $fixedlabel = $wantedlabel . $idx++;
         }
         // did we actually do a rename? apply it.
@@ -137,7 +139,7 @@ class SchemaBuilder
             msg(sprintf($this->helper->getLang('duplicate_label'), $wantedlabel, $fixedlabel), -1);
             $this->data['cols']['label'] = $fixedlabel;
         }
-        $labels[utf8_strtolower($fixedlabel)] = 1;
+        $labels[PhpString::strtolower($fixedlabel)] = 1;
         return $fixedlabel;
     }
 
