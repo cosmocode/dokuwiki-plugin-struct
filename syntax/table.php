@@ -95,6 +95,13 @@ class syntax_plugin_struct_table extends DokuWiki_Syntax_Plugin
         if (!$config) return false;
         $config = $this->addTypeFilter($config); // add type specific filters
 
+        // always use the main page's ID @todo might make sense as utility method somewhere
+        if($INFO !== null) {
+            $mainId = $INFO['id'];
+        } else {
+            $mainId = getID();
+        }
+
         try {
             $search = new SearchConfig($config);
             if ($format === 'struct_csv') {
@@ -104,7 +111,7 @@ class syntax_plugin_struct_table extends DokuWiki_Syntax_Plugin
             }
 
             /** @var AggregationTable $table */
-            $table = new $this->tableclass($INFO['id'], $format, $renderer, $search);
+            $table = new $this->tableclass($mainId, $format, $renderer, $search);
             $table->render();
 
             if ($format === 'metadata') {
