@@ -24,7 +24,7 @@ class Decimal extends AbstractMultiBaseType
         'trimzeros' => true,
         'prefix' => '',
         'postfix' => '',
-	    'engineering' => false
+		'engineering' => false
     );
 
     /**
@@ -38,24 +38,23 @@ class Decimal extends AbstractMultiBaseType
     public function renderValue($value, \Doku_Renderer $R, $mode)
     {
 
-	if ($this->config['engineering']) {
-	        $unitsh = array('', 'k', 'M', 'G', 'T');
-        	$unitsl = array('', 'm', 'µ', 'n', 'p', 'f', 'a');
+		if ($this->config['engineering']) {
+			$unitsh = array('', 'k', 'M', 'G', 'T');
+			$unitsl = array('', 'm', 'µ', 'n', 'p', 'f', 'a');
 
-        	$exp   = floor(log10($value)/3);
+			$exp   = floor(log10($value)/3);
 
-	        if ($exp < 0) {
-        	        $units = $unitsl;
-                	$mul   = -1;
-        	} else {
-                	$units = $unitsh;
-                	$mul   = 1; 
-        	}
+			if ($exp < 0) {
+				$units = $unitsl;
+				$mul   = -1;
+			} else {
+				$units = $unitsh;
+				$mul   = 1; 
+			}
 
-
-        	$R->cdata($this->config['prefix'] . $value / 10**($exp*3) . "\xE2\x80\xAF" . $units[$exp*$mul] . $this->config['postfix'] );
-		return true;
-	}
+			$R->cdata($this->config['prefix'] . $value / 10**($exp*3) . "\xE2\x80\xAF" . $units[$exp*$mul] . $this->config['postfix'] );
+			return true;
+		}
 
 
         if ($this->config['roundto'] == -1) {
