@@ -24,7 +24,7 @@ class Decimal extends AbstractMultiBaseType
         'trimzeros' => true,
         'prefix' => '',
         'postfix' => '',
-		'engineering' => false
+        'engineering' => false
     );
 
     /**
