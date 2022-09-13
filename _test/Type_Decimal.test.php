@@ -156,7 +156,7 @@ class Type_Decimal_struct_test extends StructTest
             'trimzeros' => $trimzeros,
             'prefix' => $prefix,
             'postfix' => $postfix,
-            'engineering' => $engineering,
+            'engineering' => $engineering
         ));
         $R = new \Doku_Renderer_xhtml();
         $R->doc = '';
