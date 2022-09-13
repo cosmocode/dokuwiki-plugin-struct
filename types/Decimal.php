@@ -46,14 +46,18 @@ class Decimal extends AbstractMultiBaseType
 
         if ($exp < 0) {
                 $units = $unitsl;
-                $mul   = -1;
+                $pfkey = -1 * $exp;
         } else {
                 $units = $unitsh;
-                $mul   = 1; 
+                $pfkey = $exp; 
         }
 
+        if (count($units) <= ($pfkey+1)) {
+            $pfkey = sizeof($units)-1;
+            $exp   = $pfkey * $exp/abs($exp);
+        }
 
-        $R->cdata($this->config['prefix'] . $value / 10**($exp*3) . "\xE2\x80\xAF" . $units[$exp*$mul] . $this->config['postfix'] );
+        $R->cdata($this->config['prefix'] . $value / 10**($exp*3) . "\xE2\x80\xAF" . $units[$pfkey] . $this->config['postfix'] );
         return true;
     }
 

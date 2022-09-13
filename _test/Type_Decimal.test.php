@@ -131,10 +131,15 @@ class Type_Decimal_struct_test extends StructTest
             array('1e9',  '1'."\xE2\x80\xAF".'G', '-1', ',', ' ', true, '', '', true),
             array('1e12', '1'."\xE2\x80\xAF".'T', '-1', ',', ' ', true, '', '', true),
 
-            array('1e4', '10'."\xE2\x80\xAF".'k', '-1', ',', ' ', true, '', '', true),
+            array('1e4', '10'. "\xE2\x80\xAF".'k', '-1', ',', ' ', true, '', '', true),
             array('1e5', '100'."\xE2\x80\xAF".'k', '-1', ',', ' ', true, '', '', true),
 
-            array('1e15', '100'."\xE2\x80\xAF".'k', '-1', ',', ' ', true, '', '', true),
+            array('1e-4', '100'."\xE2\x80\xAF".'µ', '-1', ',', ' ', true, '', '', true),
+            array('1e-5', '10'. "\xE2\x80\xAF".'µ', '-1', ',', ' ', true, '', '', true),
+            
+            //test behaviour if number exceeds prefix array
+            array('1e15',  '1000'. "\xE2\x80\xAF".'T', '-1', ',', ' ', true, '', '', true),
+            array('1e-21', '0.001'."\xE2\x80\xAF".'a', '-1', ',', ' ', true, '', '', true),
             
         );
     }
