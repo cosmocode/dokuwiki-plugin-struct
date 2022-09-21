@@ -141,7 +141,10 @@ class admin_plugin_struct_assignments extends DokuWiki_Admin_Plugin
         echo '<td><input type="text" name="assignment[assign]" /></td>';
         echo '<td>';
         echo '<select name="assignment[tbl]">';
-        foreach (Schema::getAll() as $table) {
+        $schemas = helper_plugin_struct::getSchema();
+        foreach ($schemas as $schema) {
+            if ($schema->isInternal()) continue;
+            $table = $schema->getTable();
             echo '<option value="' . hsc($table) . '">' . hsc($table) . '</option>';
         }
         echo '</select>';
