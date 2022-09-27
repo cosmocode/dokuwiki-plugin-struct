@@ -20,6 +20,7 @@ abstract class AccessTable
     protected $rid;
     protected $labels = [];
     protected $ts = 0;
+    protected $published;
     /** @var \helper_plugin_sqlite */
     protected $sqlite;
 
@@ -167,6 +168,16 @@ abstract class AccessTable
     public function getRid()
     {
         return $this->rid;
+    }
+
+    /**
+     * Published status
+     *
+     * @return int|null
+     */
+    public function getPublished()
+    {
+        return $this->published;
     }
 
     /**
@@ -394,6 +405,7 @@ abstract class AccessTable
      *
      * It always returns raw Values!
      *
+     * @return array
      */
     public function getDataArray()
     {
@@ -546,9 +558,10 @@ abstract class AccessTable
 
     /**
      * Return the last time an edit happened for this table for the currently set
-     * time and pid. Used in @return int
+     * time and pid. Used in
      * @see buildGetDataSQL()
      *
+     * @return int
      */
     abstract protected function getLastRevisionTimestamp();
 

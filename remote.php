@@ -105,7 +105,7 @@ class remote_plugin_struct extends DokuWiki_Remote_Plugin
 
         try {
             $result = array();
-            $schemas = $this->hlp->getSchema($schema ?: null);
+            $schemas = $this->hlp::getSchema($schema ?: null);
             foreach ($schemas as $name => $schema) {
                 $result[$name] = array();
                 foreach ($schema->getColumns(false) as $column) {
