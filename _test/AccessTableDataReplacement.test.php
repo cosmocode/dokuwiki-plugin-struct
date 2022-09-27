@@ -185,7 +185,10 @@ class AccessTableDataReplacement_struct_test extends StructTest
                         AND (ASSIGNED = 1 OR ASSIGNED IS NULL)
                     )
                 )
-            AND data_bar.latest = 1";
+            AND (
+                (IS_PUBLISHER(data_bar.pid) AND data_bar.latest = 1)
+                OR (IS_PUBLISHER(data_bar.pid) IS FALSE AND data_bar.published = 1)
+            )";
 
         $expected_where = $baseWhere . $expectedFilterWhere . " )";
         $this->assertEquals($this->cleanWS($expected_where), $this->cleanWS($where), $msg);

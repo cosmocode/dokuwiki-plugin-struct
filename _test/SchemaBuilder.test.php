@@ -61,7 +61,8 @@ class schemaBuilder_struct_test extends StructTest
                     pid TEXT DEFAULT '',
                     rid INTEGER,
                     rev INTEGER,
-                    latest BOOLEAN NOT NULL DEFAULT 0, col1 DEFAULT '', col2 DEFAULT '',
+                    latest BOOLEAN NOT NULL DEFAULT 0,
+                    published BOOLEAN DEFAULT NULL, col1 DEFAULT '', col2 DEFAULT '',
                     PRIMARY KEY(pid, rid, rev)
                 )";
 

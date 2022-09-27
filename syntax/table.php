@@ -96,7 +96,7 @@ class syntax_plugin_struct_table extends DokuWiki_Syntax_Plugin
         $config = $this->addTypeFilter($config); // add type specific filters
 
         // always use the main page's ID @todo might make sense as utility method somewhere
-        if($INFO !== null) {
+        if ($INFO !== null) {
             $mainId = $INFO['id'];
         } else {
             $mainId = getID();

@@ -341,6 +341,37 @@ class action_plugin_struct_migration extends DokuWiki_Action_Plugin
         $sqlite->query('COMMIT TRANSACTION');
         return true;
     }
+    /**
+     * Executes Migration 19
+     *
+     * Add "published" column to all existing tables
+     *
+     * @param helper_plugin_sqlite $sqlite
+     * @return bool
+     */
+    protected function migration19(helper_plugin_sqlite $sqlite)
+    {
+        $ok = true;
+        $sqlite->query('BEGIN TRANSACTION');
+
+        /** @noinspection SqlResolve */
+        $sql = "SELECT name FROM sqlite_master WHERE type = 'table' AND (name LIKE 'data_%' OR name LIKE 'multi_%')";
+        $res = $sqlite->query($sql);
+        $tables = $sqlite->res2arr($res);
+        $sqlite->res_close($res);
+
+        foreach ($tables as $row) {
+            $sql = 'ALTER TABLE ? ADD COLUMN published INT DEFAULT NULL';
+            $ok = $ok && $sqlite->query($sql, $row['name']);
+        }
+        if (!$ok) {
+            $sqlite->query('ROLLBACK TRANSACTION');
+            return false;
+        }
+        $sqlite->query('COMMIT TRANSACTION');
+        return true;
+    }
+
 
     /**
      * Returns a select statement to fetch Lookup columns in the current schema

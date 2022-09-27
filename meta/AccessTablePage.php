@@ -93,7 +93,9 @@ class AccessTablePage extends AccessTable
     }
 
     /**
-     * @inheritDoc
+     * Names of non-input columns to be inserted into SQL query.
+     * Field 'published' is skipped because only plugins use it and
+     * we don't want to interfere with the default NULL value
      */
     protected function getSingleNoninputCols()
     {

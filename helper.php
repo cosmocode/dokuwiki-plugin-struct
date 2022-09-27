@@ -163,7 +163,7 @@ class helper_plugin_struct extends DokuWiki_Plugin
      * @return Schema[]
      * @throws StructException
      */
-    public function getSchema($schema = null)
+    public static function getSchema($schema = null)
     {
         if (is_null($schema)) {
             $schemas = Schema::getAll();

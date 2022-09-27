@@ -131,6 +131,22 @@ class Search_struct_test extends StructTest
         $this->assertEquals(array('second data', 'more data', 'even more'), $result[0][2]->getValue());
     }
 
+    public function test_search_published()
+    {
+        $search = new mock\Search();
+        $search->isNotPublisher();
+
+        $search->addSchema('schema1');
+        $search->addColumn('%pageid%');
+        $search->addColumn('first');
+        $search->addColumn('second');
+
+        /** @var meta\Value[][] $result */
+        $result = $search->execute();
+
+        $this->assertEquals(0, count($result), 'result rows');
+    }
+
     public function test_search_lasteditor()
     {
         $search = new mock\Search();

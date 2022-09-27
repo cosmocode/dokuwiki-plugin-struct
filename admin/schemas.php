@@ -156,6 +156,11 @@ class admin_plugin_struct_schemas extends DokuWiki_Admin_Plugin
             echo $this->locale_xhtml('editor_edit');
             echo '<h2>' . sprintf($this->getLang('edithl'), hsc($table)) . '</h2>';
 
+            if ($schema->getConfig()['internal']) {
+                echo $this->getLang('internal');
+                return;
+            }
+
             echo '<ul class="tabs" id="plugin__struct_tabs">';
             /** @noinspection HtmlUnknownAnchorTarget */
             echo '<li class="active"><a href="#plugin__struct_editor">' . $this->getLang('tab_edit') . '</a></li>';
@@ -319,9 +324,11 @@ class admin_plugin_struct_schemas extends DokuWiki_Admin_Plugin
         );
         $toc[] = html_mktocitem($slink, $this->getLang('menu'), 0, '');
 
-        $tables = Schema::getAll();
-        if ($tables) {
-            foreach ($tables as $table) {
+        $schemas = helper_plugin_struct::getSchema();
+        if ($schemas) {
+            foreach ($schemas as $schema) {
+                if ($schema->isInternal()) continue;
+                $table = $schema->getTable();
                 $link = wl(
                     $ID,
                     array(

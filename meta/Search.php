@@ -23,6 +23,9 @@ class Search
         '<=', '>=', '=*', '=', '<', '>', '!=', '!~', '~', ' IN '
     );
 
+    /** @var \helper_plugin_struct_db */
+    protected $dbHelper;
+
     /** @var  \helper_plugin_sqlite */
     protected $sqlite;
 
@@ -61,9 +64,14 @@ class Search
      */
     public function __construct()
     {
-        /** @var \helper_plugin_struct_db $plugin */
-        $plugin = plugin_load('helper', 'struct_db');
-        $this->sqlite = $plugin->getDB();
+        /** @var  $dbHelper */
+        $this->dbHelper = plugin_load('helper', 'struct_db');
+        $this->sqlite = $this->dbHelper->getDB();
+    }
+
+    public function getDb()
+    {
+        return $this->sqlite;
     }
 
     /**
@@ -467,7 +475,8 @@ class Search
 
                 $first_table = $datatable;
             }
-            $QB->filters()->whereAnd("$datatable.latest = 1");
+            // phpcs:ignore
+            $QB->filters()->whereAnd("( (IS_PUBLISHER($datatable.pid) AND $datatable.latest = 1) OR (IS_PUBLISHER($datatable.pid) IS FALSE AND $datatable.published = 1) )");
         }
 
         // columns to select, handling multis
@@ -646,6 +655,9 @@ class Search
         }
         if ($colname == '%rowid%') {
             return new RowColumn(0, new Decimal(), $schema_list[0]);
+        }
+        if ($colname == '%published%') {
+            return new PublishedColumn(0, new Decimal(), $schema_list[0]);
         }
 
         list($colname, $table) = $this->resolveColumn($colname);

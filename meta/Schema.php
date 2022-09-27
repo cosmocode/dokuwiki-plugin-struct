@@ -54,7 +54,7 @@ class Schema
      */
     public function __construct($table, $ts = 0)
     {
-        $baseconfig = array('allowed editors' => '');
+        $baseconfig = array('allowed editors' => '', 'internal' => false);
 
         /** @var \helper_plugin_struct_db $helper */
         $helper = plugin_load('helper', 'struct_db');
@@ -304,6 +304,15 @@ class Schema
         if ($INPUT->server->str('REMOTE_USER') === '') return false;
         if (auth_isadmin()) return true;
         return auth_isMember($this->config['allowed editors'], $INPUT->server->str('REMOTE_USER'), $USERINFO['grps']);
+    }
+
+    /**
+     *
+     * @return bool
+     */
+    public function isInternal()
+    {
+        return (bool) $this->config['internal'];
     }
 
     /**
