@@ -121,11 +121,11 @@ class helper_plugin_struct_db extends DokuWiki_Plugin
     /**
      * This dummy implementation can be overwritten by a plugin
      *
-     * @return bool
+     * @return int
      */
     public function IS_PUBLISHER() // phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
     {
-        return true;
+        return 1;
     }
 }
 
