@@ -476,7 +476,7 @@ class Search
                 $first_table = $datatable;
             }
             // phpcs:ignore
-            $QB->filters()->whereAnd("( (IS_PUBLISHER($datatable.pid) AND $datatable.latest = 1) OR (IS_PUBLISHER($datatable.pid) IS FALSE AND $datatable.published = 1) )");
+            $QB->filters()->whereAnd("( (IS_PUBLISHER($datatable.pid) AND $datatable.latest = 1) OR (IS_PUBLISHER($datatable.pid) !=1 AND $datatable.published = 1) )");
         }
 
         // columns to select, handling multis
