@@ -101,7 +101,7 @@ class Type_Decimal_struct_test extends StructTest
     public function valueProvider()
     {
         return array(
-            // $value, $expect, $roundto, $decpoint, $thousands, $trimzeros, $prefix='', $postfix=''
+            // $value, $expect, $roundto, $decpoint, $thousands, $trimzeros, $prefix='', $postfix='', $engineering = false
             array('5000', '5 000,00', '2', ',', ' ', false),
             array('5000', '5 000', '2', ',', ' ', true),
             array('5000', '5 000', '0', ',', ' ', false),
@@ -117,13 +117,37 @@ class Type_Decimal_struct_test extends StructTest
 
             array('-0.55600', '$ -0,556', '4', ',', ' ', true, '$ '),
             array('-0.55600', '-0,556 EUR', '4', ',', ' ', true, '', ' EUR'),
+
+            //engineering notation
+            array('1e-18', '1'."\xE2\x80\xAF".'a', '-1', ',', ' ', true, '', '', true),
+            array('1e-15', '1'."\xE2\x80\xAF".'f', '-1', ',', ' ', true, '', '', true),
+            array('1e-12', '1'."\xE2\x80\xAF".'p', '-1', ',', ' ', true, '', '', true),
+            array('1e-9',  '1'."\xE2\x80\xAF".'n', '-1', ',', ' ', true, '', '', true),
+            array('1e-6',  '1'."\xE2\x80\xAF".'µ', '-1', ',', ' ', true, '', '', true),
+            array('1e-3',  '1'."\xE2\x80\xAF".'m', '-1', ',', ' ', true, '', '', true),
+
+            array('1e3',  '1'."\xE2\x80\xAF".'k', '-1', ',', ' ', true, '', '', true),
+            array('1e6',  '1'."\xE2\x80\xAF".'M', '-1', ',', ' ', true, '', '', true),
+            array('1e9',  '1'."\xE2\x80\xAF".'G', '-1', ',', ' ', true, '', '', true),
+            array('1e12', '1'."\xE2\x80\xAF".'T', '-1', ',', ' ', true, '', '', true),
+
+            array('1e4', '10'. "\xE2\x80\xAF".'k', '-1', ',', ' ', true, '', '', true),
+            array('1e5', '100'."\xE2\x80\xAF".'k', '-1', ',', ' ', true, '', '', true),
+
+            array('1e-4', '100'."\xE2\x80\xAF".'µ', '-1', ',', ' ', true, '', '', true),
+            array('1e-5', '10'. "\xE2\x80\xAF".'µ', '-1', ',', ' ', true, '', '', true),
+            
+            //test behaviour if number exceeds prefix array
+            array('1e15',  '1000'. "\xE2\x80\xAF".'T', '-1', ',', ' ', true, '', '', true),
+            array('1e-21', '0.001'."\xE2\x80\xAF".'a', '-1', ',', ' ', true, '', '', true),
+            
         );
     }
 
     /**
      * @dataProvider valueProvider
      */
-    public function test_renderValue($value, $expect, $roundto, $decpoint, $thousands, $trimzeros, $prefix = '', $postfix = '')
+    public function test_renderValue($value, $expect, $roundto, $decpoint, $thousands, $trimzeros, $prefix = '', $postfix = '', $engineering = false)
     {
         $decimal = new Decimal(array(
             'roundto' => $roundto,
@@ -131,7 +155,8 @@ class Type_Decimal_struct_test extends StructTest
             'thousands' => $thousands,
             'trimzeros' => $trimzeros,
             'prefix' => $prefix,
-            'postfix' => $postfix
+            'postfix' => $postfix,
+            'engineering' => $engineering
         ));
         $R = new \Doku_Renderer_xhtml();
         $R->doc = '';
