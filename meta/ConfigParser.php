@@ -42,7 +42,7 @@ class ConfigParser
         );
         // parse info
         foreach ($lines as $line) {
-            list($key, $val) = $this->splitLine($line);
+            list($key, $val) = array_pad($this->splitLine($line), 2, '');
             if (!$key) continue;
 
             $logic = 'OR';

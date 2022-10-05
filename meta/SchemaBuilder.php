@@ -178,10 +178,10 @@ class SchemaBuilder
                 // we should probably have a list of fields at one place
                 $newEntry['config'] = $this->data['cols'][$column->getColref()]['config'];
                 $newEntry['label'] = $this->data['cols'][$column->getColref()]['label'];
-                $newEntry['ismulti'] = $this->data['cols'][$column->getColref()]['ismulti'];
+                $newEntry['ismulti'] = $this->data['cols'][$column->getColref()]['ismulti'] ?? 0;
                 $newEntry['class'] = $this->data['cols'][$column->getColref()]['class'];
                 $sort = $this->data['cols'][$column->getColref()]['sort'];
-                $enabled = (bool)$this->data['cols'][$column->getColref()]['isenabled'];
+                $enabled = (bool)($this->data['cols'][$column->getColref()]['isenabled'] ?? 0);
 
                 // when the type definition has changed, we create a new one
                 if (array_diff_assoc($oldEntry, $newEntry)) {
@@ -265,7 +265,7 @@ class SchemaBuilder
             $newEntry = array();
             $newEntry['config'] = $column['config'] ?? '{}';
             $newEntry['label'] = $column['label'];
-            $newEntry['ismulti'] = $column['ismulti'];
+            $newEntry['ismulti'] = $column['ismulti'] ?? 0;
             $newEntry['class'] = $column['class'];
             $sort = $column['sort'];
 
