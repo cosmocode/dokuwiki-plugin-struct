@@ -109,14 +109,14 @@ class helper_plugin_struct_field extends helper_plugin_bureaucracy_field
      */
     protected function createValue()
     {
-        $preparedValue = $this->opt['value'];
+        $preparedValue = $this->opt['value'] ?? '';
 
         // page fields might need to be JSON encoded depending on usetitles config
         if (
             $this->column->getType() instanceof Page
             && $this->column->getType()->getConfig()['usetitles']
         ) {
-            $preparedValue = json_encode([$this->opt['value'], null]);
+            $preparedValue = json_encode([$preparedValue, null]);
         }
 
         $value = new Value($this->column, $preparedValue);
