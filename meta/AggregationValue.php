@@ -81,7 +81,8 @@ class AggregationValue
         $this->resultCount = $this->searchConfig->getCount();
 
         // Change from two-dimensional array with one entry to one-dimensional array
-        $this->result = $result[0];
+        if (sizeof($result) > 0)
+            $this->result = $result[0];
 
         // Load helper
         $this->helper = plugin_load('helper', 'struct_config');
