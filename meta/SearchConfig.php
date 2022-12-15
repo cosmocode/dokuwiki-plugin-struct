@@ -140,6 +140,17 @@ class SearchConfig extends Search
             $filter = $this->applyFilterVarsUser($match);
         }
 
+        // apply date formula, given as strtotime
+        if(preg_match('/^(.*?)(?:\$DATE\((.*?)\)\$?)(.*?)$/', $filter, $match)) {
+            $toparse = $match[2];
+            if ($toparse == '') $toparse = 'now';
+            if (($timestamp = strtotime($toparse)) === false) {
+                throw new StructException('datefilter',hsc($toparse));
+            } else {
+                $filter = str_replace($filter,date('Y-m-d',$timestamp),$filter);
+            }
+        }
+
         return $filter;
     }
 

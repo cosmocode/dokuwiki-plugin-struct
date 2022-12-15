@@ -80,6 +80,7 @@ $lang['Exception nolookupmix'] = 'Sie können nicht mehr als eine Suche aggregie
 $lang['Exception No data saved'] = 'Keine Daten gespeichert';
 $lang['Exception no sqlite'] = 'Das \'Struct Plugin\' benötigt das \'Sqlite Plugin\'. Bitte installieren und aktivieren.';
 $lang['Exception column not in table'] = 'Die Spalte %s existiert im Schema %s nicht.';
+$lang['Exception datefilter'] = 'Der Filter: \'<code>$Date(%s)$</code>\' enthält einen ungültigen Wert';
 $lang['Warning: no filters for cloud'] = 'Filter werden in \'Struct Clouds\' nicht unterstützt';
 $lang['sort'] = 'Nach dieser Spalte sortieren';
 $lang['next'] = 'Nächste Seite';

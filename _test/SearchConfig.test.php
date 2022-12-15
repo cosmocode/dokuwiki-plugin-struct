@@ -30,7 +30,7 @@ class SearchConfig_struct_test extends StructTest
 
         $this->assertEquals('user baz', $searchConfig->applyFilterVars('$USER$ $PAGE$'));
         $this->assertEquals('$user', $searchConfig->applyFilterVars('$user'));
-
+        $this->assertEquals(date('Y-m-d'), $searchConfig->applyFilterVars('$DATE(now)$'));
     }
 
     public function test_filtervars_struct()
