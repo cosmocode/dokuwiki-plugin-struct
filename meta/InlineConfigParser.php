@@ -39,6 +39,7 @@ class InlineConfigParser extends ConfigParser
         $n_components = count($components);
 
         // Extract parameters if given
+        $filtering = false;  // First initialisation of the variable
         if ($n_parts == 2) {
             $filtering = false;  // Whether to filter result to current page
             $parameters = str_getcsv(trim($parts[1]), ' ');
