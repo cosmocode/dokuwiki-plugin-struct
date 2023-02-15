@@ -165,6 +165,10 @@ class syntax_plugin_struct_output extends DokuWiki_Syntax_Plugin
 
         $rendercontext['hasdata'] = true;
 
+        if($format == 'xhtml') {
+            $renderer->doc .= '<div class="struct_output_'.$schemadata->getSchema()->getTable().'">';
+        }
+
         $renderer->table_open();
         $renderer->tablethead_open();
         $renderer->tablerow_open();
@@ -192,6 +196,10 @@ class syntax_plugin_struct_output extends DokuWiki_Syntax_Plugin
         }
         $renderer->tabletbody_close();
         $renderer->table_close();
+
+        if($format == 'xhtml') {
+            $renderer->doc .= '</div>';
+        }
     }
 }
 
