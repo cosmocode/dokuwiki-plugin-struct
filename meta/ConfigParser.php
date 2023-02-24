@@ -42,6 +42,7 @@ class ConfigParser
         );
         // parse info
         foreach ($lines as $line) {
+            if (!$line) continue;
             list($key, $val) = array_pad($this->splitLine($line), 2, '');
             if (!$key) continue;
 
