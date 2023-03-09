@@ -42,7 +42,7 @@ class ConfigParser
         );
         // parse info
         foreach ($lines as $line) {
-            list($key, $val) = array_pad($this->splitLine($line), 2, '');
+            list($key, $val) = $this->splitLine($line);
             if (!$key) continue;
 
             $logic = 'OR';
@@ -154,7 +154,7 @@ class ConfigParser
      * Splits the given line into key and value
      *
      * @param $line
-     * @return bool|array returns false for empty lines
+     * @return array returns ['',''] if the line is empty
      */
     protected function splitLine($line)
     {
@@ -162,10 +162,11 @@ class ConfigParser
         $line = preg_replace('/(?<![&\\\\])#.*$/', '', $line);
         $line = str_replace('\\#', '#', $line);
         $line = trim($line);
-        if (empty($line)) return false;
+        if (empty($line)) return ['', ''];
 
         $line = preg_split('/\s*:\s*/', $line, 2);
         $line[0] = strtolower($line[0]);
+        if(!isset($line[1])) $line[1] = '';
 
         return $line;
     }

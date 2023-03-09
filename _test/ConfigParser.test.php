@@ -101,4 +101,30 @@ class ConfigParser_struct_test extends StructTest
             $config['widths']
         );
     }
+
+    /**
+     * @see test_splitLine
+     */
+    public function provide_splitLine()
+    {
+        return [
+            ['', ['','']],
+            ['   ', ['','']],
+            ['foo', ['foo','']],
+            ['foo:bar', ['foo','bar']],
+            ['foo: bar', ['foo','bar']],
+            ['fOO: bar', ['foo','bar']],
+            ['  fOO: bar  ', ['foo','bar']],
+        ];
+    }
+
+    /**
+     * @dataProvider provide_splitLine
+     */
+    public function test_splitLine($line, $expected)
+    {
+        $configParser = new meta\ConfigParser(array());
+        $actual = $this->callInaccessibleMethod($configParser, 'splitLine', [$line]);
+        $this->assertEquals($expected, $actual);
+    }
 }
