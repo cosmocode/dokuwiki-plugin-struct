@@ -151,7 +151,7 @@ class action_plugin_struct_aggregationeditor extends DokuWiki_Action_Plugin
     {
         global $INPUT;
         global $lang;
-        $tablename = $INPUT->str('schema');
+        $tablename = $INPUT->arr('data')['schema'];
 
         $schema = new Schema($tablename);
         if (!$schema->isEditable()) {
@@ -164,7 +164,18 @@ class action_plugin_struct_aggregationeditor extends DokuWiki_Action_Plugin
         echo '<legend>' . $this->getLang('lookup new entry') . '</legend>';
         /** @var action_plugin_struct_edit $edit */
         $edit = plugin_load('action', 'struct_edit');
-        foreach ($schema->getColumns(false) as $column) {
+
+        // filter columns based on searchconf cols from syntax
+        $columns = [];
+        if (!empty($INPUT->arr('data')['searchconf']['cols']) && is_array($INPUT->arr('data')['searchconf']['cols'])) {
+            foreach ($INPUT->arr('data')['searchconf']['cols'] as $col) {
+                $columns[] = $schema->findColumn($col);
+            }
+        } else {
+            $columns = $schema->getColumns(false);
+        }
+
+        foreach ($columns as $column) {
             $label = $column->getLabel();
             $field = new Value($column, '');
             echo $edit->makeField($field, "entry[$label]");
