@@ -142,7 +142,7 @@ const AggregationEditor = function (idx, table) {
         DOKU_BASE + 'lib/exe/ajax.php',
         {
             call: 'plugin_struct_aggregationeditor_new',
-            data: {schema: schema, searchconf: searchconf}
+            searchconf: searchconf
         },
         function (data) {
             if (!data) return;

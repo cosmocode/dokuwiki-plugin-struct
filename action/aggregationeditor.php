@@ -152,8 +152,8 @@ class action_plugin_struct_aggregationeditor extends DokuWiki_Action_Plugin
         global $INPUT;
         global $lang;
 
-        $data = $INPUT->arr('data');
-        $tablename = $data['schema'];
+        $searchconf = $INPUT->arr('searchconf');
+        $tablename = $searchconf['schemas'][0][0];
 
         $schema = new Schema($tablename);
         if (!$schema->isEditable()) {
@@ -168,7 +168,7 @@ class action_plugin_struct_aggregationeditor extends DokuWiki_Action_Plugin
         $edit = plugin_load('action', 'struct_edit');
 
         // filter columns based on searchconf cols from syntax
-        $columns = $this->resolveColumns($data['searchconf'], $schema);
+        $columns = $this->resolveColumns($searchconf, $schema);
 
         foreach ($columns as $column) {
             $label = $column->getLabel();
