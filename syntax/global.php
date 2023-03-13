@@ -43,7 +43,7 @@ class syntax_plugin_struct_global extends syntax_plugin_struct_table
         if (is_null($config)) return null;
 
         // adjust some things for the lookup editor
-        $config['cols'] = array('*'); // always select all columns
+        $config['cols'] = $config['cols'] ?: ['*']; // optional columns definition
         if (isset($config['rownumbers'])) unset($config['rownumbers']); // this annoying to update dynamically
         return $config;
     }

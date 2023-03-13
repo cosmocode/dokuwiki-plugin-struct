@@ -151,7 +151,9 @@ class action_plugin_struct_aggregationeditor extends DokuWiki_Action_Plugin
     {
         global $INPUT;
         global $lang;
-        $tablename = $INPUT->str('schema');
+
+        $searchconf = $INPUT->arr('searchconf');
+        $tablename = $searchconf['schemas'][0][0];
 
         $schema = new Schema($tablename);
         if (!$schema->isEditable()) {
@@ -164,7 +166,11 @@ class action_plugin_struct_aggregationeditor extends DokuWiki_Action_Plugin
         echo '<legend>' . $this->getLang('lookup new entry') . '</legend>';
         /** @var action_plugin_struct_edit $edit */
         $edit = plugin_load('action', 'struct_edit');
-        foreach ($schema->getColumns(false) as $column) {
+
+        // filter columns based on searchconf cols from syntax
+        $columns = $this->resolveColumns($searchconf, $schema);
+
+        foreach ($columns as $column) {
             $label = $column->getLabel();
             $field = new Value($column, '');
             echo $edit->makeField($field, "entry[$label]");
@@ -178,6 +184,34 @@ class action_plugin_struct_aggregationeditor extends DokuWiki_Action_Plugin
         echo '<div class="err"></div>';
         echo '</fieldset>';
         echo '</div>';
+    }
+
+    /**
+     * Names of columns in the new entry editor: either all,
+     * or the selection defined in config. If config contains '*',
+     * just return the full set.
+     *
+     * @param array $searchconf
+     * @param Schema $schema
+     * @return array
+     */
+    protected function resolveColumns($searchconf, $schema)
+    {
+        // if no valid column config, return all columns
+        if (
+            empty($searchconf['cols']) ||
+            !is_array($searchconf['cols']) ||
+            in_array('*', $searchconf['cols'])
+        ) {
+            return $schema->getColumns(false);
+        }
+
+        $columns = [];
+        foreach ($searchconf['cols'] as $col) {
+            $columns[] = $schema->findColumn($col);
+        }
+        // filter invalid columns (where findColumn() returned false)
+        return array_filter($columns);
     }
 
     /**

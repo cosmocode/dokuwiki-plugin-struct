@@ -9,6 +9,8 @@ const AggregationEditor = function (idx, table) {
     const schema = $table.parents('.structaggregation').data('schema');
     if (!schema) return;
 
+    const searchconf = JSON.parse($table.parents('.structaggregation').attr('data-searchconf'));
+
     /**
      * Adds delete row buttons to each row
      */
@@ -140,7 +142,7 @@ const AggregationEditor = function (idx, table) {
         DOKU_BASE + 'lib/exe/ajax.php',
         {
             call: 'plugin_struct_aggregationeditor_new',
-            schema: schema
+            searchconf: searchconf
         },
         function (data) {
             if (!data) return;
