@@ -175,7 +175,7 @@ class edit_struct_test extends StructTest
         );
         $request->setPost('struct_schema_data', $structData);
         $response = $request->post(array('id' => $page, 'do' => 'preview'), '/doku.php');
-        $actual_errormsg = $response->queryHTML('.error')->get();
+        $actual_errormsg = $response->queryHTML('.error')->toArray();
         $test_html = trim($response->queryHTML('.struct_entry_form')->html());
 
         $this->assertEquals($actual_errormsg, array(), "If all data is valid, then there should be no error message.");

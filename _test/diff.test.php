@@ -67,13 +67,13 @@ class diff_struct_test extends StructTest
         $response = $request->post(array('id' => $page, 'do' => 'diff'), '/doku.php');
 
         $pq = $response->queryHTML('table.diff_sidebyside');
-        $this->assertEquals(1, $pq->length);
+        $this->assertEquals(1, $pq->count());
 
         $added = $pq->find('td.diff-addedline');
         $deleted = $pq->find('td.diff-deletedline');
 
-        $this->assertEquals(2, $added->length);
-        $this->assertEquals(2, $deleted->length);
+        $this->assertEquals(2, $added->count());
+        $this->assertEquals(2, $deleted->count());
 
         $this->assertStringContainsString('bar', $deleted->eq(0)->html());
         $this->assertStringContainsString('baz', $deleted->eq(0)->html());
