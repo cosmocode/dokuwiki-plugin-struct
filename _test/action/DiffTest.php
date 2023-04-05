@@ -1,6 +1,9 @@
 <?php
 
-namespace dokuwiki\plugin\struct\test;
+namespace dokuwiki\plugin\struct\test\action;
+
+use dokuwiki\plugin\struct\test\mock\Assignments;
+use dokuwiki\plugin\struct\test\StructTest;
 
 /**
  * Tests for the diff-view of the struct plugin
@@ -25,7 +28,7 @@ class DiffTest extends StructTest
     public function test_diff()
     {
         $page = 'test_save_page_without_new_text';
-        $assignment = mock\Assignments::getInstance();
+        $assignment = Assignments::getInstance();
         $schema = 'schema1';
         $assignment->addPattern($page, $schema);
         $wikitext = 'teststring';
@@ -67,21 +70,21 @@ class DiffTest extends StructTest
         $response = $request->post(['id' => $page, 'do' => 'diff'], '/doku.php');
 
         $pq = $response->queryHTML('table.diff_sidebyside');
-        $this->assertEquals(1, $pq->length);
+        $this->assertEquals(1, $pq->count());
 
         $added = $pq->find('td.diff-addedline');
         $deleted = $pq->find('td.diff-deletedline');
 
-        $this->assertEquals(2, $added->length);
-        $this->assertEquals(2, $deleted->length);
+        $this->assertEquals(2, $added->count());
+        $this->assertEquals(2, $deleted->count());
 
-        $this->assertStringContainsString('bar', $deleted->eq(0)->html());
-        $this->assertStringContainsString('baz', $deleted->eq(0)->html());
-        $this->assertStringContainsString('bar2', $added->eq(0)->html());
-        $this->assertStringContainsString('baz2', $added->eq(0)->html());
+        $this->assertStringContainsString('bar', $deleted->eq(0)->getHTML());
+        $this->assertStringContainsString('baz', $deleted->eq(0)->getHtml());
+        $this->assertStringContainsString('bar2', $added->eq(0)->getHtml());
+        $this->assertStringContainsString('baz2', $added->eq(0)->getHtml());
 
-        $this->assertStringContainsString('foobar', $deleted->eq(1)->html());
-        $this->assertStringContainsString('foobar2', $added->eq(1)->html());
+        $this->assertStringContainsString('foobar', $deleted->eq(1)->getHtml());
+        $this->assertStringContainsString('foobar2', $added->eq(1)->getHtml());
     }
 
 }

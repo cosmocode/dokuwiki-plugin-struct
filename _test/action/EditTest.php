@@ -67,7 +67,7 @@ class EditTest extends StructTest
         $test_html = $edit->createForm('schema1');
 
         $doc = new Document();
-        $doc->loadHTML($test_html);
+        $doc->html($test_html);
         $this->assertEquals('schema1', $doc->find('legend')->text());
         $this->checkField($doc, 'schema1', 'first', 'first data');
         $this->checkField($doc, 'schema1', 'second', 'second data, more data, even more');
@@ -83,7 +83,7 @@ class EditTest extends StructTest
         $test_html = $edit->createForm('schema1');
 
         $doc = new Document();
-        $doc->loadHTML($test_html);
+        $doc->html($test_html);
         $this->assertEquals('schema1', $doc->find('legend')->text());
         $this->checkField($doc, 'schema1', 'first', '');
         $this->checkField($doc, 'schema1', 'second', '');
@@ -109,7 +109,7 @@ class EditTest extends StructTest
         $test_html = $edit->createForm('schema1');
 
         $doc = new Document();
-        $doc->loadHTML($test_html);
+        $doc->html($test_html);
         $this->assertEquals('schema1', $doc->find('legend')->text());
         $this->checkField($doc, 'schema1', 'first', 'first post data');
         $this->checkField($doc, 'schema1', 'second', 'second post data, more post data, even more post data');
@@ -141,7 +141,7 @@ class EditTest extends StructTest
         $test_html = trim($response->queryHTML('.struct_entry_form')->html());
 
         $doc = new Document();
-        $doc->loadHTML($test_html);
+        $doc->html($test_html);
         $this->assertEquals('schema2', $doc->find('legend')->text());
         $this->checkField($doc, 'schema2', 'afirst', '');
         $this->checkField($doc, 'schema2', 'asecond', '');
@@ -174,7 +174,7 @@ class EditTest extends StructTest
         $this->assertEquals($expected_errormsg, $actual_errormsg, 'If there is invalid data, then there should be an error message.');
 
         $doc = new Document();
-        $doc->loadHTML($test_html);
+        $doc->html($test_html);
         $this->assertEquals('schema2', $doc->find('legend')->text());
         $this->checkField($doc, 'schema2', 'afirst', 'foo');
         $this->checkField($doc, 'schema2', 'asecond', 'bar, baz');
@@ -206,7 +206,7 @@ class EditTest extends StructTest
         $test_html = trim($response->queryHTML('.struct_entry_form')->html());
 
         $doc = new Document();
-        $doc->loadHTML($test_html);
+        $doc->html($test_html);
         $this->assertEquals('schema2', $doc->find('legend')->text());
         $this->checkField($doc, 'schema2', 'afirst', 'foo');
         $this->checkField($doc, 'schema2', 'asecond', 'bar, baz');
@@ -280,7 +280,7 @@ class EditTest extends StructTest
         $this->assertEquals($expected_wikitext, $actual_wikitext);
 
         $doc = new Document();
-        $doc->loadHTML($test_html);
+        $doc->html($test_html);
         $this->assertEquals('schema2', $doc->find('legend')->text());
         $this->checkField($doc, 'schema2', 'afirst', 'foo');
         $this->checkField($doc, 'schema2', 'asecond', 'bar, baz');

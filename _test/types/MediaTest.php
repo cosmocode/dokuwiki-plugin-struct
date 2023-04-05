@@ -77,7 +77,7 @@ class MediaTest extends StructTest
         $media = new Media(['width' => 150, 'height' => 160, 'agg_width' => 180, 'agg_height' => 190]);
         $media->renderValue('foo.png', $R, 'xhtml');
         $doc = new Document();
-        $doc->loadHTML($R->doc);
+        $doc->html($R->doc);
 
         $a = $doc->find('a');
         $img = $doc->find('img');
@@ -98,7 +98,7 @@ class MediaTest extends StructTest
         $media = new Media(['width' => 150, 'height' => 160, 'agg_width' => 180, 'agg_height' => 190]);
         $media->renderValue('foo.png', $R, 'xhtml');
         $pq = new Document();
-        $pq->loadHTML($R->doc);
+        $pq->html($R->doc);
 
         $a = $pq->find('a');
         $img = $pq->find('img');
@@ -118,7 +118,7 @@ class MediaTest extends StructTest
         $media = new Media(['width' => 150, 'height' => 160, 'agg_width' => 180, 'agg_height' => 190, 'mime' => '']);
         $media->renderValue('foo.pdf', $R, 'xhtml');
         $doc = new Document();
-        $doc->loadHTML($R->doc);
+        $doc->html($R->doc);
 
         $a = $doc->find('a');
         $img = $doc->find('img');
@@ -140,8 +140,9 @@ class MediaTest extends StructTest
 
         $media = new Media(['width' => 150, 'height' => 160, 'agg_width' => 180, 'agg_height' => 190, 'mime' => '']);
         $media->renderValue('foo.mp4', $R, 'xhtml');
+
         $doc = new Document();
-        $doc->loadHTML($R->doc);
+        $doc->html($R->doc);
 
         $a = $doc->find('a');
         $vid = $doc->find('video');

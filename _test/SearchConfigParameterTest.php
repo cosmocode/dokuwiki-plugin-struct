@@ -238,7 +238,7 @@ class SearchConfigParameterTest extends StructTest
         $rev = time();
 
         $doc = new Document();
-        $doc->loadHTML($R->doc);
+        $doc->html($R->doc);
         $table = $doc->find('div.structaggregation');
 
         $tr1 = $table->find(".row1");

@@ -135,7 +135,7 @@ class LookupTest extends StructTest
         $data['drop1']->render($R, 'xhtml');
 
         $doc = new Document();
-        $doc->loadHTML($R->doc);
+        $doc->html($R->doc);
 
         $this->assertEquals('This is a title', $doc->find('a')->text());
         $this->assertStringContainsString('title1', $doc->find('a')->attr('href'));
@@ -144,7 +144,7 @@ class LookupTest extends StructTest
         $data['drop2']->render($R, 'xhtml');
 
         $doc = new Document();
-        $doc->loadHTML($R->doc);
+        $doc->html($R->doc);
         $this->assertEquals('title1', $doc->find('a')->text());
         $this->assertStringContainsString('title1', $doc->find('a')->attr('href'));
     }
