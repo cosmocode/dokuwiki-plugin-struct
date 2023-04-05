@@ -5,6 +5,7 @@ namespace dokuwiki\plugin\struct\test\types;
 use dokuwiki\plugin\struct\meta\ValidationException;
 use dokuwiki\plugin\struct\test\StructTest;
 use dokuwiki\plugin\struct\types\Media;
+use DOMWrap\Document;
 
 /**
  * Testing the Media Type
@@ -75,10 +76,11 @@ class MediaTest extends StructTest
 
         $media = new Media(['width' => 150, 'height' => 160, 'agg_width' => 180, 'agg_height' => 190]);
         $media->renderValue('foo.png', $R, 'xhtml');
-        $pq = \phpQuery::newDocument($R->doc);
+        $doc = new Document();
+        $doc->loadHTML($R->doc);
 
-        $a = $pq->find('a');
-        $img = $pq->find('img');
+        $a = $doc->find('a');
+        $img = $doc->find('img');
 
         $this->assertStringContainsString('fetch.php', $a->attr('href')); // direct link goes to fetch
         $this->assertEquals('lightbox', $a->attr('rel')); // lightbox single mode
@@ -95,7 +97,8 @@ class MediaTest extends StructTest
 
         $media = new Media(['width' => 150, 'height' => 160, 'agg_width' => 180, 'agg_height' => 190]);
         $media->renderValue('foo.png', $R, 'xhtml');
-        $pq = \phpQuery::newDocument($R->doc);
+        $pq = new Document();
+        $pq->loadHTML($R->doc);
 
         $a = $pq->find('a');
         $img = $pq->find('img');
@@ -114,15 +117,16 @@ class MediaTest extends StructTest
 
         $media = new Media(['width' => 150, 'height' => 160, 'agg_width' => 180, 'agg_height' => 190, 'mime' => '']);
         $media->renderValue('foo.pdf', $R, 'xhtml');
-        $pq = \phpQuery::newDocument($R->doc);
+        $doc = new Document();
+        $doc->loadHTML($R->doc);
 
-        $a = $pq->find('a');
-        $img = $pq->find('img');
+        $a = $doc->find('a');
+        $img = $doc->find('img');
 
         $this->assertStringContainsString('fetch.php', $a->attr('href')); // direct link goes to fetch
         $this->assertTrue($a->hasClass('mediafile')); // it's a media link
         $this->assertEquals('', $a->attr('rel')); // no lightbox
-        $this->assertEquals(0, $img->length); // no image
+        $this->assertEquals(0, $img->count()); // no image
         $this->assertEquals('foo.pdf', $a->text()); // name is link name
     }
 
@@ -136,11 +140,12 @@ class MediaTest extends StructTest
 
         $media = new Media(['width' => 150, 'height' => 160, 'agg_width' => 180, 'agg_height' => 190, 'mime' => '']);
         $media->renderValue('foo.mp4', $R, 'xhtml');
-        $pq = \phpQuery::newDocument($R->doc);
+        $doc = new Document();
+        $doc->loadHTML($R->doc);
 
-        $a = $pq->find('a');
-        $vid = $pq->find('video');
-        $src = $pq->find('source');
+        $a = $doc->find('a');
+        $vid = $doc->find('video');
+        $src = $doc->find('source');
 
         $this->assertStringContainsString('fetch.php', $a->attr('href')); // direct link goes to fetch
         $this->assertStringContainsString('fetch.php', $src->attr('src')); // direct link goes to fetch

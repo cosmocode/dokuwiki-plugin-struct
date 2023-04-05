@@ -6,6 +6,7 @@ use dokuwiki\plugin\struct\meta\PageMeta;
 use dokuwiki\plugin\struct\test\mock\AccessTable;
 use dokuwiki\plugin\struct\test\mock\Lookup;
 use dokuwiki\plugin\struct\test\StructTest;
+use DOMWrap\Document;
 
 /**
  * Testing the Dropdown Type
@@ -132,15 +133,20 @@ class LookupTest extends StructTest
 
         $R = new \Doku_Renderer_xhtml();
         $data['drop1']->render($R, 'xhtml');
-        $pq = \phpQuery::newDocument($R->doc);
-        $this->assertEquals('This is a title', $pq->find('a')->text());
-        $this->assertStringContainsString('title1', $pq->find('a')->attr('href'));
+
+        $doc = new Document();
+        $doc->loadHTML($R->doc);
+
+        $this->assertEquals('This is a title', $doc->find('a')->text());
+        $this->assertStringContainsString('title1', $doc->find('a')->attr('href'));
 
         $R = new \Doku_Renderer_xhtml();
         $data['drop2']->render($R, 'xhtml');
-        $pq = \phpQuery::newDocument($R->doc);
-        $this->assertEquals('title1', $pq->find('a')->text());
-        $this->assertStringContainsString('title1', $pq->find('a')->attr('href'));
+
+        $doc = new Document();
+        $doc->loadHTML($R->doc);
+        $this->assertEquals('title1', $doc->find('a')->text());
+        $this->assertStringContainsString('title1', $doc->find('a')->attr('href'));
     }
 
     public function test_translation()

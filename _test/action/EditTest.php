@@ -6,6 +6,7 @@ use dokuwiki\plugin\struct\meta;
 use dokuwiki\plugin\struct\test\mock\action_plugin_struct_edit;
 use dokuwiki\plugin\struct\test\mock\Assignments;
 use dokuwiki\plugin\struct\test\StructTest;
+use DOMWrap\Document;
 
 /**
  * @group plugin_struct
@@ -36,10 +37,26 @@ class EditTest extends StructTest
         );
     }
 
-    protected function checkField(\phpQueryObject $pq, $schema, $name, $value)
+    /**
+     * Check if a field has the correct value
+     * 
+     * @param Document $pq
+     * @param string $schema
+     * @param string $name
+     * @param string $value
+     */
+    protected function checkField(Document $pq, $schema, $name, $value)
     {
-        $this->assertEquals(1, $pq->find("span.label:contains('$name')")->length, "Field $schema.$name not found");
-        $this->assertEquals($value, $pq->find("input[name='struct_schema_data[$schema][$name]']")->val(), "Field $schema.$name has wrong value");
+        $this->assertEquals(
+            1,
+            $pq->find("span.label:contains('$name')")->count(),
+            "Field $schema.$name not found"
+        );
+        $this->assertEquals(
+            $value,
+            $pq->find("input[name='struct_schema_data[$schema][$name]']")->attr('value'),
+            "Field $schema.$name has wrong value"
+        );
     }
 
     public function test_createForm_storedData()
@@ -49,12 +66,13 @@ class EditTest extends StructTest
         $ID = 'page01';
         $test_html = $edit->createForm('schema1');
 
-        $pq = \phpQuery::newDocument($test_html);
-        $this->assertEquals('schema1', $pq->find('legend')->text());
-        $this->checkField($pq, 'schema1', 'first', 'first data');
-        $this->checkField($pq, 'schema1', 'second', 'second data, more data, even more');
-        $this->checkField($pq, 'schema1', 'third', 'third data');
-        $this->checkField($pq, 'schema1', 'fourth', 'fourth data');
+        $doc = new Document();
+        $doc->loadHTML($test_html);
+        $this->assertEquals('schema1', $doc->find('legend')->text());
+        $this->checkField($doc, 'schema1', 'first', 'first data');
+        $this->checkField($doc, 'schema1', 'second', 'second data, more data, even more');
+        $this->checkField($doc, 'schema1', 'third', 'third data');
+        $this->checkField($doc, 'schema1', 'fourth', 'fourth data');
     }
 
     public function test_createForm_emptyData()
@@ -64,12 +82,13 @@ class EditTest extends StructTest
         $ID = 'page02';
         $test_html = $edit->createForm('schema1');
 
-        $pq = \phpQuery::newDocument($test_html);
-        $this->assertEquals('schema1', $pq->find('legend')->text());
-        $this->checkField($pq, 'schema1', 'first', '');
-        $this->checkField($pq, 'schema1', 'second', '');
-        $this->checkField($pq, 'schema1', 'third', '');
-        $this->checkField($pq, 'schema1', 'fourth', '');
+        $doc = new Document();
+        $doc->loadHTML($test_html);
+        $this->assertEquals('schema1', $doc->find('legend')->text());
+        $this->checkField($doc, 'schema1', 'first', '');
+        $this->checkField($doc, 'schema1', 'second', '');
+        $this->checkField($doc, 'schema1', 'third', '');
+        $this->checkField($doc, 'schema1', 'fourth', '');
     }
 
     public function test_createForm_postData()
@@ -89,12 +108,13 @@ class EditTest extends StructTest
         $edit = new action_plugin_struct_edit();
         $test_html = $edit->createForm('schema1');
 
-        $pq = \phpQuery::newDocument($test_html);
-        $this->assertEquals('schema1', $pq->find('legend')->text());
-        $this->checkField($pq, 'schema1', 'first', 'first post data');
-        $this->checkField($pq, 'schema1', 'second', 'second post data, more post data, even more post data');
-        $this->checkField($pq, 'schema1', 'third', 'third post data');
-        $this->checkField($pq, 'schema1', 'fourth', 'fourth post data');
+        $doc = new Document();
+        $doc->loadHTML($test_html);
+        $this->assertEquals('schema1', $doc->find('legend')->text());
+        $this->checkField($doc, 'schema1', 'first', 'first post data');
+        $this->checkField($doc, 'schema1', 'second', 'second post data, more post data, even more post data');
+        $this->checkField($doc, 'schema1', 'third', 'third post data');
+        $this->checkField($doc, 'schema1', 'fourth', 'fourth post data');
     }
 
     public function test_edit_page_wo_schema()
@@ -120,12 +140,13 @@ class EditTest extends StructTest
         $response = $request->get(['id' => $page, 'do' => 'edit'], '/doku.php');
         $test_html = trim($response->queryHTML('.struct_entry_form')->html());
 
-        $pq = \phpQuery::newDocument($test_html);
-        $this->assertEquals('schema2', $pq->find('legend')->text());
-        $this->checkField($pq, 'schema2', 'afirst', '');
-        $this->checkField($pq, 'schema2', 'asecond', '');
-        $this->checkField($pq, 'schema2', 'athird', '');
-        $this->checkField($pq, 'schema2', 'afourth', '');
+        $doc = new Document();
+        $doc->loadHTML($test_html);
+        $this->assertEquals('schema2', $doc->find('legend')->text());
+        $this->checkField($doc, 'schema2', 'afirst', '');
+        $this->checkField($doc, 'schema2', 'asecond', '');
+        $this->checkField($doc, 'schema2', 'athird', '');
+        $this->checkField($doc, 'schema2', 'afourth', '');
     }
 
     public function test_preview_page_invaliddata()
@@ -152,12 +173,13 @@ class EditTest extends StructTest
 
         $this->assertEquals($expected_errormsg, $actual_errormsg, 'If there is invalid data, then there should be an error message.');
 
-        $pq = \phpQuery::newDocument($test_html);
-        $this->assertEquals('schema2', $pq->find('legend')->text());
-        $this->checkField($pq, 'schema2', 'afirst', 'foo');
-        $this->checkField($pq, 'schema2', 'asecond', 'bar, baz');
-        $this->checkField($pq, 'schema2', 'athird', 'foobar');
-        $this->checkField($pq, 'schema2', 'afourth', 'Eve');
+        $doc = new Document();
+        $doc->loadHTML($test_html);
+        $this->assertEquals('schema2', $doc->find('legend')->text());
+        $this->checkField($doc, 'schema2', 'afirst', 'foo');
+        $this->checkField($doc, 'schema2', 'asecond', 'bar, baz');
+        $this->checkField($doc, 'schema2', 'athird', 'foobar');
+        $this->checkField($doc, 'schema2', 'afourth', 'Eve');
     }
 
     public function test_preview_page_validdata()
@@ -177,18 +199,19 @@ class EditTest extends StructTest
             ]
         ];
         $request->setPost('struct_schema_data', $structData);
-        $response = $request->post(['id' => $page, 'do' => 'preview'], '/doku.php');
-        $actual_errormsg = $response->queryHTML('.error')->get();
+        $response = $request->post(['id' => $page, 'do' => 'preview']);
+        $actual_errormsg = $response->queryHTML('.error')->get(0);
+        $this->assertNull($actual_errormsg, "If all data is valid, then there should be no error message.");
+
         $test_html = trim($response->queryHTML('.struct_entry_form')->html());
 
-        $this->assertEquals($actual_errormsg, [], "If all data is valid, then there should be no error message.");
-
-        $pq = \phpQuery::newDocument($test_html);
-        $this->assertEquals('schema2', $pq->find('legend')->text());
-        $this->checkField($pq, 'schema2', 'afirst', 'foo');
-        $this->checkField($pq, 'schema2', 'asecond', 'bar, baz');
-        $this->checkField($pq, 'schema2', 'athird', 'foobar');
-        $this->checkField($pq, 'schema2', 'afourth', '42');
+        $doc = new Document();
+        $doc->loadHTML($test_html);
+        $this->assertEquals('schema2', $doc->find('legend')->text());
+        $this->checkField($doc, 'schema2', 'afirst', 'foo');
+        $this->checkField($doc, 'schema2', 'asecond', 'bar, baz');
+        $this->checkField($doc, 'schema2', 'athird', 'foobar');
+        $this->checkField($doc, 'schema2', 'afourth', '42');
     }
 
     public function test_fail_saving_empty_page()
@@ -256,12 +279,13 @@ class EditTest extends StructTest
         $this->assertEquals($expected_errormsg, $actual_errormsg, 'If there is invalid data, then there should be an error message.');
         $this->assertEquals($expected_wikitext, $actual_wikitext);
 
-        $pq = \phpQuery::newDocument($test_html);
-        $this->assertEquals('schema2', $pq->find('legend')->text());
-        $this->checkField($pq, 'schema2', 'afirst', 'foo');
-        $this->checkField($pq, 'schema2', 'asecond', 'bar, baz');
-        $this->checkField($pq, 'schema2', 'athird', 'foobar');
-        $this->checkField($pq, 'schema2', 'afourth', 'Eve');
+        $doc = new Document();
+        $doc->loadHTML($test_html);
+        $this->assertEquals('schema2', $doc->find('legend')->text());
+        $this->checkField($doc, 'schema2', 'afirst', 'foo');
+        $this->checkField($doc, 'schema2', 'asecond', 'bar, baz');
+        $this->checkField($doc, 'schema2', 'athird', 'foobar');
+        $this->checkField($doc, 'schema2', 'afourth', 'Eve');
 
         // todo: assert that no struct data has been saved
     }

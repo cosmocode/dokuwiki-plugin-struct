@@ -3,6 +3,7 @@
 namespace dokuwiki\plugin\struct\test;
 
 use dokuwiki\plugin\struct\meta;
+use DOMWrap\Document;
 
 /**
  * Tests handling dynamic search parameters
@@ -191,7 +192,7 @@ class SearchConfigParameterTest extends StructTest
         $searchConfig = new meta\SearchConfig($data);
         $dynamic = $searchConfig->getDynamicParameters();
 
-        $dynamic->setSort('%pageid%', true);
+        $dynamic->setSort('%pageid%');
         $conf = $dynamic->updateConfig($data);
         $param = $dynamic->getURLParameters();
         $this->assertEquals([['%pageid%', true]], $conf['sort']);
@@ -230,46 +231,23 @@ class SearchConfigParameterTest extends StructTest
         $R = new \Doku_Renderer_xhtml();
         // init with offset
         $INPUT->set(meta\SearchConfigParameters::$PARAM_OFFSET, 5);
-        //$params[meta\SearchConfigParameters::$PARAM_OFFSET] = 25;
         $searchConfig = new meta\SearchConfig($data);
         $aggregationTable = new meta\AggregationTable('test_pagination', 'xhtml', $R, $searchConfig);
         $aggregationTable->render();
 
         $rev = time();
-        $expect_html = '<div class="structaggregation"><div class="table"><table class="inline">
-	<thead>
-	<tr class="row0">
-		<th class="col0">#</th><th  data-field="schema2.afirst"><a href="/./doku.php?id=test_pagination&amp;ofs=5&amp;srt=schema2.afirst" class="" title="Sort by this column">afirst</a></th>
-	</tr>
-	</thead>
-	<tbody>
-	<tr class="row1" data-pid="page14" data-rev="' . $rev . '" data-rid="0"><td class="col0">6</td><td class="col1">page14 first data</td>
-	</tr>
-	<tr class="row2" data-pid="page15" data-rev="' . $rev . '" data-rid="0"><td class="col0">7</td><td class="col1">page15 first data</td>
-	</tr>
-	<tr class="row3" data-pid="page16" data-rev="' . $rev . '" data-rid="0"><td class="col0">8</td><td class="col1">page16 first data</td>
-	</tr>
-	<tr class="row4" data-pid="page17" data-rev="' . $rev . '" data-rid="0"><td class="col0">9</td><td class="col1">page17 first data</td>
-	</tr>
-	<tr class="row5" data-pid="page18" data-rev="' . $rev . '" data-rid="0"><td class="col0">10</td><td class="col1">page18 first data</td>
-	</tr>
-	</tbody>
-	<tfoot>
-	<tr class="row6">
-		<th class="col0" colspan="2"><a href="/./doku.php?id=test_pagination" class="prev">Previous page</a><a href="/./doku.php?id=test_pagination&amp;ofs=10" class="next">Next page</a></th>
-	</tr>
-	</tfoot>
-</table></div>
-</div>';
 
-        $pq = \phpQuery::newDocument($expect_html);
-        $tr1 = $pq->find(".row1");
+        $doc = new Document();
+        $doc->loadHTML($R->doc);
+        $table = $doc->find('div.structaggregation');
+
+        $tr1 = $table->find(".row1");
         $this->assertEquals('6page14 first data', trim($tr1->text()));
         $this->assertEquals('page14', $tr1->attr('data-pid'));
         $this->assertEquals('0', $tr1->attr('data-rid'));
         $this->assertEquals($rev, $tr1->attr('data-rev'));
 
-        $tr6aPrev = $pq->find(".row6 a.prev");
+        $tr6aPrev = $table->find(".row6 a.prev");
         $this->assertEquals('/./doku.php?id=test_pagination', $tr6aPrev->attr('href'));
 
     }

@@ -191,7 +191,7 @@ class SearchTest extends StructTest
 
         $this->assertCount(2, $result, 'result rows');
         $this->assertCount(4, $result[0], 'result columns');
-        $this->assertEquals($expected_time, $result[0][1]->getValue());
+        $this->assertEquals($expected_time, $result[0][1]->getValue(), "Is your date.timezone set up in php.ini?");
         $this->assertEquals(['second data', 'more data', 'even more'], $result[0][3]->getValue());
     }
 
