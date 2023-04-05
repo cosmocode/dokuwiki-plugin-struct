@@ -6,6 +6,7 @@ use dokuwiki\plugin\struct\meta\Column;
 use dokuwiki\plugin\struct\meta\QueryBuilder;
 use dokuwiki\plugin\struct\meta\QueryBuilderWhere;
 use dokuwiki\plugin\struct\meta\SearchConfigParameters;
+use dokuwiki\Utf8\PhpString;
 
 class Tag extends AbstractMultiBaseType
 {
@@ -47,7 +48,7 @@ class Tag extends AbstractMultiBaseType
 
         // check minimum length
         $lookup = trim($INPUT->str('search'));
-        if (utf8_strlen($lookup) < $this->config['autocomplete']['mininput']) return array();
+        if (PhpString::strlen($lookup) < $this->config['autocomplete']['mininput']) return array();
 
         // results wanted?
         $max = $this->config['autocomplete']['maxresult'];

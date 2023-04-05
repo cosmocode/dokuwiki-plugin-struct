@@ -462,7 +462,7 @@ abstract class AccessTable
         foreach ($this->schema->getColumns(false) as $col) {
             // if no data saved yet, return empty strings
             if ($DBdata) {
-                $val = $DBdata[0]['out' . $col->getColref()];
+                $val = (string) $DBdata[0]['out' . $col->getColref()];
             } else {
                 $val = '';
             }

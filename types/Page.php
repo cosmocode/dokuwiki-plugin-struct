@@ -2,8 +2,10 @@
 
 namespace dokuwiki\plugin\struct\types;
 
+use dokuwiki\File\PageResolver;
 use dokuwiki\plugin\struct\meta\QueryBuilder;
 use dokuwiki\plugin\struct\meta\QueryBuilderWhere;
+use dokuwiki\Utf8\PhpString;
 
 /**
  * Class Page
@@ -70,7 +72,7 @@ class Page extends AbstractMultiBaseType
 
         // check minimum length
         $lookup = trim($INPUT->str('search'));
-        if (utf8_strlen($lookup) < $this->config['autocomplete']['mininput']) return array();
+        if (PhpString::strlen($lookup) < $this->config['autocomplete']['mininput']) return array();
 
         // results wanted?
         $max = $this->config['autocomplete']['maxresult'];
@@ -81,7 +83,8 @@ class Page extends AbstractMultiBaseType
         if ($namespace) {
             // namespace may be relative, resolve in current context
             $namespace .= ':foo'; // resolve expects pageID
-            resolve_pageid($INPUT->str('ns'), $namespace, $exists);
+            $resolver = new PageResolver($INPUT->str('ns').':foo'); // resolve relative to current namespace
+            $namespace = $resolver->resolveId($namespace);
             $namespace = getNS($namespace);
         }
         $postfix = $this->config['autocomplete']['postfix'];

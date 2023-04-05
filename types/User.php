@@ -6,6 +6,7 @@ use dokuwiki\plugin\struct\meta\QueryBuilder;
 use dokuwiki\plugin\struct\meta\QueryBuilderWhere;
 use dokuwiki\plugin\struct\meta\StructException;
 use dokuwiki\plugin\struct\meta\ValidationException;
+use dokuwiki\Utf8\PhpString;
 
 class User extends AbstractMultiBaseType
 {
@@ -20,7 +21,7 @@ class User extends AbstractMultiBaseType
 
     /**
      * @param string $rawvalue the user to validate
-     * @return int|string|void
+     * @return int|string
      */
     public function validate($rawvalue)
     {
@@ -72,7 +73,7 @@ class User extends AbstractMultiBaseType
 
         // check minimum length
         $lookup = trim($INPUT->str('search'));
-        if (utf8_strlen($lookup) < $this->config['autocomplete']['mininput']) return array();
+        if (PhpString::strlen($lookup) < $this->config['autocomplete']['mininput']) return array();
 
         // results wanted?
         $max = $this->config['autocomplete']['maxresult'];
@@ -143,7 +144,7 @@ class User extends AbstractMultiBaseType
      * @param string $tablealias
      * @param string $colname
      * @param string $comp
-     * @param string|\string[] $value
+     * @param string|string[] $value
      * @param string $op
      */
     public function filter(QueryBuilderWhere $add, $tablealias, $colname, $comp, $value, $op)

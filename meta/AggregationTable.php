@@ -65,6 +65,11 @@ class AggregationTable
     protected $helper;
 
     /**
+     * @var array the original configuration data
+     */
+    protected $data;
+
+    /**
      * Initialize the Aggregation renderer and executes the search
      *
      * You need to call @param string $id

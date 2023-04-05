@@ -2,6 +2,7 @@
 
 namespace dokuwiki\plugin\struct\test\action;
 
+use dokuwiki\ChangeLog\PageChangeLog;
 use dokuwiki\plugin\struct\meta;
 use dokuwiki\plugin\struct\test\mock\action_plugin_struct_edit;
 use dokuwiki\plugin\struct\test\mock\Assignments;
@@ -126,7 +127,7 @@ class EditTest extends StructTest
         $structElement = $response->queryHTML('.struct_entry_form');
 
         $this->assertCount(1, $structElement);
-        $this->assertEquals($structElement->html(), '');
+        $this->assertEquals('', $structElement->html());
     }
 
     public function test_edit_page_with_schema()
@@ -166,7 +167,7 @@ class EditTest extends StructTest
             ]
         ];
         $request->setPost('struct_schema_data', $structData);
-        $response = $request->post(['id' => $page, 'do' => 'preview'], '/doku.php');
+        $response = $request->post(['id' => $page, 'do' => 'preview']);
         $expected_errormsg = sprintf($this->getLang('validation_prefix') . $this->getLang('Validation Exception Decimal needed'), 'afourth');
         $actual_errormsg = $response->queryHTML('.error')->html();
         $test_html = trim($response->queryHTML('.struct_entry_form')->html());
@@ -235,7 +236,7 @@ class EditTest extends StructTest
         $response = $request->post(['id' => $page, 'do' => 'save'], '/doku.php');
         $expected_errormsg = $this->getLang('emptypage');
         $actual_errormsg = $response->queryHTML('.error')->html();
-        $pagelog = new \PageChangelog($page);
+        $pagelog = new PageChangelog($page);
         $revisions = $pagelog->getRevisions(-1, 200);
 
         $this->assertCount(0, $revisions);
@@ -262,7 +263,7 @@ class EditTest extends StructTest
         $request->setPost('struct_schema_data', $structData);
         $request->setPost('wikitext', $wikitext);
         $request->setPost('summary', 'content and struct data saved');
-        $response = $request->post(['id' => $page, 'do' => 'save'], '/doku.php');
+        $response = $request->post(['id' => $page, 'do' => 'save']);
         $actual_wikitext = trim($response->queryHTML('#wiki__text')->html());
         $expected_wikitext = $wikitext;
 
@@ -271,7 +272,7 @@ class EditTest extends StructTest
 
         $test_html = trim($response->queryHTML('.struct_entry_form')->html());
 
-        $pagelog = new \PageChangelog($page);
+        $pagelog = new PageChangelog($page);
         $revisions = $pagelog->getRevisions(-1, 200);
 
         // assert
@@ -309,9 +310,9 @@ class EditTest extends StructTest
         $request->setPost('struct_schema_data', $structData);
         $request->setPost('wikitext', 'teststring');
         $request->setPost('summary', 'content and struct data saved');
-        $request->post(array('id' => $page, 'do' => 'save'), '/doku.php');
+        $request->post(['id' => $page, 'do' => 'save']);
 
-        $pagelog = new \PageChangelog($page);
+        $pagelog = new PageChangelog($page);
         $revisions = $pagelog->getRevisions(-1, 200);
         $revinfo = $pagelog->getRevisionInfo($revisions[0]);
         $schemaData = meta\AccessTable::getPageAccess($schema, $page, $revisions[0]);
@@ -354,7 +355,7 @@ class EditTest extends StructTest
         $request->setPost('struct_schema_data', $structData);
         $request->setPost('wikitext', $wikitext);
         $request->setPost('summary', 'content and struct data saved');
-        $request->post(['id' => $page, 'do' => 'save'], '/doku.php');
+        $request->post(['id' => $page, 'do' => 'save']);
 
         $this->waitForTick(true);
 
@@ -371,10 +372,10 @@ class EditTest extends StructTest
         $request->setPost('struct_schema_data', $structData);
         $request->setPost('wikitext', $wikitext);
         $request->setPost('summary', '2nd revision');
-        $request->post(['id' => $page, 'do' => 'save'], '/doku.php');
+        $request->post(['id' => $page, 'do' => 'save']);
 
         // assert
-        $pagelog = new \PageChangelog($page);
+        $pagelog = new PageChangelog($page);
         $revisions = $pagelog->getRevisions(-1, 200);
         $revinfo = $pagelog->getRevisionInfo($revisions[0]);
         $schemaData = meta\AccessTable::getPageAccess($schema, $page, $revisions[0]);
@@ -417,7 +418,7 @@ class EditTest extends StructTest
         $request->setPost('struct_schema_data', $structData);
         $request->setPost('wikitext', $wikitext);
         $request->setPost('summary', 'content and struct data saved');
-        $request->post(['id' => $page, 'do' => 'save'], '/doku.php');
+        $request->post(['id' => $page, 'do' => 'save']);
 
         $this->waitForTick(true);
 
@@ -434,10 +435,10 @@ class EditTest extends StructTest
         $request->setPost('struct_schema_data', $structData);
         $request->setPost('wikitext', '');
         $request->setPost('summary', 'delete page');
-        $request->post(['id' => $page, 'do' => 'save'], '/doku.php');
+        $request->post(['id' => $page, 'do' => 'save']);
 
         // assert
-        $pagelog = new \PageChangelog($page);
+        $pagelog = new PageChangelog($page);
         $revisions = $pagelog->getRevisions(-1, 200);
         $revinfo = $pagelog->getRevisionInfo($revisions[0]);
         $schemaData = meta\AccessTable::getPageAccess($schema, $page, $revisions[0]);
@@ -491,7 +492,7 @@ class EditTest extends StructTest
         $request->setPost('struct_schema_data', $structData);
         $request->setPost('wikitext', $wikitext);
         $request->setPost('summary', 'content and struct data saved');
-        $request->post(['id' => $page, 'do' => 'save', 'sectok' => getSecurityToken()], '/doku.php');
+        $request->post(['id' => $page, 'do' => 'save', 'sectok' => getSecurityToken()]);
 
         $this->waitForTick(true);
 
@@ -508,21 +509,21 @@ class EditTest extends StructTest
         $request->setPost('struct_schema_data', $structData);
         $request->setPost('wikitext', $wikitext . $wikitext);
         $request->setPost('summary', 'delete page');
-        $request->post(['id' => $page, 'do' => 'save', 'sectok' => getSecurityToken()], '/doku.php');
+        $request->post(['id' => $page, 'do' => 'save', 'sectok' => getSecurityToken()]);
 
         $this->waitForTick(true);
 
         // revert to first save
-        $actpagelog = new \PageChangelog($page);
+        $actpagelog = new PageChangelog($page);
         $actrevisions = $actpagelog->getRevisions(0, 200);
 
         $actrevinfo = $actpagelog->getRevisionInfo($actrevisions[0]);
         $request = new \TestRequest();
         $request->setPost('summary', 'revert page');
-        $request->post(['id' => $page, 'do' => 'revert', 'rev' => $actrevinfo['date'], 'sectok' => getSecurityToken()], '/doku.php');
+        $request->post(['id' => $page, 'do' => 'revert', 'rev' => $actrevinfo['date'], 'sectok' => getSecurityToken()]);
 
         // assert
-        $pagelog = new \PageChangelog($page);
+        $pagelog = new PageChangelog($page);
         $revisions = $pagelog->getRevisions(-1, 200);
         $revinfo = $pagelog->getRevisionInfo($revisions[0]);
         $schemaData = meta\AccessTable::getPageAccess($schema, $page, $revisions[0]);
