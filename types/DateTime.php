@@ -127,10 +127,10 @@ class DateTime extends Date
     public function filter(QueryBuilderWhere $add, $tablealias, $colname, $comp, $value, $op)
     {
         $col = "$tablealias.$colname";
+        $QB = $add->getQB();
 
         // when accessing the revision column we need to convert from Unix timestamp
         if (is_a($this->context, 'dokuwiki\plugin\struct\meta\RevisionColumn')) {
-            $QB = $add->getQB();
             $rightalias = $QB->generateTableAlias();
             $col = "DATETIME($rightalias.lastrev, 'unixepoch', 'localtime')";
             $QB->addLeftJoin($tablealias, 'titles', $rightalias, "$tablealias.pid = $rightalias.pid");

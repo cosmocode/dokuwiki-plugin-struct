@@ -106,6 +106,22 @@ class AggregationResults_struct_test extends StructTest
     }
 
     /**
+     * Test filtering on a DateTime field
+     */
+    public function test_filter_datetime() {
+        $this->prepareDatetime();
+        $schema = 'datetime';
+        $result = $this->fetchResult($schema);
+        $this->assertEquals(3, count($result));
+
+        $result = $this->fetchResult($schema, '', ['field', '<', '2023-01-02', 'AND']);
+        $this->assertEquals(1, count($result));
+
+        $result = $this->fetchResult($schema, '', ['field', '<', '2023-01-01 11:00', 'AND']);
+        $this->assertEquals(0, count($result));
+    }
+
+    /**
      * Test whether aggregation tables respect revoking of schema assignments
      */
     public function test_assignments()
@@ -215,5 +231,16 @@ class AggregationResults_struct_test extends StructTest
                 'multititle' => array('title3'),
             )
         );
+    }
+
+    protected function prepareDatetime()
+    {
+        $this->loadSchemaJSON('datetime');
+        $access = AccessTable::getGlobalAccess('datetime');
+        $access->saveData(array('field' => '2023-01-01 12:00'));
+        $access = AccessTable::getGlobalAccess('datetime');
+        $access->saveData(array('field' => '2023-01-02 00:00'));
+        $access = AccessTable::getGlobalAccess('datetime');
+        $access->saveData(array('field' => '2023-01-02 12:00'));
     }
 }
