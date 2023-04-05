@@ -39,7 +39,6 @@ abstract class StructTest extends \DokuWikiTest
      * @param string $schema
      * @param string $json base name of the JSON file optional, defaults to $schema
      * @param int $rev allows to create schemas back in time
-     * @param bool $lookup create as a lookup schema
      */
     protected function loadSchemaJSON($schema, $json = '', $rev = 0)
     {
@@ -54,35 +53,6 @@ abstract class StructTest extends \DokuWikiTest
         if (!$importer->build($rev)) {
             throw new \RuntimeException("build of $schema from $file failed");
         }
-    }
-
-    /**
-     * This waits until a new second has passed
-     *
-     * The very first call will return immeadiately, proceeding calls will return
-     * only after at least 1 second after the last call has passed.
-     *
-     * When passing $init=true it will not return immeadiately but use the current
-     * second as initialization. It might still return faster than a second.
-     *
-     * @param bool $init wait from now on, not from last time
-     * @return int new timestamp
-     */
-    protected function waitForTick($init = false)
-    {
-        // this will be in DokuWiki soon
-        if (is_callable('parent::waitForTick')) {
-            return parent::waitForTick($init);
-        }
-
-        static $last = 0;
-        if ($init) $last = time();
-
-        while ($last === $now = time()) {
-            usleep(100000); //recheck in a 10th of a second
-        }
-        $last = $now;
-        return $now;
     }
 
     /**
