@@ -83,7 +83,7 @@ class Page extends AbstractMultiBaseType
         if ($namespace) {
             // namespace may be relative, resolve in current context
             $namespace .= ':foo'; // resolve expects pageID
-            $resolver = new PageResolver($INPUT->str('ns').':foo'); // resolve relative to current namespace
+            $resolver = new PageResolver($INPUT->str('ns') . ':foo'); // resolve relative to current namespace
             $namespace = $resolver->resolveId($namespace);
             $namespace = getNS($namespace);
         }

@@ -166,7 +166,7 @@ class ConfigParser
 
         $line = preg_split('/\s*:\s*/', $line, 2);
         $line[0] = strtolower($line[0]);
-        if(!isset($line[1])) $line[1] = '';
+        if (!isset($line[1])) $line[1] = '';
 
         return $line;
     }

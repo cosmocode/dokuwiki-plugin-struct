@@ -42,22 +42,26 @@ class Decimal extends AbstractMultiBaseType
             $unitsh = array('', 'k', 'M', 'G', 'T');
             $unitsl = array('', 'm', 'µ', 'n', 'p', 'f', 'a');
 
-            $exp   = floor(log10($value)/3);
+            $exp   = floor(log10($value) / 3);
 
             if ($exp < 0) {
                     $units = $unitsl;
                     $pfkey = -1 * $exp;
             } else {
                     $units = $unitsh;
-                    $pfkey = $exp; 
+                    $pfkey = $exp;
             }
 
-            if (count($units) <= ($pfkey+1)) { //check if number is within prefixes
-                $pfkey = sizeof($units)-1;
-                $exp   = $pfkey * $exp/abs($exp);
+            if (count($units) <= ($pfkey + 1)) { //check if number is within prefixes
+                $pfkey = sizeof($units) - 1;
+                $exp   = $pfkey * $exp / abs($exp);
             }
 
-            $R->cdata($this->config['prefix'] . $value / 10**($exp*3) . "\xE2\x80\xAF" . $units[$pfkey] . $this->config['postfix'] );
+            $R->cdata(
+                $this->config['prefix'] .
+                $value / 10 ** ($exp * 3) . "\xE2\x80\xAF" . $units[$pfkey] .
+                $this->config['postfix']
+            );
             return true;
         }
 
@@ -83,7 +87,7 @@ class Decimal extends AbstractMultiBaseType
         }
 
 
-        $R->cdata($this->config['prefix'] . $value . $this->config['postfix'] );
+        $R->cdata($this->config['prefix'] . $value . $this->config['postfix']);
         return true;
     }
 
