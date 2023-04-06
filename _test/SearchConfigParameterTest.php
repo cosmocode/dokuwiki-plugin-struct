@@ -14,6 +14,8 @@ use DOMWrap\Document;
  */
 class SearchConfigParameterTest extends StructTest
 {
+    /** @var int fixed revision timestamp */
+    protected $fixedrev;
 
     public function setUp(): void
     {
@@ -23,6 +25,9 @@ class SearchConfigParameterTest extends StructTest
         $this->loadSchemaJSON('schema2');
 
         $as = mock\Assignments::getInstance();
+
+        // save all data with the same fake revision
+        $this->fixedrev = time();
 
         $as->assignPageSchema('page01', 'schema1');
         $this->saveData(
@@ -34,7 +39,7 @@ class SearchConfigParameterTest extends StructTest
                 'third' => 'third data',
                 'fourth' => 'fourth data'
             ],
-            time()
+            $this->fixedrev
         );
 
         $as->assignPageSchema('page01', 'schema2');
@@ -47,7 +52,7 @@ class SearchConfigParameterTest extends StructTest
                 'athird' => 'third data',
                 'afourth' => 'fourth data'
             ],
-            time()
+            $this->fixedrev
         );
 
         for ($i = 10; $i <= 20; $i++) {
@@ -61,7 +66,7 @@ class SearchConfigParameterTest extends StructTest
                     'athird' => "page$i third data",
                     'afourth' => "page$i fourth data"
                 ],
-                time()
+                $this->fixedrev
             );
         }
     }
@@ -245,7 +250,7 @@ class SearchConfigParameterTest extends StructTest
         $this->assertEquals('6page14 first data', trim($tr1->text()));
         $this->assertEquals('page14', $tr1->attr('data-pid'));
         $this->assertEquals('0', $tr1->attr('data-rid'));
-        $this->assertEquals($rev, $tr1->attr('data-rev'));
+        $this->assertEquals($this->fixedrev, $tr1->attr('data-rev'));
 
         $tr6aPrev = $table->find(".row6 a.prev");
         $this->assertEquals('/./doku.php?id=test_pagination', $tr6aPrev->attr('href'));
