@@ -28,6 +28,9 @@ class Search
     /** @var  \helper_plugin_sqlite */
     protected $sqlite;
 
+    /** @var string first schema added to the search */
+    protected $firstschema;
+
     /** @var Schema[] list of schemas to query */
     protected $schemas = [];
 
@@ -45,6 +48,9 @@ class Search
 
     /** @var array list of aliases tables can be referenced by */
     protected $aliases = [];
+
+    /** @var array list of conditionals to be used when joining tables */
+    protected $joins = array();
 
     /** @var  int begin results from here */
     protected $range_begin = 0;
@@ -86,8 +92,9 @@ class Search
      *
      * @param string $table
      * @param string $alias
+     * @param string $joinon
      */
-    public function addSchema($table, $alias = '')
+    public function addSchema($table, $alias = '', $joinon = array())
     {
         $schema = new Schema($table);
         if (!$schema->getId()) {
@@ -96,6 +103,13 @@ class Search
 
         $this->schemas[$schema->getTable()] = $schema;
         if ($alias) $this->aliases[$alias] = $schema->getTable();
+        if (is_null($this->firstschema)) $this->firstschema = $scheam->getTable();
+        if (count($joinon) == 0) {
+            $joinon = array(
+                "{$schema->getTable()}.%pageid%", '=', "{$this->firstschema}.%pageid%"
+            );
+        }
+        $this->joins[$schema->getTable()] = $joinon;
     }
 
     /**
@@ -619,30 +633,31 @@ class Search
         if (!$this->schemas) throw new StructException('noschemas');
         $schema_list = array_keys($this->schemas);
 
+        [$colname, $table] = $this->resolveColumn($colname);
+        $table_or_first = $table !== null ? $table : $schema_list[0];
+
         // add "fake" column for special col
         if ($colname == '%pageid%') {
-            return new PageColumn(0, new Page(), $schema_list[0]);
+            return new PageColumn(0, new Page(), $table_or_first);
         }
         if ($colname == '%title%') {
-            return new PageColumn(0, new Page(['usetitles' => true]), $schema_list[0]);
+            return new PageColumn(0, new Page(['usetitles' => true]), $table_or_first);
         }
         if ($colname == '%lastupdate%') {
-            return new RevisionColumn(0, new DateTime(), $schema_list[0]);
+            return new RevisionColumn(0, new DateTime(), $table_or_first);
         }
         if ($colname == '%lasteditor%') {
-            return new UserColumn(0, new User(), $schema_list[0]);
+            return new UserColumn(0, new User(), $table_or_first);
         }
         if ($colname == '%lastsummary%') {
-            return new SummaryColumn(0, new AutoSummary(), $schema_list[0]);
+            return new SummaryColumn(0, new AutoSummary(), $table_or_first);
         }
         if ($colname == '%rowid%') {
-            return new RowColumn(0, new Decimal(), $schema_list[0]);
+            return new RowColumn(0, new Decimal(), $table_or_first);
         }
         if ($colname == '%published%') {
             return new PublishedColumn(0, new Decimal(), $schema_list[0]);
         }
-
-        [$colname, $table] = $this->resolveColumn($colname);
 
         /*
          * If table name is given search only that, otherwise if no strict behavior
