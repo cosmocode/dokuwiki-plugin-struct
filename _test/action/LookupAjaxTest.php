@@ -36,10 +36,10 @@ class LookupAjaxTest extends StructTest
     {
         $testLabel = 'testcontent';
         global $INPUT;
-        $INPUT->post->set('schema', 'wikilookup');
+        $INPUT->post->set('schema', 'wikilookup', );
         $INPUT->post->set('entry', ['FirstFieldText' => $testLabel]);
         $INPUT->post->set('searchconf', json_encode([
-            'schemas' => [['wikilookup', '']],
+            'schemas' => [['wikilookup', '', []]],
             'cols' => ['*']
         ]));
         $call = 'plugin_struct_aggregationeditor_save';
