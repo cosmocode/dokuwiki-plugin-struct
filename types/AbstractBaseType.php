@@ -362,6 +362,30 @@ abstract class AbstractBaseType
     }
 
     /**
+     * Creates a JOIN to handle multi-valued columns.
+     *
+     * @param QueryBuilder $QB
+     * @param string $datatable The table for the schema in question
+     * @param string $multitable The table containing multi-valued data for this schema
+     * @param int $colref The ID of the multi-valued column
+     * @param bool $test_rid Whether to require RIDs to be equal in the JOIN condition
+     * @return string Alias for the multi-table
+     */
+    public function joinMulti(QueryBuilder $QB, $datatable, $multitable, $colref, $test_rid = true) {
+        $MN = $QB->generateTableAlias('M');
+        $condition = "$datatable.pid = $MN.pid";
+        if ($test_rid) $condition .= "AND $datatable.rid = $MN.rid";
+        $condition .= "AND $datatable.rev = $MN.rev AND $MN.colref = $colref";
+        $QB->addLeftJoin(
+            $datatable,
+            $multitable,
+            $MN,
+            $condition
+        );
+        return $MN;
+    }
+    
+    /**
      * This function is used to modify an aggregation query to add a filter
      * for the given column matching the given value. A type should add at
      * least a filter here but could do additional things like joining more
@@ -443,13 +467,32 @@ abstract class AbstractBaseType
      * current page context for a join or sub select.
      *
      * @param QueryBuilder $QB
-     * @param string $tablealias The table the currently saved value(s) are stored in
+     * @param string $tablename The plane name of the table the currently saved value(s) are stored in (no prefixed with data_ or multi_)
      * @param string $colname The column name on above table
+     * @param bool $test_rid Whether to require RIDs to be equal if JOINing multi-table
      * @param string $alias The added selection *has* to use this column alias
+     * @param string|null $concat_sep Seperator to concatenate mutli-values together. If null, don't perform concatentation.
      */
-    public function select(QueryBuilder $QB, $tablealias, $colname, $alias)
+    public function select(QueryBuilder $QB, $tablename, $multialias, $alias, $test_rid = true, $concat_sep = null)
     {
-        $QB->addSelectColumn($tablealias, $colname, $alias);
+        $datatable = 'data_' . $tablename;
+        if ($this->isMulti()) {
+            $multitable = 'multi_' . $tablename;
+            $colref = $this->getContext()->getColref();
+            $datatable = $this->joinMulti($QB, $datatable, $multitable, $colref, $test_rid);
+            $colname = 'value';
+        } else {
+            $colname = $this->getContext()->getColName();
+        }
+        $QB->addSelectColumn($datatable, $colname, $alias);
+        if ($this->isMulti()) {
+            if (!is_null($concat_multi)) {
+                $sel = $QB->getSelectStatement($alias);
+                $QB->addSelectStatement("GROUP_CONCAT($sel, '$concat_sep')", $alias);
+            }
+        } else {
+            $QB->addGroupByStatement($alias);
+        }
     }
 
     /**
