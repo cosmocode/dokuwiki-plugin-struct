@@ -76,7 +76,7 @@ class Decimal extends AbstractMultiBaseType
             $value = floatval($value);
             $value = number_format(
                 $value,
-                $this->config['roundto'],
+                (int)$this->config['roundto'],
                 $this->config['decpoint'],
                 $this->config['thousands']
             );

@@ -18,7 +18,7 @@ class DecimalTest extends StructTest
 {
 
     /**
-     * Provides failing validation data
+     * Provides failing min/max validation data
      *
      * @return array
      */
@@ -41,7 +41,7 @@ class DecimalTest extends StructTest
     }
 
     /**
-     * Provides successful validation data
+     * Provides successful min/max validation data
      *
      * @return array
      */
@@ -107,8 +107,15 @@ class DecimalTest extends StructTest
             ['5000', '5 000', '2', ',', ' ', true],
             ['5000', '5 000', '0', ',', ' ', false],
             ['5000', '5 000', '0', ',', ' ', true],
+            ['5000', '5 000', '', ',', ' ', false],
+            ['5000', '5 000', '', ',', ' ', true],
             ['5000', '5 000', '-1', ',', ' ', false],
             ['5000', '5 000', '-1', ',', ' ', true],
+
+            ['777.707', '778', '0', ',', ' ', true],
+            ['777.707', '778', '', ',', ' ', true],
+            ['777.707', '777,71', '2', ',', ' ', true],
+            ['777.707', '777,71', '2', ',', ' ', false],
 
             ['-0.55600', '-0,56', '2', ',', ' ', false],
             ['-0.55600', '-0,55600', '-1', ',', ' ', false],
