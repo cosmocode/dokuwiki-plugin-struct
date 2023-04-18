@@ -210,7 +210,7 @@ class action_plugin_struct_inline extends DokuWiki_Action_Plugin
         $rid = $INPUT->int('rid');
         $rev = $updatedRev ?: $INPUT->int('rev');
 
-        list($table, $field) = explode('.', $INPUT->str('field'));
+        list($table, $field) = explode('.', $INPUT->str('field'), 2);
         if (blank($pid) && blank($rid)) return false;
         if (blank($table)) return false;
         if (blank($field)) return false;
