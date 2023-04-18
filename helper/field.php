@@ -107,7 +107,8 @@ class helper_plugin_struct_field extends helper_plugin_bureaucracy_field
      *
      * @return array|mixed|string
      */
-    public function getReplacementValue() {
+    public function getReplacementValue()
+    {
         $value = $this->getParam('value');
 
         if (is_array($value)) {
@@ -127,7 +128,8 @@ class helper_plugin_struct_field extends helper_plugin_bureaucracy_field
      * @param $matches
      * @return string
      */
-    public function replacementMultiValueCallback($matches) {
+    public function replacementMultiValueCallback($matches)
+    {
         $value = $this->opt['value'];
 
         //default value
