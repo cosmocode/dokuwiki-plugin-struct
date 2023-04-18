@@ -7,6 +7,7 @@ use dokuwiki\plugin\struct\meta\Value;
 use dokuwiki\plugin\struct\meta\ValueValidator;
 use dokuwiki\plugin\struct\types\Lookup;
 use dokuwiki\plugin\struct\types\Page;
+use dokuwiki\plugin\struct\types\User;
 
 /**
  * Allows adding a single struct field as a bureaucracy field
@@ -99,6 +100,54 @@ class helper_plugin_struct_field extends helper_plugin_bureaucracy_field
         $value = $this->createValue();
         $field = $this->makeField($value, $params['name']);
         $form->addElement($field);
+    }
+
+    /**
+     * Adds replacement for type user to the parent method
+     *
+     * @return array|mixed|string
+     */
+    public function getReplacementValue() {
+        $value = $this->getParam('value');
+
+        if (is_array($value)) {
+            return array($this, 'replacementMultiValueCallback');
+        }
+
+        if (!empty($value) && $this->column->getType() instanceof User) {
+            return userlink($value, true);
+        }
+
+        return parent::getReplacementValue();
+    }
+
+    /**
+     * Adds handling of type user to the parent method
+     *
+     * @param $matches
+     * @return string
+     */
+    public function replacementMultiValueCallback($matches) {
+        $value = $this->opt['value'];
+
+        //default value
+        if (is_null($value) || $value === false) {
+            if (isset($matches['default']) && $matches['default'] != '') {
+                return $matches['default'];
+            }
+            return $matches[0];
+        }
+
+        if (!empty($value) && $this->column->getType() instanceof User) {
+            $value = array_map(function ($user) {
+                return userlink($user, true);
+            }, $value);
+        }
+
+        //check if matched string containts a pair of brackets
+        $delimiter = preg_match('/\(.*\)/s', $matches[0]) ? $matches['delimiter'] : ', ';
+
+        return implode($delimiter, $value);
     }
 
     /**
