@@ -12,7 +12,7 @@ use dokuwiki\plugin\struct\meta\StructException;
 
 class helper_plugin_struct_db extends DokuWiki_Plugin
 {
-    /** @var helper_plugin_sqlite */
+    /** @var \dokuwiki\plugin\sqlite\SQLiteDB */
     protected $sqlite;
 
     /**
@@ -30,59 +30,30 @@ class helper_plugin_struct_db extends DokuWiki_Plugin
      */
     protected function init()
     {
-        /** @var helper_plugin_sqlite $sqlite */
-        $this->sqlite = plugin_load('helper', 'sqlite');
-        if (!$this->sqlite) {
+        try {
+            /** @var \dokuwiki\plugin\sqlite\SQLiteDB $sqlite */
+            $this->sqlite = new \dokuwiki\plugin\sqlite\SQLiteDB('struct', DOKU_PLUGIN . 'struct/db/');
+        } catch (Exception $exception) {
             if (defined('DOKU_UNITTEST')) throw new \Exception('Couldn\'t load sqlite.');
             return;
         }
 
-        if ($this->sqlite->getAdapter() === null) {
-            if (defined('DOKU_UNITTEST')) throw new \Exception('Couldn\'t load PDO sqlite.');
-            $this->sqlite = null;
-            return;
-        }
-
-        if ($this->sqlite->getAdapter()->getName() != DOKU_EXT_PDO) {
-            if (defined('DOKU_UNITTEST')) throw new \Exception('Couldn\'t load PDO sqlite.');
-            $this->sqlite = null;
-            return;
-        }
-        $this->sqlite->getAdapter()->setUseNativeAlter(true);
-
-        // initialize the database connection
-        if (!$this->sqlite->init('struct', DOKU_PLUGIN . 'struct/db/')) {
-            if (defined('DOKU_UNITTEST')) throw new \Exception('Couldn\'t init sqlite.');
-            $this->sqlite = null;
-            return;
-        }
-
         // register our JSON function with variable parameters
-        // todo this might be useful to be moved into the sqlite plugin
-        $this->sqlite->create_function('STRUCT_JSON', array($this, 'STRUCT_JSON'), -1);
+        $this->sqlite->getDb()->sqliteCreateFunction('STRUCT_JSON', [$this, 'STRUCT_JSON'], -1);
 
         // this function is meant to be overwritten by plugins
-        $this->sqlite->create_function('IS_PUBLISHER', array($this, 'IS_PUBLISHER'), -1);
-
-        // collect and register custom functions from other plugins
-        $functions = [];
-        Event::createAndTrigger('STRUCT_PLUGIN_SQLITE_FUNCTION', $functions);
-        foreach ($functions as $fn) {
-            if (isset($fn['obj']) && isset($fn['name']) && is_callable([$fn['obj'], $fn['name']])) {
-                $this->sqlite->create_function($fn['name'], [$fn['obj'], $fn['name']], -1);
-            }
-        }
+        $this->sqlite->getDb()->sqliteCreateFunction('IS_PUBLISHER', [$this, 'IS_PUBLISHER'], -1);
     }
 
     /**
-     * @param bool $throw throw an Exception when sqlite not available?
-     * @return helper_plugin_sqlite|null
+     * @param bool $throw throw an Exception when sqlite not available
+     * @return \dokuwiki\plugin\sqlite\SQLiteDB|null
      */
     public function getDB($throw = true)
     {
         global $conf;
         $len = strlen($conf['metadir']);
-        if ($this->sqlite && $conf['metadir'] != substr($this->sqlite->getAdapter()->getDbFile(), 0, $len)) {
+        if ($this->sqlite && $conf['metadir'] != substr($this->sqlite->getDbFile(), 0, $len)) {
             $this->init();
         }
         if (!$this->sqlite && $throw) {
@@ -99,7 +70,7 @@ class helper_plugin_struct_db extends DokuWiki_Plugin
     public function resetDB()
     {
         if (!$this->sqlite) return;
-        $file = $this->sqlite->getAdapter()->getDbFile();
+        $file = $this->sqlite->getDbFile();
         if (!$file) return;
         unlink($file);
         clearstatcache(true, $file);

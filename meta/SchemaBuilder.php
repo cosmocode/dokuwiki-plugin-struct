@@ -43,7 +43,7 @@ class SchemaBuilder
     /** @var \helper_plugin_struct_db */
     protected $helper;
 
-    /** @var \helper_plugin_sqlite|null */
+    /** @var \dokuwiki\plugin\sqlite\SQLiteDB|null */
     protected $sqlite;
 
     /** @var int the time for which this schema should be created - default to time() can be overriden for tests */
@@ -154,10 +154,9 @@ class SchemaBuilder
 
         /** @noinspection SqlResolve */
         $sql = "INSERT INTO schemas (tbl, ts, user, config) VALUES (?, ?, ?, ?)";
-        $this->sqlite->query($sql, $this->table, $this->time, $this->user, $config);
-        $res = $this->sqlite->query('SELECT last_insert_rowid()');
-        $this->newschemaid = $this->sqlite->res2single($res);
-        $this->sqlite->res_close($res);
+        $this->sqlite->query($sql, [$this->table, $this->time, $this->user, $config]);
+        $this->newschemaid = $this->sqlite->queryValue('SELECT last_insert_rowid()');
+
         if (!$this->newschemaid) return false;
         return true;
     }
@@ -185,12 +184,10 @@ class SchemaBuilder
 
                 // when the type definition has changed, we create a new one
                 if (array_diff_assoc($oldEntry, $newEntry)) {
-                    $ok = $this->sqlite->storeEntry('types', $newEntry);
+                    $ok = $this->sqlite->saveRecord('types', $newEntry);
                     if (!$ok) return false;
-                    $res = $this->sqlite->query('SELECT last_insert_rowid()');
-                    if (!$res) return false;
-                    $newTid = $this->sqlite->res2single($res);
-                    $this->sqlite->res_close($res);
+                    $newTid = $this->sqlite->queryValue('SELECT last_insert_rowid()');
+                    if (!$newTid) return false;
                     if ($oldEntry['ismulti'] == false && $newEntry['ismulti'] == '1') {
                         $this->migrateSingleToMulti($this->oldschema->getTable(), $column->getColref());
                     }
@@ -207,7 +204,7 @@ class SchemaBuilder
                 'tid' => $newTid,
                 'sort' => $sort
             );
-            $ok = $this->sqlite->storeEntry('schema_cols', $schemaEntry);
+            $ok = $this->sqlite->saveRecord('schema_cols', $schemaEntry);
             if (!$ok) return false;
         }
         return true;
@@ -223,9 +220,7 @@ class SchemaBuilder
     {
         /** @noinspection SqlResolve */
         $sqlSelect = "SELECT pid, rev, published, col$colref AS value FROM data_$table WHERE latest = 1";
-        $res = $this->sqlite->query($sqlSelect);
-        $valueSet = $this->sqlite->res2arr($res);
-        $this->sqlite->res_close($res);
+        $valueSet = $this->sqlite->queryAll($sqlSelect);
         $valueString = array();
         $arguments = array();
         foreach ($valueSet as $values) {
@@ -279,12 +274,11 @@ class SchemaBuilder
             }
 
             // save the type
-            $ok = $this->sqlite->storeEntry('types', $newEntry);
+            $ok = $this->sqlite->saveRecord('types', $newEntry);
             if (!$ok) return false;
-            $res = $this->sqlite->query('SELECT last_insert_rowid()');
-            if (!$res) return false;
-            $newTid = $this->sqlite->res2single($res);
-            $this->sqlite->res_close($res);
+            $newTid = $this->sqlite->queryValue('SELECT last_insert_rowid()');
+
+            if (!$newTid) return false;
 
 
             // add this type to the schema columns
@@ -295,7 +289,7 @@ class SchemaBuilder
                 'tid' => $newTid,
                 'sort' => $sort
             );
-            $ok = $this->sqlite->storeEntry('schema_cols', $schemaEntry);
+            $ok = $this->sqlite->saveRecord('schema_cols', $schemaEntry);
             if (!$ok) return false;
             $colref++;
         }

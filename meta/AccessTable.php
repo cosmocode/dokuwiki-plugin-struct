@@ -440,10 +440,7 @@ abstract class AccessTable
         $idColumn = self::isTypePage($this->pid, $this->ts) ? 'pid' : 'rid';
         list($sql, $opt) = $this->buildGetDataSQL($idColumn);
 
-        $res = $this->sqlite->query($sql, $opt);
-        $data = $this->sqlite->res2arr($res);
-        $this->sqlite->res_close($res);
-        return $data;
+        return $this->sqlite->queryAll($sql, $opt);
     }
 
     /**
@@ -641,7 +638,7 @@ abstract class AccessTable
         return $this->sqlite->query(
             "DELETE FROM $this->mtable WHERE pid = ? AND rid = $this->rid AND rev = 0 AND colref IN (" .
             implode(',', $colrefs) . ")",
-            $this->pid
+            [$this->pid]
         );
     }
 }

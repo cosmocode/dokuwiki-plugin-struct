@@ -82,17 +82,16 @@ class Schema
                      LIMIT 1";
             $opt = array($table);
         }
-        $res = $this->sqlite->query($sql, $opt);
+        $schema = $this->sqlite->queryAll($sql, $opt);
         $config = array();
-        if ($this->sqlite->res2count($res)) {
-            $schema = $this->sqlite->res2arr($res);
+
+        if (!empty($schema)) {
             $result = array_shift($schema);
             $this->id = $result['id'];
             $this->user = $result['user'];
             $this->ts = $result['ts'];
             $config = json_decode($result['config'], true);
         }
-        $this->sqlite->res_close($res);
         $this->config = array_merge($baseconfig, $config);
         $this->initTransConfig(array('label'));
         if (!$this->id) return;
@@ -104,9 +103,7 @@ class Schema
                  WHERE SC.sid = ?
                    AND SC.tid = T.id
               ORDER BY SC.sort";
-        $res = $this->sqlite->query($sql, $this->id);
-        $rows = $this->sqlite->res2arr($res);
-        $this->sqlite->res_close($res);
+        $rows = $this->sqlite->queryAll($sql, [$this->id]);
 
         $typeclasses = Column::allTypes();
         foreach ($rows as $row) {
@@ -174,9 +171,7 @@ class Schema
         $db = $helper->getDB(false);
         if (!$db) return array();
 
-        $res = $db->query("SELECT DISTINCT tbl FROM schemas ORDER BY tbl");
-        $tables = $db->res2arr($res);
-        $db->res_close($res);
+        $tables = $db->queryAll("SELECT DISTINCT tbl FROM schemas ORDER BY tbl");
 
         $result = array();
         foreach ($tables as $row) {

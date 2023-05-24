@@ -421,7 +421,7 @@ class Search
             $result[] = $resrow;
         }
 
-        $this->sqlite->res_close($res);
+        $res->closeCursor();
         $this->count = $cursor + 1;
         return $result;
     }

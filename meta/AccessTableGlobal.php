@@ -109,9 +109,7 @@ class AccessTableGlobal extends AccessTable
     {
         $ok = true;
         if (!$this->rid) {
-            $res = $this->sqlite->query("SELECT rid FROM $this->stable WHERE ROWID = last_insert_rowid()");
-            $this->rid = $this->sqlite->res2single($res);
-            $this->sqlite->res_close($res);
+            $this->rid = $this->sqlite->queryValue("SELECT rid FROM $this->stable WHERE ROWID = last_insert_rowid()");
             if (!$this->rid) {
                 $ok = false;
             }
