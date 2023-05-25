@@ -55,7 +55,7 @@ class SchemaBuilderTest extends StructTest
         $result = $builder->build();
 
         /** @noinspection SqlResolve */
-        $tableSQL = $this->sqlite->queryValue("SELECT sql FROM sqlite_master WHERE type='table' AND name=?", 'data_' . $testname);
+        $tableSQL = $this->sqlite->queryValue("SELECT sql FROM sqlite_master WHERE type='table' AND name=?", ['data_' . $testname]);
         $expected_tableSQL = "CREATE TABLE data_testtable (
                     pid TEXT DEFAULT '',
                     rid INTEGER,
@@ -101,7 +101,7 @@ class SchemaBuilderTest extends StructTest
             ]
         ];
 
-        $actual_schema = $this->sqlite->queryAll("SELECT * FROM schemas");
+        $actual_schema = $this->sqlite->queryRecord("SELECT * FROM schemas");
 
         $this->assertSame(1, $result);
         $this->assertEquals($expected_tableSQL, $tableSQL);

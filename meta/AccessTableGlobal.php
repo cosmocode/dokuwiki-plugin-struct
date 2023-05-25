@@ -133,9 +133,10 @@ class AccessTableGlobal extends AccessTable
      */
     protected function handleEmptyMulti($pid, $rid, $colref)
     {
+        $table = 'multi_' . $this->schema->getTable();
         $this->optQueries[] = [
-            "DELETE FROM ? WHERE pid = ? AND rid = ? AND colref = ?",
-            'multi_' . $this->schema->getTable(), $pid, $rid, $colref
+            "DELETE FROM $table WHERE pid = ? AND rid = ? AND colref = ?",
+            $pid, $rid, $colref
         ];
     }
 }

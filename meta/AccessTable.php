@@ -332,7 +332,8 @@ abstract class AccessTable
     {
         $ok = true;
         foreach ($this->optQueries as $query) {
-            $ok = $ok && $this->sqlite->query(array_shift($query), $query);
+            $sql = array_shift($query);
+            $ok = $ok && $this->sqlite->query($sql, $query);
         }
         return $ok;
     }

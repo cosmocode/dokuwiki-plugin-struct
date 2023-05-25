@@ -2,6 +2,7 @@
 
 namespace dokuwiki\plugin\struct\meta;
 
+use dokuwiki\plugin\sqlite\SQLiteDB;
 use dokuwiki\plugin\struct\types\AbstractBaseType;
 use dokuwiki\Utf8\PhpString;
 
@@ -19,7 +20,7 @@ class Schema
 {
     use TranslationUtilities;
 
-    /** @var \helper_plugin_sqlite|null */
+    /** @var SQLiteDB|null */
     protected $sqlite;
 
     /** @var int The ID of this schema */
@@ -191,15 +192,15 @@ class Schema
 
         $this->sqlite->query('BEGIN TRANSACTION');
 
-        $sql = "DROP TABLE ?";
-        $this->sqlite->query($sql, 'data_' . $this->table);
-        $this->sqlite->query($sql, 'multi_' . $this->table);
+        $sql = "DROP TABLE ";
+        $this->sqlite->query($sql . 'data_' . $this->table);
+        $this->sqlite->query($sql . 'multi_' . $this->table);
 
-        $sql = "DELETE FROM schema_assignments WHERE tbl = ?";
-        $this->sqlite->query($sql, $this->table);
+        $sql = "DELETE FROM schema_assignments WHERE tbl = '$this->table'";
+        $this->sqlite->query($sql);
 
-        $sql = "DELETE FROM schema_assignments_patterns WHERE tbl = ?";
-        $this->sqlite->query($sql, $this->table);
+        $sql = "DELETE FROM schema_assignments_patterns WHERE tbl = '$this->table'";
+        $this->sqlite->query($sql);
 
         $sql = "SELECT T.id
                   FROM types T, schema_cols SC, schemas S
@@ -207,16 +208,16 @@ class Schema
                    AND SC.sid = S.id
                    AND S.tbl = ?";
         $sql = "DELETE FROM types WHERE id IN ($sql)";
-        $this->sqlite->query($sql, $this->table);
+        $this->sqlite->query($sql, [$this->table]);
 
         $sql = "SELECT id
                   FROM schemas
                  WHERE tbl = ?";
         $sql = "DELETE FROM schema_cols WHERE sid IN ($sql)";
-        $this->sqlite->query($sql, $this->table);
+        $this->sqlite->query($sql, [$this->table]);
 
         $sql = "DELETE FROM schemas WHERE tbl = ?";
-        $this->sqlite->query($sql, $this->table);
+        $this->sqlite->query($sql, [$this->table]);
 
         $this->sqlite->query('COMMIT TRANSACTION');
         $this->sqlite->query('VACUUM');
@@ -237,9 +238,9 @@ class Schema
         if (!$this->id) throw new StructException('can not clear data of unsaved schema');
 
         $this->sqlite->query('BEGIN TRANSACTION');
-        $sql = 'DELETE FROM ?';
-        $this->sqlite->query($sql, 'data_' . $this->table);
-        $this->sqlite->query($sql, 'multi_' . $this->table);
+        $sql = 'DELETE FROM ';
+        $this->sqlite->query($sql . 'data_' . $this->table);
+        $this->sqlite->query($sql . 'multi_' . $this->table);
         $this->sqlite->query('COMMIT TRANSACTION');
         $this->sqlite->query('VACUUM');
     }
