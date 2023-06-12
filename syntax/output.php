@@ -97,7 +97,7 @@ class syntax_plugin_struct_output extends DokuWiki_Syntax_Plugin
                 return true;
             }
         }
-        if ($ID != $INFO['id']) return true;
+        if (!isset($INFO['id']) || ($ID != $INFO['id'])) return true;
         if (!$INFO['exists']) return true;
         if ($this->hasBeenRendered) return true;
         if (!preg_match(self::WHITELIST_ACTIONS, act_clean($ACT))) return true;
