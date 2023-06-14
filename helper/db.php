@@ -39,10 +39,10 @@ class helper_plugin_struct_db extends DokuWiki_Plugin
         }
 
         // register our JSON function with variable parameters
-        $this->sqlite->getDb()->sqliteCreateFunction('STRUCT_JSON', [$this, 'STRUCT_JSON'], -1);
+        $this->sqlite->getPdo()->sqliteCreateFunction('STRUCT_JSON', [$this, 'STRUCT_JSON'], -1);
 
         // this function is meant to be overwritten by plugins
-        $this->sqlite->getDb()->sqliteCreateFunction('IS_PUBLISHER', [$this, 'IS_PUBLISHER'], -1);
+        $this->sqlite->getPdo()->sqliteCreateFunction('IS_PUBLISHER', [$this, 'IS_PUBLISHER'], -1);
     }
 
     /**
