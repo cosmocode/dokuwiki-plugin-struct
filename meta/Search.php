@@ -501,7 +501,7 @@ class Search
 
                 $col->getType()->select($QB, $MN, 'value', $CN);
                 $sel = $QB->getSelectStatement($CN);
-                $QB->addSelectStatement("GROUP_CONCAT($sel, '$sep')", $CN);
+                $QB->addSelectStatement("GROUP_CONCAT_DISTINCT($sel, '$sep')", $CN);
             } else {
                 $col->getType()->select($QB, 'data_' . $col->getTable(), $col->getColName(), $CN);
                 $QB->addGroupByStatement($CN);

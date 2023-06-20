@@ -51,7 +51,7 @@ class AccessTableDataSQLTest extends StructTest
                 "SELECT DATA.pid AS PID,
                         DATA.col1 AS out1,
                         DATA.col2 AS out2,
-                        GROUP_CONCAT(M3.value,'" . Search::CONCAT_SEPARATOR . "') AS out3
+                        GROUP_CONCAT_DISTINCT(M3.value,'" . Search::CONCAT_SEPARATOR . "') AS out3
                    FROM data_testtable AS DATA
                    LEFT OUTER JOIN multi_testtable AS M3
                      ON DATA.pid = M3.pid
@@ -70,8 +70,8 @@ class AccessTableDataSQLTest extends StructTest
                     'multis' => ['dokuwiki\\plugin\\struct\\types\\Text', 'dokuwiki\\plugin\\struct\\types\\Text']
                 ],
                 "SELECT DATA.pid AS PID,
-                        GROUP_CONCAT(M1.value,'" . Search::CONCAT_SEPARATOR . "') AS out1,
-                        GROUP_CONCAT(M2.value,'" . Search::CONCAT_SEPARATOR . "') AS out2
+                        GROUP_CONCAT_DISTINCT(M1.value,'" . Search::CONCAT_SEPARATOR . "') AS out1,
+                        GROUP_CONCAT_DISTINCT(M2.value,'" . Search::CONCAT_SEPARATOR . "') AS out2
                    FROM data_testtable AS DATA
                    LEFT OUTER JOIN multi_testtable AS M2
                      ON DATA.pid = M2.pid

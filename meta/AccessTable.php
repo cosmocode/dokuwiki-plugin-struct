@@ -518,7 +518,7 @@ abstract class AccessTable
                 );
                 $col->getType()->select($QB, $tn, 'value', $outname);
                 $sel = $QB->getSelectStatement($outname);
-                $QB->addSelectStatement("GROUP_CONCAT($sel, '$sep')", $outname);
+                $QB->addSelectStatement("GROUP_CONCAT_DISTINCT($sel, '$sep')", $outname);
             } else {
                 $col->getType()->select($QB, 'DATA', $colname, $outname);
                 $QB->addGroupByStatement($outname);
