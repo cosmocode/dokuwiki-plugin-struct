@@ -70,24 +70,61 @@ class AggregationList
      */
     public function render()
     {
+        $nestedResult = new NestedResult($this->result);
+        $root = $nestedResult->getRoot($this->data['nesting']);
 
         $this->startScope();
+        $this->renderNode($root);
+        $this->finishScope();
+    }
 
-        $this->renderer->listu_open();
+    /**
+     * Recursively render the result tree
+     *
+     * @param NestedValue $node
+     * @return void
+     */
+    protected function renderNode(NestedValue $node)
+    {
+        $self = $node->getValueObject(); // null for root node
+        $children = $node->getChildren();
+        $results = $node->getResultRows();
 
-        foreach ($this->result as $result) {
-            $this->renderer->listitem_open(1);
-            $this->renderer->listcontent_open();
-            $this->renderListItem($result);
-            $this->renderer->listcontent_close();
-            $this->renderer->listitem_close();
+        // all our content is in a listitem, unless we are the root node
+        if ($self) {
+            $this->renderer->listitem_open($node->getDepth() + 1); // levels are 1 based
         }
 
-        $this->renderer->listu_close();
+        // render own value if available
+        if ($self) {
+            $this->renderer->listcontent_open();
+            $this->renderListItem([$self], $node->getDepth()); // zero based depth
+            $this->renderer->listcontent_close();
+        }
 
-        $this->finishScope();
+        // render children or results as sub-list
+        if ($children || $results) {
+            $this->renderer->listu_open();
 
-        return;
+            foreach ($children as $child) {
+                $this->renderNode($child);
+            }
+
+            foreach ($results as $result) {
+                $this->renderer->listitem_open($node->getDepth() + 2); // levels are 1 based, this is one deeper
+                $this->renderer->listcontent_open();
+                $this->renderListItem($result, $node->getDepth() + 1); // zero based depth, one deeper
+                $this->renderer->listcontent_close();
+                $this->renderer->listitem_close();
+            }
+
+            $this->renderer->listu_close();
+        }
+
+        // close listitem if opened
+        if ($self) {
+            $this->renderer->listitem_close();
+        }
     }
 
     /**
@@ -114,39 +151,70 @@ class AggregationList
         $this->renderer->doc .= '</div>';
     }
 
+
     /**
-     * @param $resultrow
+     * Render the content of a single list item
+     *
+     * @param Value[] $resultrow
+     * @param int $depth The current nesting depth (zero based)
      */
-    protected function renderListItem($resultrow)
+    protected function renderListItem($resultrow, $depth)
     {
         $sepbyheaders = $this->searchConfig->getConf()['sepbyheaders'];
         $headers = $this->searchConfig->getConf()['headers'];
 
-        /**
-         * @var Value $value
-         */
-        foreach ($resultrow as $column => $value) {
-            if ($value->isEmpty()) {
-                continue;
-            }
+        foreach ($resultrow as $index => $value) {
+            if ($value->isEmpty()) continue;
+            $column = $index + $depth; // the resultrow is shifted by the nesting depth
             if ($sepbyheaders && !empty($headers[$column])) {
-                if ($this->mode == 'xhtml') {
-                    $this->renderer->doc .= '<span class="struct_header">' . hsc($headers[$column]) . '</span>';
-                } else {
-                    $this->renderer->cdata($headers[$column]);
-                }
+                $header = $headers[$column];
+            } else {
+                $header = '';
             }
-            if ($this->mode == 'xhtml') {
-                $type = 'struct_' . strtolower($value->getColumn()->getType()->getClass());
-                $this->renderer->doc .= '<div class="' . $type . '">';
-            }
-            $value->render($this->renderer, $this->mode);
-            if ($column < $this->resultColumnCount) {
-                $this->renderer->cdata(' ');
-            }
-            if ($this->mode == 'xhtml') {
-                $this->renderer->doc .= '</div>';
+
+            if ($this->mode === 'xhtml') {
+                $this->renderValueXHTML($value, $header);
+            } else {
+                $this->renderValueGeneric($value, $header);
             }
         }
+    }
+
+    /**
+     * Render the given Value in a XHTML renderer
+     * @param Value $value
+     * @param string $header
+     * @return void
+     */
+    protected function renderValueXHTML($value, $header)
+    {
+        $attributes = [
+            'data-struct-column' => strtolower($value->getColumn()->getFullQualifiedLabel()),
+            'data-struct-type' => strtolower($value->getColumn()->getType()->getClass()),
+            'class' => 'li', // default dokuwiki content wrapper
+        ];
+
+        $this->renderer->doc .= sprintf('<div %s>', buildAttributes($attributes)); // wrapper
+        if ($header !== '') {
+            $this->renderer->doc .= sprintf('<span class="struct_header">%s</span> ', hsc($header));
+        }
+        $this->renderer->doc .= '<div class="struct_value">';
+        $value->render($this->renderer, $this->mode);
+        $this->renderer->doc .= '</div>';
+        $this->renderer->doc .= '</div> '; // wrapper
+    }
+
+    /**
+     * Render the given Value in any non-XHTML renderer
+     * @param Value $value
+     * @param string $header
+     * @return void
+     */
+    protected function renderValueGeneric($value, $header)
+    {
+        $this->renderer->listcontent_open();
+        if ($header !== '') $this->renderer->cdata($header . ' ');
+        $value->render($this->renderer, $this->mode);
+        $this->renderer->listcontent_close();
     }
 }

@@ -222,4 +222,15 @@ class Value
     {
         return '' !== ((string)$input);
     }
+
+    /**
+     * Get a string representation of this value
+     *
+     * @return string
+     */
+    public function __toString()
+    {
+        return '[' . $this->getColumn()->getFullQualifiedLabel() . '] ' .
+            join(',', (array)$this->getRawValue());
+    }
 }

@@ -39,6 +39,7 @@ class ConfigParser
             'schemas' => array(),
             'sort' => array(),
             'csv' => true,
+            'nesting' => 0,
         );
         // parse info
         foreach ($lines as $line) {
@@ -115,6 +116,10 @@ class ConfigParser
                 case 'target':
                 case 'page':
                     $this->config['target'] = cleanID($val);
+                    break;
+                case 'nesting':
+                case 'nest':
+                    $this->config['nesting'] = (int) $val;
                     break;
                 default:
                     $data = array('config' => &$this->config, 'key' => $key, 'val' => $val);
