@@ -82,7 +82,8 @@ class ConfigParserTest extends StructTest
                 ],
             'csv' => true,
             'target' => '',
-            'align' => ['right', 'left', 'center', null]
+            'align' => ['right', 'left', 'center', null],
+            'nesting' => 0,
         ];
 
         $this->assertEquals($expected_config, $actual_config);

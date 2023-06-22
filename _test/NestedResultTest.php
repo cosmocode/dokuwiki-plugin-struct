@@ -7,6 +7,13 @@ use dokuwiki\plugin\struct\meta\NestedResult;
 use dokuwiki\plugin\struct\meta\Value;
 use dokuwiki\plugin\struct\types\Text;
 
+/**
+ * Tests for the NestedResult class
+ *
+ * @group plugin_struct
+ * @group plugins
+ *
+ */
 class NestedResultTest extends StructTest
 {
     protected $simpleItems = [

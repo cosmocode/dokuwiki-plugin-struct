@@ -51,6 +51,7 @@ class InlineConfigParserTest extends StructTest
             'summarize' => false,
             'target' => '',
             'widths' => [],
+            'nesting' => 0,
         ];
 
         $this->assertEquals($expected_config, $actual_config);
