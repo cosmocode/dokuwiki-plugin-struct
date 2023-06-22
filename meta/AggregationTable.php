@@ -7,111 +7,30 @@ namespace dokuwiki\plugin\struct\meta;
  *
  * @package dokuwiki\plugin\struct\meta
  */
-class AggregationTable
+class AggregationTable extends Aggregation
 {
-    /**
-     * @var string the page id of the page this is rendered to
-     */
-    protected $id;
-    /**
-     * @var string the Type of renderer used
-     */
-    protected $mode;
-    /**
-     * @var \Doku_Renderer the DokuWiki renderer used to create the output
-     */
-    protected $renderer;
-    /**
-     * @var SearchConfig the configured search - gives access to columns etc.
-     */
-    protected $searchConfig;
+    /** @var array for summing up columns */
+    protected $sums;
 
-    /**
-     * @var Column[] the list of columns to be displayed
-     */
-    protected $columns;
-
-    /**
-     * @var  Value[][] the search result
-     */
-    protected $result;
-
-    /**
-     * @var int number of all results
-     */
-    protected $resultCount;
-
-    /**
-     * @var string[] the result PIDs for each row
-     */
+    /** @var string[] the result PIDs for each row */
     protected $resultPIDs;
     protected $resultRids;
     protected $resultRevs;
 
-    /**
-     * @var array for summing up columns
-     */
-    protected $sums;
-
-    /**
-     * @var bool skip full table when no results found
-     */
-    protected $simplenone = true;
-
-    /**
-     * @todo we might be able to get rid of this helper and move this to SearchConfig
-     * @var \helper_plugin_struct_config
-     */
-    protected $helper;
-
-    /**
-     * @var array the original configuration data
-     */
-    protected $data;
-
-    /**
-     * Initialize the Aggregation renderer and executes the search
-     *
-     * You need to call @param string $id
-     * @param string $mode
-     * @param \Doku_Renderer $renderer
-     * @param SearchConfig $searchConfig
-     * @see render() on the resulting object.
-     *
-     */
     public function __construct($id, $mode, \Doku_Renderer $renderer, SearchConfig $searchConfig)
     {
-        $this->id = $id;
-        $this->mode = $mode;
-        $this->renderer = $renderer;
-        $this->searchConfig = $searchConfig;
-        $this->data = $searchConfig->getConf();
-        $this->columns = $searchConfig->getColumns();
-
-        $this->result = $this->searchConfig->execute();
-        $this->resultCount = $this->searchConfig->getCount();
+        parent::__construct($id, $mode, $renderer, $searchConfig);
         $this->resultPIDs = $this->searchConfig->getPids();
         $this->resultRids = $this->searchConfig->getRids();
         $this->resultRevs = $this->searchConfig->getRevs();
-        $this->helper = plugin_load('helper', 'struct_config');
     }
 
-    /**
-     * Returns the page id for the table
-     */
-    public function getID()
-    {
-        return $this->id;
-    }
-
-    /**
-     * Create the table on the renderer
-     */
-    public function render()
+    /** @inheritdoc */
+    public function render($showNotFound = false)
     {
 
         // abort early if there are no results at all (not filtered)
-        if (!$this->resultCount && !$this->isDynamicallyFiltered() && $this->simplenone) {
+        if (!$this->resultCount && !$this->isDynamicallyFiltered() && $showNotFound) {
             $this->startScope();
             $this->renderer->cdata($this->helper->getLang('none'));
             $this->finishScope();

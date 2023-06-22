@@ -7,74 +7,30 @@ namespace dokuwiki\plugin\struct\meta;
  *
  * @package dokuwiki\plugin\struct\meta
  */
-class AggregationList
+class AggregationList extends Aggregation
 {
-    /**
-     * @var string the page id of the page this is rendered to
-     */
-    protected $id;
-    /**
-     * @var string the Type of renderer used
-     */
-    protected $mode;
-    /**
-     * @var \Doku_Renderer the DokuWiki renderer used to create the output
-     */
-    protected $renderer;
-    /**
-     * @var SearchConfig the configured search - gives access to columns etc.
-     */
-    protected $searchConfig;
 
-    /**
-     * @var Column[] the list of columns to be displayed
-     */
-    protected $columns;
-
-    /**
-     * @var  Value[][] the search result
-     */
-    protected $result;
-
-    /**
-     * @var int number of all results
-     */
+    /** @var int number of all results */
     protected $resultColumnCount;
 
-    /**
-     * Initialize the Aggregation renderer and executes the search
-     *
-     * You need to call @param string $id
-     * @param string $mode
-     * @param \Doku_Renderer $renderer
-     * @param SearchConfig $searchConfig
-     * @see render() on the resulting object.
-     *
-     */
+    /** @inheritdoc */
     public function __construct($id, $mode, \Doku_Renderer $renderer, SearchConfig $searchConfig)
     {
-        $this->id = $id;
-        $this->mode = $mode;
-        $this->renderer = $renderer;
-        $this->searchConfig = $searchConfig;
-        $this->data = $searchConfig->getConf();
-        $this->columns = $searchConfig->getColumns();
-
-        $this->result = $this->searchConfig->execute();
+        parent::__construct($id, $mode, $renderer, $searchConfig);
         $this->resultColumnCount = count($this->columns);
-        $this->resultPIDs = $this->searchConfig->getPids();
     }
 
-    /**
-     * Create the list on the renderer
-     */
-    public function render()
+    /** @inheritdoc */
+    public function render($showNotFound = false)
     {
-        $nestedResult = new NestedResult($this->result);
-        $root = $nestedResult->getRoot($this->data['nesting']);
-
         $this->startScope();
-        $this->renderNode($root);
+        if ($this->result) {
+            $nestedResult = new NestedResult($this->result);
+            $root = $nestedResult->getRoot($this->data['nesting']);
+            $this->renderNode($root);
+        } elseif ($showNotFound) {
+            $this->renderer->cdata($this->helper->getLang('none'));
+        }
         $this->finishScope();
     }
 

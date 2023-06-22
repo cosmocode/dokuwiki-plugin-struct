@@ -11,10 +11,12 @@ namespace dokuwiki\plugin\struct\meta;
  */
 class AggregationEditorTable extends AggregationTable
 {
-    /**
-     * @var bool skip full table when no results found
-     */
-    protected $simplenone = false;
+    /** @inheritdoc */
+    public function render($showNotFound = false)
+    {
+        parent::render(); // never show not found
+    }
+
 
     /**
      * Adds additional info to document and renderer in XHTML mode

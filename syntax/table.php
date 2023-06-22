@@ -7,6 +7,7 @@
  * @author  Andreas Gohr, Michael Große <dokuwiki@cosmocode.de>
  */
 
+use dokuwiki\plugin\struct\meta\Aggregation;
 use dokuwiki\plugin\struct\meta\AggregationTable;
 use dokuwiki\plugin\struct\meta\ConfigParser;
 use dokuwiki\plugin\struct\meta\SearchConfig;
@@ -16,6 +17,9 @@ class syntax_plugin_struct_table extends DokuWiki_Syntax_Plugin
 {
     /** @var string which class to use for output */
     protected $tableclass = AggregationTable::class;
+
+    /** @var string Config options that are not allowed for this syntax mode */
+    protected $illegalOptions = ['nesting'];
 
     /**
      * @return string Syntax mode type
@@ -71,6 +75,7 @@ class syntax_plugin_struct_table extends DokuWiki_Syntax_Plugin
         try {
             $parser = new ConfigParser($lines);
             $config = $parser->getConfig();
+            $this->checkForInvalidOptions($config);
             return $config;
         } catch (StructException $e) {
             msg($e->getMessage(), -1, $e->getLine(), $e->getFile());
@@ -110,9 +115,9 @@ class syntax_plugin_struct_table extends DokuWiki_Syntax_Plugin
                 $search->setOffset(0);
             }
 
-            /** @var AggregationTable $table */
+            /** @var Aggregation $table */
             $table = new $this->tableclass($mainId, $format, $renderer, $search);
-            $table->render();
+            $table->render(true);
 
             if ($format === 'metadata') {
                 /** @var Doku_Renderer_metadata $renderer */
@@ -135,5 +140,19 @@ class syntax_plugin_struct_table extends DokuWiki_Syntax_Plugin
     protected function addTypeFilter($config)
     {
         return $config;
+    }
+
+    /**
+     * Checks for options that do not work in this aggregation
+     *
+     * @param array $config
+     */
+    protected function checkForInvalidOptions($config)
+    {
+        foreach ($this->illegalOptions as $illegalOption) {
+            if (!empty($config[$illegalOption])) {
+                throw new StructException('illegal option', $illegalOption);
+            }
+        }
     }
 }

@@ -2,42 +2,13 @@
 
 namespace dokuwiki\plugin\struct\meta;
 
-class AggregationCloud
+class AggregationCloud extends Aggregation
 {
-    /**
-     * @var string the page id of the page this is rendered to
-     */
-    protected $id;
+    /** @var int */
+    protected $max;
 
-    /**
-     * @var string the Type of renderer used
-     */
-    protected $mode;
-
-    /**
-     * @var \Doku_Renderer the DokuWiki renderer used to create the output
-     */
-    protected $renderer;
-
-    /**
-     * @var SearchConfig the configured search - gives access to columns etc.
-     */
-    protected $searchConfig;
-
-    /**
-     * @var Column[] the list of columns to be displayed
-     */
-    protected $columns;
-
-    /**
-     * @var  Value[][] the search result
-     */
-    protected $result;
-
-    /**
-     * @var int number of all results
-     */
-    protected $resultCount;
+    /** @var int */
+    protected $min;
 
     /**
      * Initialize the Aggregation renderer and executes the search
@@ -51,27 +22,16 @@ class AggregationCloud
      */
     public function __construct($id, $mode, \Doku_Renderer $renderer, SearchCloud $searchConfig)
     {
-        $this->id = $id;
-        $this->mode = $mode;
-        $this->renderer = $renderer;
-        $this->searchConfig = $searchConfig;
-        $this->data = $searchConfig->getConf();
-        $this->columns = $searchConfig->getColumns();
-        $this->result = $this->searchConfig->execute();
-        $this->resultCount = $this->searchConfig->getCount();
+        parent::__construct($id, $mode, $renderer, $searchConfig);
 
         $this->max = $this->result[0]['count'];
         $this->min = end($this->result)['count'];
     }
 
-    /**
-     * Create the cloud on the renderer
-     */
-    public function render()
+    /** @inheritdoc */
+    public function render($showNotFound = false)
     {
-
         $this->sortResults();
-
         $this->startScope();
         $this->startList();
         foreach ($this->result as $result) {
@@ -79,7 +39,6 @@ class AggregationCloud
         }
         $this->finishList();
         $this->finishScope();
-        return;
     }
 
     /**
