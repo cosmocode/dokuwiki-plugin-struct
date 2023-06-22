@@ -55,9 +55,7 @@ class SchemaBuilderTest extends StructTest
         $result = $builder->build();
 
         /** @noinspection SqlResolve */
-        $res = $this->sqlite->query("SELECT sql FROM sqlite_master WHERE type='table' AND name=?", 'data_' . $testname);
-        $tableSQL = $this->sqlite->res2single($res);
-        $this->sqlite->res_close($res);
+        $tableSQL = $this->sqlite->queryValue("SELECT sql FROM sqlite_master WHERE type='table' AND name=?", ['data_' . $testname]);
         $expected_tableSQL = "CREATE TABLE data_testtable (
                     pid TEXT DEFAULT '',
                     rid INTEGER,
@@ -67,9 +65,7 @@ class SchemaBuilderTest extends StructTest
                     PRIMARY KEY(pid, rid, rev)
                 )";
 
-        $res = $this->sqlite->query("SELECT * FROM types");
-        $actual_types = $this->sqlite->res2arr($res);
-        $this->sqlite->res_close($res);
+        $actual_types = $this->sqlite->queryAll("SELECT * FROM types");
         $expected_types = [
             [
                 'id' => "1",
@@ -87,9 +83,7 @@ class SchemaBuilderTest extends StructTest
             ]
         ];
 
-        $res = $this->sqlite->query("SELECT * FROM schema_cols");
-        $actual_cols = $this->sqlite->res2arr($res);
-        $this->sqlite->res_close($res);
+        $actual_cols = $this->sqlite->queryAll("SELECT * FROM schema_cols");
         $expected_cols = [
             [
                 'sid' => "1",
@@ -107,9 +101,7 @@ class SchemaBuilderTest extends StructTest
             ]
         ];
 
-        $res = $this->sqlite->query("SELECT * FROM schemas");
-        $actual_schema = $this->sqlite->res2row($res);
-        $this->sqlite->res_close($res);
+        $actual_schema = $this->sqlite->queryRecord("SELECT * FROM schemas");
 
         $this->assertSame(1, $result);
         $this->assertEquals($expected_tableSQL, $tableSQL);
@@ -156,9 +148,7 @@ class SchemaBuilderTest extends StructTest
         $builder = new SchemaBuilder($testname, $updatedata);
         $result = $builder->build();
 
-        $res = $this->sqlite->query("SELECT * FROM types");
-        $actual_types = $this->sqlite->res2arr($res);
-        $this->sqlite->res_close($res);
+        $actual_types = $this->sqlite->queryAll("SELECT * FROM types");
         $expected_types = [
             [
                 'id' => "1",

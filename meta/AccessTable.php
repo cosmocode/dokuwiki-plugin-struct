@@ -332,7 +332,8 @@ abstract class AccessTable
     {
         $ok = true;
         foreach ($this->optQueries as $query) {
-            $ok = $ok && $this->sqlite->query(array_shift($query), $query);
+            $sql = array_shift($query);
+            $ok = $ok && $this->sqlite->query($sql, $query);
         }
         return $ok;
     }
@@ -440,10 +441,7 @@ abstract class AccessTable
         $idColumn = self::isTypePage($this->pid, $this->ts) ? 'pid' : 'rid';
         list($sql, $opt) = $this->buildGetDataSQL($idColumn);
 
-        $res = $this->sqlite->query($sql, $opt);
-        $data = $this->sqlite->res2arr($res);
-        $this->sqlite->res_close($res);
-        return $data;
+        return $this->sqlite->queryAll($sql, $opt);
     }
 
     /**
@@ -520,7 +518,7 @@ abstract class AccessTable
                 );
                 $col->getType()->select($QB, $tn, 'value', $outname);
                 $sel = $QB->getSelectStatement($outname);
-                $QB->addSelectStatement("GROUP_CONCAT($sel, '$sep')", $outname);
+                $QB->addSelectStatement("GROUP_CONCAT_DISTINCT($sel, '$sep')", $outname);
             } else {
                 $col->getType()->select($QB, 'DATA', $colname, $outname);
                 $QB->addGroupByStatement($outname);
@@ -641,7 +639,7 @@ abstract class AccessTable
         return $this->sqlite->query(
             "DELETE FROM $this->mtable WHERE pid = ? AND rid = $this->rid AND rev = 0 AND colref IN (" .
             implode(',', $colrefs) . ")",
-            $this->pid
+            [$this->pid]
         );
     }
 }

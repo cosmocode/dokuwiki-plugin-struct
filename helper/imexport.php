@@ -63,9 +63,7 @@ class helper_plugin_struct_imexport extends DokuWiki_Plugin
         if (!$this->sqlite) return array();
 
         $sql = 'SELECT pattern FROM schema_assignments_patterns WHERE tbl = ?';
-        $res = $this->sqlite->query($sql, $schemaName);
-        $patterns = $this->sqlite->res2arr($res);
-        $this->sqlite->res_close($res);
+        $patterns = $this->sqlite->queryAll($sql, $schemaName);
         return array_map(function ($elem) {
             return $elem['pattern'];
         }, $patterns);

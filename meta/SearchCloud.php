@@ -110,7 +110,7 @@ class SearchCloud extends SearchConfig
         if ($res === false) throw new StructException("SQL execution failed for\n\n$sql");
 
         $result = [];
-        $rows = $this->sqlite->res2arr($res);
+        $rows = $res->fetchAll(\PDO::FETCH_ASSOC);
 
         foreach ($rows as $row) {
             if (!empty($this->config['min']) && $this->config['min'] > $row['count']) {
@@ -121,7 +121,7 @@ class SearchCloud extends SearchConfig
             $result[] = $row;
         }
 
-        $this->sqlite->res_close($res);
+        $res->closeCursor();
         $this->count = count($result);
         return $result;
     }

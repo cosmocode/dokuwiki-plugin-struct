@@ -30,14 +30,14 @@ class action_plugin_struct_migration extends DokuWiki_Action_Plugin
      */
     public function handleMigrations(Doku_Event $event, $param)
     {
-        if ($event->data['sqlite']->getAdapter()->getDbname() !== 'struct') {
+        if ($event->data['adapter']->getDbname() !== 'struct') {
             return;
         }
         $to = $event->data['to'];
 
         if (is_callable(array($this, "migration$to"))) {
             $event->preventDefault();
-            $event->result = call_user_func(array($this, "migration$to"), $event->data['sqlite']);
+            $event->result = call_user_func(array($this, "migration$to"), $event->data['adapter']);
         }
     }
 
@@ -46,16 +46,14 @@ class action_plugin_struct_migration extends DokuWiki_Action_Plugin
      *
      * Add a latest column to all existing multi tables
      *
-     * @param helper_plugin_sqlite $sqlite
+     * @param \dokuwiki\plugin\sqlite\SQLiteDB $sqlite
      * @return bool
      */
-    protected function migration12(helper_plugin_sqlite $sqlite)
+    protected function migration12($sqlite)
     {
         /** @noinspection SqlResolve */
         $sql = "SELECT name FROM sqlite_master WHERE type = 'table' AND name LIKE 'multi_%'";
-        $res = $sqlite->query($sql);
-        $tables = $sqlite->res2arr($res);
-        $sqlite->res_close($res);
+        $tables = $sqlite->queryAll($sql);
 
         foreach ($tables as $row) {
             $sql = 'ALTER TABLE ? ADD COLUMN latest INT DEFAULT 1';
@@ -70,27 +68,23 @@ class action_plugin_struct_migration extends DokuWiki_Action_Plugin
      *
      * Unifies previous page and lookup schema types
      *
-     * @param helper_plugin_sqlite $sqlite
+     * @param \dokuwiki\plugin\sqlite\SQLiteDB $sqlite
      * @return bool
      */
-    protected function migration16(helper_plugin_sqlite $sqlite)
+    protected function migration16($sqlite)
     {
         // get tables and their SQL definitions
         $sql = "SELECT sql, name FROM sqlite_master
                 WHERE type = 'table'
                 AND (name LIKE 'data_%' OR name LIKE 'multi_%')";
-        $res = $sqlite->query($sql);
-        $tables = $sqlite->res2arr($res);
-        $sqlite->res_close($res);
+        $tables = $sqlite->queryAll($sql);
 
         // get latest versions of schemas with islookup property
         $sql = "SELECT MAX(id) AS id, tbl, islookup FROM schemas
                     GROUP BY tbl
             ";
-        $res = $sqlite->query($sql);
-        $schemas = $sqlite->res2arr($res);
+        $schemas = $sqlite->queryAll($sql);
 
-        $sqlite->query('BEGIN TRANSACTION');
         $ok = true;
 
         // Step 1: move original data to temporary tables and create new ones with modified schemas
@@ -153,8 +147,7 @@ class action_plugin_struct_migration extends DokuWiki_Action_Plugin
 
             // introduce composite ids in lookup columns
             $s = $this->getLookupColsSql($sid);
-            $res = $sqlite->query($s);
-            $cols = $sqlite->res2arr($res);
+            $cols = $sqlite->queryAll($s);
 
             if ($cols) {
                 foreach ($cols as $col) {
@@ -208,8 +201,7 @@ class action_plugin_struct_migration extends DokuWiki_Action_Plugin
         $sql = "SELECT sql FROM sqlite_master
                 WHERE type = 'table'
                 AND name = 'schemas'";
-        $res = $sqlite->query($sql);
-        $t = $sqlite->res2arr($res);
+        $t = $sqlite->queryAll($sql);
         $sql = $t[0]['sql'];
         $sql = str_replace('islookup INTEGER,', '', $sql);
 
@@ -224,12 +216,7 @@ class action_plugin_struct_migration extends DokuWiki_Action_Plugin
         $s = 'INSERT INTO schemas SELECT id, tbl, ts, user, comment, config FROM temp_schemas';
         $ok = $ok && $sqlite->query($s);
 
-        if (!$ok) {
-            $sqlite->query('ROLLBACK TRANSACTION');
-            return false;
-        }
-        $sqlite->query('COMMIT TRANSACTION');
-        return true;
+        return $ok;
     }
 
     /**
@@ -239,18 +226,16 @@ class action_plugin_struct_migration extends DokuWiki_Action_Plugin
      * All lookups were presumed to reference lookup data, not pages, so the migrated value
      * was always ["", <previous-pid-aka-new-rid>]. For page references it is ["<previous-pid>", 0]
      *
-     * @param helper_plugin_sqlite $sqlite
+     * @param \dokuwiki\plugin\sqlite\SQLiteDB $sqlite
      * @return bool
      */
-    protected function migration17(helper_plugin_sqlite $sqlite)
+    protected function migration17($sqlite)
     {
         $sql = "SELECT MAX(id) AS id, tbl FROM schemas
                     GROUP BY tbl
             ";
-        $res = $sqlite->query($sql);
-        $schemas = $sqlite->res2arr($res);
+        $schemas = $sqlite->queryAll($sql);
 
-        $sqlite->query('BEGIN TRANSACTION');
         $ok = true;
 
         foreach ($schemas as $schema) {
@@ -258,8 +243,7 @@ class action_plugin_struct_migration extends DokuWiki_Action_Plugin
             $name = $schema['tbl'];
             $sid = $schema['id'];
             $s = $this->getLookupColsSql($sid);
-            $res = $sqlite->query($s);
-            $cols = $sqlite->res2arr($res);
+            $cols = $sqlite->queryAll($s);
 
             if ($cols) {
                 $colnames = array_map(function ($c) {
@@ -268,8 +252,7 @@ class action_plugin_struct_migration extends DokuWiki_Action_Plugin
 
                 // data_ tables
                 $s = 'SELECT pid, rid, rev, ' . implode(', ', $colnames) . " FROM data_$name";
-                $res = $sqlite->query($s);
-                $allValues = $sqlite->res2arr($res);
+                $allValues = $sqlite->queryAll($s);
 
                 if (!empty($allValues)) {
                     foreach ($allValues as $row) {
@@ -289,8 +272,7 @@ class action_plugin_struct_migration extends DokuWiki_Action_Plugin
 
                 // multi_ tables
                 $s = "SELECT colref, pid, rid, rev, row, value FROM multi_$name";
-                $res = $sqlite->query($s);
-                $allValues = $sqlite->res2arr($res);
+                $allValues = $sqlite->queryAll($s);
 
                 if (!empty($allValues)) {
                     foreach ($allValues as $row) {
@@ -312,64 +294,45 @@ class action_plugin_struct_migration extends DokuWiki_Action_Plugin
             }
         }
 
-        if (!$ok) {
-            $sqlite->query('ROLLBACK TRANSACTION');
-            return false;
-        }
-        $sqlite->query('COMMIT TRANSACTION');
-        return true;
+        return $ok;
     }
 
     /**
      * Removes a temp table left over by migration 16
      *
-     * @param helper_plugin_sqlite $sqlite
+     * @param \dokuwiki\plugin\sqlite\SQLiteDB $sqlite
      * @return bool
      */
-    protected function migration18(helper_plugin_sqlite $sqlite)
+    protected function migration18($sqlite)
     {
         $ok = true;
-        $sqlite->query('BEGIN TRANSACTION');
 
         $sql = 'DROP TABLE IF EXISTS temp_schemas';
         $ok = $ok && $sqlite->query($sql);
 
-        if (!$ok) {
-            $sqlite->query('ROLLBACK TRANSACTION');
-            return false;
-        }
-        $sqlite->query('COMMIT TRANSACTION');
-        return true;
+        return $ok;
     }
     /**
      * Executes Migration 19
      *
      * Add "published" column to all existing tables
      *
-     * @param helper_plugin_sqlite $sqlite
+     * @param \dokuwiki\plugin\sqlite\SQLiteDB $sqlite
      * @return bool
      */
-    protected function migration19(helper_plugin_sqlite $sqlite)
+    protected function migration19($sqlite)
     {
         $ok = true;
-        $sqlite->query('BEGIN TRANSACTION');
 
         /** @noinspection SqlResolve */
         $sql = "SELECT name FROM sqlite_master WHERE type = 'table' AND (name LIKE 'data_%' OR name LIKE 'multi_%')";
-        $res = $sqlite->query($sql);
-        $tables = $sqlite->res2arr($res);
-        $sqlite->res_close($res);
+        $tables = $sqlite->queryAll($sql);
 
         foreach ($tables as $row) {
             $sql = 'ALTER TABLE ? ADD COLUMN published INT DEFAULT NULL';
             $ok = $ok && $sqlite->query($sql, $row['name']);
         }
-        if (!$ok) {
-            $sqlite->query('ROLLBACK TRANSACTION');
-            return false;
-        }
-        $sqlite->query('COMMIT TRANSACTION');
-        return true;
+        return $ok;
     }
 
 

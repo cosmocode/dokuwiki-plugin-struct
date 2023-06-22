@@ -61,9 +61,7 @@ class Tag extends AbstractMultiBaseType
         /** @var \helper_plugin_struct_db $hlp */
         $hlp = plugin_load('helper', 'struct_db');
         $sqlite = $hlp->getDB();
-        $res = $sqlite->query($sql, $opt);
-        $rows = $sqlite->res2arr($res);
-        $sqlite->res_close($res);
+        $rows = $sqlite->queryAll($sql, $opt);
 
         $result = array();
         foreach ($rows as $row) {

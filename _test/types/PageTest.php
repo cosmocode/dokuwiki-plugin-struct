@@ -10,7 +10,7 @@ use dokuwiki\plugin\struct\types\Page;
 /**
  * Testing the Page Type
  *
- * @group plugin_struct
+ * @group plugin_structp
  * @group plugins
  */
 class PageTest extends StructTest

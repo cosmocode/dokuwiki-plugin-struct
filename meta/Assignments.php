@@ -58,9 +58,7 @@ class Assignments
     protected function loadPatterns()
     {
         $sql = 'SELECT * FROM schema_assignments_patterns ORDER BY pattern';
-        $res = $this->sqlite->query($sql);
-        $this->patterns = $this->sqlite->res2arr($res);
-        $this->sqlite->res_close($res);
+        $this->patterns = $this->sqlite->queryAll($sql);
     }
 
     /**
@@ -74,7 +72,7 @@ class Assignments
     {
         // add the pattern
         $sql = 'REPLACE INTO schema_assignments_patterns (pattern, tbl) VALUES (?,?)';
-        $ok = (bool)$this->sqlite->query($sql, array($pattern, $table));
+        $ok = (bool)$this->sqlite->query($sql, [$pattern, $table]);
 
         // reload patterns
         $this->loadPatterns();
@@ -95,16 +93,14 @@ class Assignments
     {
         // remove the pattern
         $sql = 'DELETE FROM schema_assignments_patterns WHERE pattern = ? AND tbl = ?';
-        $ok = (bool)$this->sqlite->query($sql, array($pattern, $table));
+        $ok = (bool)$this->sqlite->query($sql, [$pattern, $table]);
 
         // reload patterns
         $this->loadPatterns();
 
         // fetch possibly affected pages
         $sql = 'SELECT pid FROM schema_assignments WHERE tbl = ?';
-        $res = $this->sqlite->query($sql, $table);
-        $pagerows = $this->sqlite->res2arr($res);
-        $this->sqlite->res_close($res);
+        $pagerows = $this->sqlite->queryAll($sql, [$table]);
 
         // reevalute the pages and unassign when needed
         foreach ($pagerows as $row) {
@@ -130,9 +126,7 @@ class Assignments
 
         // fetch possibly affected tables
         $sql = 'SELECT tbl FROM schema_assignments WHERE pid = ?';
-        $res = $this->sqlite->query($sql, $pid);
-        $tablerows = $this->sqlite->res2arr($res);
-        $this->sqlite->res_close($res);
+        $tablerows = $this->sqlite->queryAll($sql, [$pid]);
 
         // reevalute the tables and apply assignments
         foreach ($tablerows as $row) {
@@ -229,9 +223,7 @@ class Assignments
         } else {
             // just select
             $sql = 'SELECT tbl FROM schema_assignments WHERE pid = ? AND assigned = 1';
-            $res = $this->sqlite->query($sql, array($page));
-            $list = $this->sqlite->res2arr($res);
-            $this->sqlite->res_close($res);
+            $list = $this->sqlite->queryAll($sql, [$page]);
             foreach ($list as $row) {
                 $tables[] = $row['tbl'];
             }
@@ -262,9 +254,7 @@ class Assignments
 
         $sql .= ' ORDER BY pid, tbl';
 
-        $res = $this->sqlite->query($sql, $opts);
-        $list = $this->sqlite->res2arr($res);
-        $this->sqlite->res_close($res);
+        $list = $this->sqlite->queryAll($sql, $opts);
 
         $result = array();
         foreach ($list as $row) {
@@ -331,18 +321,14 @@ class Assignments
     public function getHistoricAssignments($page, $ts)
     {
         $sql = "SELECT DISTINCT tbl FROM schemas WHERE ts <= ? ORDER BY ts DESC";
-        $res = $this->sqlite->query($sql, $ts);
-        $tables = $this->sqlite->res2arr($res);
-        $this->sqlite->res_close($res);
+        $tables = $this->sqlite->queryAll($sql, [$ts]);
 
         $assigned = array();
         foreach ($tables as $row) {
             $table = $row['tbl'];
             /** @noinspection SqlResolve */
             $sql = "SELECT pid FROM data_$table WHERE pid = ? AND rev <= ? LIMIT 1";
-            $res = $this->sqlite->query($sql, $page, $ts);
-            $found = $this->sqlite->res2arr($res);
-            $this->sqlite->res_close($res);
+            $found = $this->sqlite->queryAll($sql, [$page, $ts]);
 
             if ($found) $assigned[] = $table;
         }
@@ -359,9 +345,7 @@ class Assignments
     public function propagatePageAssignments($table)
     {
         $sql = 'SELECT pid FROM schema_assignments WHERE tbl != ? OR assigned != 1';
-        $res = $this->sqlite->query($sql, $table);
-        $pagerows = $this->sqlite->res2arr($res);
-        $this->sqlite->res_close($res);
+        $pagerows = $this->sqlite->queryAll($sql, [$table]);
 
         foreach ($pagerows as $row) {
             $tables = $this->getPageAssignments($row['pid'], true);

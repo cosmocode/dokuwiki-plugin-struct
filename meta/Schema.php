@@ -2,6 +2,7 @@
 
 namespace dokuwiki\plugin\struct\meta;
 
+use dokuwiki\plugin\sqlite\SQLiteDB;
 use dokuwiki\plugin\struct\types\AbstractBaseType;
 use dokuwiki\Utf8\PhpString;
 
@@ -19,7 +20,7 @@ class Schema
 {
     use TranslationUtilities;
 
-    /** @var \helper_plugin_sqlite|null */
+    /** @var SQLiteDB|null */
     protected $sqlite;
 
     /** @var int The ID of this schema */
@@ -82,17 +83,16 @@ class Schema
                      LIMIT 1";
             $opt = array($table);
         }
-        $res = $this->sqlite->query($sql, $opt);
+        $schema = $this->sqlite->queryAll($sql, $opt);
         $config = array();
-        if ($this->sqlite->res2count($res)) {
-            $schema = $this->sqlite->res2arr($res);
+
+        if (!empty($schema)) {
             $result = array_shift($schema);
             $this->id = $result['id'];
             $this->user = $result['user'];
             $this->ts = $result['ts'];
             $config = json_decode($result['config'], true);
         }
-        $this->sqlite->res_close($res);
         $this->config = array_merge($baseconfig, $config);
         $this->initTransConfig(array('label'));
         if (!$this->id) return;
@@ -104,9 +104,7 @@ class Schema
                  WHERE SC.sid = ?
                    AND SC.tid = T.id
               ORDER BY SC.sort";
-        $res = $this->sqlite->query($sql, $this->id);
-        $rows = $this->sqlite->res2arr($res);
-        $this->sqlite->res_close($res);
+        $rows = $this->sqlite->queryAll($sql, [$this->id]);
 
         $typeclasses = Column::allTypes();
         foreach ($rows as $row) {
@@ -174,9 +172,7 @@ class Schema
         $db = $helper->getDB(false);
         if (!$db) return array();
 
-        $res = $db->query("SELECT DISTINCT tbl FROM schemas ORDER BY tbl");
-        $tables = $db->res2arr($res);
-        $db->res_close($res);
+        $tables = $db->queryAll("SELECT DISTINCT tbl FROM schemas ORDER BY tbl");
 
         $result = array();
         foreach ($tables as $row) {
@@ -196,15 +192,15 @@ class Schema
 
         $this->sqlite->query('BEGIN TRANSACTION');
 
-        $sql = "DROP TABLE ?";
-        $this->sqlite->query($sql, 'data_' . $this->table);
-        $this->sqlite->query($sql, 'multi_' . $this->table);
+        $sql = "DROP TABLE ";
+        $this->sqlite->query($sql . 'data_' . $this->table);
+        $this->sqlite->query($sql . 'multi_' . $this->table);
 
-        $sql = "DELETE FROM schema_assignments WHERE tbl = ?";
-        $this->sqlite->query($sql, $this->table);
+        $sql = "DELETE FROM schema_assignments WHERE tbl = '$this->table'";
+        $this->sqlite->query($sql);
 
-        $sql = "DELETE FROM schema_assignments_patterns WHERE tbl = ?";
-        $this->sqlite->query($sql, $this->table);
+        $sql = "DELETE FROM schema_assignments_patterns WHERE tbl = '$this->table'";
+        $this->sqlite->query($sql);
 
         $sql = "SELECT T.id
                   FROM types T, schema_cols SC, schemas S
@@ -212,16 +208,16 @@ class Schema
                    AND SC.sid = S.id
                    AND S.tbl = ?";
         $sql = "DELETE FROM types WHERE id IN ($sql)";
-        $this->sqlite->query($sql, $this->table);
+        $this->sqlite->query($sql, [$this->table]);
 
         $sql = "SELECT id
                   FROM schemas
                  WHERE tbl = ?";
         $sql = "DELETE FROM schema_cols WHERE sid IN ($sql)";
-        $this->sqlite->query($sql, $this->table);
+        $this->sqlite->query($sql, [$this->table]);
 
         $sql = "DELETE FROM schemas WHERE tbl = ?";
-        $this->sqlite->query($sql, $this->table);
+        $this->sqlite->query($sql, [$this->table]);
 
         $this->sqlite->query('COMMIT TRANSACTION');
         $this->sqlite->query('VACUUM');
@@ -242,9 +238,9 @@ class Schema
         if (!$this->id) throw new StructException('can not clear data of unsaved schema');
 
         $this->sqlite->query('BEGIN TRANSACTION');
-        $sql = 'DELETE FROM ?';
-        $this->sqlite->query($sql, 'data_' . $this->table);
-        $this->sqlite->query($sql, 'multi_' . $this->table);
+        $sql = 'DELETE FROM ';
+        $this->sqlite->query($sql . 'data_' . $this->table);
+        $this->sqlite->query($sql . 'multi_' . $this->table);
         $this->sqlite->query('COMMIT TRANSACTION');
         $this->sqlite->query('VACUUM');
     }

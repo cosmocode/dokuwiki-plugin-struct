@@ -168,14 +168,14 @@ class action_plugin_struct_move extends DokuWiki_Action_Plugin
                              WHERE col$colref LIKE ?
                                AND latest = 1";
         }
-        $this->db->query($sql, $old, $new, $old); // exact match
+        $this->db->query($sql, [$old, $new, $old]); // exact match
         if ($hashes) {
-            $this->db->query($sql, $old, $new, "$old#%"); // match with hashes
+            $this->db->query($sql, [$old, $new, "$old#%"]); // match with hashes
         }
         if (get_class($col->getType()) === Lookup::class) {
-            $this->db->query($sql, $old, $new, "[\"$old\",%]"); // match JSON string
+            $this->db->query($sql, [$old, $new, "[\"$old\",%]"]); // match JSON string
             if ($hashes) {
-                $this->db->query($sql, $old, $new, "[\"$old#%\",%]"); // match JSON string with hash
+                $this->db->query($sql, [$old, $new, "[\"$old#%\",%]"]); // match JSON string with hash
             }
         }
     }

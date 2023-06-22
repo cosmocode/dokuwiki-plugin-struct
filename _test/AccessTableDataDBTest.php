@@ -190,22 +190,20 @@ class AccessTableDataDBTest extends StructTest
         $result = $schemaData->saveData($testdata);
 
         // assert
-        $res = $this->sqlite->query(
+        $actual_saved_single = $this->sqlite->queryRecord(
             "SELECT pid, col1, col2 FROM data_testtable WHERE pid = ? ORDER BY rev DESC LIMIT 1",
             ['testpage']
         );
-        $actual_saved_single = $this->sqlite->res2row($res);
         $expected_saved_single = [
             'pid' => 'testpage',
             'col1' => 'value1_saved',
             'col2' => 'value2.1_saved' # copy of the multi-value's first value
         ];
 
-        $res = $this->sqlite->query(
+        $actual_saved_multi = $this->sqlite->queryAll(
             "SELECT colref, row, value FROM multi_testtable WHERE pid = ? ORDER BY rev DESC LIMIT 3",
             ['testpage']
         );
-        $actual_saved_multi = $this->sqlite->res2arr($res);
         $expected_saved_multi = [
             [
                 'colref' => '2',

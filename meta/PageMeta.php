@@ -39,9 +39,7 @@ class PageMeta
     public function getPageData()
     {
         $sql = "SELECT pid, title, lasteditor, lastrev, lastsummary FROM titles WHERE pid = ?";
-        $res = $this->sqlite->query($sql, $this->pid);
-        $data = $this->sqlite->res2row($res);
-        $this->sqlite->res_close($res);
+        $data = $this->sqlite->queryRecord($sql, [$this->pid]);
         return $data;
     }
 

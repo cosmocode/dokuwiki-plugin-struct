@@ -20,6 +20,6 @@ class Search extends meta\Search
     public function isNotPublisher()
     {
         $this->dbHelper = new helper_plugin_struct_db;
-        $this->sqlite->create_function('IS_PUBLISHER', [$this->dbHelper, 'IS_PUBLISHER'], -1);
+        $this->sqlite->getPdo()->sqliteCreateFunction('IS_PUBLISHER', [$this->dbHelper, 'IS_PUBLISHER'], -1);
     }
 }
