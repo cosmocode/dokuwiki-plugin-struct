@@ -117,7 +117,9 @@ class syntax_plugin_struct_table extends DokuWiki_Syntax_Plugin
 
             /** @var Aggregation $table */
             $table = new $this->tableclass($mainId, $format, $renderer, $search);
+            $table->startScope();
             $table->render(true);
+            $table->finishScope();
 
             if ($format === 'metadata') {
                 /** @var Doku_Renderer_metadata $renderer */

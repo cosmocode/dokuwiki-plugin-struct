@@ -22,7 +22,6 @@ class AggregationList extends Aggregation
     /** @inheritdoc */
     public function render($showNotFound = false)
     {
-        $this->startScope();
         if ($this->result) {
             $nestedResult = new NestedResult($this->result);
             $root = $nestedResult->getRoot($this->data['nesting'], $this->data['index']);
@@ -30,7 +29,6 @@ class AggregationList extends Aggregation
         } elseif ($showNotFound) {
             $this->renderer->cdata($this->helper->getLang('none'));
         }
-        $this->finishScope();
     }
 
     /**
@@ -81,31 +79,6 @@ class AggregationList extends Aggregation
             $this->renderer->listitem_close();
         }
     }
-
-    /**
-     * Adds additional info to document and renderer in XHTML mode
-     *
-     * @see finishScope()
-     */
-    protected function startScope()
-    {
-        // wrapping div
-        if ($this->mode != 'xhtml') return;
-        $this->renderer->doc .= "<div class=\"structaggregation listaggregation\">";
-    }
-
-    /**
-     * Closes anything opened in startScope()
-     *
-     * @see startScope()
-     */
-    protected function finishScope()
-    {
-        // wrapping div
-        if ($this->mode != 'xhtml') return;
-        $this->renderer->doc .= '</div>';
-    }
-
 
     /**
      * Render the content of a single list item

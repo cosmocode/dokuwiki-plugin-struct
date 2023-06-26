@@ -32,37 +32,11 @@ class AggregationCloud extends Aggregation
     public function render($showNotFound = false)
     {
         $this->sortResults();
-        $this->startScope();
         $this->startList();
         foreach ($this->result as $result) {
             $this->renderTag($result);
         }
         $this->finishList();
-        $this->finishScope();
-    }
-
-    /**
-     * Adds additional info to document and renderer in XHTML mode
-     *
-     * @see finishScope()
-     */
-    protected function startScope()
-    {
-        // wrapping div
-        if ($this->mode != 'xhtml') return;
-        $this->renderer->doc .= "<div class=\"structcloud\">";
-    }
-
-    /**
-     * Closes the table and anything opened in startScope()
-     *
-     * @see startScope()
-     */
-    protected function finishScope()
-    {
-        // wrapping div
-        if ($this->mode != 'xhtml') return;
-        $this->renderer->doc .= '</div>';
     }
 
     /**

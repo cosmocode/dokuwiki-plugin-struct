@@ -31,13 +31,10 @@ class AggregationTable extends Aggregation
 
         // abort early if there are no results at all (not filtered)
         if (!$this->resultCount && !$this->isDynamicallyFiltered() && $showNotFound) {
-            $this->startScope();
             $this->renderer->cdata($this->helper->getLang('none'));
-            $this->finishScope();
             return;
         }
 
-        $this->startScope();
         $this->renderActiveFilters();
 
         $rendercontext = array(
@@ -57,7 +54,6 @@ class AggregationTable extends Aggregation
 
         // export handle
         $this->renderExportControls();
-        $this->finishScope();
     }
 
     /**
@@ -98,14 +94,12 @@ class AggregationTable extends Aggregation
      *
      * @see finishScope()
      */
-    protected function startScope()
+    public function startScope()
     {
         // unique identifier for this aggregation
         $this->renderer->info['struct_table_hash'] = md5(var_export($this->data, true));
 
-        // wrapping div
-        if ($this->mode != 'xhtml') return;
-        $this->renderer->doc .= "<div class=\"structaggregation\">";
+        parent::startScope();
     }
 
     /**
@@ -113,16 +107,14 @@ class AggregationTable extends Aggregation
      *
      * @see startScope()
      */
-    protected function finishScope()
+    public function finishScope()
     {
         // remove identifier from renderer again
         if (isset($this->renderer->info['struct_table_hash'])) {
             unset($this->renderer->info['struct_table_hash']);
         }
 
-        // wrapping div
-        if ($this->mode != 'xhtml') return;
-        $this->renderer->doc .= '</div>';
+        parent::finishScope();
     }
 
     /**

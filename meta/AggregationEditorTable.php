@@ -25,7 +25,7 @@ class AggregationEditorTable extends AggregationTable
      *
      * @see finishScope()
      */
-    protected function startScope()
+    public function startScope()
     {
         // unique identifier for this aggregation
         $this->renderer->info['struct_table_hash'] = md5(var_export($this->data, true));
@@ -39,7 +39,10 @@ class AggregationEditorTable extends AggregationTable
         $config = hsc(json_encode($config));
 
         // wrapping div
-        $this->renderer->doc .= "<div class=\"structaggregation structaggregationeditor\" 
+        $classes = $this->getScopeClasses();
+        $classes[] = 'structaggregationeditor';
+        $classes = join(' ', $classes);
+        $this->renderer->doc .= "<div class=\"$classes\" 
                                       data-schema=\"$table\" data-searchconf=\"$config\">";
 
         // unique identifier for this aggregation

@@ -231,6 +231,9 @@ class SearchConfigParameterTest extends StructTest
             ],
             'rownumbers' => '1',
             'limit' => '5',
+            'nesting' => 0,
+            'index' => 0,
+            'classes' => [],
         ];
 
         $R = new \Doku_Renderer_xhtml();
@@ -238,7 +241,9 @@ class SearchConfigParameterTest extends StructTest
         $INPUT->set(meta\SearchConfigParameters::$PARAM_OFFSET, 5);
         $searchConfig = new meta\SearchConfig($data);
         $aggregationTable = new meta\AggregationTable('test_pagination', 'xhtml', $R, $searchConfig);
+        $aggregationTable->startScope();
         $aggregationTable->render();
+        $aggregationTable->finishScope();
 
         $rev = time();
 

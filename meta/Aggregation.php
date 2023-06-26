@@ -73,9 +73,67 @@ abstract class Aggregation
     }
 
     /**
-     * Create the table on the renderer
+     * Return the list of classes that should be added to the scope when rendering XHTML
+     *
+     * @return string[]
+     */
+    public function getScopeClasses()
+    {
+        // we're all aggregations
+        $classes = ['structaggregation'];
+
+        // which type of aggregation are we?
+        $class = get_class($this);
+        $class = substr($class, strrpos($class, "\\") + 1);
+        $class = strtolower($class);
+        $classes[] = 'struct' . $class;
+
+        // config options
+        if ($this->data['nesting']) {
+            $classes[] = 'is-nested';
+        }
+        if ($this->data['index']) {
+            $classes[] = 'is-indexed';
+        }
+
+        // custom classes
+        $classes = array_merge($classes, $this->data['classes']);
+        return $classes;
+    }
+
+    /**
+     * Render the actual output to the renderer
      *
      * @param bool $showNotFound show a not found message when no data available?
      */
     abstract public function render($showNotFound = false);
+
+    /**
+     * Adds additional info to document and renderer in XHTML mode
+     *
+     * Called before render()
+     *
+     * @see finishScope()
+     */
+    public function startScope()
+    {
+        if ($this->mode == 'xhtml') {
+            $classes = $this->getScopeClasses();
+            $this->renderer->doc .= '<div class="' . join(' ', $classes) . '">';
+        }
+    }
+
+    /**
+     * Closes anything opened in startScope()
+     *
+     * Called after render()
+     *
+     * @see startScope()
+     */
+    public function finishScope()
+    {
+        if ($this->mode == 'xhtml') {
+            $this->renderer->doc .= '</div>';
+        }
+    }
 }

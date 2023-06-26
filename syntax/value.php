@@ -104,7 +104,9 @@ class syntax_plugin_struct_value extends DokuWiki_Syntax_Plugin
 
             /** @var AggregationValue $value */
             $value = new AggregationValue($INFO['id'], $mode, $renderer, $search);
+            $value->startScope();
             $value->render($show_not_found);
+            $value->finishScope();
 
             if ($mode == 'metadata') {
                 /** @var Doku_Renderer_metadata $renderer */

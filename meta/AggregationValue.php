@@ -33,8 +33,6 @@ class AggregationValue extends Aggregation
      */
     public function render($show_not_found = 0)
     {
-        $this->startScope();
-
         // Check that we actually got a result
         if ($this->resultCount) {
             $this->renderValue($this->result[0]); // only one result
@@ -43,36 +41,6 @@ class AggregationValue extends Aggregation
                 $this->renderer->cdata($this->helper->getLang('none'));
             }
         }
-
-        $this->finishScope();
-    }
-
-    /**
-     * Adds additional info to document and renderer in XHTML mode
-     *
-     * @see finishScope()
-     */
-    protected function startScope()
-    {
-        // wrapping span
-        if ($this->mode != 'xhtml') {
-            return;
-        }
-        $this->renderer->doc .= "<span class=\"structaggregation valueaggregation\">";
-    }
-
-    /**
-     * Closes anything opened in startScope()
-     *
-     * @see startScope()
-     */
-    protected function finishScope()
-    {
-        // wrapping span
-        if ($this->mode != 'xhtml') {
-            return;
-        }
-        $this->renderer->doc .= '</span>';
     }
 
     /**
