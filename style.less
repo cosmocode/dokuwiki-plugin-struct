@@ -323,6 +323,31 @@ form.struct_newschema {
         }
     }
 
+    /* Indexed List */
+
+    &.structaggregationlist.is-indexed > ul {
+        list-style: none;
+        display: flex;
+        flex-wrap: wrap;
+        padding: 0;
+        gap: 0.5em;
+
+
+        > li {
+            flex: 1 1 30%;
+            min-width: 18em;
+            max-width: 100%;
+            margin: 0;
+            overflow: hidden;
+
+            > div.li {
+                font-size: 1.5em;
+                font-weight: bold;
+            }
+        }
+    }
+
+
     table th {
         a {
             color: @ini_link;
