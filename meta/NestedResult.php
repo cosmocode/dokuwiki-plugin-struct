@@ -153,7 +153,7 @@ class NestedResult
      */
     protected function getIndexNode(Value $value, $index)
     {
-        $compare = $value->getCompareValue();
+        $compare = $value->getDisplayValue();
         if (is_array($compare)) $compare = $compare[0];
         $key = PhpString::strtoupper(PhpString::substr($compare, 0, $index));
 
