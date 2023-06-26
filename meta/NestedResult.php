@@ -12,7 +12,6 @@ use dokuwiki\Utf8\PhpString;
  */
 class NestedResult
 {
-
     /** @var NestedValue[] */
     protected $nodes = [];
 
@@ -125,7 +124,6 @@ class NestedResult
             $node = $this->getNodeForValue($valObj, $depth);
             $parent->addChild($node);
             $this->nestBranch($node, $row, $nesting, $depth + 1);
-
         }
     }
 
@@ -173,5 +171,3 @@ class NestedResult
         return $this->indexNodes[$key];
     }
 }
-
-

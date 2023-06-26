@@ -9,7 +9,6 @@ namespace dokuwiki\plugin\struct\meta;
  */
 class AggregationList extends Aggregation
 {
-
     /** @var int number of all results */
     protected $resultColumnCount;
 

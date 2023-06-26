@@ -11,7 +11,6 @@ namespace dokuwiki\plugin\struct\meta;
  */
 class AggregationValue extends Aggregation
 {
-
     /**
      * @var Column the column to be displayed
      */

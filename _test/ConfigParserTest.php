@@ -84,6 +84,7 @@ class ConfigParserTest extends StructTest
             'target' => '',
             'align' => ['right', 'left', 'center', null],
             'nesting' => 0,
+            'index' => 0,
         ];
 
         $this->assertEquals($expected_config, $actual_config);

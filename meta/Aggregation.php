@@ -7,8 +7,8 @@ namespace dokuwiki\plugin\struct\meta;
  *
  * @package dokuwiki\plugin\struct\meta
  */
-abstract class Aggregation {
-
+abstract class Aggregation
+{
     /** @var string the page id of the page this is rendered to */
     protected $id;
 
@@ -74,9 +74,8 @@ abstract class Aggregation {
 
     /**
      * Create the table on the renderer
-     * 
+     *
      * @param bool $showNotFound show a not found message when no data available?
      */
     abstract public function render($showNotFound = false);
-
 }

@@ -11,7 +11,6 @@ use dokuwiki\Utf8\Sort;
  */
 class NestedValue
 {
-
     /** @var Value */
     protected $value;
 
