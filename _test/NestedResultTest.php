@@ -46,6 +46,13 @@ class NestedResultTest extends StructTest
         [['gray', 'yellow'], 'laptop', 'dell', 'latitude'],
     ];
 
+    protected $multiMultiItems = [
+        [['metal', 'wood'], ['green', 'yellow'], 'car', 'audi', 'a80'],
+        [['metal', 'wood', 'plastic'], ['yellow', 'blue'], 'car', 'audi', 'a4'],
+        [['plastic', 'metal'], ['red', 'blue'], 'laptop', 'apple', 'pro 16'],
+        [['metal', 'plastic'], ['black', 'red'], 'laptop', 'apple', 'air'],
+    ];
+
 
     /**
      * Create a result set from a given flat array
@@ -97,7 +104,8 @@ class NestedResultTest extends StructTest
     {
         $result = $this->makeResult($this->simpleItems);
         $nestedResult = new NestedResult($result);
-        $tree = $nestedResult->getRoot(1)->getChildren();
+        $root = $nestedResult->getRoot(1);
+        $tree = $root->getChildren();
 
         $this->assertCount(2, $tree, '2 root nodes expected');
         $this->assertEquals('car', $tree[0]->getValueObject()->getValue());
@@ -121,7 +129,8 @@ class NestedResultTest extends StructTest
     {
         $result = $this->makeResult($this->simpleItems);
         $nestedResult = new NestedResult($result);
-        $tree = $nestedResult->getRoot(2)->getChildren();
+        $root = $nestedResult->getRoot(2);
+        $tree = $root->getChildren();
 
         $this->assertCount(2, $tree, '2 root nodes expected');
         $this->assertEquals('car', $tree[0]->getValueObject()->getValue());
@@ -140,11 +149,15 @@ class NestedResultTest extends StructTest
         $this->assertEquals('pro 16', $tree[1]->getChildren()[0]->getResultRows()[0][0]->getValue(), 'Mac Pro 16 expected');
     }
 
-    public function testMultiTwoLevels()
+    /**
+     * Nest by three levels, the first one being multi-value
+     */
+    public function testMultiThreeLevels()
     {
         $result = $this->makeResult($this->multiItems);
         $nestedResult = new NestedResult($result);
-        $tree = $nestedResult->getRoot(3)->getChildren(); // nest: color, type, brand -> model
+        $root = $nestedResult->getRoot(3);
+        $tree = $root->getChildren(); // nest: color, type, brand -> model
 
         $this->assertCount(6, $tree, '6 root nodes of colors expected');
 
@@ -175,4 +188,17 @@ class NestedResultTest extends StructTest
         );
     }
 
+    /**
+     * Nest by two multi value levels
+     */
+    public function testMultiMultiTwoLevels()
+    {
+        $result = $this->makeResult($this->multiMultiItems);
+        $nestedResult = new NestedResult($result);
+        $root = $nestedResult->getRoot(2);
+        $tree = $root->getChildren(); // nest: material, color, *
+
+        $this->assertCount(3, $tree, '3 root nodes of material expected');
+        $this->assertCount(1, $tree[0]->getChildren()[0]->getResultRows(), '1 metal black row expected');
+    }
 }

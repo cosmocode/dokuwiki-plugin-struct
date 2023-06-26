@@ -55,7 +55,7 @@ class NestedResult
     protected function nestBranch(NestedValue $parent, $row, $nesting, $depth = 0)
     {
         // nesting level reached, add row and return
-        if($depth >= $nesting) {
+        if ($depth >= $nesting) {
             $parent->addResultRow($row);
             return;
         }
@@ -90,7 +90,7 @@ class NestedResult
     protected function getNodeForValue(Value $value, $depth)
     {
         $node = new NestedValue($value, $depth);
-        $key = (string) $node;
+        $key = (string)$node;
         if (!isset($this->nodes[$key])) {
             $this->nodes[$key] = $node;
         }

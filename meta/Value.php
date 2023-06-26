@@ -126,7 +126,7 @@ class Value
             } else {
                 $raw = $this->column->getType()->rawValue($val);
             }
-            if ('' === trim((string) $raw)) continue;
+            if ('' === trim((string)$raw)) continue;
             $this->value[] = $val;
             $this->rawvalue[] = $raw;
             if ($israw) {

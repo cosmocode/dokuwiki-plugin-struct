@@ -82,12 +82,19 @@ class NestedValue
     /**
      * Add a result row to this node
      *
+     * Only unique rows will be stored, duplicates are detected by hashing the row values' toString result
+     *
      * @param Value[] $row
      * @return void
      */
     public function addResultRow($row)
     {
-        $this->resultRows[] = $row;
+        // only add unique rows
+        $ident = md5(array_reduce($row, function ($carry, $value) {
+            return $carry . $value;
+        }, ''));
+
+        $this->resultRows[$ident] = $row;
     }
 
     /**
@@ -97,7 +104,7 @@ class NestedValue
      */
     public function getResultRows()
     {
-        return $this->resultRows;
+        return array_values($this->resultRows);
     }
 
     /**
@@ -131,4 +138,35 @@ class NestedValue
         );
     }
 
+    /**
+     * print the tree for debugging
+     *
+     * @return string
+     */
+    public function dump()
+    {
+        $return = '';
+
+        if ($this->value) {
+            $return .= str_pad('', $this->getDepth() * 4, ' ');
+            $return .= join(', ', (array)$this->value->getDisplayValue());
+            $return .= "\n";
+        } else {
+            $return .= "*\n";
+        }
+
+        foreach ($this->getResultRows() as $row) {
+            $return .= str_pad('', $this->getDepth() * 4, ' ');
+            foreach ($row as $value) {
+                $return .= ' ' . join(', ', (array)$value->getDisplayValue());
+            }
+            $return .= "\n";
+        }
+
+        foreach ($this->getChildren() as $child) {
+            $return .= $child->dump();
+        }
+
+        return $return;
+    }
 }
