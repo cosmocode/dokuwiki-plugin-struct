@@ -40,6 +40,7 @@ class ConfigParser
             'sort' => array(),
             'csv' => true,
             'nesting' => 0,
+            'index' => 0,
         );
         // parse info
         foreach ($lines as $line) {
@@ -120,6 +121,9 @@ class ConfigParser
                 case 'nesting':
                 case 'nest':
                     $this->config['nesting'] = (int) $val;
+                    break;
+                case 'index':
+                    $this->config['index'] = (int) $val;
                     break;
                 default:
                     $data = array('config' => &$this->config, 'key' => $key, 'val' => $val);

@@ -45,6 +45,17 @@ class NestedValue
     }
 
     /**
+     * @param int $depth
+     */
+    public function setDepth($depth)
+    {
+        $this->depth = $depth;
+        foreach ($this->children as $child) {
+            $child->setDepth($depth + 1);
+        }
+    }
+
+    /**
      * Access the stored value
      *
      * @return Value|null the value stored in this node, null for root node

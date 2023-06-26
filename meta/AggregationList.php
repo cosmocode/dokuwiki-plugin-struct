@@ -26,7 +26,7 @@ class AggregationList extends Aggregation
         $this->startScope();
         if ($this->result) {
             $nestedResult = new NestedResult($this->result);
-            $root = $nestedResult->getRoot($this->data['nesting']);
+            $root = $nestedResult->getRoot($this->data['nesting'], $this->data['index']);
             $this->renderNode($root);
         } elseif ($showNotFound) {
             $this->renderer->cdata($this->helper->getLang('none'));

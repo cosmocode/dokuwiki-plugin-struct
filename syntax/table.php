@@ -19,7 +19,7 @@ class syntax_plugin_struct_table extends DokuWiki_Syntax_Plugin
     protected $tableclass = AggregationTable::class;
 
     /** @var string Config options that are not allowed for this syntax mode */
-    protected $illegalOptions = ['nesting'];
+    protected $illegalOptions = ['nesting', 'index'];
 
     /**
      * @return string Syntax mode type

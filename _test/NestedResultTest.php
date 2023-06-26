@@ -201,4 +201,53 @@ class NestedResultTest extends StructTest
         $this->assertCount(3, $tree, '3 root nodes of material expected');
         $this->assertCount(1, $tree[0]->getChildren()[0]->getResultRows(), '1 metal black row expected');
     }
+
+    /**
+     * Nest by two multi value levels with indexing
+     */
+    public function testMultiMultiTwoLevelsIndex()
+    {
+        $result = $this->makeResult($this->multiMultiItems);
+        $nestedResult = new NestedResult($result);
+        $root = $nestedResult->getRoot(2, 1);
+        $tree = $root->getChildren(); // nest: index, material, color, *
+
+        $this->assertCount(3, $tree, '3 root index nodes  expected');
+        $this->assertEquals('M', $tree[0]->getValueObject()->getValue(), 'M expected');
+        $this->assertCount(1, $tree[0]->getChildren(), '1 metal sub node under M expected');
+    }
+
+    /**
+     * Index a flat result with no multi values
+     */
+    public function testSimpleIndex()
+    {
+        $result = $this->makeResult($this->simpleItems);
+        $nestedResult = new NestedResult($result);
+        $root = $nestedResult->getRoot(0, 2);
+        $tree = $root->getChildren();
+
+        $this->assertCount(2, $tree, '2 root index nodes  expected');
+        $this->assertEquals('CA', $tree[0]->getValueObject()->getValue(), 'CA(r) index expected');
+        $this->assertEquals('LA', $tree[1]->getValueObject()->getValue(), 'LA(ptop) index expected');
+
+        $this->assertCount(6, $tree[0]->getResultRows(), '6 rows under CA expected');
+    }
+
+
+    /**
+     * Index a flat result with multi values
+     */
+    public function testMultiIndex()
+    {
+        $result = $this->makeResult($this->multiItems);
+        $nestedResult = new NestedResult($result);
+        $root = $nestedResult->getRoot(0, 2);
+        $tree = $root->getChildren();
+
+        $this->assertCount(4, $tree, '4 root index nodes  expected');
+        $this->assertEquals('BL', $tree[0]->getValueObject()->getValue(), 'BL(ack|blue) index expected');
+
+        $this->assertCount(4, $tree[0]->getResultRows(), '4 rows under BL expected');
+    }
 }
