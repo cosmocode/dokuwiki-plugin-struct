@@ -55,7 +55,10 @@ class Filter
             ->addClass('advancedOptions');
 
         // column dropdowns
-        foreach ($colValues as $colName => $values) {
+        foreach ($colValues as $colName => $colData) {
+            $qualifiedColName = $colName[0] !== '%' ? "$schema.$colName" : $colName;
+            $values = array_unique($colData['values']);
+
             $form->addTagOpen('div')
                 ->addClass('toggle')
                 ->id("__filter-$colName")
@@ -63,20 +66,18 @@ class Filter
 
             // popup toggler
             $form->addTagOpen('div')->addClass('current');
-            $form->addHTML($colName);
+            $form->addHTML($colData['label']);
             $form->addTagClose('div');
 
             $form->addTagOpen('ul')->attr('aria-expanded', 'false');
 
-            $values = array_filter(array_unique($values));
-
             $i = 0;
             foreach ($values as $value) {
                 $form->addTagOpen('li');
-                $form->addCheckbox(SearchConfigParameters::$PARAM_FILTER . "[$schema.$colName*~]")
+                $form->addRadioButton(SearchConfigParameters::$PARAM_FILTER . "[$qualifiedColName*~]")
                     ->val($value)
                     ->id("__$schema.$colName-" . $i);
-                $form->addLabel($value, "$schema.__$colName-" . $i)
+                $form->addLabel($value, "__$schema.$colName-" . $i)
                     ->attr('title', $value);
                 $form->addTagClose('li');
                 $i++;
@@ -98,7 +99,6 @@ class Filter
 
     /**
      * Get all values from current search result grouped by column
-     * FIXME handle special columns like %pageid%
      *
      * @return array
      */
@@ -108,12 +108,20 @@ class Filter
 
         foreach ($this->result as $row) {
             foreach ($row as $value) {
+                $colName = $value->getColumn()->getLabel();
+                $colValues[$colName]['label'] = $value->getColumn()->getTranslatedLabel();
+                $colValues[$colName]['values'] = $colValues[$colName]['values'] ?? [];
+
                 $opt = $value->getDisplayValue();
-                // FIXME handle multiple values better
+
+                if (empty($opt)) continue;
+
+                // handle multiple values
                 if (is_array($opt)) {
-                    $opt = implode(', ', $opt);
+                    $colValues[$colName]['values'] = array_merge($colValues[$colName]['values'], $opt);
+                } else {
+                    $colValues[$colName]['values'][] = $opt;
                 }
-                $colValues[$value->getColumn()->getLabel()][] = $opt;
             }
         }
 
