@@ -72,7 +72,7 @@ class AggregationResultsTest extends StructTest
         $this->assertEquals('test1', $result[0][0]->getValue());
         // skip %rowid% column and test saved values
         $this->assertEquals('foo1', $result[0][2]->getValue());
-        $this->assertEquals(['bar1', 'baz1'], $result[0][3]->getValue());
+        $this->assertEquals(['green', 'blue'], $result[0][3]->getValue());
         $this->assertEquals('foobar1', $result[0][4]->getValue());
         $this->assertEquals('barfoo1', $result[0][5]->getValue());
     }
