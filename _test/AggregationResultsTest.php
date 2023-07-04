@@ -32,6 +32,13 @@ class AggregationResultsTest extends StructTest
         $assignments = mock\Assignments::getInstance();
         $assignments->clear(true);
 
+        // different values for each entry
+        $second = [
+            ['green', 'red'],
+            ['green', 'blue'],
+            ['blue', 'yellow']
+        ];
+
         for ($i = 0; $i < 3; $i++) {
             // assign a schema
             $assignments->assignPageSchema("test$i", 'schema1');
@@ -42,7 +49,7 @@ class AggregationResultsTest extends StructTest
             // save serial data
             $data = [
                 'first' => "foo$i",
-                'second' => ["bar$i", "baz$i"],
+                'second' => $second[$i],
                 'third' => "foobar$i",
                 'fourth' => "barfoo$i",
             ];
@@ -84,6 +91,22 @@ class AggregationResultsTest extends StructTest
 
         $result = $this->fetchResult($schema, 'test0', ['first', '!=', 'foo0', 'AND']);
         $this->assertCount(0, $result);
+    }
+
+    /** @noinspection PhpUnreachableStatementInspection */
+    public function test_filter_multi()
+    {
+        $schema = 'schema1';
+        $result = $this->fetchPagesResult($schema, '');
+        $this->assertCount(3, $result);
+
+        $result = $this->fetchPagesResult($schema, '', ['second', '=', 'green', 'AND']);
+        $this->assertCount(2, $result);
+
+        $this->markTestIncomplete('negative filters currently do not work on multi fields. See #512');
+
+        $result = $this->fetchPagesResult($schema, '', ['second', '!~', 'green', 'AND']);
+        $this->assertCount(1, $result);
     }
 
     /**
