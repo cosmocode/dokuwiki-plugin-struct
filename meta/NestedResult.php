@@ -114,7 +114,7 @@ class NestedResult
         if ($valObj->getColumn()->isMulti() && $valObj->getValue()) {
             // split up multi values into separate nodes
             $values = $valObj->getValue();
-            if($values) {
+            if ($values) {
                 foreach ($values as $value) {
                     $newValue = new Value($valObj->getColumn(), $value);
                     $node = $this->getNodeForValue($newValue, $depth);

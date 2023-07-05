@@ -87,9 +87,9 @@ class NestedValue
     {
         $children = $this->children;
 
-        if($sort) {
+        if ($sort) {
             usort($children, [$this, 'sortChildren']);
-        } elseif(isset($children[''])) {
+        } elseif (isset($children[''])) {
             // even when not sorting, make sure the n/a entries are last
             $naKids = $children[''];
             unset($children['']);
