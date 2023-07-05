@@ -51,7 +51,7 @@ class AggregationList extends Aggregation
         // render own value if available
         if ($self) {
             $this->renderer->listcontent_open();
-            $this->renderListItem([$self], $node->getDepth()); // zero based depth
+            $this->renderListItem([$self], $node->getDepth(), true); // zero based depth
             $this->renderer->listcontent_close();
         }
 
@@ -85,14 +85,14 @@ class AggregationList extends Aggregation
      *
      * @param Value[] $resultrow
      * @param int $depth The current nesting depth (zero based)
+     * @param bool $showEmpty show a placeholder for empty values?
      */
-    protected function renderListItem($resultrow, $depth)
+    protected function renderListItem($resultrow, $depth, $showEmpty = false)
     {
         $sepbyheaders = $this->searchConfig->getConf()['sepbyheaders'];
         $headers = $this->searchConfig->getConf()['headers'];
 
         foreach ($resultrow as $index => $value) {
-            if ($value->isEmpty()) continue;
             $column = $index + $depth; // the resultrow is shifted by the nesting depth
             if ($sepbyheaders && !empty($headers[$column])) {
                 $header = $headers[$column];
@@ -101,9 +101,9 @@ class AggregationList extends Aggregation
             }
 
             if ($this->mode === 'xhtml') {
-                $this->renderValueXHTML($value, $header);
+                $this->renderValueXHTML($value, $header, $showEmpty);
             } else {
-                $this->renderValueGeneric($value, $header);
+                $this->renderValueGeneric($value, $header, $showEmpty);
             }
         }
     }
@@ -112,9 +112,10 @@ class AggregationList extends Aggregation
      * Render the given Value in a XHTML renderer
      * @param Value $value
      * @param string $header
+     * @param bool $showEmpty
      * @return void
      */
-    protected function renderValueXHTML($value, $header)
+    protected function renderValueXHTML($value, $header, $showEmpty = false)
     {
         $attributes = [
             'data-struct-column' => strtolower($value->getColumn()->getFullQualifiedLabel()),
@@ -127,7 +128,11 @@ class AggregationList extends Aggregation
             $this->renderer->doc .= sprintf('<span class="struct_header">%s</span> ', hsc($header));
         }
         $this->renderer->doc .= '<div class="struct_value">';
-        $value->render($this->renderer, $this->mode);
+        if ($value->isEmpty() && $showEmpty) {
+            $this->renderer->doc .= '<span class="struct_na">' . $this->helper->getLang('na') . '</span>';
+        } else {
+            $value->render($this->renderer, $this->mode);
+        }
         $this->renderer->doc .= '</div>';
         $this->renderer->doc .= '</div> '; // wrapper
     }
@@ -138,11 +143,15 @@ class AggregationList extends Aggregation
      * @param string $header
      * @return void
      */
-    protected function renderValueGeneric($value, $header)
+    protected function renderValueGeneric($value, $header, $showEmpty = false)
     {
         $this->renderer->listcontent_open();
         if ($header !== '') $this->renderer->cdata($header . ' ');
-        $value->render($this->renderer, $this->mode);
+        if ($value->isEmpty() && $showEmpty) {
+            $this->renderer->cdata($this->helper->getLang('na'));
+        } else {
+            $value->render($this->renderer, $this->mode);
+        }
         $this->renderer->listcontent_close();
     }
 }

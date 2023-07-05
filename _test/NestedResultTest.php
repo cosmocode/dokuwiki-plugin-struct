@@ -46,6 +46,21 @@ class NestedResultTest extends StructTest
         [['gray', 'yellow'], 'laptop', 'dell', 'latitude'],
     ];
 
+    protected $multiHoleItems = [
+        [['green', 'yellow'], 'car', 'audi', 'a80'],
+        [[], 'car', 'audi', 'a4'],
+        [['black', 'green'], '', 'audi', 'quattro'],
+        [['red', 'black'], 'car', 'bmw', 'i3'],
+        [['blue', 'gray'], 'car', 'bmw', 'mini'],
+        [['red', 'black'], 'car', 'bmw', 'z1'],
+        [['green', 'blue'], 'laptop', 'apple', 'pro 16'],
+        [['red', 'blue'], 'laptop', 'apple', 'air'],
+        [['black', 'red'], 'laptop', 'apple', 'm1'],
+        [[], 'laptop', 'dell', 'xps'],
+        [['blue', 'yellow'], '', 'dell', 'inspiron'],
+        [['gray', 'yellow'], 'laptop', 'dell', 'latitude'],
+    ];
+
     protected $multiMultiItems = [
         [['metal', 'wood'], ['green', 'yellow'], 'car', 'audi', 'a80'],
         [['metal', 'wood', 'plastic'], ['yellow', 'blue'], 'car', 'audi', 'a4'],
@@ -186,6 +201,17 @@ class NestedResultTest extends StructTest
             ->getValue(),
             'yellow car audi a80 expected'
         );
+    }
+
+    public function testMultiHoles()
+    {
+        $result = $this->makeResult($this->multiHoleItems);
+        $nestedResult = new NestedResult($result);
+        $root = $nestedResult->getRoot(3);
+        $tree = $root->getChildren(); // nest: color, type, brand -> model
+        $this->assertCount(7, $tree, '6 root nodes of colors + 1 n/a expected');  // should have one n/a node
+        $this->assertCount(2, $tree[6]->getChildren(), 'top n/a node should have car, laptop');
+        $this->assertCount(3, $tree[0]->getChildren(), 'black should have car,laptop,n/a');
     }
 
     /**

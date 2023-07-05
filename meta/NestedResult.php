@@ -111,11 +111,18 @@ class NestedResult
         $valObj = array_shift($row);
         if (!$valObj) return; // no more values to nest, usually shouldn't happen
 
-        if ($valObj->getColumn()->isMulti()) {
+        if ($valObj->getColumn()->isMulti() && $valObj->getValue()) {
             // split up multi values into separate nodes
             $values = $valObj->getValue();
-            foreach ($values as $value) {
-                $newValue = new Value($valObj->getColumn(), $value);
+            if($values) {
+                foreach ($values as $value) {
+                    $newValue = new Value($valObj->getColumn(), $value);
+                    $node = $this->getNodeForValue($newValue, $depth);
+                    $parent->addChild($node);
+                    $this->nestBranch($node, $row, $nesting, $depth + 1);
+                }
+            } else {
+                $newValue = new Value($valObj->getColumn(), ''); // add empty node
                 $node = $this->getNodeForValue($newValue, $depth);
                 $parent->addChild($node);
                 $this->nestBranch($node, $row, $nesting, $depth + 1);

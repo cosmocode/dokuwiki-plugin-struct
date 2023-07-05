@@ -137,15 +137,26 @@ class NestedValue
      */
     public function sortChildren(NestedValue $a, NestedValue $b)
     {
+        $compA = join('-', (array)$a->getValueObject()->getCompareValue());
+        $compB = join('-', (array)$b->getValueObject()->getCompareValue());
+
+        // sort empty values to the end
+        if($compA === $compB) {
+            return 0;
+        }
+        if($compA === '') {
+            return 1;
+        }
+        if($compB === '') {
+            return -1;
+        }
+
         // note: the way NestedResults build the NestedValues, the value object should
         // always contain a single value only. But since the associated column is still
         // a multi-value column, getCompareValue() will still return an array.
         // So here we treat all returns as array and join them with a dash (even though
         // there should never be more than one value in there)
-        return Sort::strcmp(
-            join('-', (array)$a->getValueObject()->getCompareValue()),
-            join('-', (array)$b->getValueObject()->getCompareValue())
-        );
+        return Sort::strcmp($compA, $compB);
     }
 
     /**

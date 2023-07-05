@@ -65,6 +65,7 @@ $lang['multidropdown'] = 'Hold CTRL or CMD to select multiple values.';
 $lang['duplicate_label'] = "Label <code>%s</code> already exists in schema, second occurance was renamed to <code>%s</code>.";
 
 $lang['emptypage'] = 'Struct data has not been saved for an empty page';
+$lang['na'] = 'n/a';
 
 $lang['validation_prefix'] = "Field [%s]: ";
 
