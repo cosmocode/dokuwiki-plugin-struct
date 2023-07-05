@@ -59,6 +59,9 @@ class Search
     /** @var  array the revisions of the result rows */
     protected $result_revs = [];
 
+    /** @var bool Include latest = 1 in select query */
+    protected $selectLatest = true;
+
     /**
      * Search constructor.
      */
@@ -312,6 +315,16 @@ class Search
     }
 
     /**
+     * Allows disabling default 'latest = 1' clause in select statement
+     *
+     * @param bool $selectLatest
+     */
+    public function setSelectLatest($selectLatest): void
+    {
+        $this->selectLatest = $selectLatest;
+    }
+
+    /**
      * Return the number of results (regardless of limit and offset settings)
      *
      * Use this to implement paging. Important: this may only be called after running @return int
@@ -475,8 +488,8 @@ class Search
 
                 $first_table = $datatable;
             }
-            // phpcs:ignore
-            $QB->filters()->whereAnd("( (IS_PUBLISHER($datatable.pid) AND $datatable.latest = 1) OR (IS_PUBLISHER($datatable.pid) !=1 AND $datatable.published = 1) )");
+
+            $QB->filters()->whereAnd($this->getSpecialFlagsClause($datatable));
         }
 
         // columns to select, handling multis
@@ -699,5 +712,20 @@ class Search
         if ($value->isEmpty()) return true;
         if ($value->getColumn()->getTid() == 0) return true;
         return false;
+    }
+
+    /**
+     * @param string $datatable
+     * @return string
+     */
+    protected function getSpecialFlagsClause($datatable)
+    {
+        $latestClause = "IS_PUBLISHER($datatable.pid)";
+        if ($this->selectLatest) {
+            $latestClause .= " AND $datatable.latest = 1";
+        }
+        $publishedClause = "IS_PUBLISHER($datatable.pid) !=1 AND $datatable.published = 1";
+
+        return "( ($latestClause) OR ($publishedClause) )";
     }
 }
