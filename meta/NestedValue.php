@@ -141,13 +141,13 @@ class NestedValue
         $compB = join('-', (array)$b->getValueObject()->getCompareValue());
 
         // sort empty values to the end
-        if($compA === $compB) {
+        if ($compA === $compB) {
             return 0;
         }
-        if($compA === '') {
+        if ($compA === '') {
             return 1;
         }
-        if($compB === '') {
+        if ($compB === '') {
             return -1;
         }
 
@@ -169,8 +169,10 @@ class NestedValue
         $return = '';
 
         if ($this->value) {
+            $val = join(', ', (array)$this->value->getDisplayValue());
+            if ($val === '') $val = '{n/a}';
             $return .= str_pad('', $this->getDepth() * 4, ' ');
-            $return .= join(', ', (array)$this->value->getDisplayValue());
+            $return .= $val;
             $return .= "\n";
         } else {
             $return .= "*\n";
@@ -179,7 +181,9 @@ class NestedValue
         foreach ($this->getResultRows() as $row) {
             $return .= str_pad('', $this->getDepth() * 4, ' ');
             foreach ($row as $value) {
-                $return .= ' ' . join(', ', (array)$value->getDisplayValue());
+                $val = join(', ', (array)$value->getDisplayValue());
+                if ($val === '') $val = '{n/a}';
+                $return .= ' ' . $val;
             }
             $return .= "\n";
         }
