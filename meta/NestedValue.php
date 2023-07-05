@@ -80,13 +80,22 @@ class NestedValue
     /**
      * Get all child nodes
      *
+     * @param bool $sort should children be sorted alphabetically?
      * @return NestedValue[]
      */
-    public function getChildren()
+    public function getChildren($sort = false)
     {
         $children = $this->children;
-        usort($children, [$this, 'sortChildren']);
-        return $children;
+
+        if($sort) {
+            usort($children, [$this, 'sortChildren']);
+        } elseif(isset($children[''])) {
+            // even when not sorting, make sure the n/a entries are last
+            $naKids = $children[''];
+            unset($children['']);
+            $children[''] = $naKids;
+        }
+        return array_values($children);
     }
 
     /**

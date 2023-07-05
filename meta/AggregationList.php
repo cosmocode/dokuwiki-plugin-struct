@@ -40,7 +40,7 @@ class AggregationList extends Aggregation
     protected function renderNode(NestedValue $node)
     {
         $self = $node->getValueObject(); // null for root node
-        $children = $node->getChildren();
+        $children = $node->getChildren($self === null && $this->data['index']); // sort only for index
         $results = $node->getResultRows();
 
         // all our content is in a listitem, unless we are the root node

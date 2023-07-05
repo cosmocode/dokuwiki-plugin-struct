@@ -107,7 +107,7 @@ class NestedResultTest extends StructTest
         $nestedResult = new NestedResult($result);
         $root = $nestedResult->getRoot(0);
 
-        $this->assertCount(0, $root->getChildren(), 'no children expected');
+        $this->assertCount(0, $root->getChildren(true), 'no children expected');
         $this->assertCount(12, $root->getResultRows(), '12 result rows expected');
     }
 
@@ -120,14 +120,14 @@ class NestedResultTest extends StructTest
         $result = $this->makeResult($this->simpleItems);
         $nestedResult = new NestedResult($result);
         $root = $nestedResult->getRoot(1);
-        $tree = $root->getChildren();
+        $tree = $root->getChildren(true);
 
         $this->assertCount(2, $tree, '2 root nodes expected');
         $this->assertEquals('car', $tree[0]->getValueObject()->getValue());
         $this->assertEquals('laptop', $tree[1]->getValueObject()->getValue());
 
-        $this->assertCount(0, $tree[0]->getChildren(), 'no children expected');
-        $this->assertCount(0, $tree[1]->getChildren(), 'no children expected');
+        $this->assertCount(0, $tree[0]->getChildren(true), 'no children expected');
+        $this->assertCount(0, $tree[1]->getChildren(true), 'no children expected');
 
         $this->assertCount(6, $tree[0]->getResultRows(), 'result rows');
         $this->assertCount(6, $tree[1]->getResultRows(), 'result rows');
@@ -145,23 +145,23 @@ class NestedResultTest extends StructTest
         $result = $this->makeResult($this->simpleItems);
         $nestedResult = new NestedResult($result);
         $root = $nestedResult->getRoot(2);
-        $tree = $root->getChildren();
+        $tree = $root->getChildren(true);
 
         $this->assertCount(2, $tree, '2 root nodes expected');
         $this->assertEquals('car', $tree[0]->getValueObject()->getValue());
         $this->assertEquals('laptop', $tree[1]->getValueObject()->getValue());
 
-        $this->assertCount(2, $tree[0]->getChildren(), '2 second level nodes expected');
-        $this->assertCount(2, $tree[1]->getChildren(), '2 second level nodes expected');
+        $this->assertCount(2, $tree[0]->getChildren(true), '2 second level nodes expected');
+        $this->assertCount(2, $tree[1]->getChildren(true), '2 second level nodes expected');
 
-        $this->assertCount(3, $tree[0]->getChildren()[0]->getResultRows(), 'result rows');
-        $this->assertCount(3, $tree[0]->getChildren()[1]->getResultRows(), 'result rows');
-        $this->assertCount(3, $tree[1]->getChildren()[0]->getResultRows(), 'result rows');
-        $this->assertCount(3, $tree[1]->getChildren()[1]->getResultRows(), 'result rows');
+        $this->assertCount(3, $tree[0]->getChildren(true)[0]->getResultRows(), 'result rows');
+        $this->assertCount(3, $tree[0]->getChildren(true)[1]->getResultRows(), 'result rows');
+        $this->assertCount(3, $tree[1]->getChildren(true)[0]->getResultRows(), 'result rows');
+        $this->assertCount(3, $tree[1]->getChildren(true)[1]->getResultRows(), 'result rows');
 
 
-        $this->assertEquals('a80', $tree[0]->getChildren()[0]->getResultRows()[0][0]->getValue(), 'Audi 80 expected');
-        $this->assertEquals('pro 16', $tree[1]->getChildren()[0]->getResultRows()[0][0]->getValue(), 'Mac Pro 16 expected');
+        $this->assertEquals('a80', $tree[0]->getChildren(true)[0]->getResultRows()[0][0]->getValue(), 'Audi 80 expected');
+        $this->assertEquals('pro 16', $tree[1]->getChildren(true)[0]->getResultRows()[0][0]->getValue(), 'Mac Pro 16 expected');
     }
 
     /**
@@ -172,7 +172,7 @@ class NestedResultTest extends StructTest
         $result = $this->makeResult($this->multiItems);
         $nestedResult = new NestedResult($result);
         $root = $nestedResult->getRoot(3);
-        $tree = $root->getChildren(); // nest: color, type, brand -> model
+        $tree = $root->getChildren(true); // nest: color, type, brand -> model
 
         $this->assertCount(6, $tree, '6 root nodes of colors expected');
 
@@ -187,16 +187,16 @@ class NestedResultTest extends StructTest
         // Results should now show up under multiple top-level nodes
         $this->assertEquals('a80',
             $tree[3] // green
-            ->getChildren()[0] // car
-            ->getChildren()[0] // audi
+            ->getChildren(true)[0] // car
+            ->getChildren(true)[0] // audi
             ->getResultRows()[0][0] // a80
             ->getValue(),
             'green car audi a80 expected'
         );
         $this->assertEquals('a80',
             $tree[5] // yellow
-            ->getChildren()[0] // car
-            ->getChildren()[0] // audi
+            ->getChildren(true)[0] // car
+            ->getChildren(true)[0] // audi
             ->getResultRows()[0][0] // a80
             ->getValue(),
             'yellow car audi a80 expected'
@@ -208,10 +208,10 @@ class NestedResultTest extends StructTest
         $result = $this->makeResult($this->multiHoleItems);
         $nestedResult = new NestedResult($result);
         $root = $nestedResult->getRoot(3);
-        $tree = $root->getChildren(); // nest: color, type, brand -> model
+        $tree = $root->getChildren(true); // nest: color, type, brand -> model
         $this->assertCount(7, $tree, '6 root nodes of colors + 1 n/a expected');  // should have one n/a node
-        $this->assertCount(2, $tree[6]->getChildren(), 'top n/a node should have car, laptop');
-        $this->assertCount(3, $tree[0]->getChildren(), 'black should have car,laptop,n/a');
+        $this->assertCount(2, $tree[6]->getChildren(true), 'top n/a node should have car, laptop');
+        $this->assertCount(3, $tree[0]->getChildren(true), 'black should have car,laptop,n/a');
     }
 
     /**
@@ -222,10 +222,10 @@ class NestedResultTest extends StructTest
         $result = $this->makeResult($this->multiMultiItems);
         $nestedResult = new NestedResult($result);
         $root = $nestedResult->getRoot(2);
-        $tree = $root->getChildren(); // nest: material, color, *
+        $tree = $root->getChildren(true); // nest: material, color, *
 
         $this->assertCount(3, $tree, '3 root nodes of material expected');
-        $this->assertCount(1, $tree[0]->getChildren()[0]->getResultRows(), '1 metal black row expected');
+        $this->assertCount(1, $tree[0]->getChildren(true)[0]->getResultRows(), '1 metal black row expected');
     }
 
     /**
@@ -236,11 +236,11 @@ class NestedResultTest extends StructTest
         $result = $this->makeResult($this->multiMultiItems);
         $nestedResult = new NestedResult($result);
         $root = $nestedResult->getRoot(2, 1);
-        $tree = $root->getChildren(); // nest: index, material, color, *
+        $tree = $root->getChildren(true); // nest: index, material, color, *
 
         $this->assertCount(3, $tree, '3 root index nodes  expected');
         $this->assertEquals('M', $tree[0]->getValueObject()->getValue(), 'M expected');
-        $this->assertCount(1, $tree[0]->getChildren(), '1 metal sub node under M expected');
+        $this->assertCount(1, $tree[0]->getChildren(true), '1 metal sub node under M expected');
     }
 
     /**
@@ -251,7 +251,7 @@ class NestedResultTest extends StructTest
         $result = $this->makeResult($this->simpleItems);
         $nestedResult = new NestedResult($result);
         $root = $nestedResult->getRoot(0, 2);
-        $tree = $root->getChildren();
+        $tree = $root->getChildren(true);
 
         $this->assertCount(2, $tree, '2 root index nodes  expected');
         $this->assertEquals('CA', $tree[0]->getValueObject()->getValue(), 'CA(r) index expected');
@@ -269,7 +269,7 @@ class NestedResultTest extends StructTest
         $result = $this->makeResult($this->multiItems);
         $nestedResult = new NestedResult($result);
         $root = $nestedResult->getRoot(0, 2);
-        $tree = $root->getChildren();
+        $tree = $root->getChildren(true);
 
         $this->assertCount(4, $tree, '4 root index nodes  expected');
         $this->assertEquals('BL', $tree[0]->getValueObject()->getValue(), 'BL(ack|blue) index expected');
