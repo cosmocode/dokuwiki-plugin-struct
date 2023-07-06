@@ -35,6 +35,7 @@ class Filter extends Aggregation
             ->addClass('advancedOptions');
 
         // column dropdowns
+        $num = 0;
         foreach ($colValues as $colName => $colData) {
             $qualifiedColName = $colName[0] !== '%' ? "$schema.$colName" : $colName;
 
@@ -43,9 +44,13 @@ class Filter extends Aggregation
                 ->id("__filter-$colName")
                 ->attr('aria-haspopup', 'true');
 
-            // popup toggler
+            // popup toggler uses header if defined in syntax, otherwise label
+            $header = $colData['label'];
+            if (!empty($this->data['headers'][$num])) {
+                $header = $this->data['headers'][$num];
+            }
             $form->addTagOpen('div')->addClass('current');
-            $form->addHTML($colData['label']);
+            $form->addHTML($header);
             $form->addTagClose('div');
 
             $form->addTagOpen('ul')->attr('aria-expanded', 'false');
@@ -64,6 +69,7 @@ class Filter extends Aggregation
 
             $form->addTagClose('ul');
             $form->addTagClose('div'); // close div.toggle
+            $num++;
         }
 
         $form->addButton('struct-filter-submit', $this->helper->getLang('filter_button'))
