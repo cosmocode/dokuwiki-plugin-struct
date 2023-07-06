@@ -7,38 +7,19 @@ use dokuwiki\Form\Form;
 /**
  * Struct filter class
  */
-class Filter
+class Filter extends Aggregation
 {
-    protected $renderer;
-
-    /** @var \dokuwiki\plugin\struct\meta\Search */
-    protected $search;
-
-    /** @var Value[][] */
-    protected $result;
-
-    /**
-     * @param \Doku_Renderer $renderer
-     * @param \dokuwiki\plugin\struct\meta\Search $search
-     */
-    public function __construct($renderer, $search)
-    {
-        $this->renderer = $renderer;
-        $this->search = $search;
-        $this->result = $search->execute();
-    }
-
     /**
      * Render the filter form.
      * Reuses the structure of advanced search tools to leverage
      * the core grouping styles and scripts.
      *
-     * @param array $lang Language strings "title", "intro" and "button"
+     * @param bool $showNotFound Inherited from parent method
      * @return void
      */
-    public function render($lang)
+    public function render($showNotFound = false)
     {
-        $schemas = $this->search->getSchemas();
+        $schemas = $this->searchConfig->getSchemas();
         $schema = $schemas[0]->getTable();
 
         $colValues = $this->getAllColumnValues();
@@ -48,8 +29,7 @@ class Filter
         $form->setHiddenField('id', getID());
 
         $form->addFieldsetOpen()->addClass('struct-filter-form search-form');
-        $form->addHTML('<legend>' . $lang['title'] . '</legend>');
-        $form->addHTML('<p>' . $lang['intro'] . '</p>');
+        $form->addHTML('<legend>' . $this->helper->getLang('filter_title') . '</legend>');
 
         $form->addTagOpen('div')
             ->addClass('advancedOptions');
@@ -57,7 +37,6 @@ class Filter
         // column dropdowns
         foreach ($colValues as $colName => $colData) {
             $qualifiedColName = $colName[0] !== '%' ? "$schema.$colName" : $colName;
-            $values = array_unique($colData['values']);
 
             $form->addTagOpen('div')
                 ->addClass('toggle')
@@ -72,7 +51,7 @@ class Filter
             $form->addTagOpen('ul')->attr('aria-expanded', 'false');
 
             $i = 0;
-            foreach ($values as $value) {
+            foreach ($colData['values'] as $value) {
                 $form->addTagOpen('li');
                 $form->addRadioButton(SearchConfigParameters::$PARAM_FILTER . "[$qualifiedColName*~]")
                     ->val($value)
@@ -87,7 +66,7 @@ class Filter
             $form->addTagClose('div'); // close div.toggle
         }
 
-        $form->addButton('struct-filter-submit', $lang['button'])
+        $form->addButton('struct-filter-submit', $this->helper->getLang('filter_button'))
             ->attr('type', 'submit')
             ->addClass('struct-filter-submit');
 
