@@ -499,16 +499,35 @@ form.struct_newschema {
  * Struct Filter
  */
 
-form.struct-filter-form {
-    button.struct-filter-submit {
-        float: right;
-    }
+.dokuwiki form.search-results-form.struct-filter-form {
+    div.advancedOptions {
+        padding: unset;
 
-    fieldset legend {
-        font-weight: bold;
-    }
+        button.struct-filter-submit {
+            float: right;
+        }
 
-    li label {
-        margin-left: 0.25rem;
+        fieldset legend {
+            font-weight: bold;
+        }
+
+        div.toggle {
+            div.current {
+                max-width: unset;
+            }
+
+            ul {
+                min-width: 15rem;
+
+                li {
+                    display: flex;
+                    align-items: start;
+
+                    label {
+                        margin-left: 0.25rem;
+                    }
+                }
+            }
+        }
     }
 }
