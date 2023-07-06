@@ -131,7 +131,6 @@ $lang['js']['lookup_delete'] = 'Delete Entry';
 $lang['bureaucracy_action_struct_lookup_thanks'] = 'The entry has been stored. <a href="%s">Add another entry</a>.';
 
 $lang['filter_title'] = 'Aggregation filters';
-$lang['filter_intro'] = 'Narrow down aggregation results based on available values. Deselect some options if the result is too narrow.';
 $lang['filter_button'] = 'Apply filters';
 
 //Setup VIM: ex: et ts=4 :
