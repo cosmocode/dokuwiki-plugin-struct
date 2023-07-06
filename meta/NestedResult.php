@@ -111,24 +111,26 @@ class NestedResult
         $valObj = array_shift($row);
         if (!$valObj) return; // no more values to nest, usually shouldn't happen
 
+        $parentPath = (string) $parent;
+
         if ($valObj->getColumn()->isMulti() && $valObj->getValue()) {
             // split up multi values into separate nodes
             $values = $valObj->getValue();
             if ($values) {
                 foreach ($values as $value) {
                     $newValue = new Value($valObj->getColumn(), $value);
-                    $node = $this->getNodeForValue($newValue, $depth);
+                    $node = $this->getNodeForValue($newValue, $parentPath, $depth);
                     $parent->addChild($node);
                     $this->nestBranch($node, $row, $nesting, $depth + 1);
                 }
             } else {
                 $newValue = new Value($valObj->getColumn(), ''); // add empty node
-                $node = $this->getNodeForValue($newValue, $depth);
+                $node = $this->getNodeForValue($newValue, $parentPath, $depth);
                 $parent->addChild($node);
                 $this->nestBranch($node, $row, $nesting, $depth + 1);
             }
         } else {
-            $node = $this->getNodeForValue($valObj, $depth);
+            $node = $this->getNodeForValue($valObj, $parentPath, $depth);
             $parent->addChild($node);
             $this->nestBranch($node, $row, $nesting, $depth + 1);
         }
@@ -141,9 +143,9 @@ class NestedResult
      * @param int $depth
      * @return NestedValue
      */
-    protected function getNodeForValue(Value $value, $depth)
+    protected function getNodeForValue(Value $value, $parentPath, $depth)
     {
-        $node = new NestedValue($value, $depth);
+        $node = new NestedValue($value, $parentPath, $depth);
         $key = (string)$node;
         if (!isset($this->nodes[$key])) {
             $this->nodes[$key] = $node;

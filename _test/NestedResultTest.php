@@ -26,9 +26,9 @@ class NestedResultTest extends StructTest
         ['laptop', 'apple', 'pro 16'],
         ['laptop', 'apple', 'air'],
         ['laptop', 'apple', 'm1'],
-        ['laptop', 'dell', 'xps'],
         ['laptop', 'dell', 'inspiron'],
         ['laptop', 'dell', 'latitude'],
+        ['laptop', 'bmw', 'latitude'],
     ];
 
     protected $multiItems = [
@@ -151,13 +151,14 @@ class NestedResultTest extends StructTest
         $this->assertEquals('car', $tree[0]->getValueObject()->getValue());
         $this->assertEquals('laptop', $tree[1]->getValueObject()->getValue());
 
-        $this->assertCount(2, $tree[0]->getChildren(true), '2 second level nodes expected');
-        $this->assertCount(2, $tree[1]->getChildren(true), '2 second level nodes expected');
+        $this->assertCount(2, $tree[0]->getChildren(true), '2 car brands expected');
+        $this->assertCount(3, $tree[1]->getChildren(true), '3 laptop brands expected');
 
-        $this->assertCount(3, $tree[0]->getChildren(true)[0]->getResultRows(), 'result rows');
-        $this->assertCount(3, $tree[0]->getChildren(true)[1]->getResultRows(), 'result rows');
-        $this->assertCount(3, $tree[1]->getChildren(true)[0]->getResultRows(), 'result rows');
-        $this->assertCount(3, $tree[1]->getChildren(true)[1]->getResultRows(), 'result rows');
+        $this->assertCount(3, $tree[0]->getChildren(true)[0]->getResultRows(), '3 audis expected');
+        $this->assertCount(3, $tree[0]->getChildren(true)[1]->getResultRows(), '3 bmw expected');
+        $this->assertCount(3, $tree[1]->getChildren(true)[0]->getResultRows(), '3 apple expected');
+        $this->assertCount(1, $tree[1]->getChildren(true)[1]->getResultRows(), '1 bmw expected');
+        $this->assertCount(2, $tree[1]->getChildren(true)[2]->getResultRows(), '2 dell expected');
 
 
         $this->assertEquals('a80', $tree[0]->getChildren(true)[0]->getResultRows()[0][0]->getValue(), 'Audi 80 expected');

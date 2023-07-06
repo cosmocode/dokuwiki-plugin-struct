@@ -22,6 +22,10 @@ class NestedValue
 
     /** @var int the nesting depth */
     protected $depth;
+    /**
+     * @var mixed|string
+     */
+    protected $parentPath;
 
     /**
      * Create a nested version of the given value
@@ -29,9 +33,10 @@ class NestedValue
      * @param Value|null $value The value to store, null for root node
      * @param int $depth The depth of this node (avoids collision where the same values are selected on multiple levels)
      */
-    public function __construct(?Value $value, $depth = 0)
+    public function __construct(?Value $value, $parentPath = '', $depth = 0)
     {
         $this->value = $value;
+        $this->parentPath = $parentPath;
         $this->depth = $depth;
     }
 
@@ -134,7 +139,7 @@ class NestedValue
     public function __toString()
     {
         if ($this->value === null) return ''; // root node
-        return $this->value->__toString() . '-' . $this->depth;
+        return $this->parentPath . '/' . $this->value->__toString();
     }
 
     /**
@@ -171,9 +176,10 @@ class NestedValue
     /**
      * print the tree for debugging
      *
+     * @param bool $sort use sorted children?
      * @return string
      */
-    public function dump()
+    public function dump($sort = true)
     {
         $return = '';
 
@@ -197,7 +203,7 @@ class NestedValue
             $return .= "\n";
         }
 
-        foreach ($this->getChildren() as $child) {
+        foreach ($this->getChildren($sort) as $child) {
             $return .= $child->dump();
         }
 
