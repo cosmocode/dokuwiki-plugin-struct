@@ -104,6 +104,12 @@ class Filter extends Aggregation
             }
         }
 
+        array_walk($colValues, function (&$col) {
+            $unique = array_unique($col['values']);
+            sort($unique);
+            $col['values'] = $unique;
+        });
+
         return $colValues;
     }
 }
