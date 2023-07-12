@@ -3,11 +3,12 @@
 namespace dokuwiki\plugin\struct\meta;
 
 use dokuwiki\Form\Form;
+use dokuwiki\Utf8\Sort;
 
 /**
  * Struct filter class
  */
-class Filter extends Aggregation
+class AggregationFilter extends Aggregation
 {
     /**
      * Render the filter form.
@@ -22,7 +23,7 @@ class Filter extends Aggregation
         $schemas = $this->searchConfig->getSchemas();
         $schema = $schemas[0]->getTable();
 
-        $colValues = $this->getAllColumnValues();
+        $colValues = $this->getAllColumnValues($this->result);
 
         $form = new Form(['method' => 'get'], true);
         $form->addClass('struct-filter-form search-results-form');
@@ -83,17 +84,18 @@ class Filter extends Aggregation
     }
 
     /**
-     * Get all values from current search result grouped by column
+     * Get all values from given search result grouped by column
      *
      * @return array
      */
-    protected function getAllColumnValues(): array
+    protected function getAllColumnValues($result)
     {
         $colValues = [];
 
-        foreach ($this->result as $row) {
+        foreach ($result as $row) {
             foreach ($row as $value) {
-                $colName = $value->getColumn()->getLabel();
+                /** @var Value $value */
+                $colName = $value->getColumn()->getFullQualifiedLabel();
                 $colValues[$colName]['label'] = $value->getColumn()->getTranslatedLabel();
                 $colValues[$colName]['values'] = $colValues[$colName]['values'] ?? [];
 
@@ -112,7 +114,7 @@ class Filter extends Aggregation
 
         array_walk($colValues, function (&$col) {
             $unique = array_unique($col['values']);
-            sort($unique);
+            Sort::sort($unique);
             $col['values'] = $unique;
         });
 

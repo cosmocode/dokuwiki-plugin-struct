@@ -3,8 +3,11 @@
 namespace dokuwiki\plugin\struct\test;
 
 use dokuwiki\plugin\struct\meta\AccessTable;
+use dokuwiki\plugin\struct\meta\Column;
 use dokuwiki\plugin\struct\meta\SchemaImporter;
+use dokuwiki\plugin\struct\meta\Value;
 use dokuwiki\plugin\struct\test\mock\Assignments;
+use dokuwiki\plugin\struct\types\Text;
 
 /**
  * Base class for all struct tests
@@ -109,5 +112,38 @@ abstract class StructTest extends \DokuWikiTest
     protected function cleanWS($string)
     {
         return preg_replace('/\s+/s', '', $string);
+    }
+
+    /**
+     * Create an Aggregation result set from a given flat array
+     *
+     * The result will contain simple Text columns
+     *
+     * @param array $rows
+     * @return array
+     */
+    protected function createAggregationResult($rows)
+    {
+        $result = [];
+
+        foreach ($rows as $row) {
+            $resultRow = [];
+            foreach ($row as $num => $cell) {
+                $colRef = $num + 1;
+                $resultRow[] = new Value(
+                    new Column(
+                        10,
+                        new Text(['label' => ['en' => "Label $colRef"]], "field$colRef", is_array($cell)),
+                        $colRef,
+                        true,
+                        'test'
+                    ),
+                    $cell
+                );
+            }
+            $result[] = $resultRow;
+        }
+
+        return $result;
     }
 }
