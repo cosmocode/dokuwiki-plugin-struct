@@ -44,12 +44,12 @@ abstract class Aggregation
     /**
      * Initialize the Aggregation renderer and executes the search
      *
-     * You need to call @param string $id
-     * @param string $mode
-     * @param \Doku_Renderer $renderer
-     * @param SearchConfig $searchConfig
-     * @see render() on the resulting object.
+     * You need to call startScope(), render() and finishScope() on the resulting object.
      *
+     * @param string $id The page this is rendered to
+     * @param string $mode The renderer format
+     * @param \Doku_Renderer $renderer The renderer to use for output
+     * @param SearchConfig $searchConfig The configured search object to use for displaying the data
      */
     public function __construct($id, $mode, \Doku_Renderer $renderer, SearchConfig $searchConfig)
     {

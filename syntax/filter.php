@@ -37,7 +37,9 @@ class syntax_plugin_struct_filter extends syntax_plugin_struct_table
             $search = new SearchConfig($config);
             $filter = new Filter(null, $format, $renderer, $search);
 
+            $filter->startScope();
             $filter->render();
+            $filter->finishScope();
 
             if ($format === 'metadata') {
                 /** @var Doku_Renderer_metadata $renderer */
