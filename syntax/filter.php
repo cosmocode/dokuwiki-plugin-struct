@@ -32,10 +32,11 @@ class syntax_plugin_struct_filter extends syntax_plugin_struct_table
         if (!$config) return false;
 
         global $conf;
+        global $INFO;
 
         try {
             $search = new SearchConfig($config);
-            $filter = new AggregationFilter(null, $format, $renderer, $search);
+            $filter = new AggregationFilter($INFO['id'], $format, $renderer, $search);
 
             $filter->startScope();
             $filter->render();

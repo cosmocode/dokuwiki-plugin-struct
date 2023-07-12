@@ -498,35 +498,49 @@ form.struct_newschema {
 /**
  * Struct Filter
  */
+.dokuwiki .structaggregationfilter {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1em;
+    box-sizing: border-box;
 
-.dokuwiki form.search-results-form.struct-filter-form {
-    div.advancedOptions {
-        padding: unset;
+    details {
+        position: relative;
+        min-width: 15em;
+        max-width: 30%;
+        border: 1px solid transparent;
+        padding: 0.25em 0.5em;
+        cursor: pointer;
 
-        button.struct-filter-submit {
-            float: right;
-        }
-
-        fieldset legend {
-            font-weight: bold;
-        }
-
-        div.toggle {
-            div.current {
-                max-width: unset;
-            }
+        &[open] {
+            border: 1px solid @ini_border;
+            border-bottom-color: transparent;
 
             ul {
-                min-width: 15rem;
+                border: 1px solid @ini_border;
+                border-top-color: transparent;
+            }
+        }
 
-                li {
-                    display: flex;
-                    align-items: center;
-                    gap: 0.25rem;
+        ul {
+            left: -1px;
+            right: -1px;
+            position: absolute;
+            padding: 0;
+            background-color: @ini_background;
 
-                    &:hover {
-                        background-color: @ini_background_alt;
-                    }
+            li {
+                margin: 0;
+                text-overflow: ellipsis;
+                overflow: hidden;
+                padding: 0.25em 0.5em;
+
+                &:hover {
+                    background-color: @ini_background_alt;
+                }
+
+                a {
+                    display: block;
                 }
             }
         }

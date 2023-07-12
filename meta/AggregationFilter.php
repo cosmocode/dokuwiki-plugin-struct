@@ -20,67 +20,26 @@ class AggregationFilter extends Aggregation
      */
     public function render($showNotFound = false)
     {
-        $schemas = $this->searchConfig->getSchemas();
-        $schema = $schemas[0]->getTable();
-
         $colValues = $this->getAllColumnValues($this->result);
 
-        $form = new Form(['method' => 'get'], true);
-        $form->addClass('struct-filter-form search-results-form');
-        $form->setHiddenField('id', getID());
-
-        $form->addFieldsetOpen()->addClass('struct-filter-form search-form');
-        $form->addHTML('<legend>' . $this->helper->getLang('filter_title') . '</legend>');
-
-        $form->addTagOpen('div')
-            ->addClass('advancedOptions');
-
         // column dropdowns
-        $num = 0;
-        foreach ($colValues as $colName => $colData) {
-            $qualifiedColName = $colName[0] !== '%' ? "$schema.$colName" : $colName;
+        foreach ($colValues as $num => $colData) {
+            /** @var Column $column */
+            $column = $colData['column'];
 
-            $form->addTagOpen('div')
-                ->addClass('toggle')
-                ->id("__filter-$colName")
-                ->attr('aria-haspopup', 'true');
-
-            // popup toggler uses header if defined in syntax, otherwise label
-            $header = $colData['label'];
-            if (!empty($this->data['headers'][$num])) {
-                $header = $this->data['headers'][$num];
+            $this->renderer->doc .= '<details>';
+            $this->renderer->doc .= '<summary>' . hsc($colData['label']) . '</summary>';
+            $this->renderer->doc .= '<ul>';
+            foreach ($colData['values'] as $value => $displayValue) {
+                $this->renderer->doc .= '<li><div class="li">';
+                $key = $column->getFullQualifiedLabel() . '=';
+                $filter = SearchConfigParameters::$PARAM_FILTER . '[' . urlencode($key) . ']=' . urlencode($displayValue);
+                $column->getType()->renderTagCloudLink($value, $this->renderer, $this->mode, $this->id, $filter, 100);
+                $this->renderer->doc .= '</div></li>';
             }
-            $form->addTagOpen('div')->addClass('current');
-            $form->addHTML($header);
-            $form->addTagClose('div');
-
-            $form->addTagOpen('ul')->attr('aria-expanded', 'false');
-
-            $i = 0;
-            foreach ($colData['values'] as $value) {
-                $form->addTagOpen('li');
-                $form->addRadioButton(SearchConfigParameters::$PARAM_FILTER . "[$qualifiedColName*~]")
-                    ->val($value)
-                    ->id("__$schema.$colName-" . $i);
-                $form->addLabel($value, "__$schema.$colName-" . $i)
-                    ->attr('title', $value);
-                $form->addTagClose('li');
-                $i++;
-            }
-
-            $form->addTagClose('ul');
-            $form->addTagClose('div'); // close div.toggle
-            $num++;
+            $this->renderer->doc .= '</ul>';
+            $this->renderer->doc .= '</details>';
         }
-
-        $form->addButton('struct-filter-submit', $this->helper->getLang('filter_button'))
-            ->attr('type', 'submit')
-            ->addClass('struct-filter-submit');
-
-        $form->addTagClose('div'); // close div.advancedOptions
-        $form->addFieldsetClose();
-
-        $this->renderer->doc .= $form->toHTML();
     }
 
     /**
@@ -96,28 +55,25 @@ class AggregationFilter extends Aggregation
             foreach ($row as $value) {
                 /** @var Value $value */
                 $colName = $value->getColumn()->getFullQualifiedLabel();
+                $colValues[$colName]['column'] = $value->getColumn();
                 $colValues[$colName]['label'] = $value->getColumn()->getTranslatedLabel();
                 $colValues[$colName]['values'] = $colValues[$colName]['values'] ?? [];
 
-                $opt = $value->getDisplayValue();
+                if (empty($value->getDisplayValue())) continue;
 
-                if (empty($opt)) continue;
-
-                // handle multiple values
-                if (is_array($opt)) {
-                    $colValues[$colName]['values'] = array_merge($colValues[$colName]['values'], $opt);
-                } else {
-                    $colValues[$colName]['values'][] = $opt;
-                }
+                // create an array with [value => displayValue] pairs
+                // the cast to array will handle single and multi-value fields the same
+                // using the full value as key will make sure we don't have duplicates
+                $pairs = array_combine((array)$value->getValue(), (array)$value->getDisplayValue());
+                $colValues[$colName]['values'] = array_merge($colValues[$colName]['values'], $pairs);
             }
         }
 
+        // sort by display value
         array_walk($colValues, function (&$col) {
-            $unique = array_unique($col['values']);
-            Sort::sort($unique);
-            $col['values'] = $unique;
+            Sort::asort($col['values']);
         });
 
-        return $colValues;
+        return array_values($colValues); // reindex
     }
 }
