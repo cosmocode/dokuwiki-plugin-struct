@@ -31,15 +31,23 @@ class AggregationFilter extends Aggregation
             $this->renderer->doc .= '<summary>' . hsc($colData['label']) . '</summary>';
             $this->renderer->doc .= '<ul>';
             foreach ($colData['values'] as $value => $displayValue) {
-                $this->renderer->doc .= '<li><div class="li">';
-
+                $current = false;
                 $dyn = $this->searchConfig->getDynamicParameters();
-                $dyn->addFilter($column, '=', $displayValue);
+                $allFilters = $dyn->getFilters();
+                if (isset($allFilters[$column->getFullQualifiedLabel()])) {
+                    if ($allFilters[$column->getFullQualifiedLabel()][1] == $displayValue) {
+                        $current = true;
+                    }
+                    $dyn->removeFilter($column); // remove previous filter for this column
+                }
+                if (!$current) {
+                    // add new filter unless it's the current item
+                    $dyn->addFilter($column, '=', $displayValue);
+                }
                 $params = $dyn->getURLParameters();
                 $filter = buildURLparams($params);
 
-                #$key = $column->getFullQualifiedLabel() . '=';
-                #$filter = SearchConfigParameters::$PARAM_FILTER . '[' . urlencode($key) . ']=' . urlencode($displayValue);
+                $this->renderer->doc .= '<li ' . ($current ? 'class="active"' : '') . '><div class="li">';
                 $column->getType()->renderTagCloudLink($value, $this->renderer, $this->mode, $this->id, $filter, 100);
                 $this->renderer->doc .= '</div></li>';
             }

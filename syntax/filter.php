@@ -35,7 +35,7 @@ class syntax_plugin_struct_filter extends syntax_plugin_struct_table
         global $INFO;
 
         try {
-            $search = new SearchConfig($config);
+            $search = new SearchConfig($config, false);
             $filter = new AggregationFilter($INFO['id'], $format, $renderer, $search);
 
             $filter->startScope();

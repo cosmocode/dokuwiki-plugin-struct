@@ -528,12 +528,21 @@ form.struct_newschema {
             position: absolute;
             padding: 0;
             background-color: @ini_background;
+            max-height: 33vh;
+            overflow-y: auto;
 
             li {
                 margin: 0;
                 text-overflow: ellipsis;
                 overflow: hidden;
                 padding: 0.25em 0.5em;
+
+                &.active {
+                    background-color: @ini_background_alt;
+                    a {
+                        font-weight: bold;
+                    }
+                }
 
                 &:hover {
                     background-color: @ini_background_alt;
