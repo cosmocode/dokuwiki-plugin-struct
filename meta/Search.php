@@ -136,6 +136,16 @@ class Search
     }
 
     /**
+     * Clear all sorting options
+     *
+     * @return void
+     */
+    public function clearSort()
+    {
+        $this->sortby = [];
+    }
+
+    /**
      * Returns all set sort columns
      *
      * @return array
