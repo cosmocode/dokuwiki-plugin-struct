@@ -230,7 +230,7 @@ class SearchConfig extends Search
     }
 
     /**
-     * Access the dynamic paramters of this search
+     * Access the dynamic parameters of this search
      *
      * Note: This call returns a clone of the parameters as they were initialized
      *

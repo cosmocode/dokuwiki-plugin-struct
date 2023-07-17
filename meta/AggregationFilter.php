@@ -32,8 +32,14 @@ class AggregationFilter extends Aggregation
             $this->renderer->doc .= '<ul>';
             foreach ($colData['values'] as $value => $displayValue) {
                 $this->renderer->doc .= '<li><div class="li">';
-                $key = $column->getFullQualifiedLabel() . '=';
-                $filter = SearchConfigParameters::$PARAM_FILTER . '[' . urlencode($key) . ']=' . urlencode($displayValue);
+
+                $dyn = $this->searchConfig->getDynamicParameters();
+                $dyn->addFilter($column, '=', $displayValue);
+                $params = $dyn->getURLParameters();
+                $filter = buildURLparams($params);
+
+                #$key = $column->getFullQualifiedLabel() . '=';
+                #$filter = SearchConfigParameters::$PARAM_FILTER . '[' . urlencode($key) . ']=' . urlencode($displayValue);
                 $column->getType()->renderTagCloudLink($value, $this->renderer, $this->mode, $this->id, $filter, 100);
                 $this->renderer->doc .= '</div></li>';
             }

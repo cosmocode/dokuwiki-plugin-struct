@@ -207,9 +207,9 @@ class SearchConfigParameters
             $this->searchConfig->addSort($this->sort[0], $this->sort[1]);
         }
 
-        foreach (array_keys($this->filters) as $colName) {
-            list($comp, $value) = $this->filters[$colName];
-            $this->searchConfig->addFilter($colName, $comp, $value, 'AND');
+        foreach ($this->filters as $colName => $filter) {
+            list($comp, $value) = $filter;
+            $this->searchConfig->addDynamicFilter($colName, $value, $comp, 'AND');
         }
     }
 }
