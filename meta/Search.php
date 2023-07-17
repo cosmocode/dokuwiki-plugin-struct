@@ -41,6 +41,9 @@ class Search
     /** @var array the filters */
     protected $filter = array();
 
+    /** @var array the filters */
+    protected $dynamicFilter = array();
+
     /** @var array list of aliases tables can be referenced by */
     protected $aliases = array();
 
@@ -165,6 +168,35 @@ class Search
      */
     public function addFilter($colname, $value, $comp, $op = 'OR')
     {
+        $filter = $this->createFilter($colname, $value, $comp, $op);
+        if ($filter) $this->filter[] = $filter;
+    }
+
+    /**
+     * Adds a dynamic filter
+     *
+     * @param string $colname may contain an alias
+     * @param string|string[] $value
+     * @param string $comp @see self::COMPARATORS
+     * @param string $op either 'OR' or 'AND'
+     */
+    public function addDynamicFilter($colname, $value, $comp, $op = 'OR')
+    {
+        $filter = $this->createFilter($colname, $value, $comp, $op);
+        if ($filter) $this->dynamicFilter[] = $filter;
+    }
+
+    /**
+     * Create a filter definition
+     *
+     * @param string $colname may contain an alias
+     * @param string|string[] $value
+     * @param string $comp @see self::COMPARATORS
+     * @param string $op either 'OR' or 'AND'
+     * @return array|null [Column col, string|string[] value, string comp, string op]
+     */
+    protected function createFilter($colname, $value, $comp, $op = 'OR')
+    {
         /* Convert certain filters into others
          * this reduces the number of supported filters to implement in types */
         if ($comp == '*~') {
@@ -180,7 +212,7 @@ class Search
             throw new StructException('Bad filter type . Only AND or OR allowed');
 
         $col = $this->findColumn($colname);
-        if (!$col) return; // ignore missing columns, filter might have been for different schema
+        if (!$col) return null; // ignore missing columns, filter might have been for different schema
 
         // map filter operators to SQL syntax
         switch ($comp) {
@@ -207,7 +239,7 @@ class Search
         }
 
         // add the filter
-        $this->filter[] = array($col, $value, $comp, $op);
+        return array($col, $value, $comp, $op);
     }
 
     /**
