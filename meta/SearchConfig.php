@@ -242,7 +242,11 @@ class SearchConfig extends Search
     }
 
     /**
-     * @return array the current config
+     * Get the config this search was initialized with
+     *
+     * Note that the search may have been modified by dynamic parameters or additional member calls
+     *
+     * @return array
      */
     public function getConf()
     {

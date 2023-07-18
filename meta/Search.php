@@ -340,6 +340,16 @@ class Search
     }
 
     /**
+     * Get the current offset for the results
+     * 
+     * @return int
+     */
+    public function getOffset()
+    {
+        return $this->range_begin;
+    }
+
+    /**
      * Limit results to this number
      *
      * @param int $limit Set to 0 to disable limit again
@@ -351,6 +361,19 @@ class Search
         } else {
             $this->range_end = 0;
         }
+    }
+
+    /**
+     * Get the current limit for the results
+     *
+     * @return int
+     */
+    public function getLimit()
+    {
+        if ($this->range_end) {
+            return $this->range_end - $this->range_begin;
+        }
+        return 0;
     }
 
     /**
