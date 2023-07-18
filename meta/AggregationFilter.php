@@ -26,9 +26,10 @@ class AggregationFilter extends Aggregation
         foreach ($colValues as $num => $colData) {
             /** @var Column $column */
             $column = $colData['column'];
+            $label = $this->data['headers'][$num] ?? $colData['label'];
 
             $this->renderer->doc .= '<details>';
-            $this->renderer->doc .= '<summary>' . hsc($colData['label']) . '</summary>';
+            $this->renderer->doc .= '<summary>' . hsc($label) . '</summary>';
             $this->renderer->doc .= '<ul>';
             foreach ($colData['values'] as $value => $displayValue) {
                 $current = false;
