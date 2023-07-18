@@ -73,7 +73,7 @@ class SearchConfig extends Search
 
         // prepare dynamic parameters
         $this->dynamicParameters = new SearchConfigParameters($this);
-        if($dynamic) {
+        if ($dynamic) {
             $this->dynamicParameters->apply();
         }
 

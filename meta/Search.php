@@ -341,7 +341,7 @@ class Search
 
     /**
      * Get the current offset for the results
-     * 
+     *
      * @return int
      */
     public function getOffset()

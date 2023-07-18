@@ -9,7 +9,6 @@ namespace dokuwiki\plugin\struct\meta;
  */
 class SearchSQLBuilder
 {
-
     /** @var QueryBuilder */
     protected $qb;
 
