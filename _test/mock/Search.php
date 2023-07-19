@@ -14,6 +14,8 @@ class Search extends meta\Search
 
     public $filter = array();
 
+    public $dynamicFilter = array();
+
     /**
      * Register a dummy function that always returns false
      */

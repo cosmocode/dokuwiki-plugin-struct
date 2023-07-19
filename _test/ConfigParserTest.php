@@ -21,7 +21,8 @@ class ConfigParserTest extends StructTest
             "cols      : %pageid%, count",
             "sort      : ^count",
             "sort      : %pageid%, ^bam",
-            "align     : r,l,center,foo"
+            "align     : r,l,center,foo",
+            "class     : foo, bar",
         ];
 
         $configParser = new meta\ConfigParser($lines);
@@ -82,7 +83,10 @@ class ConfigParserTest extends StructTest
                 ],
             'csv' => true,
             'target' => '',
-            'align' => ['right', 'left', 'center', null]
+            'align' => ['right', 'left', 'center', null],
+            'nesting' => 0,
+            'index' => 0,
+            'classes' => ['struct-custom-foo', 'struct-custom-bar'],
         ];
 
         $this->assertEquals($expected_config, $actual_config);

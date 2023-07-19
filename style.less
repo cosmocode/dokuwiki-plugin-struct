@@ -314,7 +314,7 @@ form.struct_newschema {
 
 .dokuwiki .structaggregation {
 
-    &.listaggregation > ul li div {
+    &.structaggregationlist > ul li div {
         display: inline;
 
         p {
@@ -322,6 +322,31 @@ form.struct_newschema {
             margin: 0;
         }
     }
+
+    /* Indexed List */
+
+    &.structaggregationlist.is-indexed > ul {
+        list-style: none;
+        display: flex;
+        flex-wrap: wrap;
+        padding: 0;
+        gap: 0.5em;
+
+
+        > li {
+            flex: 1 1 30%;
+            min-width: 18em;
+            max-width: 100%;
+            margin: 0;
+            overflow: hidden;
+
+            > div.li {
+                font-size: 1.5em;
+                font-weight: bold;
+            }
+        }
+    }
+
 
     table th {
         a {
@@ -380,7 +405,7 @@ form.struct_newschema {
     }
 }
 
-.dokuwiki .structcloud {
+.dokuwiki .structaggregationcloud {
     ul {
         text-align: center;
 
@@ -467,5 +492,70 @@ form.struct_newschema {
         background-color: @ini_highlight;
         color: @ini_text;
         text-align: left;
+    }
+}
+
+/**
+ * Struct Filter
+ */
+.dokuwiki .structaggregationfilter {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1em;
+    box-sizing: border-box;
+
+    details {
+        position: relative;
+        max-width: 30%;
+        border: 1px solid transparent;
+        padding: 0.25em 0.5em;
+        cursor: pointer;
+
+        &[open] {
+            background-color: @ini_background_alt;
+
+            ul {
+                z-index: 10;
+                min-width: 15em;
+                border: 1px solid @ini_border;
+            }
+        }
+
+        /** needed for Sprintdoc template */
+        summary {
+            display: list-item;
+        }
+
+        ul {
+            left: -1px;
+            right: -1px;
+            position: absolute;
+            padding: 0;
+            background-color: @ini_background;
+            max-height: 33vh;
+            overflow-y: auto;
+
+            li {
+                margin: 0;
+                text-overflow: ellipsis;
+                overflow: hidden;
+                padding: 0.25em 0.5em;
+
+                &.active {
+                    background-color: @ini_background_alt;
+                    a {
+                        font-weight: bold;
+                    }
+                }
+
+                &:hover {
+                    background-color: @ini_background_alt;
+                }
+
+                a {
+                    display: block;
+                }
+            }
+        }
     }
 }

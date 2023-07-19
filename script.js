@@ -3,8 +3,8 @@ jQuery(function () {
     /* DOKUWIKI:include script/EntryEditor.js */
     /* DOKUWIKI:include script/SchemaEditor.js */
     /* DOKUWIKI:include script/AggregationEditor.js */
-
     /* DOKUWIKI:include script/InlineEditor.js */
+    /* DOKUWIKI:include script/StructFilter.js */
 
     function init() {
         EntryEditor(jQuery('#dw__editform, form.bureaucracy__plugin'));

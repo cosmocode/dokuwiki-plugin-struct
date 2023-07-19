@@ -39,6 +39,9 @@ class ConfigParser
             'schemas' => array(),
             'sort' => array(),
             'csv' => true,
+            'nesting' => 0,
+            'index' => 0,
+            'classes' => array(),
         );
         // parse info
         foreach ($lines as $line) {
@@ -115,6 +118,17 @@ class ConfigParser
                 case 'target':
                 case 'page':
                     $this->config['target'] = cleanID($val);
+                    break;
+                case 'nesting':
+                case 'nest':
+                    $this->config['nesting'] = (int) $val;
+                    break;
+                case 'index':
+                    $this->config['index'] = (int) $val;
+                    break;
+                case 'class':
+                case 'classes':
+                    $this->config['classes'] = $this->parseClasses($val);
                     break;
                 default:
                     $data = array('config' => &$this->config, 'key' => $key, 'val' => $val);
@@ -302,5 +316,22 @@ class ConfigParser
             array_push($values, trim($value));
         }
         return $values;
+    }
+
+    /**
+     * Ensure custom classes are valid and don't clash
+     *
+     * @param string $line
+     * @return string[]
+     */
+    protected function parseClasses($line)
+    {
+        $classes = $this->parseValues($line);
+        $classes = array_map(function ($class) {
+            $class = str_replace(' ', '_', $class);
+            $class = preg_replace('/[^a-zA-Z0-9_]/', '', $class);
+            return 'struct-custom-' . $class;
+        }, $classes);
+        return $classes;
     }
 }

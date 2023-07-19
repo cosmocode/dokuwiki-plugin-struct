@@ -126,7 +126,7 @@ class Value
             } else {
                 $raw = $this->column->getType()->rawValue($val);
             }
-            if ('' === trim((string) $raw)) continue;
+            if ('' === trim((string)$raw)) continue;
             $this->value[] = $val;
             $this->rawvalue[] = $raw;
             if ($israw) {
@@ -221,5 +221,16 @@ class Value
     public function filter($input)
     {
         return '' !== ((string)$input);
+    }
+
+    /**
+     * Get a string representation of this value
+     *
+     * @return string
+     */
+    public function __toString()
+    {
+        return '[' . $this->getColumn()->getFullQualifiedLabel() . '] ' .
+            join(',', (array)$this->getRawValue());
     }
 }

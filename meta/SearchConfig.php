@@ -36,8 +36,9 @@ class SearchConfig extends Search
     /**
      * SearchConfig constructor.
      * @param array $config The parsed configuration for this search
+     * @param bool $dynamic Should dynamic parameters be applied?
      */
-    public function __construct($config)
+    public function __construct($config, $dynamic = true)
     {
         parent::__construct();
 
@@ -52,10 +53,6 @@ class SearchConfig extends Search
         // cache flag setting
         $this->cacheFlag = self::$CACHE_DEFAULT;
         if (!empty($config['filters'])) $this->cacheFlag = $this->determineCacheFlag($config['filters']);
-
-        // apply dynamic paramters
-        $this->dynamicParameters = new SearchConfigParameters($this);
-        $config = $this->dynamicParameters->updateConfig($config);
 
         // configure search from configuration
         if (!empty($config['filter'])) foreach ($config['filter'] as $filter) {
@@ -72,6 +69,12 @@ class SearchConfig extends Search
 
         if (!empty($config['offset'])) {
             $this->setOffset($config['offset']);
+        }
+
+        // prepare dynamic parameters
+        $this->dynamicParameters = new SearchConfigParameters($this);
+        if ($dynamic) {
+            $this->dynamicParameters->apply();
         }
 
         $this->config = $config;
@@ -227,7 +230,7 @@ class SearchConfig extends Search
     }
 
     /**
-     * Access the dynamic paramters of this search
+     * Access the dynamic parameters of this search
      *
      * Note: This call returns a clone of the parameters as they were initialized
      *
@@ -239,7 +242,11 @@ class SearchConfig extends Search
     }
 
     /**
-     * @return array the current config
+     * Get the config this search was initialized with
+     *
+     * Note that the search may have been modified by dynamic parameters or additional member calls
+     *
+     * @return array
      */
     public function getConf()
     {

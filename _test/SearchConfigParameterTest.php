@@ -88,44 +88,54 @@ class SearchConfigParameterTest extends StructTest
         ];
 
         // init with no parameters
-        $expect = $data;
         $params = [];
         $searchConfig = new meta\SearchConfig($data);
         $dynamic = $searchConfig->getDynamicParameters();
-        $this->assertEquals($expect, $searchConfig->getConf());
-        $this->assertEquals($params, $dynamic->getURLParameters());
+        $this->assertEquals($data, $searchConfig->getConf(), 'config as is');
+        $this->assertEquals($params, $dynamic->getURLParameters(), 'no dynamic parameters');
 
         // init with sort
         $INPUT->set(meta\SearchConfigParameters::$PARAM_SORT, '^alias2.athird');
-        $expect['sort'] = [['schema2.athird', false]];
         $params[meta\SearchConfigParameters::$PARAM_SORT] = '^schema2.athird';
         $searchConfig = new meta\SearchConfig($data);
         $dynamic = $searchConfig->getDynamicParameters();
-        $this->assertEquals($expect, $searchConfig->getConf());
         $this->assertEquals($params, $dynamic->getURLParameters());
+        $sorts = $searchConfig->getSorts();
+        $this->assertArrayHasKey('schema2.athird', $sorts);
+        $this->assertInstanceOf(meta\Column::class, $sorts['schema2.athird'][0]);
+        $this->assertEquals('schema2.athird', $sorts['schema2.athird'][0]->getFullQualifiedLabel());
+        $this->assertFalse($sorts['schema2.athird'][1], 'DESC sorting');
+        $this->assertTrue($sorts['schema2.athird'][2], 'case-insensitive sorting');
 
         // init with offset
         $INPUT->set(meta\SearchConfigParameters::$PARAM_OFFSET, 25);
-        $expect['offset'] = 25;
         $params[meta\SearchConfigParameters::$PARAM_OFFSET] = 25;
         $searchConfig = new meta\SearchConfig($data);
         $dynamic = $searchConfig->getDynamicParameters();
-        $this->assertEquals($expect, $searchConfig->getConf());
         $this->assertEquals($params, $dynamic->getURLParameters());
+        $this->assertEquals(25, $searchConfig->getOffset(), 'offset set');
 
         // init with filters
         $_REQUEST[meta\SearchConfigParameters::$PARAM_FILTER]['alias1.first*~'] = 'test';
         $_REQUEST[meta\SearchConfigParameters::$PARAM_FILTER]['afirst='] = 'test2';
-        $expect['filter'] = [
-            ['schema1.first', '*~', 'test', 'AND'],
-            ['schema2.afirst', '=', 'test2', 'AND']
-        ];
         $params[meta\SearchConfigParameters::$PARAM_FILTER . '[schema1.first*~]'] = 'test';
         $params[meta\SearchConfigParameters::$PARAM_FILTER . '[schema2.afirst=]'] = 'test2';
         $searchConfig = new meta\SearchConfig($data);
         $dynamic = $searchConfig->getDynamicParameters();
-        $this->assertEquals($expect, $searchConfig->getConf());
         $this->assertEquals($params, $dynamic->getURLParameters());
+        $filters = $this->getInaccessibleProperty($searchConfig, 'dynamicFilter');
+
+        $this->assertInstanceOf(meta\Column::class, $filters[0][0]);
+        $this->assertEquals('schema1.first', $filters[0][0]->getFullQualifiedLabel(), 'full qualified column name');
+        $this->assertEquals('%test%', $filters[0][1], 'value with like placeholders');
+        $this->assertEquals('LIKE', $filters[0][2], 'comparator');
+        $this->assertEquals('AND', $filters[0][3], 'boolean operator');
+
+        $this->assertInstanceOf(meta\Column::class, $filters[1][0]);
+        $this->assertEquals('schema2.afirst', $filters[1][0]->getFullQualifiedLabel(), 'full qualified column name');
+        $this->assertEquals('test2', $filters[1][1], 'value with no placeholders');
+        $this->assertEquals('=', $filters[1][2], 'comparator');
+        $this->assertEquals('AND', $filters[1][3], 'boolean operator');
     }
 
     public function test_filter()
@@ -198,23 +208,17 @@ class SearchConfigParameterTest extends StructTest
         $dynamic = $searchConfig->getDynamicParameters();
 
         $dynamic->setSort('%pageid%');
-        $conf = $dynamic->updateConfig($data);
         $param = $dynamic->getURLParameters();
-        $this->assertEquals([['%pageid%', true]], $conf['sort']);
         $this->assertArrayHasKey(meta\SearchConfigParameters::$PARAM_SORT, $param);
         $this->assertEquals('%pageid%', $param[meta\SearchConfigParameters::$PARAM_SORT]);
 
         $dynamic->setSort('%pageid%', false);
-        $conf = $dynamic->updateConfig($data);
         $param = $dynamic->getURLParameters();
-        $this->assertEquals([['%pageid%', false]], $conf['sort']);
         $this->assertArrayHasKey(meta\SearchConfigParameters::$PARAM_SORT, $param);
         $this->assertEquals('^%pageid%', $param[meta\SearchConfigParameters::$PARAM_SORT]);
 
         $dynamic->removeSort();
-        $conf = $dynamic->updateConfig($data);
         $param = $dynamic->getURLParameters();
-        $this->assertArrayNotHasKey('sort', $conf);
         $this->assertArrayNotHasKey(meta\SearchConfigParameters::$PARAM_SORT, $param);
     }
 
@@ -231,6 +235,9 @@ class SearchConfigParameterTest extends StructTest
             ],
             'rownumbers' => '1',
             'limit' => '5',
+            'nesting' => 0,
+            'index' => 0,
+            'classes' => [],
         ];
 
         $R = new \Doku_Renderer_xhtml();
@@ -238,9 +245,9 @@ class SearchConfigParameterTest extends StructTest
         $INPUT->set(meta\SearchConfigParameters::$PARAM_OFFSET, 5);
         $searchConfig = new meta\SearchConfig($data);
         $aggregationTable = new meta\AggregationTable('test_pagination', 'xhtml', $R, $searchConfig);
+        $aggregationTable->startScope();
         $aggregationTable->render();
-
-        $rev = time();
+        $aggregationTable->finishScope();
 
         $doc = new Document();
         $doc->html($R->doc);
