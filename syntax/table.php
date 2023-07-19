@@ -108,7 +108,7 @@ class syntax_plugin_struct_table extends DokuWiki_Syntax_Plugin
         }
 
         try {
-            $search = new SearchConfig($config);
+            $search = $this->getSearchConfig($config);
             if ($format === 'struct_csv') {
                 // no pagination in export
                 $search->setLimit(0);
@@ -132,6 +132,18 @@ class syntax_plugin_struct_table extends DokuWiki_Syntax_Plugin
 
         return true;
     }
+
+    /**
+     * Initialize a SearchConfig with the given parsed config
+     *
+     * @param array $config
+     * @return SearchConfig
+     */
+    protected function getSearchConfig($config)
+    {
+        return new SearchConfig($config);
+    }
+
 
     /**
      * Filter based on primary key columns, applicable in child classes

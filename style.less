@@ -498,34 +498,62 @@ form.struct_newschema {
 /**
  * Struct Filter
  */
+.dokuwiki .structaggregationfilter {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1em;
+    box-sizing: border-box;
 
-.dokuwiki form.search-results-form.struct-filter-form {
-    div.advancedOptions {
-        padding: unset;
+    details {
+        position: relative;
+        max-width: 30%;
+        border: 1px solid transparent;
+        padding: 0.25em 0.5em;
+        cursor: pointer;
 
-        button.struct-filter-submit {
-            float: right;
-        }
-
-        fieldset legend {
-            font-weight: bold;
-        }
-
-        div.toggle {
-            div.current {
-                max-width: unset;
-            }
+        &[open] {
+            background-color: @ini_background_alt;
 
             ul {
-                min-width: 15rem;
+                z-index: 10;
+                min-width: 15em;
+                border: 1px solid @ini_border;
+            }
+        }
 
-                li {
-                    display: flex;
-                    align-items: start;
+        /** needed for Sprintdoc template */
+        summary {
+            display: list-item;
+        }
 
-                    label {
-                        margin-left: 0.25rem;
+        ul {
+            left: -1px;
+            right: -1px;
+            position: absolute;
+            padding: 0;
+            background-color: @ini_background;
+            max-height: 33vh;
+            overflow-y: auto;
+
+            li {
+                margin: 0;
+                text-overflow: ellipsis;
+                overflow: hidden;
+                padding: 0.25em 0.5em;
+
+                &.active {
+                    background-color: @ini_background_alt;
+                    a {
+                        font-weight: bold;
                     }
+                }
+
+                &:hover {
+                    background-color: @ini_background_alt;
+                }
+
+                a {
+                    display: block;
                 }
             }
         }

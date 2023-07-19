@@ -351,8 +351,7 @@ class AggregationTable extends Aggregation
         // row number column
         if (!empty($this->data['rownumbers'])) {
             $this->renderer->tablecell_open();
-            $searchConfigConf = $this->searchConfig->getConf();
-            $this->renderer->cdata($rownum + $searchConfigConf['offset'] + 1);
+            $this->renderer->cdata($rownum + $this->searchConfig->getOffset() + 1);
             $this->renderer->tablecell_close();
         }
 
@@ -428,17 +427,20 @@ class AggregationTable extends Aggregation
      */
     protected function renderPagingControls()
     {
-        if (empty($this->data['limit'])) return;
         if ($this->mode != 'xhtml') return;
+
+        $limit = $this->searchConfig->getLimit();
+        if (!$limit) return;
+        $offset = $this->searchConfig->getOffset();
 
         $this->renderer->info['struct_table_meta'] = true;
         $this->renderer->tablerow_open();
         $this->renderer->tableheader_open((count($this->columns) + ($this->data['rownumbers'] ? 1 : 0)));
-        $offset = $this->data['offset'];
+
 
         // prev link
         if ($offset) {
-            $prev = $offset - $this->data['limit'];
+            $prev = $offset - $limit;
             if ($prev < 0) {
                 $prev = 0;
             }
@@ -450,8 +452,8 @@ class AggregationTable extends Aggregation
         }
 
         // next link
-        if ($this->resultCount > $offset + $this->data['limit']) {
-            $next = $offset + $this->data['limit'];
+        if ($this->resultCount > $offset + $limit) {
+            $next = $offset + $limit;
             $dynamic = $this->searchConfig->getDynamicParameters();
             $dynamic->setOffset($next);
             $link = wl($this->id, $dynamic->getURLParameters());

@@ -41,6 +41,9 @@ class Search
     /** @var array the filters */
     protected $filter = array();
 
+    /** @var array the filters */
+    protected $dynamicFilter = array();
+
     /** @var array list of aliases tables can be referenced by */
     protected $aliases = array();
 
@@ -58,6 +61,9 @@ class Search
     protected $result_rids = [];
     /** @var  array the revisions of the result rows */
     protected $result_revs = [];
+
+    /** @var bool Include latest = 1 in select query */
+    protected $selectLatest = true;
 
     /**
      * Search constructor.
@@ -136,6 +142,16 @@ class Search
     }
 
     /**
+     * Clear all sorting options
+     *
+     * @return void
+     */
+    public function clearSort()
+    {
+        $this->sortby = [];
+    }
+
+    /**
      * Returns all set sort columns
      *
      * @return array
@@ -155,6 +171,35 @@ class Search
      */
     public function addFilter($colname, $value, $comp, $op = 'OR')
     {
+        $filter = $this->createFilter($colname, $value, $comp, $op);
+        if ($filter) $this->filter[] = $filter;
+    }
+
+    /**
+     * Adds a dynamic filter
+     *
+     * @param string $colname may contain an alias
+     * @param string|string[] $value
+     * @param string $comp @see self::COMPARATORS
+     * @param string $op either 'OR' or 'AND'
+     */
+    public function addDynamicFilter($colname, $value, $comp, $op = 'OR')
+    {
+        $filter = $this->createFilter($colname, $value, $comp, $op);
+        if ($filter) $this->dynamicFilter[] = $filter;
+    }
+
+    /**
+     * Create a filter definition
+     *
+     * @param string $colname may contain an alias
+     * @param string|string[] $value
+     * @param string $comp @see self::COMPARATORS
+     * @param string $op either 'OR' or 'AND'
+     * @return array|null [Column col, string|string[] value, string comp, string op]
+     */
+    protected function createFilter($colname, $value, $comp, $op = 'OR')
+    {
         /* Convert certain filters into others
          * this reduces the number of supported filters to implement in types */
         if ($comp == '*~') {
@@ -170,7 +215,7 @@ class Search
             throw new StructException('Bad filter type . Only AND or OR allowed');
 
         $col = $this->findColumn($colname);
-        if (!$col) return; // ignore missing columns, filter might have been for different schema
+        if (!$col) return null; // ignore missing columns, filter might have been for different schema
 
         // map filter operators to SQL syntax
         switch ($comp) {
@@ -197,7 +242,7 @@ class Search
         }
 
         // add the filter
-        $this->filter[] = array($col, $value, $comp, $op);
+        return array($col, $value, $comp, $op);
     }
 
     /**
@@ -298,6 +343,16 @@ class Search
     }
 
     /**
+     * Get the current offset for the results
+     *
+     * @return int
+     */
+    public function getOffset()
+    {
+        return $this->range_begin;
+    }
+
+    /**
      * Limit results to this number
      *
      * @param int $limit Set to 0 to disable limit again
@@ -309,6 +364,29 @@ class Search
         } else {
             $this->range_end = 0;
         }
+    }
+
+    /**
+     * Get the current limit for the results
+     *
+     * @return int
+     */
+    public function getLimit()
+    {
+        if ($this->range_end) {
+            return $this->range_end - $this->range_begin;
+        }
+        return 0;
+    }
+
+    /**
+     * Allows disabling default 'latest = 1' clause in select statement
+     *
+     * @param bool $selectLatest
+     */
+    public function setSelectLatest($selectLatest): void
+    {
+        $this->selectLatest = $selectLatest;
     }
 
     /**
@@ -429,128 +507,32 @@ class Search
     /**
      * Transform the set search parameters into a statement
      *
+     * Calls runSQLBuilder()
+     *
      * @return array ($sql, $opts) The SQL and parameters to execute
      */
     public function getSQL()
     {
         if (!$this->columns) throw new StructException('nocolname');
+        return $this->runSQLBuilder()->getSQL();
+    }
 
-        $QB = new QueryBuilder();
-
-        // basic tables
-        $first_table = '';
-        foreach ($this->schemas as $schema) {
-            $datatable = 'data_' . $schema->getTable();
-            if ($first_table) {
-                // follow up tables
-                $QB->addLeftJoin($first_table, $datatable, $datatable, "$first_table.pid = $datatable.pid");
-            } else {
-                // first table
-                $QB->addTable($datatable);
-
-                // add conditional page clauses if pid has a value
-                $subAnd = $QB->filters()->whereSubAnd();
-                $subAnd->whereAnd("$datatable.pid = ''");
-                $subOr = $subAnd->whereSubOr();
-                $subOr->whereAnd("GETACCESSLEVEL($datatable.pid) > 0");
-                $subOr->whereAnd("PAGEEXISTS($datatable.pid) = 1");
-                $subOr->whereAnd('(ASSIGNED = 1 OR ASSIGNED IS NULL)');
-
-                // add conditional schema assignment check
-                $QB->addLeftJoin(
-                    $datatable,
-                    'schema_assignments',
-                    '',
-                    "$datatable.pid != ''
-                    AND $datatable.pid = schema_assignments.pid
-                    AND schema_assignments.tbl = '{$schema->getTable()}'"
-                );
-
-                $QB->addSelectColumn($datatable, 'rid');
-                $QB->addSelectColumn($datatable, 'pid', 'PID');
-                $QB->addSelectColumn($datatable, 'rev');
-                $QB->addSelectColumn('schema_assignments', 'assigned', 'ASSIGNED');
-                $QB->addGroupByColumn($datatable, 'pid');
-                $QB->addGroupByColumn($datatable, 'rid');
-
-                $first_table = $datatable;
-            }
-            // phpcs:ignore
-            $QB->filters()->whereAnd("( (IS_PUBLISHER($datatable.pid) AND $datatable.latest = 1) OR (IS_PUBLISHER($datatable.pid) !=1 AND $datatable.published = 1) )");
-        }
-
-        // columns to select, handling multis
-        $sep = self::CONCAT_SEPARATOR;
-        $n = 0;
-        foreach ($this->columns as $col) {
-            $CN = 'C' . $n++;
-
-            if ($col->isMulti()) {
-                $datatable = "data_{$col->getTable()}";
-                $multitable = "multi_{$col->getTable()}";
-                $MN = $QB->generateTableAlias('M');
-
-                $QB->addLeftJoin(
-                    $datatable,
-                    $multitable,
-                    $MN,
-                    "$datatable.pid = $MN.pid AND $datatable.rid = $MN.rid AND
-                     $datatable.rev = $MN.rev AND
-                     $MN.colref = {$col->getColref()}"
-                );
-
-                $col->getType()->select($QB, $MN, 'value', $CN);
-                $sel = $QB->getSelectStatement($CN);
-                $QB->addSelectStatement("GROUP_CONCAT_DISTINCT($sel, '$sep')", $CN);
-            } else {
-                $col->getType()->select($QB, 'data_' . $col->getTable(), $col->getColName(), $CN);
-                $QB->addGroupByStatement($CN);
-            }
-        }
-
-        // where clauses
-        if (!empty($this->filter)) {
-            $userWHERE = $QB->filters()->where('AND');
-        }
-        foreach ($this->filter as $filter) {
-            /** @var Column $col */
-            list($col, $value, $comp, $op) = $filter;
-
-            $datatable = "data_{$col->getTable()}";
-            $multitable = "multi_{$col->getTable()}";
-
-            /** @var $col Column */
-            if ($col->isMulti()) {
-                $MN = $QB->generateTableAlias('MN');
-
-                $QB->addLeftJoin(
-                    $datatable,
-                    $multitable,
-                    $MN,
-                    "$datatable.pid = $MN.pid AND $datatable.rid = $MN.rid AND
-                     $datatable.rev = $MN.rev AND
-                     $MN.colref = {$col->getColref()}"
-                );
-                $coltbl = $MN;
-                $colnam = 'value';
-            } else {
-                $coltbl = $datatable;
-                $colnam = $col->getColName();
-            }
-
-            $col->getType()->filter($userWHERE, $coltbl, $colnam, $comp, $value, $op); // type based filter
-        }
-
-        // sorting - we always sort by the single val column
-        foreach ($this->sortby as $sort) {
-            list($col, $asc, $nc) = $sort;
-            /** @var $col Column */
-            $colname = $col->getColName(false);
-            if ($nc) $colname .= ' COLLATE NOCASE';
-            $col->getType()->sort($QB, 'data_' . $col->getTable(), $colname, $asc ? 'ASC' : 'DESC');
-        }
-
-        return $QB->getSQL();
+    /**
+     * Initialize and execute the SQLBuilder
+     *
+     * Called from getSQL(). Can be overwritten to extend the query using the query builder
+     *
+     * @return SearchSQLBuilder
+     */
+    protected function runSQLBuilder()
+    {
+        $sqlBuilder = new SearchSQLBuilder();
+        $sqlBuilder->addSchemas($this->schemas);
+        $sqlBuilder->addColumns($this->columns);
+        $sqlBuilder->addFilters($this->filter);
+        $sqlBuilder->addFilters($this->dynamicFilter);
+        $sqlBuilder->addSorts($this->sortby);
+        return $sqlBuilder;
     }
 
     /**
@@ -699,5 +681,20 @@ class Search
         if ($value->isEmpty()) return true;
         if ($value->getColumn()->getTid() == 0) return true;
         return false;
+    }
+
+    /**
+     * @param string $datatable
+     * @return string
+     */
+    protected function getSpecialFlagsClause($datatable)
+    {
+        $latestClause = "IS_PUBLISHER($datatable.pid)";
+        if ($this->selectLatest) {
+            $latestClause .= " AND $datatable.latest = 1";
+        }
+        $publishedClause = "IS_PUBLISHER($datatable.pid) !=1 AND $datatable.published = 1";
+
+        return "( ($latestClause) OR ($publishedClause) )";
     }
 }

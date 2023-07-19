@@ -7,7 +7,7 @@
  * @author  Andreas Gohr, Anna Dabrowska <dokuwiki@cosmocode.de>
  */
 
-use dokuwiki\plugin\struct\meta\Filter;
+use dokuwiki\plugin\struct\meta\AggregationFilter;
 use dokuwiki\plugin\struct\meta\SearchConfig;
 use dokuwiki\plugin\struct\meta\StructException;
 
@@ -32,12 +32,15 @@ class syntax_plugin_struct_filter extends syntax_plugin_struct_table
         if (!$config) return false;
 
         global $conf;
+        global $INFO;
 
         try {
-            $search = new SearchConfig($config);
-            $filter = new Filter(null, $format, $renderer, $search);
+            $search = new SearchConfig($config, false);
+            $filter = new AggregationFilter($INFO['id'], $format, $renderer, $search);
 
+            $filter->startScope();
             $filter->render();
+            $filter->finishScope();
 
             if ($format === 'metadata') {
                 /** @var Doku_Renderer_metadata $renderer */
