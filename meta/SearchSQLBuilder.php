@@ -168,7 +168,19 @@ class SearchSQLBuilder
     }
 
     /**
+     * Access to the underlying QueryBuilder
+     *
+     * @return QueryBuilder
+     */
+    public function getQueryBuilder()
+    {
+        return $this->qb;
+    }
+
+    /**
      * Get the SQL query and parameters
+     *
+     * Shortcut for $this->getQueryBuilder()->getSQL()
      *
      * @return array ($sql, $params)
      */

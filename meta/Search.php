@@ -507,20 +507,32 @@ class Search
     /**
      * Transform the set search parameters into a statement
      *
+     * Calls runSQLBuilder()
+     *
      * @return array ($sql, $opts) The SQL and parameters to execute
      */
     public function getSQL()
     {
         if (!$this->columns) throw new StructException('nocolname');
+        return $this->runSQLBuilder()->getSQL();
+    }
 
+    /**
+     * Initialize and execute the SQLBuilder
+     *
+     * Called from getSQL(). Can be overwritten to extend the query using the query builder
+     *
+     * @return SearchSQLBuilder
+     */
+    protected function runSQLBuilder()
+    {
         $sqlBuilder = new SearchSQLBuilder();
         $sqlBuilder->addSchemas($this->schemas);
         $sqlBuilder->addColumns($this->columns);
         $sqlBuilder->addFilters($this->filter);
         $sqlBuilder->addFilters($this->dynamicFilter);
         $sqlBuilder->addSorts($this->sortby);
-
-        return $sqlBuilder->getSQL();
+        return $sqlBuilder;
     }
 
     /**
