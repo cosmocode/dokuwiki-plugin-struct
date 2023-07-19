@@ -7,21 +7,14 @@
  * @author  Andreas Gohr, Michael Große <dokuwiki@cosmocode.de>
  */
 
-use dokuwiki\Extension\Event;
+use dokuwiki\ErrorHandler;
+use dokuwiki\plugin\sqlite\SQLiteDB;
 use dokuwiki\plugin\struct\meta\StructException;
 
 class helper_plugin_struct_db extends DokuWiki_Plugin
 {
-    /** @var \dokuwiki\plugin\sqlite\SQLiteDB */
+    /** @var SQLiteDB */
     protected $sqlite;
-
-    /**
-     * helper_plugin_struct_db constructor.
-     */
-    public function __construct()
-    {
-        $this->init();
-    }
 
     /**
      * Initialize the database
@@ -30,13 +23,7 @@ class helper_plugin_struct_db extends DokuWiki_Plugin
      */
     protected function init()
     {
-        try {
-            /** @var \dokuwiki\plugin\sqlite\SQLiteDB $sqlite */
-            $this->sqlite = new \dokuwiki\plugin\sqlite\SQLiteDB('struct', DOKU_PLUGIN . 'struct/db/');
-        } catch (Exception $exception) {
-            if (defined('DOKU_UNITTEST')) throw new \Exception('Couldn\'t load sqlite.');
-            return;
-        }
+        $this->sqlite = new SQLiteDB('struct', DOKU_PLUGIN . 'struct/db/');
 
         // register our JSON function with variable parameters
         $this->sqlite->getPdo()->sqliteCreateFunction('STRUCT_JSON', [$this, 'STRUCT_JSON'], -1);
@@ -47,17 +34,19 @@ class helper_plugin_struct_db extends DokuWiki_Plugin
 
     /**
      * @param bool $throw throw an Exception when sqlite not available
-     * @return \dokuwiki\plugin\sqlite\SQLiteDB|null
+     * @return SQLiteDB|null
      */
     public function getDB($throw = true)
     {
-        global $conf;
-        $len = strlen($conf['metadir']);
-        if ($this->sqlite && $conf['metadir'] != substr($this->sqlite->getDbFile(), 0, $len)) {
-            $this->init();
-        }
-        if (!$this->sqlite && $throw) {
-            throw new StructException('no sqlite');
+        if ($this->sqlite === null) {
+            try {
+                $this->init();
+            } catch (\Exception $exception) {
+                if (defined('DOKU_UNITTEST')) throw new \RuntimeException('Could not load SQLite', 0, $exception);
+                ErrorHandler::logException($exception);
+                if ($throw) throw new StructException('no sqlite');
+                return null;
+            }
         }
         return $this->sqlite;
     }
@@ -74,7 +63,7 @@ class helper_plugin_struct_db extends DokuWiki_Plugin
         if (!$file) return;
         unlink($file);
         clearstatcache(true, $file);
-        $this->init();
+        $this->sqlite = null;
     }
 
     /**
