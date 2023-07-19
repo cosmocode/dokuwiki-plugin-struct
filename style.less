@@ -506,20 +506,24 @@ form.struct_newschema {
 
     details {
         position: relative;
-        min-width: 15em;
         max-width: 30%;
         border: 1px solid transparent;
         padding: 0.25em 0.5em;
         cursor: pointer;
 
         &[open] {
-            border: 1px solid @ini_border;
-            border-bottom-color: transparent;
+            background-color: @ini_background_alt;
 
             ul {
+                z-index: 10;
+                min-width: 15em;
                 border: 1px solid @ini_border;
-                border-top-color: transparent;
             }
+        }
+
+        /** needed for Sprintdoc template */
+        summary {
+            display: list-item;
         }
 
         ul {
