@@ -59,11 +59,11 @@ class SearchConfigParameters
      * Returns the full qualified name for a given column
      *
      * @param string|Column $column
-     * @return bool|string
+     * @return false|string
      */
     protected function resolveColumn($column)
     {
-        if (!is_a($column, '\dokuwiki\plugin\struct\meta\Column')) {
+        if (!is_a($column, Column::class)) {
             $column = $this->searchConfig->findColumn($column);
             if (!$column) return false;
         }
@@ -114,11 +114,11 @@ class SearchConfigParameters
      * Adds another filter
      *
      * When there is a filter for that column already, the new filter overwrites it. Setting a
-     * blank value is the same as calling @param string|Column $column
+     * blank value is the same as calling removeFilter()
+     *
+     * @param string|Column $column
      * @param string $comp the comparator
      * @param string $value the value to compare against
-     * @see removeFilter()
-     *
      */
     public function addFilter($column, $comp, $value)
     {
@@ -194,34 +194,22 @@ class SearchConfigParameters
     }
 
     /**
-     * Updates the given config array with the values currently set
-     *
-     * This should only be called once at the initialization
-     *
-     * @param array $config
-     * @return array
+     * Applies the dynamic filter settings to the SearchConfig
      */
-    public function updateConfig($config)
+    public function apply()
     {
         if ($this->offset) {
-            $config['offset'] = $this->offset;
+            $this->searchConfig->setOffset($this->offset);
         }
 
         if ($this->sort) {
-            list($column, $asc) = $this->sort;
-            $config['sort'] = array(
-                array($column, $asc)
-            );
+            $this->searchConfig->clearSort(); // remove any existing sort
+            $this->searchConfig->addSort($this->sort[0], $this->sort[1]);
         }
 
-        if ($this->filters) {
-            if (empty($config['filter'])) $config['filter'] = array();
-            foreach ($this->filters as $column => $filter) {
-                list($comp, $value) = $filter;
-                $config['filter'][] = array($column, $comp, $value, 'AND');
-            }
+        foreach ($this->filters as $colName => $filter) {
+            list($comp, $value) = $filter;
+            $this->searchConfig->addDynamicFilter($colName, $value, $comp, 'AND');
         }
-
-        return $config;
     }
 }

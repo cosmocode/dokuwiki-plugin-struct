@@ -68,42 +68,12 @@ class NestedResultTest extends StructTest
         [['metal', 'plastic'], ['black', 'red'], 'laptop', 'apple', 'air'],
     ];
 
-
-    /**
-     * Create a result set from a given flat array
-     * @param array $rows
-     * @return array
-     */
-    protected function makeResult($rows)
-    {
-        $result = [];
-
-        foreach ($rows as $row) {
-            $resultRow = [];
-            foreach ($row as $cell) {
-                $resultRow[] = new Value(
-                    new Column(
-                        10,
-                        new Text(null, '', is_array($cell)),
-                        0,
-                        true,
-                        'test'
-                    ),
-                    $cell
-                );
-            }
-            $result[] = $resultRow;
-        }
-
-        return $result;
-    }
-
     /**
      * Don't nest at all
      */
     public function testSimpleZeroLevel()
     {
-        $result = $this->makeResult($this->simpleItems);
+        $result = $this->createAggregationResult($this->simpleItems);
         $nestedResult = new NestedResult($result);
         $root = $nestedResult->getRoot(0);
 
@@ -111,13 +81,12 @@ class NestedResultTest extends StructTest
         $this->assertCount(12, $root->getResultRows(), '12 result rows expected');
     }
 
-
     /**
      * Nest by the first level, no multi values
      */
     public function testSimpleOneLevel()
     {
-        $result = $this->makeResult($this->simpleItems);
+        $result = $this->createAggregationResult($this->simpleItems);
         $nestedResult = new NestedResult($result);
         $root = $nestedResult->getRoot(1);
         $tree = $root->getChildren(true);
@@ -142,7 +111,7 @@ class NestedResultTest extends StructTest
      */
     public function testSimpleTwoLevels()
     {
-        $result = $this->makeResult($this->simpleItems);
+        $result = $this->createAggregationResult($this->simpleItems);
         $nestedResult = new NestedResult($result);
         $root = $nestedResult->getRoot(2);
         $tree = $root->getChildren(true);
@@ -170,7 +139,7 @@ class NestedResultTest extends StructTest
      */
     public function testMultiThreeLevels()
     {
-        $result = $this->makeResult($this->multiItems);
+        $result = $this->createAggregationResult($this->multiItems);
         $nestedResult = new NestedResult($result);
         $root = $nestedResult->getRoot(3);
         $tree = $root->getChildren(true); // nest: color, type, brand -> model
@@ -206,7 +175,7 @@ class NestedResultTest extends StructTest
 
     public function testMultiHoles()
     {
-        $result = $this->makeResult($this->multiHoleItems);
+        $result = $this->createAggregationResult($this->multiHoleItems);
         $nestedResult = new NestedResult($result);
         $root = $nestedResult->getRoot(3);
         $tree = $root->getChildren(true); // nest: color, type, brand -> model
@@ -220,7 +189,7 @@ class NestedResultTest extends StructTest
      */
     public function testMultiMultiTwoLevels()
     {
-        $result = $this->makeResult($this->multiMultiItems);
+        $result = $this->createAggregationResult($this->multiMultiItems);
         $nestedResult = new NestedResult($result);
         $root = $nestedResult->getRoot(2);
         $tree = $root->getChildren(true); // nest: material, color, *
@@ -234,7 +203,7 @@ class NestedResultTest extends StructTest
      */
     public function testMultiMultiTwoLevelsIndex()
     {
-        $result = $this->makeResult($this->multiMultiItems);
+        $result = $this->createAggregationResult($this->multiMultiItems);
         $nestedResult = new NestedResult($result);
         $root = $nestedResult->getRoot(2, 1);
         $tree = $root->getChildren(true); // nest: index, material, color, *
@@ -249,7 +218,7 @@ class NestedResultTest extends StructTest
      */
     public function testSimpleIndex()
     {
-        $result = $this->makeResult($this->simpleItems);
+        $result = $this->createAggregationResult($this->simpleItems);
         $nestedResult = new NestedResult($result);
         $root = $nestedResult->getRoot(0, 2);
         $tree = $root->getChildren(true);
@@ -267,7 +236,7 @@ class NestedResultTest extends StructTest
      */
     public function testMultiIndex()
     {
-        $result = $this->makeResult($this->multiItems);
+        $result = $this->createAggregationResult($this->multiItems);
         $nestedResult = new NestedResult($result);
         $root = $nestedResult->getRoot(0, 2);
         $tree = $root->getChildren(true);

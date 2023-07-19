@@ -15,5 +15,4 @@ class SearchConfig extends meta\SearchConfig
     {
         return parent::determineCacheFlag($filters);
     }
-
 }

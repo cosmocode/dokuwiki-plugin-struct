@@ -110,3 +110,6 @@ $lang['Exception schema missing'] = 'Schema %s existiert nicht!';
 $lang['no_lookup_for_page'] = 'Sie können den Lookup Editor nicht bei einem Seiten-Schema benutzen!';
 $lang['lookup new entry'] = 'Neuen Eintrag anlegen';
 $lang['bureaucracy_action_struct_lookup_thanks'] = 'Der Eintrag wurde gespeichert. <a href="%s">Neuen Eintrag hinzufügen</a>.';
+
+$lang['filter_title'] = 'Filter';
+$lang['filter_button'] = 'Filter anwenden';
