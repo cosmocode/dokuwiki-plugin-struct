@@ -17,6 +17,22 @@ class helper_plugin_struct_db extends DokuWiki_Plugin
     protected $sqlite;
 
     /**
+     * Initialize the database
+     *
+     * @throws Exception
+     */
+    protected function init()
+    {
+        $this->sqlite = new SQLiteDB('struct', DOKU_PLUGIN . 'struct/db/');
+
+        // register our JSON function with variable parameters
+        $this->sqlite->getPdo()->sqliteCreateFunction('STRUCT_JSON', [$this, 'STRUCT_JSON'], -1);
+
+        // this function is meant to be overwritten by plugins
+        $this->sqlite->getPdo()->sqliteCreateFunction('IS_PUBLISHER', [$this, 'IS_PUBLISHER'], -1);
+    }
+
+    /**
      * @param bool $throw throw an Exception when sqlite not available
      * @return SQLiteDB|null
      */
@@ -24,19 +40,13 @@ class helper_plugin_struct_db extends DokuWiki_Plugin
     {
         if ($this->sqlite === null) {
             try {
-                $this->sqlite = new SQLiteDB('struct', DOKU_PLUGIN . 'struct/db/');
+                $this->init();
             } catch (\Exception $exception) {
                 if (defined('DOKU_UNITTEST')) throw new \RuntimeException('Could not load SQLite', 0, $exception);
                 ErrorHandler::logException($exception);
                 if ($throw) throw new StructException('no sqlite');
                 return null;
             }
-
-            // register our JSON function with variable parameters
-            $this->sqlite->getPdo()->sqliteCreateFunction('STRUCT_JSON', [$this, 'STRUCT_JSON'], -1);
-
-            // this function is meant to be overwritten by plugins
-            $this->sqlite->getPdo()->sqliteCreateFunction('IS_PUBLISHER', [$this, 'IS_PUBLISHER'], -1);
         }
         return $this->sqlite;
     }
