@@ -527,6 +527,7 @@ class Search
     protected function runSQLBuilder()
     {
         $sqlBuilder = new SearchSQLBuilder();
+        $sqlBuilder->setSelectLatest($this->selectLatest);
         $sqlBuilder->addSchemas($this->schemas);
         $sqlBuilder->addColumns($this->columns);
         $sqlBuilder->addFilters($this->filter);
@@ -681,20 +682,5 @@ class Search
         if ($value->isEmpty()) return true;
         if ($value->getColumn()->getTid() == 0) return true;
         return false;
-    }
-
-    /**
-     * @param string $datatable
-     * @return string
-     */
-    protected function getSpecialFlagsClause($datatable)
-    {
-        $latestClause = "IS_PUBLISHER($datatable.pid)";
-        if ($this->selectLatest) {
-            $latestClause .= " AND $datatable.latest = 1";
-        }
-        $publishedClause = "IS_PUBLISHER($datatable.pid) !=1 AND $datatable.published = 1";
-
-        return "( ($latestClause) OR ($publishedClause) )";
     }
 }
