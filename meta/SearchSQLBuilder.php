@@ -12,6 +12,9 @@ class SearchSQLBuilder
     /** @var QueryBuilder */
     protected $qb;
 
+    /** @var bool Include latest = 1 in select query */
+    protected $selectLatest = true;
+
     /**
      * SearchSQLBuilder constructor.
      */
@@ -65,8 +68,7 @@ class SearchSQLBuilder
 
                 $first_table = $datatable;
             }
-            // phpcs:ignore
-            $this->qb->filters()->whereAnd("( (IS_PUBLISHER($datatable.pid) AND $datatable.latest = 1) OR (IS_PUBLISHER($datatable.pid) !=1 AND $datatable.published = 1) )");
+            $this->qb->filters()->whereAnd($this->addPublishClauses($datatable));
         }
     }
 
@@ -168,6 +170,21 @@ class SearchSQLBuilder
     }
 
     /**
+     * @param string $datatable
+     * @return string
+     */
+    public function addPublishClauses($datatable)
+    {
+        $latestClause = "IS_PUBLISHER($datatable.pid)";
+        if ($this->selectLatest) {
+            $latestClause .= " AND $datatable.latest = 1";
+        }
+        $publishedClause = "IS_PUBLISHER($datatable.pid) !=1 AND $datatable.published = 1";
+
+        return "( ($latestClause) OR ($publishedClause) )";
+    }
+
+    /**
      * Access to the underlying QueryBuilder
      *
      * @return QueryBuilder
@@ -187,5 +204,15 @@ class SearchSQLBuilder
     public function getSQL()
     {
         return $this->qb->getSQL();
+    }
+
+    /**
+     * Allows disabling default 'latest = 1' clause in select statement
+     *
+     * @param bool $selectLatest
+     */
+    public function setSelectLatest(bool $selectLatest)
+    {
+        $this->selectLatest = $selectLatest;
     }
 }
