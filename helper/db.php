@@ -33,18 +33,23 @@ class helper_plugin_struct_db extends DokuWiki_Plugin
     }
 
     /**
-     * @param bool $throw throw an Exception when sqlite not available
+     * @param bool $throw throw an Exception when sqlite not available or fails to load
      * @return SQLiteDB|null
+     * @throws Exception
      */
     public function getDB($throw = true)
     {
         if ($this->sqlite === null) {
+            if (!class_exists(SQLiteDB::class)) {
+                if ($throw || defined('DOKU_UNITTEST')) throw new StructException('no sqlite');
+                return null;
+            }
+
             try {
                 $this->init();
             } catch (\Exception $exception) {
-                if (defined('DOKU_UNITTEST')) throw new \RuntimeException('Could not load SQLite', 0, $exception);
                 ErrorHandler::logException($exception);
-                if ($throw) throw new StructException('no sqlite');
+                if ($throw) throw $exception;
                 return null;
             }
         }
