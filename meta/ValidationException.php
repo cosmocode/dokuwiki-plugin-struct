@@ -20,6 +20,4 @@ class ValidationException extends StructException
     {
         return '';
     }
-
-
 }
