@@ -30,7 +30,20 @@ class StructException extends \RuntimeException
         array_shift($args);
 
         $trans = vsprintf($trans, $args);
+        $trans .= $this->getVersionPostfix();
 
         parent::__construct($trans, -1, null);
+    }
+
+    /**
+     * Get the plugin version to add as postfix to the exception message
+     * @return string
+     */
+    protected function getVersionPostfix()
+    {
+        /** @var \helper_plugin_struct $plugin */
+        $plugin = plugin_load('helper', 'struct');
+        $info = $plugin->getInfo();
+        return ' [struct ' . $info['date'] . ']';
     }
 }
