@@ -89,6 +89,7 @@ $lang['Exception nolookupmix'] = 'You can not aggregate more than one Lookup or 
 $lang['Exception No data saved'] = 'No data saved';
 $lang['Exception no sqlite'] = 'The struct plugin requires the sqlite plugin. Please install and enable it.';
 $lang['Exception column not in table'] = 'There is no column %s in schema %s.';
+$lang['Exception datefilter'] = 'The filter: \'<code>$Date(%s)$</code>\' contains an unsupported value.';
 
 $lang['Warning: no filters for cloud'] = 'Filters are not supported for struct clouds.';
 
