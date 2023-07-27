@@ -110,6 +110,24 @@
     }
 }
 
+/*responsive - small screen*/
+@media (max-width: 480px) {
+    .dokuwiki .struct_entry_form div.field {
+        flex-wrap: wrap;
+
+        label {
+            > span {
+                text-align: left;
+                width: 100%;
+            }
+        }
+
+        span.input {
+            width: 100%;
+        }
+    }
+}
+
 /**
  * Bureaucracy form adjustments
  */
