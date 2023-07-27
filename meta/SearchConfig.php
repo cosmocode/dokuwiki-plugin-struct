@@ -134,20 +134,21 @@ class SearchConfig extends Search
         );
 
         // apply struct column placeholder (we support only one!)
+        // or apply date formula, given as strtotime
         if (preg_match('/^(.*?)(?:\$STRUCT\.(.*?)\$)(.*?)$/', $filter, $match)) {
             $filter = $this->applyFilterVarsStruct($match);
         } elseif (preg_match('/^(.*?)(?:\$USER\.(.*?)\$)(.*?)$/', $filter, $match)) {
             $filter = $this->applyFilterVarsUser($match);
-        }
-
-        // apply date formula, given as strtotime
-        if(preg_match('/^(.*?)(?:\$DATE\((.*?)\)\$?)(.*?)$/', $filter, $match)) {
+        } elseif (preg_match('/^(.*?)(?:\$DATE\((.*?)\)\$?)(.*?)$/', $filter, $match)) {
             $toparse = $match[2];
-            if ($toparse == '') $toparse = 'now';
-            if (($timestamp = strtotime($toparse)) === false) {
-                throw new StructException('datefilter',hsc($toparse));
+            if ($toparse == '') {
+                $toparse = 'now';
+            }
+            $timestamp = strtotime($toparse);
+            if ($timestamp === false) {
+                throw new StructException('datefilter', hsc($toparse));
             } else {
-                $filter = str_replace($filter,date('Y-m-d',$timestamp),$filter);
+                $filter = str_replace($filter, date('Y-m-d', $timestamp), $filter);
             }
         }
 
