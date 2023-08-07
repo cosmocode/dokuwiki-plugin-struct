@@ -108,9 +108,14 @@ class syntax_plugin_struct_table extends DokuWiki_Syntax_Plugin
         }
 
         try {
-            $search = $this->getSearchConfig($config);
-            if ($format === 'struct_csv') {
-                // no pagination in export
+            if ($format === "metadata") {
+                $search = $this->getSearchConfig($config, false);
+            } else {
+                $search = $this->getSearchConfig($config);
+            }
+            
+            if ($format === 'struct_csv' || $format === "metadata") {
+                // no pagination in export or metadata render
                 $search->setLimit(0);
                 $search->setOffset(0);
             }
@@ -139,9 +144,9 @@ class syntax_plugin_struct_table extends DokuWiki_Syntax_Plugin
      * @param array $config
      * @return SearchConfig
      */
-    protected function getSearchConfig($config)
+    protected function getSearchConfig($config, $dymamic = true)
     {
-        return new SearchConfig($config);
+        return new SearchConfig($config, $dymamic);
     }
 
 
