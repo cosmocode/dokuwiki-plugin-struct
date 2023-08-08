@@ -24,11 +24,15 @@ class AccessTableGlobal extends AccessTable
         if (!$this->rid) return; // no data
 
         /** @noinspection SqlResolve */
-        $sql = 'DELETE FROM ? WHERE rid = ?';
-        $this->sqlite->query($sql, 'data_' . $this->schema->getTable(), $this->rid);
-        $this->sqlite->query($sql, 'multi_' . $this->schema->getTable(), $this->rid);
+        $sql = 'DELETE FROM data_' . $this->schema->getTable() . ' WHERE rid = ?';
+        $this->sqlite->query($sql, $this->rid);
+        $sql = 'DELETE FROM multi_' . $this->schema->getTable() . ' WHERE rid = ?';
+        $this->sqlite->query($sql, $this->rid);
     }
 
+    /**
+     * @inheritDoc
+     */
     protected function getLastRevisionTimestamp()
     {
         return 0;
