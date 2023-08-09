@@ -33,7 +33,7 @@ class ValueValidator
      */
     public function validateValue(Column $col, &$rawvalue)
     {
-        if($rawvalue === null) $rawvalue = ''; // no data was passed
+        if ($rawvalue === null) $rawvalue = ''; // no data was passed
 
         // fix multi value types
         $type = $col->getType();
