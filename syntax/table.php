@@ -115,8 +115,12 @@ class syntax_plugin_struct_table extends DokuWiki_Syntax_Plugin
                 $search->setOffset(0);
             }
 
-            /** @var Aggregation $table */
             $table = new $this->tableclass($mainId, $format, $renderer, $search);
+            if (!is_a($table, Aggregation::class)) {
+                // this may happen with plugins that extend struct
+                throw new StructException('Aggregation class does not inherit Aggregation: ' . $this->tableclass);
+            }
+
             $table->startScope();
             $table->render(true);
             $table->finishScope();
