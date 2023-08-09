@@ -34,7 +34,7 @@ class AccessTablePage extends AccessTable
             if ($col->isMulti()) {
                 $data[$col->getLabel()] = array();
             } else {
-                $data[$col->getLabel()] = null;
+                $data[$col->getLabel()] = '';
             }
         }
 
