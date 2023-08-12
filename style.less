@@ -334,6 +334,13 @@ form.struct_newschema {
 
 .dokuwiki .structaggregation {
 
+    &.structaggregationtable,
+    &.structaggregationeditortable {
+        table.inline td > *:last-child {
+            margin-bottom: 0;
+        }
+    }
+
     &.structaggregationlist > ul li div {
         display: inline;
 
@@ -424,6 +431,7 @@ form.struct_newschema {
         background-position-x: 2px;
     }
 }
+
 
 .dokuwiki .structaggregationcloud {
     ul {
