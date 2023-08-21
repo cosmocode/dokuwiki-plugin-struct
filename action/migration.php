@@ -56,8 +56,9 @@ class action_plugin_struct_migration extends DokuWiki_Action_Plugin
         $tables = $sqlite->queryAll($sql);
 
         foreach ($tables as $row) {
-            $sql = 'ALTER TABLE ? ADD COLUMN latest INT DEFAULT 1';
-            $sqlite->query($sql, $row['name']);
+            $table = $row['name']; // no escaping needed, it's our own tables
+            $sql = "ALTER TABLE $table ADD COLUMN latest INT DEFAULT 1";
+            $sqlite->query($sql);
         }
 
         return true;
@@ -173,7 +174,7 @@ class action_plugin_struct_migration extends DokuWiki_Action_Plugin
 
                     // simple lookup fields
                     $s = "UPDATE data_$name
-                             SET col$colno = '[" . '""' . ",'||col$colno||']' 
+                             SET col$colno = '[" . '""' . ",'||col$colno||']'
                            WHERE col$colno != ''
                              AND CAST(col$colno AS DECIMAL) = col$colno";
                     $ok = $ok && $sqlite->query($s);
@@ -259,7 +260,7 @@ class action_plugin_struct_migration extends DokuWiki_Action_Plugin
                         list($pid, $rid, $rev, $colref, $rowno, $fixes) = $this->getFixedValues($row);
                         // now fix the values
                         if (!empty($fixes)) {
-                            $sql = "UPDATE data_$name 
+                            $sql = "UPDATE data_$name
                                        SET " . implode(', ', $fixes) . "
                                      WHERE pid = ?
                                        AND rid = ?
@@ -279,7 +280,7 @@ class action_plugin_struct_migration extends DokuWiki_Action_Plugin
                         list($pid, $rid, $rev, $colref, $rowno, $fixes) = $this->getFixedValues($row);
                         // now fix the values
                         if (!empty($fixes)) {
-                            $sql = "UPDATE multi_$name 
+                            $sql = "UPDATE multi_$name
                                        SET " . implode(', ', $fixes) . "
                                      WHERE pid = ?
                                        AND rid = ?
@@ -312,6 +313,7 @@ class action_plugin_struct_migration extends DokuWiki_Action_Plugin
 
         return $ok;
     }
+
     /**
      * Executes Migration 19
      *
@@ -329,8 +331,9 @@ class action_plugin_struct_migration extends DokuWiki_Action_Plugin
         $tables = $sqlite->queryAll($sql);
 
         foreach ($tables as $row) {
-            $sql = 'ALTER TABLE ? ADD COLUMN published INT DEFAULT NULL';
-            $ok = $ok && $sqlite->query($sql, $row['name']);
+            $table = $row['name']; // no escaping needed, it's our own tables
+            $sql = "ALTER TABLE $table ADD COLUMN published INT DEFAULT NULL";
+            $ok = $ok && $sqlite->query($sql);
         }
         return $ok;
     }
