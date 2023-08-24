@@ -1,0 +1,10 @@
+name: DokuWiki Default Tasks
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: '*/10 * * * *'
+
+jobs:
+  all:
+    uses: splitbrain/dokuwiki-gh-action/.github/workflows/all.yml@devel
