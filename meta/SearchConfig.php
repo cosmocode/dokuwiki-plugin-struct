@@ -113,8 +113,9 @@ class SearchConfig extends Search
     {
         global $INPUT;
         global $INFO;
-        if (!isset($INFO['id'])) {
-            $INFO['id'] = null;
+
+        if (is_null($INFO)) {
+            $INFO = pageinfo();
         }
 
         // apply inexpensive filters first
