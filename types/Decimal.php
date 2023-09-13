@@ -20,8 +20,7 @@ class Decimal extends AbstractMultiBaseType
         'max' => '',
         'roundto' => '-1',
         'decpoint' => '.',
-        'thousands' => "\xE2\x80\xAF",
-        // narrow no-break space
+        'thousands' => "\xE2\x80\xAF", // narrow no-break space
         'trimzeros' => true,
         'prefix' => '',
         'postfix' => '',
@@ -102,7 +101,7 @@ class Decimal extends AbstractMultiBaseType
         $rawvalue = parent::validate($rawvalue);
         $rawvalue = str_replace(',', '.', $rawvalue); // we accept both
 
-        if ((string)$rawvalue !== (string)(float) $rawvalue) {
+        if ((string)$rawvalue != (string)(float) $rawvalue) {
             throw new ValidationException('Decimal needed');
         }
 

@@ -6,7 +6,13 @@ use dokuwiki\plugin\struct\meta\ValidationException;
 
 class Media extends AbstractBaseType
 {
-    protected $config = ['mime' => 'image/', 'width' => 90, 'height' => 90, 'agg_width' => '', 'agg_height' => ''];
+    protected $config = [
+        'mime' => 'image/',
+        'width' => 90,
+        'height' => 90,
+        'agg_width' => '',
+        'agg_height' => ''
+    ];
 
     /**
      * Checks against the allowed mime types
@@ -98,7 +104,12 @@ class Media extends AbstractBaseType
 
         $id = $htmlID ?: 'struct__' . md5($name . $count);
 
-        $params = ['name' => $name, 'value' => $rawvalue, 'class' => 'struct_media', 'id' => $id];
+        $params = [
+            'name' => $name,
+            'value' => $rawvalue,
+            'class' => 'struct_media',
+            'id' => $id
+        ];
         $attributes = buildAttributes($params, true);
         $html = "<input $attributes />";
         $html .= "<button type=\"button\" class=\"struct_media\">";
@@ -118,7 +129,7 @@ class Media extends AbstractBaseType
             $image = ml($media, ['h' => $weight, 'w' => $weight]);
             $media_escaped = hsc($media);
             $R->doc .= "<div style=\"height:{$weight}px; width:{$weight}px\">";
-            $R->doc .= "<a href='$url' class='struct_image' style='background-image:url(\"$image\")' 
+            $R->doc .= "<a href='$url' class='struct_image' style='background-image:url(\"$image\")'
                         title='$media_escaped'>";
             $R->doc .= "<span class='a11y'>$media_escaped</span>";
             $R->doc .= "</a>";

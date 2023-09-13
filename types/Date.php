@@ -6,7 +6,12 @@ use dokuwiki\plugin\struct\meta\ValidationException;
 
 class Date extends AbstractBaseType
 {
-    protected $config = ['format' => 'Y/m/d', 'prefilltoday' => false, 'pastonly' => false, 'futureonly' => false];
+    protected $config = [
+        'format' => 'Y/m/d',
+        'prefilltoday' => false,
+        'pastonly' => false,
+        'futureonly' => false
+    ];
 
     /**
      * Output the stored data
@@ -48,8 +53,7 @@ class Date extends AbstractBaseType
             'name' => $name,
             'value' => $rawvalue,
             'class' => 'struct_date',
-            'type' => 'date',
-            // HTML5 date picker
+            'type' => 'date', // HTML5 date picker
             'id' => $htmlID,
         ];
         $attributes = buildAttributes($params, true);

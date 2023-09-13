@@ -10,7 +10,13 @@ use dokuwiki\Utf8\PhpString;
 
 class Tag extends AbstractMultiBaseType
 {
-    protected $config = ['page' => '', 'autocomplete' => ['mininput' => 2, 'maxresult' => 5]];
+    protected $config = [
+        'page' => '',
+        'autocomplete' => [
+            'mininput' => 2,
+            'maxresult' => 5
+        ]
+    ];
 
     /**
      * @param int|string $value
@@ -59,7 +65,10 @@ class Tag extends AbstractMultiBaseType
 
         $result = [];
         foreach ($rows as $row) {
-            $result[] = ['label' => $row['value'], 'value' => $row['value']];
+            $result[] = [
+                'label' => $row['value'],
+                'value' => $row['value']
+            ];
         }
 
         return $result;

@@ -16,7 +16,15 @@ use dokuwiki\Utf8\PhpString;
  */
 class Page extends AbstractMultiBaseType
 {
-    protected $config = ['usetitles' => false, 'autocomplete' => ['mininput' => 2, 'maxresult' => 5, 'namespace' => '', 'postfix' => '']];
+    protected $config = [
+        'usetitles' => false,
+        'autocomplete' => [
+            'mininput' => 2,
+            'maxresult' => 5,
+            'namespace' => '',
+            'postfix' => ''
+        ]
+    ];
 
     /**
      * Output the stored data
@@ -105,7 +113,10 @@ class Page extends AbstractMultiBaseType
                 continue; // page does not end in postfix, don't suggest it
             }
 
-            $result[] = ['label' => $name, 'value' => $id];
+            $result[] = [
+                'label' => $name,
+                'value' => $id
+            ];
 
             $counter++;
             if ($counter > $max) break;

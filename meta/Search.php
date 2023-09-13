@@ -594,7 +594,7 @@ class Search
         if (!$this->schemas) throw new StructException('noschemas');
 
         // resolve the alias or table name
-        @[$table, $colname] = array_pad(explode('.', $colname, 2), 2, '');
+        [$table, $colname] = sexplode('.', $colname, 2, '');
         if (!$colname) {
             $colname = $table;
             $table = null;

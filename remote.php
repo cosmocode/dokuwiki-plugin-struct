@@ -111,7 +111,12 @@ class remote_plugin_struct extends RemotePlugin
             foreach ($schemas as $name => $schema) {
                 $result[$name] = [];
                 foreach ($schema->getColumns(false) as $column) {
-                    $result[$name][] = ['name' => $column->getLabel(), 'type' => array_pop(explode('\\', get_class($column->getType()))), 'ismulti' => $column->isMulti()];
+                    $class = explode('\\', get_class($column->getType()));
+                    $class = array_pop($class);
+                    $result[$name][] = [
+                        'name' => $column->getLabel(),
+                        'type' => $class,
+                        'ismulti' => $column->isMulti()];
                 }
             }
             return $result;

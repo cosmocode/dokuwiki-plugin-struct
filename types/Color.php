@@ -6,7 +6,9 @@ use dokuwiki\plugin\struct\meta\ValidationException;
 
 class Color extends AbstractBaseType
 {
-    protected $config = ['default' => '#ffffff'];
+    protected $config = [
+        'default' => '#ffffff'
+    ];
 
     /**
      * @inheritDoc
@@ -66,7 +68,13 @@ class Color extends AbstractBaseType
             $rawvalue = $this->config['default'];
         }
 
-        $params = ['name' => $name, 'value' => $rawvalue, 'class' => 'struct_color', 'type' => 'color', 'id' => $htmlID];
+        $params = [
+            'name' => $name,
+            'value' => $rawvalue,
+            'class' => 'struct_color',
+            'type' => 'color',
+            'id' => $htmlID
+        ];
         $attributes = buildAttributes($params, true);
         return "<input $attributes />";
     }

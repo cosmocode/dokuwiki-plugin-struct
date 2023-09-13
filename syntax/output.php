@@ -124,7 +124,13 @@ class syntax_plugin_struct_output extends SyntaxPlugin
                 continue; // no such schema at this revision
             }
 
-            $rendercontext = ['renderer' => $renderer, 'format' => $format, 'meta' => p_get_metadata($ID), 'schemadata' => $schemadata, 'hasdata' => &$hasdata];
+            $rendercontext = [
+                'renderer' => $renderer,
+                'format' => $format,
+                'meta' => p_get_metadata($ID),
+                'schemadata' => $schemadata,
+                'hasdata' => &$hasdata
+            ];
 
             $event = new Event(
                 'PLUGIN_STRUCT_RENDER_SCHEMA_DATA',

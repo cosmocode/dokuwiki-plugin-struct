@@ -198,7 +198,13 @@ class SchemaBuilder
             }
 
             // add this type to the schema columns
-            $schemaEntry = ['sid' => $this->newschemaid, 'colref' => $column->getColref(), 'enabled' => $enabled, 'tid' => $newTid, 'sort' => $sort];
+            $schemaEntry = [
+                'sid' => $this->newschemaid,
+                'colref' => $column->getColref(),
+                'enabled' => $enabled,
+                'tid' => $newTid,
+                'sort' => $sort
+            ];
             $ok = $this->sqlite->saveRecord('schema_cols', $schemaEntry);
             if (!$ok) return false;
         }
@@ -277,7 +283,13 @@ class SchemaBuilder
 
 
             // add this type to the schema columns
-            $schemaEntry = ['sid' => $this->newschemaid, 'colref' => $colref, 'enabled' => true, 'tid' => $newTid, 'sort' => $sort];
+            $schemaEntry = [
+                'sid' => $this->newschemaid,
+                'colref' => $colref,
+                'enabled' => true,
+                'tid' => $newTid,
+                'sort' => $sort
+            ];
             $ok = $this->sqlite->saveRecord('schema_cols', $schemaEntry);
             if (!$ok) return false;
             $colref++;

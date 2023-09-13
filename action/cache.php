@@ -1,8 +1,8 @@
 <?php
 
 use dokuwiki\Extension\ActionPlugin;
-use dokuwiki\Extension\EventHandler;
 use dokuwiki\Extension\Event;
+use dokuwiki\Extension\EventHandler;
 use dokuwiki\plugin\sqlite\SQLiteDB;
 use dokuwiki\plugin\struct\meta\Assignments;
 use dokuwiki\plugin\struct\meta\SearchConfig;
@@ -134,7 +134,11 @@ class action_plugin_struct_cache extends ActionPlugin
 
         // disable cache use when one of these parameters is present
         foreach (
-            [SearchConfigParameters::$PARAM_FILTER, SearchConfigParameters::$PARAM_OFFSET, SearchConfigParameters::$PARAM_SORT] as $key
+            [
+                SearchConfigParameters::$PARAM_FILTER,
+                SearchConfigParameters::$PARAM_OFFSET,
+                SearchConfigParameters::$PARAM_SORT
+            ] as $key
         ) {
             if ($INPUT->has($key)) {
                 $event->result = false;

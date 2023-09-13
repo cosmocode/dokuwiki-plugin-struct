@@ -71,7 +71,12 @@ abstract class AbstractBaseType
     public function __construct($config = null, $label = '', $ismulti = false, $tid = 0)
     {
         // general config options
-        $baseconfig = ['visibility' => ['inpage' => true, 'ineditor' => true]];
+        $baseconfig = [
+            'visibility' => [
+                'inpage' => true,
+                'ineditor' => true
+            ]
+        ];
 
         // use previously saved configuration, ignoring all keys that are not supposed to be here
         if (!is_null($config)) {
@@ -113,7 +118,12 @@ abstract class AbstractBaseType
      */
     public function getAsEntry()
     {
-        return ['config' => json_encode($this->config), 'label' => $this->label, 'ismulti' => $this->ismulti, 'class' => $this->getClass()];
+        return [
+            'config' => json_encode($this->config),
+            'label' => $this->label,
+            'ismulti' => $this->ismulti,
+            'class' => $this->getClass()
+        ];
     }
 
     /**
@@ -286,7 +296,12 @@ abstract class AbstractBaseType
             $class .= ' struct_autocomplete';
         }
 
-        $params = ['name' => $name, 'value' => $rawvalue, 'class' => $class, 'id' => $htmlID];
+        $params = [
+            'name' => $name,
+            'value' => $rawvalue,
+            'class' => $class,
+            'id' => $htmlID
+        ];
         $attributes = buildAttributes($params, true);
         return "<input $attributes>";
     }

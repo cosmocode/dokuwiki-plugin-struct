@@ -39,7 +39,14 @@ class AggregationTable extends Aggregation
 
         $this->renderActiveFilters();
 
-        $rendercontext = ['table' => $this, 'renderer' => $this->renderer, 'format' => $this->mode, 'search' => $this->searchConfig, 'columns' => $this->columns, 'data' => $this->result];
+        $rendercontext = [
+            'table' => $this,
+            'renderer' => $this->renderer,
+            'format' => $this->mode,
+            'search' => $this->searchConfig,
+            'columns' => $this->columns,
+            'data' => $this->result
+        ];
 
         $event = new Event(
             'PLUGIN_STRUCT_RENDER_AGGREGATION_TABLE',
@@ -211,7 +218,7 @@ class AggregationTable extends Aggregation
             $dynamic = $this->searchConfig->getDynamicParameters();
             $dynamic->setSort($column, true);
             if (isset($sorts[$column->getFullQualifiedLabel()])) {
-                [, $currentSort] = $sorts[$column->getFullQualifiedLabel()];
+                [/*colname*/, $currentSort] = $sorts[$column->getFullQualifiedLabel()];
                 if ($currentSort) {
                     $sortclass = 'sort-down';
                     $dynamic->setSort($column, false);
@@ -307,7 +314,15 @@ class AggregationTable extends Aggregation
     protected function renderResult()
     {
         foreach ($this->result as $rownum => $row) {
-            $data = ['id' => $this->id, 'mode' => $this->mode, 'renderer' => $this->renderer, 'searchConfig' => $this->searchConfig, 'data' => $this->data, 'rownum' => &$rownum, 'row' => &$row];
+            $data = [
+                'id' => $this->id,
+                'mode' => $this->mode,
+                'renderer' => $this->renderer,
+                'searchConfig' => $this->searchConfig,
+                'data' => $this->data,
+                'rownum' => &$rownum,
+                'row' => &$row
+            ];
             $evt = new Event('PLUGIN_STRUCT_AGGREGATIONTABLE_RENDERRESULTROW', $data);
             if ($evt->advise_before()) {
                 $this->renderResultRow($rownum, $row);

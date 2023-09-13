@@ -10,7 +10,6 @@
 // must be run within Dokuwiki
 use dokuwiki\Extension\AdminPlugin;
 use dokuwiki\plugin\struct\meta\Assignments;
-use dokuwiki\plugin\struct\meta\Schema;
 use dokuwiki\plugin\struct\meta\StructException;
 
 class admin_plugin_struct_assignments extends AdminPlugin
@@ -120,7 +119,14 @@ class admin_plugin_struct_assignments extends AdminPlugin
 
             $link = wl(
                 $ID,
-                ['do' => 'admin', 'page' => 'struct_assignments', 'action' => 'delete', 'sectok' => getSecurityToken(), 'assignment[tbl]' => $schema, 'assignment[assign]' => $assignee]
+                [
+                    'do' => 'admin',
+                    'page' => 'struct_assignments',
+                    'action' => 'delete',
+                    'sectok' => getSecurityToken(),
+                    'assignment[tbl]' => $schema,
+                    'assignment[assign]' => $assignee
+                ]
             );
 
             echo '<tr>';

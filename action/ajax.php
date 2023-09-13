@@ -42,7 +42,9 @@ class action_plugin_struct_ajax extends ActionPlugin
         try {
             $result = $this->executeTypeAjax();
         } catch (StructException $e) {
-            $result = ['error' => $e->getMessage() . ' ' . basename($e->getFile()) . ':' . $e->getLine()];
+            $result = [
+                'error' => $e->getMessage() . ' ' . basename($e->getFile()) . ':' . $e->getLine()
+            ];
             if ($conf['allowdebug']) {
                 $result['stacktrace'] = $e->getTraceAsString();
             }

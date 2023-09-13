@@ -11,7 +11,14 @@ use dokuwiki\Utf8\PhpString;
 
 class User extends AbstractMultiBaseType
 {
-    protected $config = ['existingonly' => true, 'autocomplete' => ['fullname' => true, 'mininput' => 2, 'maxresult' => 5]];
+    protected $config = [
+        'existingonly' => true,
+        'autocomplete' => [
+            'fullname' => true,
+            'mininput' => 2,
+            'maxresult' => 5
+        ]
+    ];
 
     /**
      * @param string $rawvalue the user to validate
@@ -82,7 +89,10 @@ class User extends AbstractMultiBaseType
         // reformat result for jQuery UI Autocomplete
         $users = [];
         foreach ($logins as $login => $info) {
-            $users[] = ['label' => $info['name'] . ' [' . $login . ']', 'value' => $login];
+            $users[] = [
+                'label' => $info['name'] . ' [' . $login . ']',
+                'value' => $login
+            ];
         }
 
         return $users;

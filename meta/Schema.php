@@ -311,7 +311,7 @@ class Schema
      */
     public function isInternal()
     {
-        return (bool) $this->config['internal'];
+        return (bool)$this->config['internal'];
     }
 
     /**
@@ -345,7 +345,7 @@ class Schema
     public function findColumn($name)
     {
         foreach ($this->columns as $col) {
-            if ($col->isEnabled() &&  PhpString::strtolower($col->getLabel()) === PhpString::strtolower($name)) {
+            if ($col->isEnabled() && PhpString::strtolower($col->getLabel()) === PhpString::strtolower($name)) {
                 return $col;
             }
         }
@@ -373,10 +373,25 @@ class Schema
      */
     public function toJSON()
     {
-        $data = ['structversion' => $this->structversion, 'schema' => $this->getTable(), 'id' => $this->getId(), 'user' => $this->getUser(), 'config' => $this->getConfig(), 'columns' => []];
+        $data = [
+            'structversion' => $this->structversion,
+            'schema' => $this->getTable(),
+            'id' => $this->getId(),
+            'user' => $this->getUser(),
+            'config' => $this->getConfig(),
+            'columns' => []
+        ];
 
         foreach ($this->columns as $column) {
-            $data['columns'][] = ['colref' => $column->getColref(), 'ismulti' => $column->isMulti(), 'isenabled' => $column->isEnabled(), 'sort' => $column->getSort(), 'label' => $column->getLabel(), 'class' => $column->getType()->getClass(), 'config' => $column->getType()->getConfig()];
+            $data['columns'][] = [
+                'colref' => $column->getColref(),
+                'ismulti' => $column->isMulti(),
+                'isenabled' => $column->isEnabled(),
+                'sort' => $column->getSort(),
+                'label' => $column->getLabel(),
+                'class' => $column->getType()->getClass(),
+                'config' => $column->getType()->getConfig()
+            ];
         }
 
         return json_encode($data, JSON_PRETTY_PRINT);

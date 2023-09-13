@@ -6,7 +6,10 @@ class Text extends AbstractMultiBaseType
 {
     use TraitFilterPrefix;
 
-    protected $config = ['prefix' => '', 'postfix' => ''];
+    protected $config = [
+        'prefix' => '',
+        'postfix' => ''
+    ];
 
     /**
      * Output the stored data

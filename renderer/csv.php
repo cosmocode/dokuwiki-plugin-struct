@@ -24,7 +24,8 @@ class renderer_plugin_struct_csv extends Doku_Renderer
         global $INPUT;
 
         if (
-            !isset($this->info['struct_table_hash']) || $this->info['struct_table_hash'] != $INPUT->str('hash')
+            !isset($this->info['struct_table_hash']) ||
+            $this->info['struct_table_hash'] != $INPUT->str('hash')
         ) {
             return false;
         }
@@ -52,8 +53,11 @@ class renderer_plugin_struct_csv extends Doku_Renderer
     public function document_start()
     {
         global $ID;
-        $filename = noNS($ID) . '.csv';
-        $headers = ['Content-Type' => 'text/csv', 'Content-Disposition' => 'attachment; filename="' . $filename . '";'];
+        $filename = noNS($ID ?? 'data') . '.csv';
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '";'
+        ];
         p_set_metadata($ID, ['format' => ['struct_csv' => $headers]]);
         // don't cache
         $this->nocache();

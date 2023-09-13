@@ -8,8 +8,8 @@
  */
 
 use dokuwiki\Extension\ActionPlugin;
-use dokuwiki\Extension\EventHandler;
 use dokuwiki\Extension\Event;
+use dokuwiki\Extension\EventHandler;
 use dokuwiki\plugin\struct\meta\Schema;
 
 /**
@@ -48,6 +48,7 @@ class action_plugin_struct_output extends ActionPlugin
     public function handleOutput(Event $event, $param)
     {
         global $ID;
+        if (!$ID) return;
         if (!page_exists($ID)) return;
 
         $pos = 0;
@@ -77,7 +78,15 @@ class action_plugin_struct_output extends ActionPlugin
             $event->data->calls,
             $ins + 1,
             0,
-            [['plugin', ['struct_output', ['pos' => $pos], DOKU_LEXER_SPECIAL, ''], $pos]]
+            [
+                [
+                    'plugin',
+                    [
+                        'struct_output', ['pos' => $pos], DOKU_LEXER_SPECIAL, ''
+                    ],
+                    $pos
+                ]
+            ]
         );
     }
 

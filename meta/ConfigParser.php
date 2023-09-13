@@ -13,7 +13,25 @@ use dokuwiki\Extension\Event;
  */
 class ConfigParser
 {
-    protected $config = ['limit' => 0, 'dynfilters' => false, 'summarize' => false, 'rownumbers' => false, 'sepbyheaders' => false, 'target' => '', 'align' => [], 'headers' => [], 'cols' => [], 'widths' => [], 'filter' => [], 'schemas' => [], 'sort' => [], 'csv' => true, 'nesting' => 0, 'index' => 0, 'classes' => []];
+    protected $config = [
+        'limit' => 0,
+        'dynfilters' => false,
+        'summarize' => false,
+        'rownumbers' => false,
+        'sepbyheaders' => false,
+        'target' => '',
+        'align' => [],
+        'headers' => [],
+        'cols' => [],
+        'widths' => [],
+        'filter' => [],
+        'schemas' => [],
+        'sort' => [],
+        'csv' => true,
+        'nesting' => 0,
+        'index' => 0,
+        'classes' => []
+    ];
 
     /**
      * Parser constructor.
@@ -179,7 +197,7 @@ class ConfigParser
         $schemas = [];
         $parts = explode(',', $val);
         foreach ($parts as $part) {
-            @[$table, $alias] = array_pad(explode(' ', trim($part)), 2, '');
+            [$table, $alias] = sexplode(' ', trim($part), 2, '');
             $table = trim($table);
             $alias = trim($alias);
             if (!$table) continue;

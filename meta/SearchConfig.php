@@ -114,13 +114,25 @@ class SearchConfig extends Search
         global $INPUT;
         global $INFO;
         if (!isset($INFO['id'])) {
-            $INFO['id'] = null;
+            $INFO['id'] = '';
         }
 
         // apply inexpensive filters first
         $filter = str_replace(
-            ['$ID$', '$NS$', '$PAGE$', '$USER$', '$TODAY$'],
-            [$INFO['id'], getNS($INFO['id']), noNS($INFO['id']), $INPUT->server->str('REMOTE_USER'), date('Y-m-d')],
+            [
+                '$ID$',
+                '$NS$',
+                '$PAGE$',
+                '$USER$',
+                '$TODAY$'
+            ],
+            [
+                $INFO['id'],
+                getNS($INFO['id']),
+                noNS($INFO['id']),
+                $INPUT->server->str('REMOTE_USER'),
+                date('Y-m-d')
+            ],
             $filter
         );
 
@@ -164,7 +176,7 @@ class SearchConfig extends Search
             $label = $column->getLabel();
             $table = $column->getTable();
         } else {
-            [$table, $label] = array_pad(explode('.', $key), 2, '');
+            [$table, $label] = sexplode('.', $key, 2, '');
         }
 
         // get the data from the current page

@@ -39,7 +39,14 @@ class Checkbox extends AbstractBaseType
             $checked = '';
         }
         $opt = hsc($opt);
-        $params = ['name' => $name, 'value' => $opt, 'class' => 'struct_' . strtolower($this->getClass()), 'type' => 'checkbox', 'id' => $htmlID, 'checked' => $checked];
+        $params = [
+            'name' => $name,
+            'value' => $opt,
+            'class' => 'struct_' . strtolower($this->getClass()),
+            'type' => 'checkbox',
+            'id' => $htmlID,
+            'checked' => $checked
+        ];
         $attributes = buildAttributes($params, true);
         return "<label><input $attributes>&nbsp;$opt</label>";
     }
@@ -65,7 +72,14 @@ class Checkbox extends AbstractBaseType
                 $checked = '';
             }
 
-            $params = ['name' => $name . '[]', 'value' => $opt, 'class' => $class, 'type' => 'checkbox', 'id' => $htmlID, 'checked' => $checked];
+            $params = [
+                'name' => $name . '[]',
+                'value' => $opt,
+                'class' => $class,
+                'type' => 'checkbox',
+                'id' => $htmlID,
+                'checked' => $checked
+            ];
             $attributes = buildAttributes($params, true);
             $htmlID = '';
 

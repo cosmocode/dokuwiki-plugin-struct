@@ -10,8 +10,7 @@ use dokuwiki\plugin\struct\meta\ValidationException;
 class DateTime extends Date
 {
     protected $config = [
-        'format' => '',
-        // filled by constructor
+        'format' => '', // filled by constructor
         'prefilltoday' => false,
         'pastonly' => false,
         'futureonly' => false,
@@ -52,8 +51,7 @@ class DateTime extends Date
             'name' => $name,
             'value' => $rawvalue,
             'class' => 'struct_datetime',
-            'type' => 'datetime-local',
-            // HTML5 datetime picker
+            'type' => 'datetime-local', // HTML5 datetime picker
             'id' => $htmlID,
         ];
         $attributes = buildAttributes($params, true);
