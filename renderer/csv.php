@@ -24,8 +24,7 @@ class renderer_plugin_struct_csv extends Doku_Renderer
         global $INPUT;
 
         if (
-            !isset($this->info['struct_table_hash']) or
-            $this->info['struct_table_hash'] != $INPUT->str('hash')
+            !isset($this->info['struct_table_hash']) || $this->info['struct_table_hash'] != $INPUT->str('hash')
         ) {
             return false;
         }
@@ -54,11 +53,8 @@ class renderer_plugin_struct_csv extends Doku_Renderer
     {
         global $ID;
         $filename = noNS($ID) . '.csv';
-        $headers = array(
-            'Content-Type' => 'text/csv',
-            'Content-Disposition' => 'attachment; filename="' . $filename . '";'
-        );
-        p_set_metadata($ID, array('format' => array('struct_csv' => $headers)));
+        $headers = ['Content-Type' => 'text/csv', 'Content-Disposition' => 'attachment; filename="' . $filename . '";'];
+        p_set_metadata($ID, ['format' => ['struct_csv' => $headers]]);
         // don't cache
         $this->nocache();
     }
@@ -147,7 +143,7 @@ class renderer_plugin_struct_csv extends Doku_Renderer
 
     public function internallink($link, $title = null)
     {
-        if (is_null($title) or is_array($title) or $title == '') {
+        if (is_null($title) || is_array($title) || $title == '') {
             $title = $this->_simpleTitle($link);
         }
         $this->cdata($title);
@@ -155,7 +151,7 @@ class renderer_plugin_struct_csv extends Doku_Renderer
 
     public function externallink($link, $title = null)
     {
-        if (is_null($title) or is_array($title) or $title == '') {
+        if (is_null($title) || is_array($title) || $title == '') {
             $title = $link;
         }
         $this->cdata($title);
@@ -247,7 +243,7 @@ class renderer_plugin_struct_csv extends Doku_Renderer
 
     public function locallink($hash, $name = null)
     {
-        if (is_null($name) or is_array($name) or $name == '') {
+        if (is_null($name) || is_array($name) || $name == '') {
             $name = $hash;
         }
         $this->cdata($name);
@@ -255,7 +251,7 @@ class renderer_plugin_struct_csv extends Doku_Renderer
 
     public function interwikilink($link, $title, $wikiName, $wikiUri)
     {
-        if (is_array($title) or $title == '') {
+        if (is_array($title) || $title == '') {
             $title = $wikiName . '>' . $link;
         }
         $this->cdata($title);
@@ -263,7 +259,7 @@ class renderer_plugin_struct_csv extends Doku_Renderer
 
     public function filelink($link, $title = null)
     {
-        if (is_null($title) or is_array($title) or $title == '') {
+        if (is_null($title) || is_array($title) || $title == '') {
             $title = $link;
         }
         $this->cdata($title);
@@ -271,7 +267,7 @@ class renderer_plugin_struct_csv extends Doku_Renderer
 
     public function windowssharelink($link, $title = null)
     {
-        if (is_null($title) or is_array($title) or $title == '') {
+        if (is_null($title) || is_array($title) || $title == '') {
             $title = $link;
         }
         $this->cdata($title);

@@ -189,7 +189,7 @@ class Column
         if (!is_null($map) && !$reload) return $map;
 
         // get our own types
-        $map = array();
+        $map = [];
         $files = glob(DOKU_PLUGIN . 'struct/types/*.php');
         foreach ($files as $file) {
             $file = basename($file, '.php');

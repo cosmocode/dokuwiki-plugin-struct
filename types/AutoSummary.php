@@ -58,6 +58,5 @@ class AutoSummary extends AbstractBaseType
         $sub = $add->where($op);
         $pl = $QB->addValue($value);
         $sub->whereOr("$rightalias.lastsummary $comp $pl");
-        return;
     }
 }

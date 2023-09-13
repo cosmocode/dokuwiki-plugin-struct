@@ -4,7 +4,7 @@ namespace dokuwiki\plugin\struct\meta;
 
 class CSVPageImporter extends CSVImporter
 {
-    protected $importedPids = array();
+    protected $importedPids = [];
 
     /** @var bool[] */
     protected $createPage = [];
@@ -106,7 +106,7 @@ class CSVPageImporter extends CSVImporter
         return preg_replace_callback(
             '/<ifnotempty (.+?)>([^<]*?)<\/ifnotempty>/',
             function ($matches) use ($keys, $values) {
-                list (, $blockKey, $textIfNotEmpty) = $matches;
+                [, $blockKey, $textIfNotEmpty] = $matches;
                 $index = array_search($blockKey, $keys, true);
                 if ($index === false) {
                     msg('Import error: Key "' . hsc($blockKey) . '" not found!', -1);

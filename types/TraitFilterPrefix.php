@@ -27,7 +27,8 @@ trait TraitFilterPrefix
     public function filter(QueryBuilderWhere $add, $tablealias, $colname, $comp, $value, $op)
     {
         $add = $add->where($op); // open a subgroup
-        $add->where('AND', "$tablealias.$colname != ''"); // make sure the field isn't empty
+        $add->where('AND', "$tablealias.$colname != ''");
+         // make sure the field isn't empty
         $op = 'AND';
 
         /** @var QueryBuilderWhere $add Where additionional queries are added to */

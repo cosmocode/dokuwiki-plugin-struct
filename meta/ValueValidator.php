@@ -13,7 +13,7 @@ class ValueValidator
     protected $hlp;
 
     /** @var  array list of validation errors */
-    protected $errors;
+    protected $errors = [];
 
     /**
      * ValueValidator constructor.
@@ -21,7 +21,6 @@ class ValueValidator
     public function __construct()
     {
         $this->hlp = plugin_load('helper', 'struct_db');
-        $this->errors = array();
     }
 
     /**
@@ -44,7 +43,7 @@ class ValueValidator
         // strip empty fields from multi vals
         // but keep at least one so we can properly delete multivalues on update
         if (is_array($rawvalue) && count($rawvalue) > 1) {
-            $rawvalue = array_filter($rawvalue, array($this, 'filter'));
+            $rawvalue = array_filter($rawvalue, [$this, 'filter']);
             $rawvalue = array_values($rawvalue); // reset the array keys
         }
 

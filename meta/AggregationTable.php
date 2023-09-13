@@ -2,6 +2,8 @@
 
 namespace dokuwiki\plugin\struct\meta;
 
+use dokuwiki\Extension\Event;
+
 /**
  * Creates the table aggregation output
  *
@@ -37,16 +39,9 @@ class AggregationTable extends Aggregation
 
         $this->renderActiveFilters();
 
-        $rendercontext = array(
-            'table' => $this,
-            'renderer' => $this->renderer,
-            'format' => $this->mode,
-            'search' => $this->searchConfig,
-            'columns' => $this->columns,
-            'data' => $this->result
-        );
+        $rendercontext = ['table' => $this, 'renderer' => $this->renderer, 'format' => $this->mode, 'search' => $this->searchConfig, 'columns' => $this->columns, 'data' => $this->result];
 
-        $event = new \Doku_Event(
+        $event = new Event(
             'PLUGIN_STRUCT_RENDER_AGGREGATION_TABLE',
             $rendercontext
         );
@@ -127,9 +122,9 @@ class AggregationTable extends Aggregation
         $filters = $dynamic->getFilters();
         if (!$filters) return;
 
-        $fltrs = array();
+        $fltrs = [];
         foreach ($filters as $column => $filter) {
-            list($comp, $value) = $filter;
+            [$comp, $value] = $filter;
 
             // display the filters in a human readable format
             foreach ($this->columns as $col) {
@@ -216,7 +211,7 @@ class AggregationTable extends Aggregation
             $dynamic = $this->searchConfig->getDynamicParameters();
             $dynamic->setSort($column, true);
             if (isset($sorts[$column->getFullQualifiedLabel()])) {
-                list(/*colname*/, $currentSort) = $sorts[$column->getFullQualifiedLabel()];
+                [, $currentSort] = $sorts[$column->getFullQualifiedLabel()];
                 if ($currentSort) {
                     $sortclass = 'sort-down';
                     $dynamic->setSort($column, false);
@@ -273,7 +268,7 @@ class AggregationTable extends Aggregation
             $this->renderer->doc .= '<th>';
 
             // BEGIN FORM
-            $form = new \Doku_Form(array('method' => 'GET', 'action' => wl($this->id)));
+            $form = new \Doku_Form(['method' => 'GET', 'action' => wl($this->id)]);
             unset($form->_hidden['sectok']); // we don't need it here
             if (!$conf['userewrite']) $form->addHidden('id', $this->id);
 
@@ -281,7 +276,7 @@ class AggregationTable extends Aggregation
             $dynamic = $this->searchConfig->getDynamicParameters();
             $filters = $dynamic->getFilters();
             if (isset($filters[$column->getFullQualifiedLabel()])) {
-                list(, $current) = $filters[$column->getFullQualifiedLabel()];
+                [, $current] = $filters[$column->getFullQualifiedLabel()];
                 $dynamic->removeFilter($column);
             } else {
                 $current = '';
@@ -312,16 +307,8 @@ class AggregationTable extends Aggregation
     protected function renderResult()
     {
         foreach ($this->result as $rownum => $row) {
-            $data = array(
-                'id' => $this->id,
-                'mode' => $this->mode,
-                'renderer' => $this->renderer,
-                'searchConfig' => $this->searchConfig,
-                'data' => $this->data,
-                'rownum' => &$rownum,
-                'row' => &$row,
-            );
-            $evt = new \Doku_Event('PLUGIN_STRUCT_AGGREGATIONTABLE_RENDERRESULTROW', $data);
+            $data = ['id' => $this->id, 'mode' => $this->mode, 'renderer' => $this->renderer, 'searchConfig' => $this->searchConfig, 'data' => $this->data, 'rownum' => &$rownum, 'row' => &$row];
+            $evt = new Event('PLUGIN_STRUCT_AGGREGATIONTABLE_RENDERRESULTROW', $data);
             if ($evt->advise_before()) {
                 $this->renderResultRow($rownum, $row);
             }
@@ -357,7 +344,7 @@ class AggregationTable extends Aggregation
 
         /** @var Value $value */
         foreach ($row as $colnum => $value) {
-            $align = isset($this->data['align'][$colnum]) ? $this->data['align'][$colnum] : null;
+            $align = $this->data['align'][$colnum] ?? null;
             $this->renderer->tablecell_open(1, $align);
             $value->render($this->renderer, $this->mode);
             $this->renderer->tablecell_close();
@@ -411,10 +398,8 @@ class AggregationTable extends Aggregation
             if (!empty($this->sums[$i])) {
                 $this->renderer->cdata('∑ ');
                 $this->columns[$i]->getType()->renderValue($this->sums[$i], $this->renderer, $this->mode);
-            } else {
-                if ($this->mode == 'xhtml') {
-                    $this->renderer->doc .= '&nbsp;';
-                }
+            } elseif ($this->mode == 'xhtml') {
+                $this->renderer->doc .= '&nbsp;';
             }
             $this->renderer->tableheader_close();
         }

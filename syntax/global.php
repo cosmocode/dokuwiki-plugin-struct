@@ -7,6 +7,7 @@
  * @author  Andreas Gohr, Michael Große <dokuwiki@cosmocode.de>
  */
 
+use dokuwiki\plugin\struct\meta\AccessTablePage;
 use dokuwiki\plugin\struct\meta\AggregationEditorTable;
 
 class syntax_plugin_struct_global extends syntax_plugin_struct_table
@@ -58,7 +59,7 @@ class syntax_plugin_struct_global extends syntax_plugin_struct_table
     {
         $config['filter'][] = [
             '%rowid%', '!=',
-            (string)\dokuwiki\plugin\struct\meta\AccessTablePage::DEFAULT_PAGE_RID, 'AND'
+            (string)AccessTablePage::DEFAULT_PAGE_RID, 'AND'
         ];
         $config['filter'][] = ['%pageid%', '=*', '^(?![\s\S])', 'AND'];
         $config['withpid'] = 0; // flag for the editor to distinguish data types

@@ -6,13 +6,7 @@ use dokuwiki\plugin\struct\meta\ValidationException;
 
 class Media extends AbstractBaseType
 {
-    protected $config = array(
-        'mime' => 'image/',
-        'width' => 90,
-        'height' => 90,
-        'agg_width' => '',
-        'agg_height' => ''
-    );
+    protected $config = ['mime' => 'image/', 'width' => 90, 'height' => 90, 'agg_width' => '', 'agg_height' => ''];
 
     /**
      * Checks against the allowed mime types
@@ -29,7 +23,7 @@ class Media extends AbstractBaseType
         $allows = array_map('trim', $allows);
         $allows = array_filter($allows);
 
-        list(, $mime,) = mimetype($rawvalue, false);
+        [, $mime, ] = mimetype($rawvalue, false);
         foreach ($allows as $allow) {
             if (strpos($mime, $allow) === 0) return $rawvalue;
         }
@@ -59,9 +53,6 @@ class Media extends AbstractBaseType
             if ($this->config['agg_width']) $width = $this->config['agg_width'];
             if ($this->config['agg_height']) $height = $this->config['agg_height'];
         }
-
-        // depending on renderer type directly output or get value from it
-        $returnLink = null;
         $html = '';
         if (!media_isexternal($value)) {
             if (is_a($R, '\Doku_Renderer_xhtml')) {
@@ -70,20 +61,18 @@ class Media extends AbstractBaseType
             } else {
                 $R->internalmedia($value, null, null, $width, $height, null, 'direct');
             }
+        } elseif (is_a($R, '\Doku_Renderer_xhtml')) {
+            /** @var \Doku_Renderer_xhtml $R */
+            $html = $R->externalmedia($value, null, null, $width, $height, null, 'direct', true);
         } else {
-            if (is_a($R, '\Doku_Renderer_xhtml')) {
-                /** @var \Doku_Renderer_xhtml $R */
-                $html = $R->externalmedia($value, null, null, $width, $height, null, 'direct', true);
-            } else {
-                $R->externalmedia($value, null, null, $width, $height, null, 'direct');
-            }
+            $R->externalmedia($value, null, null, $width, $height, null, 'direct');
         }
 
         // add gallery meta data in XHTML
         if ($mode == 'xhtml') {
-            list(, $mime,) = mimetype($value, false);
+            [, $mime, ] = mimetype($value, false);
             if (substr($mime, 0, 6) == 'image/') {
-                $hash = !empty($R->info['struct_table_hash']) ? "[gal-" . $R->info['struct_table_hash'] . "]" : '';
+                $hash = empty($R->info['struct_table_hash']) ? '' : "[gal-" . $R->info['struct_table_hash'] . "]";
                 $html = str_replace('href', "rel=\"lightbox$hash\" href", $html);
             }
             $R->doc .= $html;
@@ -109,12 +98,7 @@ class Media extends AbstractBaseType
 
         $id = $htmlID ?: 'struct__' . md5($name . $count);
 
-        $params = array(
-            'name' => $name,
-            'value' => $rawvalue,
-            'class' => 'struct_media',
-            'id' => $id
-        );
+        $params = ['name' => $name, 'value' => $rawvalue, 'class' => 'struct_media', 'id' => $id];
         $attributes = buildAttributes($params, true);
         $html = "<input $attributes />";
         $html .= "<button type=\"button\" class=\"struct_media\">";

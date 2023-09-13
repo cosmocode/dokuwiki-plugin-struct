@@ -28,11 +28,11 @@ class AccessTablePage extends AccessTable
      */
     public function clearData()
     {
-        $data = array();
+        $data = [];
 
         foreach ($this->schema->getColumns() as $col) {
             if ($col->isMulti()) {
-                $data[$col->getLabel()] = array();
+                $data[$col->getLabel()] = [];
             } else {
                 $data[$col->getLabel()] = '';
             }

@@ -109,7 +109,7 @@ class NestedResult
         }
 
         $valObj = array_shift($row);
-        if (!$valObj) return; // no more values to nest, usually shouldn't happen
+        if (!$valObj instanceof Value) return; // no more values to nest, usually shouldn't happen
 
         $parentPath = (string) $parent;
 

@@ -2,6 +2,7 @@
 
 namespace dokuwiki\plugin\struct\types;
 
+use dokuwiki\Extension\AuthPlugin;
 use dokuwiki\plugin\struct\meta\QueryBuilder;
 use dokuwiki\plugin\struct\meta\QueryBuilderWhere;
 use dokuwiki\plugin\struct\meta\StructException;
@@ -10,14 +11,7 @@ use dokuwiki\Utf8\PhpString;
 
 class User extends AbstractMultiBaseType
 {
-    protected $config = array(
-        'existingonly' => true,
-        'autocomplete' => array(
-            'fullname' => true,
-            'mininput' => 2,
-            'maxresult' => 5,
-        ),
-    );
+    protected $config = ['existingonly' => true, 'autocomplete' => ['fullname' => true, 'mininput' => 2, 'maxresult' => 5]];
 
     /**
      * @param string $rawvalue the user to validate
@@ -28,7 +22,7 @@ class User extends AbstractMultiBaseType
         $rawvalue = parent::validate($rawvalue);
 
         if ($this->config['existingonly']) {
-            /** @var \DokuWiki_Auth_Plugin $auth */
+            /** @var AuthPlugin $auth */
             global $auth;
             $info = $auth->getUserData($rawvalue, false);
             if ($info === false) throw new ValidationException('User not found', $rawvalue);
@@ -63,7 +57,7 @@ class User extends AbstractMultiBaseType
      */
     public function handleAjax()
     {
-        /** @var \DokuWiki_Auth_Plugin $auth */
+        /** @var AuthPlugin $auth */
         global $auth;
         global $INPUT;
 
@@ -73,25 +67,22 @@ class User extends AbstractMultiBaseType
 
         // check minimum length
         $lookup = trim($INPUT->str('search'));
-        if (PhpString::strlen($lookup) < $this->config['autocomplete']['mininput']) return array();
+        if (PhpString::strlen($lookup) < $this->config['autocomplete']['mininput']) return [];
 
         // results wanted?
         $max = $this->config['autocomplete']['maxresult'];
-        if ($max <= 0) return array();
+        if ($max <= 0) return [];
 
         // find users by login, fill up with names if wanted
-        $logins = (array)$auth->retrieveUsers(0, $max, array('user' => $lookup));
+        $logins = (array)$auth->retrieveUsers(0, $max, ['user' => $lookup]);
         if ((count($logins) < $max) && $this->config['autocomplete']['fullname']) {
-            $logins = array_merge($logins, (array)$auth->retrieveUsers(0, $max, array('name' => $lookup)));
+            $logins = array_merge($logins, (array)$auth->retrieveUsers(0, $max, ['name' => $lookup]));
         }
 
         // reformat result for jQuery UI Autocomplete
-        $users = array();
+        $users = [];
         foreach ($logins as $login => $info) {
-            $users[] = array(
-                'label' => $info['name'] . ' [' . $login . ']',
-                'value' => $login
-            );
+            $users[] = ['label' => $info['name'] . ' [' . $login . ']', 'value' => $login];
         }
 
         return $users;

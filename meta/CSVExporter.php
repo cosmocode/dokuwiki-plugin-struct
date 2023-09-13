@@ -33,6 +33,7 @@ class CSVExporter
         $search = new Search();
         $search->addSchema($table);
         $search->addColumn('*');
+
         $result = $search->execute();
 
         if ($this->type !== self::DATATYPE_GLOBAL) {
@@ -65,7 +66,7 @@ class CSVExporter
             $row .= ',';
         }
 
-        foreach ($columns as $i => $col) {
+        foreach ($columns as $col) {
             $row .= $this->escape($col->getLabel());
             $row .= ',';
         }
@@ -90,7 +91,7 @@ class CSVExporter
         foreach ($values as $value) {
             /** @var Value $value */
             $val = $value->getRawValue();
-            if (is_array($val)) $val = join(',', $val);
+            if (is_array($val)) $val = implode(',', $val);
 
             // FIXME check escaping of composite ids (JSON with """")
             $row .= $this->escape($val);

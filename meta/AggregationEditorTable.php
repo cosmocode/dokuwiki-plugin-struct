@@ -41,7 +41,7 @@ class AggregationEditorTable extends AggregationTable
         // wrapping div
         $classes = $this->getScopeClasses();
         $classes[] = 'structaggregationeditor';
-        $classes = join(' ', $classes);
+        $classes = implode(' ', $classes);
         $this->renderer->doc .= "<div class=\"$classes\" 
                                       data-schema=\"$table\" data-searchconf=\"$config\">";
 

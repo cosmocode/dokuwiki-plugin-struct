@@ -2,6 +2,7 @@
 
 namespace dokuwiki\plugin\struct\meta;
 
+use dokuwiki\plugin\sqlite\SQLiteDB;
 use dokuwiki\Utf8\PhpString;
 
 /**
@@ -23,7 +24,7 @@ class SchemaBuilder
      * @var array The posted new data for the schema
      * @see Schema::AdminEditor()
      */
-    protected $data = array();
+    protected $data = [];
 
     protected $user;
 
@@ -43,7 +44,7 @@ class SchemaBuilder
     /** @var \helper_plugin_struct_db */
     protected $helper;
 
-    /** @var \dokuwiki\plugin\sqlite\SQLiteDB|null */
+    /** @var SQLiteDB|null */
     protected $sqlite;
 
     /** @var int the time for which this schema should be created - default to time() can be overriden for tests */
@@ -108,7 +109,7 @@ class SchemaBuilder
      */
     protected function fixLabelUniqueness()
     {
-        $labels = array();
+        $labels = [];
 
         if (isset($this->data['cols'])) foreach ($this->data['cols'] as $idx => $column) {
             $this->data['cols'][$idx]['label'] = $this->fixLabel($column['label'], $labels);
@@ -135,7 +136,7 @@ class SchemaBuilder
             $fixedlabel = $wantedlabel . $idx++;
         }
         // did we actually do a rename? apply it.
-        if ($fixedlabel != $wantedlabel) {
+        if ($fixedlabel !== $wantedlabel) {
             msg(sprintf($this->helper->getLang('duplicate_label'), $wantedlabel, $fixedlabel), -1);
             $this->data['cols']['label'] = $fixedlabel;
         }
@@ -197,13 +198,7 @@ class SchemaBuilder
             }
 
             // add this type to the schema columns
-            $schemaEntry = array(
-                'sid' => $this->newschemaid,
-                'colref' => $column->getColref(),
-                'enabled' => $enabled,
-                'tid' => $newTid,
-                'sort' => $sort
-            );
+            $schemaEntry = ['sid' => $this->newschemaid, 'colref' => $column->getColref(), 'enabled' => $enabled, 'tid' => $newTid, 'sort' => $sort];
             $ok = $this->sqlite->saveRecord('schema_cols', $schemaEntry);
             if (!$ok) return false;
         }
@@ -221,8 +216,8 @@ class SchemaBuilder
         /** @noinspection SqlResolve */
         $sqlSelect = "SELECT pid, rev, published, col$colref AS value FROM data_$table WHERE latest = 1";
         $valueSet = $this->sqlite->queryAll($sqlSelect);
-        $valueString = array();
-        $arguments = array();
+        $valueString = [];
+        $arguments = [];
         foreach ($valueSet as $values) {
             if (blank($values['value']) || trim($values['value']) == '') {
                 continue;
@@ -233,10 +228,10 @@ class SchemaBuilder
                 [$colref, $values['pid'], $values['rev'], $values['published'], 1, $values['value']]
             );
         }
-        if (empty($valueString)) {
+        if ($valueString === []) {
             return;
         }
-        $valueString = join(',', $valueString);
+        $valueString = implode(',', $valueString);
         /** @noinspection SqlResolve */
         $sqlInsert = "INSERT OR REPLACE INTO multi_$table (colref, pid, rev, published, row, value) VALUES $valueString"; // phpcs:ignore
         $this->sqlite->query($sqlInsert, $arguments);
@@ -257,7 +252,7 @@ class SchemaBuilder
             if (!$column['isenabled']) continue; // we do not add a disabled column
 
             // todo this duplicates the hardcoding as in  the function above
-            $newEntry = array();
+            $newEntry = [];
             $newEntry['config'] = $column['config'] ?? '{}';
             $newEntry['label'] = $column['label'];
             $newEntry['ismulti'] = $column['ismulti'] ?? 0;
@@ -282,13 +277,7 @@ class SchemaBuilder
 
 
             // add this type to the schema columns
-            $schemaEntry = array(
-                'sid' => $this->newschemaid,
-                'colref' => $colref,
-                'enabled' => true,
-                'tid' => $newTid,
-                'sort' => $sort
-            );
+            $schemaEntry = ['sid' => $this->newschemaid, 'colref' => $colref, 'enabled' => true, 'tid' => $newTid, 'sort' => $sort];
             $ok = $this->sqlite->saveRecord('schema_cols', $schemaEntry);
             if (!$ok) return false;
             $colref++;

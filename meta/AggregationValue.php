@@ -35,11 +35,10 @@ class AggregationValue extends Aggregation
     {
         // Check that we actually got a result
         if ($this->resultCount) {
-            $this->renderValue($this->result[0]); // only one result
-        } else {
-            if ($show_not_found) {
-                $this->renderer->cdata($this->helper->getLang('none'));
-            }
+            $this->renderValue($this->result[0]);
+            // only one result
+        } elseif ($show_not_found) {
+            $this->renderer->cdata($this->helper->getLang('none'));
         }
     }
 
@@ -48,7 +47,7 @@ class AggregationValue extends Aggregation
      */
     protected function renderValue($resultrow)
     {
-        foreach ($resultrow as $column => $value) {
+        foreach ($resultrow as $value) {
             if ($value->isEmpty()) {
                 continue;
             }

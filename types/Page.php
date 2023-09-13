@@ -16,15 +16,7 @@ use dokuwiki\Utf8\PhpString;
  */
 class Page extends AbstractMultiBaseType
 {
-    protected $config = array(
-        'usetitles' => false,
-        'autocomplete' => array(
-            'mininput' => 2,
-            'maxresult' => 5,
-            'namespace' => '',
-            'postfix' => '',
-        ),
-    );
+    protected $config = ['usetitles' => false, 'autocomplete' => ['mininput' => 2, 'maxresult' => 5, 'namespace' => '', 'postfix' => '']];
 
     /**
      * Output the stored data
@@ -37,7 +29,7 @@ class Page extends AbstractMultiBaseType
     public function renderValue($value, \Doku_Renderer $R, $mode)
     {
         if ($this->config['usetitles']) {
-            list($id, $title) = \helper_plugin_struct::decodeJson($value);
+            [$id, $title] = \helper_plugin_struct::decodeJson($value);
         } else {
             $id = $value;
             $title = $id; // cannot be empty or internallink() might hijack %pageid% and use headings
@@ -57,7 +49,7 @@ class Page extends AbstractMultiBaseType
      */
     public function validate($rawvalue)
     {
-        list($page, $fragment) = array_pad(explode('#', $rawvalue, 2), 2, '');
+        [$page, $fragment] = array_pad(explode('#', $rawvalue, 2), 2, '');
         return cleanID($page) . (strlen(cleanID($fragment)) > 0 ? '#' . cleanID($fragment) : '');
     }
 
@@ -72,11 +64,11 @@ class Page extends AbstractMultiBaseType
 
         // check minimum length
         $lookup = trim($INPUT->str('search'));
-        if (PhpString::strlen($lookup) < $this->config['autocomplete']['mininput']) return array();
+        if (PhpString::strlen($lookup) < $this->config['autocomplete']['mininput']) return [];
 
         // results wanted?
         $max = $this->config['autocomplete']['maxresult'];
-        if ($max <= 0) return array();
+        if ($max <= 0) return [];
 
         // lookup with namespace and postfix applied
         $namespace = $this->config['autocomplete']['namespace'];
@@ -91,10 +83,10 @@ class Page extends AbstractMultiBaseType
         if ($namespace) $lookup .= ' @' . $namespace;
 
         $data = ft_pageLookup($lookup, true, $this->config['usetitles']);
-        if (!count($data)) return array();
+        if ($data === []) return [];
 
         // this basically duplicates what we do in ajax_qsearch()
-        $result = array();
+        $result = [];
         $counter = 0;
         foreach ($data as $id => $title) {
             if ($this->config['usetitles']) {
@@ -113,10 +105,7 @@ class Page extends AbstractMultiBaseType
                 continue; // page does not end in postfix, don't suggest it
             }
 
-            $result[] = array(
-                'label' => $name,
-                'value' => $id
-            );
+            $result[] = ['label' => $name, 'value' => $id];
 
             $counter++;
             if ($counter > $max) break;
@@ -174,7 +163,7 @@ class Page extends AbstractMultiBaseType
     public function rawValue($value)
     {
         if ($this->config['usetitles']) {
-            list($value) = \helper_plugin_struct::decodeJson($value);
+            [$value] = \helper_plugin_struct::decodeJson($value);
         }
         return $value;
     }
@@ -188,7 +177,7 @@ class Page extends AbstractMultiBaseType
     public function displayValue($value)
     {
         if ($this->config['usetitles']) {
-            list($pageid, $value) = \helper_plugin_struct::decodeJson($value);
+            [$pageid, $value] = \helper_plugin_struct::decodeJson($value);
             if (blank($value)) {
                 $value = $pageid;
             }

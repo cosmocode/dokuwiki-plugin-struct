@@ -2,6 +2,7 @@
 
 namespace dokuwiki\plugin\struct\meta;
 
+use dokuwiki\Parsing\Lexer\Lexer;
 use dokuwiki\plugin\struct\types\AutoSummary;
 use dokuwiki\plugin\struct\types\DateTime;
 use dokuwiki\plugin\struct\types\Decimal;
@@ -19,9 +20,7 @@ class Search
      * The list of known and allowed comparators
      * (order matters)
      */
-    public static $COMPARATORS = array(
-        '<=', '>=', '=*', '=', '<', '>', '!=', '!~', '~', ' IN '
-    );
+    public static $COMPARATORS = ['<=', '>=', '=*', '=', '<', '>', '!=', '!~', '~', ' IN '];
 
     /** @var \helper_plugin_struct_db */
     protected $dbHelper;
@@ -30,22 +29,22 @@ class Search
     protected $sqlite;
 
     /** @var Schema[] list of schemas to query */
-    protected $schemas = array();
+    protected $schemas = [];
 
     /** @var Column[] list of columns to select */
-    protected $columns = array();
+    protected $columns = [];
 
     /** @var array the sorting of the result */
-    protected $sortby = array();
+    protected $sortby = [];
 
     /** @var array the filters */
-    protected $filter = array();
+    protected $filter = [];
 
     /** @var array the filters */
-    protected $dynamicFilter = array();
+    protected $dynamicFilter = [];
 
     /** @var array list of aliases tables can be referenced by */
-    protected $aliases = array();
+    protected $aliases = [];
 
     /** @var  int begin results from here */
     protected $range_begin = 0;
@@ -56,7 +55,7 @@ class Search
     /** @var int the number of results */
     protected $count = -1;
     /** @var  string[] the PIDs of the result rows */
-    protected $result_pids = null;
+    protected $result_pids;
     /** @var  array the row ids of the result rows */
     protected $result_rids = [];
     /** @var  array the revisions of the result rows */
@@ -113,7 +112,7 @@ class Search
         if ($colname[0] == '-') { // remove column from previous wildcard lookup
             $colname = substr($colname, 1);
             foreach ($this->columns as $key => $col) {
-                if ($col->getLabel() == $colname) unset($this->columns[$key]);
+                if ($col->getLabel() === $colname) unset($this->columns[$key]);
             }
             return;
         }
@@ -138,7 +137,7 @@ class Search
         $col = $this->findColumn($colname);
         if (!$col) return; //FIXME do we really want to ignore missing columns?
 
-        $this->sortby[$col->getFullQualifiedLabel()] = array($col, $asc, $nc);
+        $this->sortby[$col->getFullQualifiedLabel()] = [$col, $asc, $nc];
     }
 
     /**
@@ -210,7 +209,7 @@ class Search
         }
 
         if (!in_array($comp, self::$COMPARATORS))
-            throw new StructException("Bad comperator. Use " . join(',', self::$COMPARATORS));
+            throw new StructException("Bad comperator. Use " . implode(',', self::$COMPARATORS));
         if ($op != 'OR' && $op != 'AND')
             throw new StructException('Bad filter type . Only AND or OR allowed');
 
@@ -242,7 +241,7 @@ class Search
         }
 
         // add the filter
-        return array($col, $value, $comp, $op);
+        return [$col, $value, $comp, $op];
     }
 
     /**
@@ -256,7 +255,7 @@ class Search
         $Handler = new FilterValueListHandler();
         $LexerClass = class_exists('\Doku_Lexer') ? '\Doku_Lexer' : '\dokuwiki\Parsing\Lexer\Lexer';
         $isLegacy = $LexerClass === '\Doku_Lexer';
-        /** @var \Doku_Lexer|\dokuwiki\Parsing\Lexer\Lexer $Lexer */
+        /** @var \Doku_Lexer|Lexer $Lexer */
         $Lexer = new $LexerClass($Handler, 'base', true);
 
 
@@ -456,14 +455,14 @@ class Search
      */
     public function execute()
     {
-        list($sql, $opts) = $this->getSQL();
+        [$sql, $opts] = $this->getSQL();
 
         /** @var \PDOStatement $res */
         $res = $this->sqlite->query($sql, $opts);
         if ($res === false) throw new StructException("SQL execution failed for\n\n$sql");
 
-        $this->result_pids = array();
-        $result = array();
+        $this->result_pids = [];
+        $result = [];
         $cursor = -1;
         $pageidAndRevOnly = array_reduce($this->columns, function ($pageidAndRevOnly, Column $col) {
             return $pageidAndRevOnly && ($col->getTid() == 0);
@@ -474,7 +473,7 @@ class Search
             if ($this->range_end && $cursor >= $this->range_end) continue;
 
             $C = 0;
-            $resrow = array();
+            $resrow = [];
             $isempty = true;
             foreach ($this->columns as $col) {
                 $val = $row["C$C"];
@@ -567,7 +566,7 @@ class Search
      */
     protected function processWildcard($colname)
     {
-        list($colname, $table) = $this->resolveColumn($colname);
+        [$colname, $table] = $this->resolveColumn($colname);
         if ($colname !== '*') return false;
 
         // no table given? assume the first is meant
@@ -577,7 +576,7 @@ class Search
         }
 
         $schema = $this->schemas[$table] ?? null;
-        if (!$schema) return false;
+        if (!$schema instanceof Schema) return false;
         $this->columns = array_merge($this->columns, $schema->getColumns(false));
         return true;
     }
@@ -595,7 +594,7 @@ class Search
         if (!$this->schemas) throw new StructException('noschemas');
 
         // resolve the alias or table name
-        @list($table, $colname) = array_pad(explode('.', $colname, 2), 2, '');
+        @[$table, $colname] = array_pad(explode('.', $colname, 2), 2, '');
         if (!$colname) {
             $colname = $table;
             $table = null;
@@ -606,7 +605,7 @@ class Search
 
         if (!$colname) throw new StructException('nocolname');
 
-        return array($colname, $table);
+        return [$colname, $table];
     }
 
     /**
@@ -625,7 +624,7 @@ class Search
             return new PageColumn(0, new Page(), $schema_list[0]);
         }
         if ($colname == '%title%') {
-            return new PageColumn(0, new Page(array('usetitles' => true)), $schema_list[0]);
+            return new PageColumn(0, new Page(['usetitles' => true]), $schema_list[0]);
         }
         if ($colname == '%lastupdate%') {
             return new RevisionColumn(0, new DateTime(), $schema_list[0]);
@@ -643,7 +642,7 @@ class Search
             return new PublishedColumn(0, new Decimal(), $schema_list[0]);
         }
 
-        list($colname, $table) = $this->resolveColumn($colname);
+        [$colname, $table] = $this->resolveColumn($colname);
 
         /*
          * If table name is given search only that, otherwise if no strict behavior
@@ -651,7 +650,7 @@ class Search
          * column name.
          */
         if ($table !== null && isset($this->schemas[$table])) {
-            $schemas = array($table => $this->schemas[$table]);
+            $schemas = [$table => $this->schemas[$table]];
         } elseif ($table === null || !$strict) {
             $schemas = $this->schemas;
         } else {

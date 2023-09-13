@@ -7,12 +7,13 @@
  * @author  Andreas Gohr, Michael Große <dokuwiki@cosmocode.de>
  */
 
+use dokuwiki\Extension\SyntaxPlugin;
 use dokuwiki\plugin\struct\meta\AggregationCloud;
 use dokuwiki\plugin\struct\meta\ConfigParser;
 use dokuwiki\plugin\struct\meta\SearchCloud;
 use dokuwiki\plugin\struct\meta\StructException;
 
-class syntax_plugin_struct_cloud extends DokuWiki_Syntax_Plugin
+class syntax_plugin_struct_cloud extends SyntaxPlugin
 {
     /**
      * @return string Syntax mode type

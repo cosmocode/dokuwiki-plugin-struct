@@ -6,9 +6,7 @@ use dokuwiki\plugin\struct\meta\ValidationException;
 
 class Color extends AbstractBaseType
 {
-    protected $config = array(
-        'default' => '#ffffff'
-    );
+    protected $config = ['default' => '#ffffff'];
 
     /**
      * @inheritDoc
@@ -21,7 +19,7 @@ class Color extends AbstractBaseType
         }
 
         // ignore if default
-        if ($rawvalue == strtolower($this->config['default'])) {
+        if ($rawvalue === strtolower($this->config['default'])) {
             $rawvalue = '';
         }
 
@@ -53,7 +51,7 @@ class Color extends AbstractBaseType
                 $this->renderValue($value, $R, $mode);
             }
         } else {
-            $R->cdata(join(', ', $values));
+            $R->cdata(implode(', ', $values));
         }
         return true;
     }
@@ -68,13 +66,7 @@ class Color extends AbstractBaseType
             $rawvalue = $this->config['default'];
         }
 
-        $params = array(
-            'name' => $name,
-            'value' => $rawvalue,
-            'class' => 'struct_color',
-            'type' => 'color',
-            'id' => $htmlID
-        );
+        $params = ['name' => $name, 'value' => $rawvalue, 'class' => 'struct_color', 'type' => 'color', 'id' => $htmlID];
         $attributes = buildAttributes($params, true);
         return "<input $attributes />";
     }
@@ -125,16 +117,16 @@ class Color extends AbstractBaseType
         $min = min([$red, $green, $blue]);
         $max = max([$red, $green, $blue]);
 
-        if ($max == $red) {
+        if ($max === $red) {
             $hue = ($green - $blue) / ($max - $min);
         }
-        if ($max == $green) {
+        if ($max === $green) {
             $hue = 2 + ($blue - $red) / ($max - $min);
         }
-        if ($max == $blue) {
+        if ($max === $blue) {
             $hue = 4 + ($red - $green) / ($max - $min);
         }
-        $hue = $hue * 60;
+        $hue *= 60;
         if ($hue < 0) {
             $hue += 360;
         }

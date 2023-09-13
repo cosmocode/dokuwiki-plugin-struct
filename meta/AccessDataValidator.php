@@ -41,9 +41,9 @@ class AccessDataValidator extends ValueValidator
      */
     public static function validateDataForPage($data, $pageid, &$errors)
     {
-        $tosave = array();
+        $tosave = [];
         $valid = true;
-        $errors = array();
+        $errors = [];
 
         $assignments = Assignments::getInstance();
         $tables = $assignments->getPageAssignments($pageid);
@@ -53,10 +53,8 @@ class AccessDataValidator extends ValueValidator
             if (!$validation->validate()) {
                 $valid = false;
                 $errors = array_merge($errors, $validation->getErrors());
-            } else {
-                if ($validation->hasChanges()) {
-                    $tosave[] = $validation;
-                }
+            } elseif ($validation->hasChanges()) {
+                $tosave[] = $validation;
             }
         }
         if ($valid) return $tosave;
