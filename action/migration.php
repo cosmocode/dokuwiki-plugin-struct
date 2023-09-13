@@ -1,23 +1,27 @@
 <?php
 
+use dokuwiki\Extension\ActionPlugin;
+use dokuwiki\Extension\EventHandler;
+use dokuwiki\Extension\Event;
+use dokuwiki\plugin\sqlite\SQLiteDB;
+
 /**
  * DokuWiki Plugin struct (Action Component)
  *
  * @license GPL 2 http://www.gnu.org/licenses/gpl-2.0.html
  * @author  Andreas Gohr, Michael Große <dokuwiki@cosmocode.de>
  */
-
 /**
  * Class action_plugin_struct_migration
  *
  * Handle migrations that need more than just SQL
  */
-class action_plugin_struct_migration extends DokuWiki_Action_Plugin
+class action_plugin_struct_migration extends ActionPlugin
 {
     /**
      * @inheritDoc
      */
-    public function register(Doku_Event_Handler $controller)
+    public function register(EventHandler $controller)
     {
         $controller->register_hook('PLUGIN_SQLITE_DATABASE_UPGRADE', 'BEFORE', $this, 'handleMigrations');
     }
@@ -28,16 +32,16 @@ class action_plugin_struct_migration extends DokuWiki_Action_Plugin
      * @param Doku_Event $event
      * @param $param
      */
-    public function handleMigrations(Doku_Event $event, $param)
+    public function handleMigrations(Event $event, $param)
     {
         if ($event->data['adapter']->getDbname() !== 'struct') {
             return;
         }
         $to = $event->data['to'];
 
-        if (is_callable(array($this, "migration$to"))) {
+        if (is_callable([$this, "migration$to"])) {
             $event->preventDefault();
-            $event->result = call_user_func(array($this, "migration$to"), $event->data['adapter']);
+            $event->result = call_user_func([$this, "migration$to"], $event->data['adapter']);
         }
     }
 
@@ -46,7 +50,7 @@ class action_plugin_struct_migration extends DokuWiki_Action_Plugin
      *
      * Add a latest column to all existing multi tables
      *
-     * @param \dokuwiki\plugin\sqlite\SQLiteDB $sqlite
+     * @param SQLiteDB $sqlite
      * @return bool
      */
     protected function migration12($sqlite)
@@ -69,7 +73,7 @@ class action_plugin_struct_migration extends DokuWiki_Action_Plugin
      *
      * Unifies previous page and lookup schema types
      *
-     * @param \dokuwiki\plugin\sqlite\SQLiteDB $sqlite
+     * @param SQLiteDB $sqlite
      * @return bool
      */
     protected function migration16($sqlite)
@@ -227,7 +231,7 @@ class action_plugin_struct_migration extends DokuWiki_Action_Plugin
      * All lookups were presumed to reference lookup data, not pages, so the migrated value
      * was always ["", <previous-pid-aka-new-rid>]. For page references it is ["<previous-pid>", 0]
      *
-     * @param \dokuwiki\plugin\sqlite\SQLiteDB $sqlite
+     * @param SQLiteDB $sqlite
      * @return bool
      */
     protected function migration17($sqlite)
@@ -257,7 +261,7 @@ class action_plugin_struct_migration extends DokuWiki_Action_Plugin
 
                 if (!empty($allValues)) {
                     foreach ($allValues as $row) {
-                        list($pid, $rid, $rev, $colref, $rowno, $fixes) = $this->getFixedValues($row);
+                        [$pid, $rid, $rev, $colref, $rowno, $fixes] = $this->getFixedValues($row);
                         // now fix the values
                         if (!empty($fixes)) {
                             $sql = "UPDATE data_$name
@@ -277,7 +281,7 @@ class action_plugin_struct_migration extends DokuWiki_Action_Plugin
 
                 if (!empty($allValues)) {
                     foreach ($allValues as $row) {
-                        list($pid, $rid, $rev, $colref, $rowno, $fixes) = $this->getFixedValues($row);
+                        [$pid, $rid, $rev, $colref, $rowno, $fixes] = $this->getFixedValues($row);
                         // now fix the values
                         if (!empty($fixes)) {
                             $sql = "UPDATE multi_$name
@@ -301,7 +305,7 @@ class action_plugin_struct_migration extends DokuWiki_Action_Plugin
     /**
      * Removes a temp table left over by migration 16
      *
-     * @param \dokuwiki\plugin\sqlite\SQLiteDB $sqlite
+     * @param SQLiteDB $sqlite
      * @return bool
      */
     protected function migration18($sqlite)
@@ -319,7 +323,7 @@ class action_plugin_struct_migration extends DokuWiki_Action_Plugin
      *
      * Add "published" column to all existing tables
      *
-     * @param \dokuwiki\plugin\sqlite\SQLiteDB $sqlite
+     * @param SQLiteDB $sqlite
      * @return bool
      */
     protected function migration19($sqlite)

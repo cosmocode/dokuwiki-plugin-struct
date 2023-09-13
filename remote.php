@@ -8,11 +8,14 @@
  */
 
 // must be run within Dokuwiki
+use dokuwiki\Extension\RemotePlugin;
+use dokuwiki\Remote\AccessDeniedException;
+use dokuwiki\plugin\struct\meta\Value;
 use dokuwiki\plugin\struct\meta\ConfigParser;
 use dokuwiki\plugin\struct\meta\SearchConfig;
 use dokuwiki\plugin\struct\meta\StructException;
 
-class remote_plugin_struct extends DokuWiki_Remote_Plugin
+class remote_plugin_struct extends RemotePlugin
 {
     /** @var helper_plugin_struct hlp */
     protected $hlp;
@@ -24,7 +27,6 @@ class remote_plugin_struct extends DokuWiki_Remote_Plugin
     {
         parent::__construct();
 
-        /** @var helper_plugin_struct hlp */
         $this->hlp = plugin_load('helper', 'struct');
     }
 
@@ -43,7 +45,7 @@ class remote_plugin_struct extends DokuWiki_Remote_Plugin
         $page = cleanID($page);
 
         if (auth_quickaclcheck($page) < AUTH_READ) {
-            throw new RemoteAccessDeniedException('no permissions to access data of that page');
+            throw new AccessDeniedException('no permissions to access data of that page');
         }
 
         if (!$schema) $schema = null;
@@ -51,7 +53,7 @@ class remote_plugin_struct extends DokuWiki_Remote_Plugin
         try {
             return $this->hlp->getData($page, $schema, $time);
         } catch (StructException $e) {
-            throw new RemoteException($e->getMessage(), 0, $e);
+            throw new \dokuwiki\Remote\RemoteException($e->getMessage(), 0, $e);
         }
     }
 
@@ -76,14 +78,14 @@ class remote_plugin_struct extends DokuWiki_Remote_Plugin
         $page = cleanID($page);
 
         if (auth_quickaclcheck($page) < AUTH_EDIT) {
-            throw new RemoteAccessDeniedException('no permissions to save data for that page');
+            throw new AccessDeniedException('no permissions to save data for that page');
         }
 
         try {
             $this->hlp->saveData($page, $data, $summary, $minor);
             return true;
         } catch (StructException $e) {
-            throw new RemoteException($e->getMessage(), 0, $e);
+            throw new \dokuwiki\Remote\RemoteException($e->getMessage(), 0, $e);
         }
     }
 
@@ -100,25 +102,26 @@ class remote_plugin_struct extends DokuWiki_Remote_Plugin
     public function getSchema($schema = null)
     {
         if (!auth_ismanager()) {
-            throw new RemoteAccessDeniedException('you need to be manager to access schema info');
+            throw new AccessDeniedException('you need to be manager to access schema info');
         }
 
         try {
-            $result = array();
+            $result = [];
             $schemas = $this->hlp::getSchema($schema ?: null);
             foreach ($schemas as $name => $schema) {
-                $result[$name] = array();
+                $result[$name] = [];
                 foreach ($schema->getColumns(false) as $column) {
-                    $result[$name][] = array(
+                    $class = explode('\\', get_class($column->getType()));
+                    $class = array_pop($class);
+                    $result[$name][] = [
                         'name' => $column->getLabel(),
-                        'type' => array_pop(explode('\\', get_class($column->getType()))),
-                        'ismulti' => $column->isMulti()
-                    );
+                        'type' => $class,
+                        'ismulti' => $column->isMulti()];
                 }
             }
             return $result;
         } catch (StructException $e) {
-            throw new RemoteException($e->getMessage(), 0, $e);
+            throw new \dokuwiki\Remote\RemoteException($e->getMessage(), 0, $e);
         }
     }
 
@@ -149,7 +152,7 @@ class remote_plugin_struct extends DokuWiki_Remote_Plugin
             $search = new SearchConfig($config);
             $results = $search->execute();
             $data = [];
-            /** @var \dokuwiki\plugin\struct\meta\Value[] $rowValues */
+            /** @var Value[] $rowValues */
             foreach ($results as $rowValues) {
                 $row = [];
                 foreach ($rowValues as $value) {
@@ -159,7 +162,7 @@ class remote_plugin_struct extends DokuWiki_Remote_Plugin
             }
             return $data;
         } catch (StructException $e) {
-            throw new RemoteException($e->getMessage(), 0, $e);
+            throw new \dokuwiki\Remote\RemoteException($e->getMessage(), 0, $e);
         }
     }
 }

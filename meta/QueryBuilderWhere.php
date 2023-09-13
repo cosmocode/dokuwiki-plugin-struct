@@ -27,7 +27,7 @@ class QueryBuilderWhere
         $this->QB = $QB;
         $this->type = $type;
         if ($statement === null) {
-            $this->statement = array();
+            $this->statement = [];
         } else {
             $this->statement = $statement;
         }

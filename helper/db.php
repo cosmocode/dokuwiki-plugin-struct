@@ -7,11 +7,12 @@
  * @author  Andreas Gohr, Michael Große <dokuwiki@cosmocode.de>
  */
 
+use dokuwiki\Extension\Plugin;
 use dokuwiki\ErrorHandler;
 use dokuwiki\plugin\sqlite\SQLiteDB;
 use dokuwiki\plugin\struct\meta\StructException;
 
-class helper_plugin_struct_db extends DokuWiki_Plugin
+class helper_plugin_struct_db extends Plugin
 {
     /** @var SQLiteDB */
     protected $sqlite;
@@ -39,7 +40,7 @@ class helper_plugin_struct_db extends DokuWiki_Plugin
      */
     public function getDB($throw = true)
     {
-        if ($this->sqlite === null) {
+        if (!$this->sqlite instanceof SQLiteDB) {
             if (!class_exists(SQLiteDB::class)) {
                 if ($throw || defined('DOKU_UNITTEST')) throw new StructException('no sqlite');
                 return null;
@@ -77,9 +78,8 @@ class helper_plugin_struct_db extends DokuWiki_Plugin
      * @param string ...
      * @return string
      */
-    public function STRUCT_JSON() // phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
+    public function STRUCT_JSON(...$args) // phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
     {
-        $args = func_get_args();
         return json_encode($args);
     }
 

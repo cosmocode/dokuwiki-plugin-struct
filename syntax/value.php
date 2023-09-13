@@ -8,14 +8,14 @@
  */
 
 // phpcs:disable PSR1.Files.SideEffects
-
+use dokuwiki\Extension\SyntaxPlugin;
 use dokuwiki\plugin\struct\meta\AggregationValue;
 use dokuwiki\plugin\struct\meta\InlineConfigParser;
 use dokuwiki\plugin\struct\meta\SearchConfig;
 use dokuwiki\plugin\struct\meta\StructException;
 
 // phpcs:ignore PSR1.Classes.ClassDeclaration, Squiz.Classes.ValidClassName
-class syntax_plugin_struct_value extends DokuWiki_Syntax_Plugin
+class syntax_plugin_struct_value extends SyntaxPlugin
 {
     /**
      * @return string Syntax mode type

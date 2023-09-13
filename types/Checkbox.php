@@ -4,9 +4,7 @@ namespace dokuwiki\plugin\struct\types;
 
 class Checkbox extends AbstractBaseType
 {
-    protected $config = array(
-        'values' => 'one, two, three',
-    );
+    protected $config = ['values' => 'one, two, three'];
 
     /**
      * Creates the options array
@@ -41,14 +39,14 @@ class Checkbox extends AbstractBaseType
             $checked = '';
         }
         $opt = hsc($opt);
-        $params = array(
+        $params = [
             'name' => $name,
             'value' => $opt,
             'class' => 'struct_' . strtolower($this->getClass()),
             'type' => 'checkbox',
             'id' => $htmlID,
-            'checked' => $checked,
-        );
+            'checked' => $checked
+        ];
         $attributes = buildAttributes($params, true);
         return "<label><input $attributes>&nbsp;$opt</label>";
     }
@@ -74,14 +72,14 @@ class Checkbox extends AbstractBaseType
                 $checked = '';
             }
 
-            $params = array(
+            $params = [
                 'name' => $name . '[]',
                 'value' => $opt,
                 'class' => $class,
                 'type' => 'checkbox',
                 'id' => $htmlID,
-                'checked' => $checked,
-            );
+                'checked' => $checked
+            ];
             $attributes = buildAttributes($params, true);
             $htmlID = '';
 

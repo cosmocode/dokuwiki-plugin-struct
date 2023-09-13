@@ -123,7 +123,7 @@ class SearchSQLBuilder
 
         foreach ($filters as $filter) {
             /** @var Column $col */
-            list($col, $value, $comp, $op) = $filter;
+            [$col, $value, $comp, $op] = $filter;
 
             $datatable = "data_{$col->getTable()}";
             $multitable = "multi_{$col->getTable()}";
@@ -161,7 +161,7 @@ class SearchSQLBuilder
     public function addSorts($sorts)
     {
         foreach ($sorts as $sort) {
-            list($col, $asc, $nc) = $sort;
+            [$col, $asc, $nc] = $sort;
             /** @var $col Column */
             $colname = $col->getColName(false);
             if ($nc) $colname .= ' COLLATE NOCASE';

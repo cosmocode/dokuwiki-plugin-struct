@@ -138,7 +138,7 @@ class NestedValue
      */
     public function __toString()
     {
-        if ($this->value === null) return ''; // root node
+        if (!$this->value instanceof Value) return ''; // root node
         return $this->parentPath . '/' . $this->value->__toString();
     }
 
@@ -151,8 +151,8 @@ class NestedValue
      */
     public function sortChildren(NestedValue $a, NestedValue $b)
     {
-        $compA = join('-', (array)$a->getValueObject()->getCompareValue());
-        $compB = join('-', (array)$b->getValueObject()->getCompareValue());
+        $compA = implode('-', (array)$a->getValueObject()->getCompareValue());
+        $compB = implode('-', (array)$b->getValueObject()->getCompareValue());
 
         // sort empty values to the end
         if ($compA === $compB) {
@@ -184,7 +184,7 @@ class NestedValue
         $return = '';
 
         if ($this->value) {
-            $val = join(', ', (array)$this->value->getDisplayValue());
+            $val = implode(', ', (array)$this->value->getDisplayValue());
             if ($val === '') $val = '{n/a}';
             $return .= str_pad('', $this->getDepth() * 4, ' ');
             $return .= $val;
@@ -196,7 +196,7 @@ class NestedValue
         foreach ($this->getResultRows() as $row) {
             $return .= str_pad('', $this->getDepth() * 4, ' ');
             foreach ($row as $value) {
-                $val = join(', ', (array)$value->getDisplayValue());
+                $val = implode(', ', (array)$value->getDisplayValue());
                 if ($val === '') $val = '{n/a}';
                 $return .= ' ' . $val;
             }

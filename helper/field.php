@@ -60,7 +60,7 @@ class helper_plugin_struct_field extends helper_plugin_bureaucracy_field
             }
         }
 
-        if ($value === array() || $value === '') {
+        if ($value === [] || $value === '') {
             if (!isset($this->opt['optional'])) {
                 $this->error = true;
                 if ($this->column) {
@@ -112,7 +112,7 @@ class helper_plugin_struct_field extends helper_plugin_bureaucracy_field
         $value = $this->getParam('value');
 
         if (is_array($value)) {
-            return array($this, 'replacementMultiValueCallback');
+            return [$this, 'replacementMultiValueCallback'];
         }
 
         if (!empty($value) && $this->column->getType() instanceof User) {
@@ -194,7 +194,7 @@ class helper_plugin_struct_field extends helper_plugin_bureaucracy_field
         $class = $hint ? 'hashint' : '';
         $lclass = $this->error ? 'bureaucracy_error' : '';
         $colname = $field->getColumn()->getFullQualifiedLabel();
-        $required = !empty($this->opt['optional']) ? '' : ' <sup>*</sup>';
+        $required = empty($this->opt['optional']) ? ' <sup>*</sup>' : '';
 
         $id = uniqid('struct__', true);
         $input = $field->getValueEditor($name, $id);
@@ -213,12 +213,12 @@ class helper_plugin_struct_field extends helper_plugin_bureaucracy_field
      * Tries to find the correct column and schema
      *
      * @param string $colname
-     * @return \dokuwiki\plugin\struct\meta\Column
+     * @return Column
      * @throws StructException
      */
     protected function findColumn($colname)
     {
-        list($table, $label) = explode('.', $colname, 2);
+        [$table, $label] = explode('.', $colname, 2);
         if (!$table || !$label) {
             throw new StructException('Field \'%s\' not given in schema.field form', $colname);
         }

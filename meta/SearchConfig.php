@@ -114,25 +114,25 @@ class SearchConfig extends Search
         global $INPUT;
         global $INFO;
         if (!isset($INFO['id'])) {
-            $INFO['id'] = null;
+            $INFO['id'] = '';
         }
 
         // apply inexpensive filters first
         $filter = str_replace(
-            array(
+            [
                 '$ID$',
                 '$NS$',
                 '$PAGE$',
                 '$USER$',
                 '$TODAY$'
-            ),
-            array(
+            ],
+            [
                 $INFO['id'],
                 getNS($INFO['id']),
                 noNS($INFO['id']),
                 $INPUT->server->str('REMOTE_USER'),
                 date('Y-m-d')
-            ),
+            ],
             $filter
         );
 
@@ -176,7 +176,7 @@ class SearchConfig extends Search
             $label = $column->getLabel();
             $table = $column->getTable();
         } else {
-            list($table, $label) = array_pad(explode('.', $key), 2, '');
+            [$table, $label] = sexplode('.', $key, 2, '');
         }
 
         // get the data from the current page
@@ -188,7 +188,7 @@ class SearchConfig extends Search
             }
             $value = $data[$label]->getCompareValue();
 
-            if (is_array($value) && !count($value)) {
+            if (is_array($value) && $value === []) {
                 $value = '';
             }
         } else {
@@ -197,7 +197,7 @@ class SearchConfig extends Search
 
         // apply any pre and postfixes, even when multi value
         if (is_array($value)) {
-            $filter = array();
+            $filter = [];
             foreach ($value as $item) {
                 $filter[] = $match[1] . $item . $match[3];
             }
@@ -220,7 +220,7 @@ class SearchConfig extends Search
 
         $key = strtolower($match[2]);
 
-        if (!in_array($key, array('name', 'mail', 'grps'))) {
+        if (!in_array($key, ['name', 'mail', 'grps'])) {
             throw new StructException('"%s" is not a valid USER key', $key);
         }
 

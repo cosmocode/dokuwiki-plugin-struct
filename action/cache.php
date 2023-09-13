@@ -1,5 +1,9 @@
 <?php
 
+use dokuwiki\Extension\ActionPlugin;
+use dokuwiki\Extension\Event;
+use dokuwiki\Extension\EventHandler;
+use dokuwiki\plugin\sqlite\SQLiteDB;
 use dokuwiki\plugin\struct\meta\Assignments;
 use dokuwiki\plugin\struct\meta\SearchConfig;
 use dokuwiki\plugin\struct\meta\SearchConfigParameters;
@@ -7,7 +11,7 @@ use dokuwiki\plugin\struct\meta\SearchConfigParameters;
 /**
  * Handle caching of pages containing struct aggregations
  */
-class action_plugin_struct_cache extends DokuWiki_Action_Plugin
+class action_plugin_struct_cache extends ActionPlugin
 {
     /**
      * Registers a callback function for a given event
@@ -15,7 +19,7 @@ class action_plugin_struct_cache extends DokuWiki_Action_Plugin
      * @param Doku_Event_Handler $controller DokuWiki's event controller object
      * @return void
      */
-    public function register(Doku_Event_Handler $controller)
+    public function register(EventHandler $controller)
     {
         $controller->register_hook('PARSER_CACHE_USE', 'BEFORE', $this, 'handleCacheSchemachange');
         $controller->register_hook('PARSER_CACHE_USE', 'BEFORE', $this, 'handleCacheAggregation');
@@ -40,7 +44,7 @@ class action_plugin_struct_cache extends DokuWiki_Action_Plugin
      *                           handler was registered]
      * @return bool
      */
-    public function handleCacheSchemachange(Doku_Event $event, $param)
+    public function handleCacheSchemachange(Event $event, $param)
     {
         /** @var \cache_parser $cache */
         $cache = $event->data;
@@ -63,7 +67,7 @@ class action_plugin_struct_cache extends DokuWiki_Action_Plugin
      *                           handler was registered]
      * @return bool
      */
-    public function handleCacheAggregation(Doku_Event $event, $param)
+    public function handleCacheAggregation(Event $event, $param)
     {
         global $INPUT;
 
@@ -78,7 +82,7 @@ class action_plugin_struct_cache extends DokuWiki_Action_Plugin
             $db = plugin_load('helper', 'struct_db');
             // cache depends on last database save
             $sqlite = $db->getDB(false);
-            if ($sqlite) {
+            if ($sqlite instanceof SQLiteDB) {
                 $cache->depends['files'][] = $sqlite->getDbFile();
             }
 
@@ -120,7 +124,7 @@ class action_plugin_struct_cache extends DokuWiki_Action_Plugin
      *                           handler was registered]
      * @return bool
      */
-    public function handleCacheDynamic(Doku_Event $event, $param)
+    public function handleCacheDynamic(Event $event, $param)
     {
         /** @var \cache_parser $cache */
         $cache = $event->data;
@@ -130,11 +134,11 @@ class action_plugin_struct_cache extends DokuWiki_Action_Plugin
 
         // disable cache use when one of these parameters is present
         foreach (
-            array(
-                     SearchConfigParameters::$PARAM_FILTER,
-                     SearchConfigParameters::$PARAM_OFFSET,
-                     SearchConfigParameters::$PARAM_SORT
-                 ) as $key
+            [
+                SearchConfigParameters::$PARAM_FILTER,
+                SearchConfigParameters::$PARAM_OFFSET,
+                SearchConfigParameters::$PARAM_SORT
+            ] as $key
         ) {
             if ($INPUT->has($key)) {
                 $event->result = false;

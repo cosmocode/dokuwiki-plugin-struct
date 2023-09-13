@@ -52,7 +52,8 @@ class AccessTableGlobal extends AccessTable
     protected function getSingleSql()
     {
         $cols = array_merge($this->getSingleNoninputCols(), $this->singleCols);
-        $cols = join(',', $cols);
+        $cols = implode(',', $cols);
+
         $vals = array_merge($this->getSingleNoninputValues(), $this->singleValues);
         $rid = $this->getRid() ?: "(SELECT (COALESCE(MAX(rid), 0 ) + 1) FROM $this->stable)";
 

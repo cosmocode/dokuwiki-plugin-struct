@@ -7,6 +7,9 @@
  * @author  Andreas Gohr, Michael Große <dokuwiki@cosmocode.de>
  */
 
+use dokuwiki\Extension\ActionPlugin;
+use dokuwiki\Extension\EventHandler;
+use dokuwiki\Extension\Event;
 use dokuwiki\plugin\struct\meta\AccessTable;
 use dokuwiki\plugin\struct\meta\Assignments;
 use dokuwiki\plugin\struct\meta\Schema;
@@ -23,7 +26,7 @@ use dokuwiki\plugin\struct\types\Lookup;
  * schema to the form. The struct_field type is added through standard naming convention - see
  * helper/fiels.php for that.
  */
-class action_plugin_struct_bureaucracy extends DokuWiki_Action_Plugin
+class action_plugin_struct_bureaucracy extends ActionPlugin
 {
     /**
      * Registers a callback function for a given event
@@ -31,7 +34,7 @@ class action_plugin_struct_bureaucracy extends DokuWiki_Action_Plugin
      * @param Doku_Event_Handler $controller DokuWiki's event controller object
      * @return void
      */
-    public function register(Doku_Event_Handler $controller)
+    public function register(EventHandler $controller)
     {
         $controller->register_hook('PLUGIN_BUREAUCRACY_PAGENAME', 'BEFORE', $this, 'handleLookupFields');
         $controller->register_hook('PLUGIN_BUREAUCRACY_EMAIL_SEND', 'BEFORE', $this, 'handleLookupFields');
@@ -47,7 +50,7 @@ class action_plugin_struct_bureaucracy extends DokuWiki_Action_Plugin
      *                           handler was registered]
      * @return bool
      */
-    public function handleSchema(Doku_Event $event, $param)
+    public function handleSchema(Event $event, $param)
     {
         $args = $event->data['args'];
         if ($args[0] != 'struct_schema') return false;
@@ -84,14 +87,14 @@ class action_plugin_struct_bureaucracy extends DokuWiki_Action_Plugin
      *                           handler was registered]
      * @return bool
      */
-    public function handleLookupFields(Doku_Event $event, $param)
+    public function handleLookupFields(Event $event, $param)
     {
         foreach ($event->data['fields'] as $field) {
             if (!is_a($field, 'helper_plugin_struct_field')) continue;
             if (!$field->column->getType() instanceof Lookup) continue;
 
             $value = $field->getParam('value');
-            if (!is_array($value)) $value = array($value);
+            if (!is_array($value)) $value = [$value];
 
             $config = $field->column->getType()->getConfig();
 
@@ -104,10 +107,11 @@ class action_plugin_struct_bureaucracy extends DokuWiki_Action_Plugin
             $pids = $search->getPids();
             $rids = $search->getRids();
 
-            $field->opt['struct_pids'] = array();
-            $new_value = array();
+            $field->opt['struct_pids'] = [];
+            $new_value = [];
             foreach ($value as $pid) {
-                for ($i = 0; $i < count($result); $i++) {
+                $counter = count($result);
+                for ($i = 0; $i < $counter; $i++) {
                     // lookups can reference pages or global data, so check both pid and rid
                     // make sure not to double decode pid!
                     $originalPid = $pid;
@@ -138,16 +142,16 @@ class action_plugin_struct_bureaucracy extends DokuWiki_Action_Plugin
      *                           handler was registered]
      * @return bool
      */
-    public function handleSave(Doku_Event $event, $param)
+    public function handleSave(Event $event, $param)
     {
         // get all struct values and their associated schemas
-        $tosave = array();
+        $tosave = [];
         foreach ($event->data['fields'] as $field) {
             if (!is_a($field, 'helper_plugin_struct_field')) continue;
             /** @var helper_plugin_struct_field $field */
             $tbl = $field->column->getTable();
             $lbl = $field->column->getLabel();
-            if (!isset($tosave[$tbl])) $tosave[$tbl] = array();
+            if (!isset($tosave[$tbl])) $tosave[$tbl] = [];
 
             if ($field->column->isMulti() && $field->column->getType() instanceof Lookup) {
                 $tosave[$tbl][$lbl] = $field->opt['struct_pids'];

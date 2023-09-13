@@ -7,10 +7,13 @@
  * @author  Andreas Gohr, Michael Große <dokuwiki@cosmocode.de>
  */
 
+use dokuwiki\Extension\ActionPlugin;
+use dokuwiki\Extension\EventHandler;
+use dokuwiki\Extension\Event;
 use dokuwiki\plugin\struct\meta\Schema;
 use dokuwiki\plugin\struct\meta\StructException;
 
-class action_plugin_struct_ajax extends DokuWiki_Action_Plugin
+class action_plugin_struct_ajax extends ActionPlugin
 {
     /**
      * Registers a callback function for a given event
@@ -18,7 +21,7 @@ class action_plugin_struct_ajax extends DokuWiki_Action_Plugin
      * @param Doku_Event_Handler $controller DokuWiki's event controller object
      * @return void
      */
-    public function register(Doku_Event_Handler $controller)
+    public function register(EventHandler $controller)
     {
         $controller->register_hook('AJAX_CALL_UNKNOWN', 'BEFORE', $this, 'handleAjax');
     }
@@ -28,7 +31,7 @@ class action_plugin_struct_ajax extends DokuWiki_Action_Plugin
      *
      * @param Doku_Event $event event object by reference
      */
-    public function handleAjax(Doku_Event $event)
+    public function handleAjax(Event $event)
     {
         if ($event->data != 'plugin_struct') return;
         $event->preventDefault();
@@ -39,9 +42,9 @@ class action_plugin_struct_ajax extends DokuWiki_Action_Plugin
         try {
             $result = $this->executeTypeAjax();
         } catch (StructException $e) {
-            $result = array(
+            $result = [
                 'error' => $e->getMessage() . ' ' . basename($e->getFile()) . ':' . $e->getLine()
-            );
+            ];
             if ($conf['allowdebug']) {
                 $result['stacktrace'] = $e->getTraceAsString();
             }
@@ -63,7 +66,7 @@ class action_plugin_struct_ajax extends DokuWiki_Action_Plugin
 
         $col = $INPUT->str('column');
         if (blank($col)) throw new StructException('No column provided');
-        list($schema, $colname) = explode('.', $col, 2);
+        [$schema, $colname] = explode('.', $col, 2);
         if (blank($schema) || blank($colname)) throw new StructException('Column format is wrong');
 
         $schema = new Schema($schema);

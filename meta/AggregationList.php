@@ -40,16 +40,16 @@ class AggregationList extends Aggregation
     protected function renderNode(NestedValue $node)
     {
         $self = $node->getValueObject(); // null for root node
-        $children = $node->getChildren($self === null && $this->data['index']); // sort only for index
+        $children = $node->getChildren(!$self instanceof Value && $this->data['index']); // sort only for index
         $results = $node->getResultRows();
 
         // all our content is in a listitem, unless we are the root node
-        if ($self) {
+        if ($self instanceof Value) {
             $this->renderer->listitem_open($node->getDepth() + 1); // levels are 1 based
         }
 
         // render own value if available
-        if ($self) {
+        if ($self instanceof Value) {
             $this->renderer->listcontent_open();
             $this->renderListItem([$self], $node->getDepth(), true); // zero based depth
             $this->renderer->listcontent_close();
@@ -75,7 +75,7 @@ class AggregationList extends Aggregation
         }
 
         // close listitem if opened
-        if ($self) {
+        if ($self instanceof Value) {
             $this->renderer->listitem_close();
         }
     }

@@ -9,19 +9,19 @@ namespace dokuwiki\plugin\struct\meta;
 class QueryBuilder
 {
     /** @var array placeholder -> values */
-    protected $values = array();
+    protected $values = [];
     /** @var array (alias -> statement */
-    protected $select = array();
+    protected $select = [];
     /** @var array (alias -> statement) */
-    protected $from = array();
+    protected $from = [];
     /** @var array (alias -> "table"|"join") keeps how tables were added, as table or join */
-    protected $type = array();
+    protected $type = [];
     /** @var QueryBuilderWhere */
     protected $where;
     /** @var  string[] */
-    protected $orderby = array();
+    protected $orderby = [];
     /** @var  string[] */
-    protected $groupby = array();
+    protected $groupby = [];
 
     /**
      * QueryBuilder constructor.
@@ -118,7 +118,7 @@ class QueryBuilder
 
         $pos = array_search($leftalias, array_keys($this->from));
         $statement = "LEFT OUTER JOIN $righttable AS $rightalias ON $onclause";
-        $this->from = $this->arrayInsert($this->from, array($rightalias => $statement), $pos + 1);
+        $this->from = $this->arrayInsert($this->from, [$rightalias => $statement], $pos + 1);
         $this->type[$rightalias] = 'join';
     }
 
@@ -221,24 +221,24 @@ class QueryBuilder
         }
 
         // prepare aliases for the select columns
-        $selects = array();
+        $selects = [];
         foreach ($this->select as $alias => $select) {
             $selects[] = "$select AS $alias";
         }
 
         $sql =
-            ' SELECT ' . join(",\n", $selects) . "\n" .
+            ' SELECT ' . implode(",\n", $selects) . "\n" .
             '   FROM ' . $from . "\n" .
             '  WHERE ' . $this->where->toSQL() . "\n";
 
         if ($this->groupby) {
             $sql .=
-                'GROUP BY ' . join(",\n", $this->groupby) . "\n";
+                'GROUP BY ' . implode(",\n", $this->groupby) . "\n";
         }
 
         if ($this->orderby) {
             $sql .=
-                'ORDER BY ' . join(",\n", $this->orderby) . "\n";
+                'ORDER BY ' . implode(",\n", $this->orderby) . "\n";
         }
 
         return $this->fixPlaceholders($sql);
@@ -254,7 +254,7 @@ class QueryBuilder
      */
     protected function fixPlaceholders($sql)
     {
-        $vals = array();
+        $vals = [];
 
         while (preg_match('/(:!!val\d+!!:)/', $sql, $m)) {
             $pl = $m[1];
@@ -267,7 +267,7 @@ class QueryBuilder
             $vals[] = $this->values[$pl];
         }
 
-        return array($sql, $vals);
+        return [$sql, $vals];
     }
 
     /**

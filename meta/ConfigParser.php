@@ -2,6 +2,8 @@
 
 namespace dokuwiki\plugin\struct\meta;
 
+use dokuwiki\Extension\Event;
+
 /**
  * Class ConfigParser
  *
@@ -11,7 +13,25 @@ namespace dokuwiki\plugin\struct\meta;
  */
 class ConfigParser
 {
-    protected $config = array();
+    protected $config = [
+        'limit' => 0,
+        'dynfilters' => false,
+        'summarize' => false,
+        'rownumbers' => false,
+        'sepbyheaders' => false,
+        'target' => '',
+        'align' => [],
+        'headers' => [],
+        'cols' => [],
+        'widths' => [],
+        'filter' => [],
+        'schemas' => [],
+        'sort' => [],
+        'csv' => true,
+        'nesting' => 0,
+        'index' => 0,
+        'classes' => []
+    ];
 
     /**
      * Parser constructor.
@@ -24,28 +44,9 @@ class ConfigParser
     {
         /** @var \helper_plugin_struct_config $helper */
         $helper = plugin_load('helper', 'struct_config');
-        $this->config = array(
-            'limit' => 0,
-            'dynfilters' => false,
-            'summarize' => false,
-            'rownumbers' => false,
-            'sepbyheaders' => false,
-            'target' => '',
-            'align' => array(),
-            'headers' => array(),
-            'cols' => array(),
-            'widths' => array(),
-            'filter' => array(),
-            'schemas' => array(),
-            'sort' => array(),
-            'csv' => true,
-            'nesting' => 0,
-            'index' => 0,
-            'classes' => array(),
-        );
         // parse info
         foreach ($lines as $line) {
-            list($key, $val) = $this->splitLine($line);
+            [$key, $val] = $this->splitLine($line);
             if (!$key) continue;
 
             $logic = 'OR';
@@ -87,7 +88,7 @@ class ConfigParser
                 case 'order':
                 case 'sort':
                     $sorts = $this->parseValues($val);
-                    $sorts = array_map(array($helper, 'parseSort'), $sorts);
+                    $sorts = array_map([$helper, 'parseSort'], $sorts);
                     $this->config['sort'] = array_merge($this->config['sort'], $sorts);
                     break;
                 case 'where':
@@ -131,8 +132,8 @@ class ConfigParser
                     $this->config['classes'] = $this->parseClasses($val);
                     break;
                 default:
-                    $data = array('config' => &$this->config, 'key' => $key, 'val' => $val);
-                    $ev = new \Doku_Event('PLUGIN_STRUCT_CONFIGPARSER_UNKNOWNKEY', $data);
+                    $data = ['config' => &$this->config, 'key' => $key, 'val' => $val];
+                    $ev = new Event('PLUGIN_STRUCT_CONFIGPARSER_UNKNOWNKEY', $data);
                     if ($ev->advise_before()) {
                         throw new StructException("unknown option '%s'", hsc($key));
                     }
@@ -193,15 +194,15 @@ class ConfigParser
      */
     protected function parseSchema($val)
     {
-        $schemas = array();
+        $schemas = [];
         $parts = explode(',', $val);
         foreach ($parts as $part) {
-            @list($table, $alias) = array_pad(explode(' ', trim($part)), 2, '');
+            [$table, $alias] = sexplode(' ', trim($part), 2, '');
             $table = trim($table);
             $alias = trim($alias);
             if (!$table) continue;
 
-            $schemas[] = array($table, $alias,);
+            $schemas[] = [$table, $alias];
         }
         return $schemas;
     }
@@ -215,7 +216,7 @@ class ConfigParser
     protected function parseAlignments($val)
     {
         $cols = explode(',', $val);
-        $data = array();
+        $data = [];
         foreach ($cols as $col) {
             $col = trim(strtolower($col));
             if ($col[0] == 'c') {
@@ -243,6 +244,7 @@ class ConfigParser
     {
         $vals = explode(',', $val);
         $vals = array_map('trim', $vals);
+
         $len = count($vals);
         for ($i = 0; $i < $len; $i++) {
             $val = trim(strtolower($vals[$i]));
@@ -271,7 +273,7 @@ class ConfigParser
      */
     protected function parseValues($line)
     {
-        $values = array();
+        $values = [];
         $inQuote = false;
         $escapedQuote = false;
         $value = '';
@@ -288,7 +290,7 @@ class ConfigParser
                         $escapedQuote = true;
                         continue;
                     }
-                    array_push($values, $value);
+                    $values[] = $value;
                     $inQuote = false;
                     $value = '';
                     continue;
@@ -305,7 +307,7 @@ class ConfigParser
                     if (strlen($value) < 1) {
                         continue;
                     }
-                    array_push($values, trim($value));
+                    $values[] = trim($value);
                     $value = '';
                     continue;
                 }
@@ -313,7 +315,7 @@ class ConfigParser
             $value .= $line[$i];
         }
         if (strlen($value) > 0) {
-            array_push($values, trim($value));
+            $values[] = trim($value);
         }
         return $values;
     }

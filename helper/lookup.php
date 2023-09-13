@@ -24,13 +24,13 @@ class helper_plugin_struct_lookup extends helper_plugin_bureaucracy_action
         global $ID;
 
         // get all struct values and their associated schemas
-        $tosave = array();
+        $tosave = [];
         foreach ($fields as $field) {
             if (!is_a($field, 'helper_plugin_struct_field')) continue;
             /** @var helper_plugin_struct_field $field */
             $tbl = $field->column->getTable();
             $lbl = $field->column->getLabel();
-            if (!isset($tosave[$tbl])) $tosave[$tbl] = array();
+            if (!isset($tosave[$tbl])) $tosave[$tbl] = [];
             $tosave[$tbl][$lbl] = $field->getParam('value');
         }
 

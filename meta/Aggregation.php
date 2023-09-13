@@ -119,7 +119,7 @@ abstract class Aggregation
     {
         if ($this->mode == 'xhtml') {
             $classes = $this->getScopeClasses();
-            $this->renderer->doc .= '<div class="' . join(' ', $classes) . '">';
+            $this->renderer->doc .= '<div class="' . implode(' ', $classes) . '">';
         }
     }
 

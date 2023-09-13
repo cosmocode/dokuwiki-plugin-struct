@@ -7,6 +7,9 @@
  * @author  Andreas Gohr, Michael Große <dokuwiki@cosmocode.de>
  */
 
+use dokuwiki\Extension\ActionPlugin;
+use dokuwiki\Extension\EventHandler;
+use dokuwiki\Extension\Event;
 use dokuwiki\plugin\struct\meta\AccessTable;
 use dokuwiki\plugin\struct\meta\AccessTablePage;
 use dokuwiki\plugin\struct\meta\Assignments;
@@ -19,13 +22,13 @@ use dokuwiki\plugin\struct\meta\ValueValidator;
  *
  * Handle inline editing
  */
-class action_plugin_struct_inline extends DokuWiki_Action_Plugin
+class action_plugin_struct_inline extends ActionPlugin
 {
     /** @var  AccessTablePage */
-    protected $schemadata = null;
+    protected $schemadata;
 
     /** @var  Column */
-    protected $column = null;
+    protected $column;
 
     /** @var String */
     protected $pid = '';
@@ -39,7 +42,7 @@ class action_plugin_struct_inline extends DokuWiki_Action_Plugin
      * @param Doku_Event_Handler $controller DokuWiki's event controller object
      * @return void
      */
-    public function register(Doku_Event_Handler $controller)
+    public function register(EventHandler $controller)
     {
         $controller->register_hook('AJAX_CALL_UNKNOWN', 'BEFORE', $this, 'handleAjax');
     }
@@ -48,7 +51,7 @@ class action_plugin_struct_inline extends DokuWiki_Action_Plugin
      * @param Doku_Event $event
      * @param $param
      */
-    public function handleAjax(Doku_Event $event, $param)
+    public function handleAjax(Event $event, $param)
     {
         $len = strlen('plugin_struct_inline_');
         if (substr($event->data, 0, $len) != 'plugin_struct_inline_') return;
@@ -138,7 +141,7 @@ class action_plugin_struct_inline extends DokuWiki_Action_Plugin
         $value = $INPUT->param('entry');
         $validator = new ValueValidator();
         if (!$validator->validateValue($this->column, $value)) {
-            throw new StructException(join("\n", $validator->getErrors()));
+            throw new StructException(implode("\n", $validator->getErrors()));
         }
 
         // current data
@@ -210,7 +213,7 @@ class action_plugin_struct_inline extends DokuWiki_Action_Plugin
         $rid = $INPUT->int('rid');
         $rev = $updatedRev ?: $INPUT->int('rev');
 
-        list($table, $field) = explode('.', $INPUT->str('field'), 2);
+        [$table, $field] = explode('.', $INPUT->str('field'), 2);
         if (blank($pid) && blank($rid)) return false;
         if (blank($table)) return false;
         if (blank($field)) return false;

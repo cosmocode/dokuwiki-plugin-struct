@@ -6,13 +6,13 @@ use dokuwiki\plugin\struct\meta\ValidationException;
 
 class Url extends Text
 {
-    protected $config = array(
+    protected $config = [
         'autoscheme' => 'https',
         'prefix' => '',
         'postfix' => '',
         'fixedtitle' => '',
-        'autoshorten' => true,
-    );
+        'autoshorten' => true
+    ];
 
     /**
      * The final string should be an URL
@@ -27,7 +27,7 @@ class Url extends Text
         $url = $this->buildURL($rawvalue);
 
         $schemes = getSchemes();
-        $regex = '^(' . join('|', $schemes) . '):\/\/.+';
+        $regex = '^(' . implode('|', $schemes) . '):\/\/.+';
         if (!preg_match("/$regex/i", $url)) {
             throw new ValidationException('Url invalid', $url);
         }

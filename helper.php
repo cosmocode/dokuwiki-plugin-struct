@@ -7,6 +7,7 @@
  * @author  Andreas Gohr, Michael Große <dokuwiki@cosmocode.de>
  */
 
+use dokuwiki\Extension\Plugin;
 use dokuwiki\plugin\struct\meta\AccessDataValidator;
 use dokuwiki\plugin\struct\meta\AccessTable;
 use dokuwiki\plugin\struct\meta\Assignments;
@@ -24,7 +25,7 @@ use dokuwiki\plugin\struct\meta\StructException;
  *
  * Remember to check permissions yourself!
  */
-class helper_plugin_struct extends DokuWiki_Plugin
+class helper_plugin_struct extends Plugin
 {
     /**
      * Class names of renderers which should NOT render struct data.
@@ -55,10 +56,10 @@ class helper_plugin_struct extends DokuWiki_Plugin
             $assignments = Assignments::getInstance();
             $schemas = $assignments->getPageAssignments($page, false);
         } else {
-            $schemas = array($schema);
+            $schemas = [$schema];
         }
 
-        $result = array();
+        $result = [];
         foreach ($schemas as $schema) {
             $schemaData = AccessTable::getPageAccess($schema, $page, $time);
             $result[$schema] = $schemaData->getDataArray();
@@ -101,7 +102,7 @@ class helper_plugin_struct extends DokuWiki_Plugin
         // validate and see if anything changes
         $valid = AccessDataValidator::validateDataForPage($data, $page, $errors);
         if ($valid === false) {
-            throw new StructException("Validation failed:\n%s", join("\n", $errors));
+            throw new StructException("Validation failed:\n%s", implode("\n", $errors));
         }
         if (!$valid) return; // empty array when no changes were detected
 
@@ -168,10 +169,10 @@ class helper_plugin_struct extends DokuWiki_Plugin
         if (is_null($schema)) {
             $schemas = Schema::getAll();
         } else {
-            $schemas = array($schema);
+            $schemas = [$schema];
         }
 
-        $result = array();
+        $result = [];
         foreach ($schemas as $table) {
             $result[$table] = new Schema($table);
         }
