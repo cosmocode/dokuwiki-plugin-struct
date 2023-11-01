@@ -2,6 +2,7 @@
 
 namespace dokuwiki\plugin\struct\types;
 
+use dokuwiki\Extension\Plugin;
 use dokuwiki\plugin\struct\meta\Column;
 use dokuwiki\plugin\struct\meta\QueryBuilder;
 use dokuwiki\plugin\struct\meta\QueryBuilderWhere;
@@ -28,12 +29,12 @@ abstract class AbstractBaseType
     /**
      * @var array current config
      */
-    protected $config = array();
+    protected $config = [];
 
     /**
      * @var array config keys that should not be cleaned despite not being in $config
      */
-    protected $keepconfig = array('label', 'hint', 'visibility');
+    protected $keepconfig = ['label', 'hint', 'visibility'];
 
     /**
      * @var string label for the field
@@ -53,12 +54,12 @@ abstract class AbstractBaseType
     /**
      * @var null|Column the column context this type is part of
      */
-    protected $context = null;
+    protected $context;
 
     /**
-     * @var \DokuWiki_Plugin
+     * @var Plugin
      */
-    protected $hlp = null;
+    protected $hlp;
 
     /**
      * AbstractBaseType constructor.
@@ -70,12 +71,12 @@ abstract class AbstractBaseType
     public function __construct($config = null, $label = '', $ismulti = false, $tid = 0)
     {
         // general config options
-        $baseconfig = array(
-            'visibility' => array(
+        $baseconfig = [
+            'visibility' => [
                 'inpage' => true,
-                'ineditor' => true,
-            )
-        );
+                'ineditor' => true
+            ]
+        ];
 
         // use previously saved configuration, ignoring all keys that are not supposed to be here
         if (!is_null($config)) {
@@ -85,7 +86,7 @@ abstract class AbstractBaseType
         $this->initTransConfig();
         $this->config = array_merge($baseconfig, $this->config);
         $this->label = $label;
-        $this->ismulti = (bool) $ismulti;
+        $this->ismulti = (bool)$ismulti;
         $this->tid = $tid;
     }
 
@@ -117,12 +118,12 @@ abstract class AbstractBaseType
      */
     public function getAsEntry()
     {
-        return array(
+        return [
             'config' => json_encode($this->config),
             'label' => $this->label,
             'ismulti' => $this->ismulti,
             'class' => $this->getClass()
-        );
+        ];
     }
 
     /**
@@ -196,13 +197,16 @@ abstract class AbstractBaseType
     }
 
     /**
-     * @throws StructException
      * @return Column
+     * @throws StructException
      */
     public function getContext()
     {
-        if (is_null($this->context))
-            throw new StructException('Empty column context requested. Type was probably initialized outside of Schema.');
+        if (is_null($this->context)) {
+            throw new StructException(
+                'Empty column context requested. Type was probably initialized outside of Schema.'
+            );
+        }
         return $this->context;
     }
 
@@ -236,10 +240,10 @@ abstract class AbstractBaseType
      * This function is called on saving data when only a single value instead of an array
      * was submitted.
      *
-     * Types implementing their own @see multiValueEditor() will probably want to override this
-     *
-     * @param string $value
+     * Types implementing their own @param string $value
      * @return array
+     * @see multiValueEditor() will probably want to override this
+     *
      */
     public function splitValues($value)
     {
@@ -253,7 +257,7 @@ abstract class AbstractBaseType
      *
      * @param string $name the form base name where this has to be stored
      * @param string[] $rawvalues the current values
-     * @param string $htmlID   a unique id to be referenced by the label
+     * @param string $htmlID a unique id to be referenced by the label
      * @return string html
      */
     public function multiValueEditor($name, $rawvalues, $htmlID)
@@ -277,9 +281,9 @@ abstract class AbstractBaseType
     /**
      * Return the editor to edit a single value
      *
-     * @param string $name     the form name where this has to be stored
+     * @param string $name the form name where this has to be stored
      * @param string $rawvalue the current value
-     * @param string $htmlID   a unique id to be referenced by the label
+     * @param string $htmlID a unique id to be referenced by the label
      *
      * @return string html
      */
@@ -292,12 +296,12 @@ abstract class AbstractBaseType
             $class .= ' struct_autocomplete';
         }
 
-        $params = array(
+        $params = [
             'name' => $name,
             'value' => $rawvalue,
             'class' => $class,
             'id' => $htmlID
-        );
+        ];
         $attributes = buildAttributes($params, true);
         return "<input $attributes>";
     }
@@ -345,7 +349,7 @@ abstract class AbstractBaseType
      * @param string $mode The mode the output is rendered in (eg. XHTML)
      * @param string $page the target to which should be linked
      * @param string $filter the filter to apply to the aggregations on $page
-     * @param int $weight the scaled weight of the item. Will already be implemented as css font-size on the outside container
+     * @param int $weight the scaled weight of the item. implemented as css font-size on the outside container
      */
     public function renderTagCloudLink($value, \Doku_Renderer $R, $mode, $page, $filter, $weight)
     {
@@ -370,12 +374,12 @@ abstract class AbstractBaseType
      */
     public function filter(QueryBuilderWhere $add, $tablealias, $colname, $comp, $value, $op)
     {
-        /** @var QueryBuilderWhere $add Where additionional queries are added to*/
+        /** @var QueryBuilderWhere $add Where additionional queries are added to */
         if (is_array($value)) {
             $add = $add->where($op); // sub where group
             $op = 'OR';
         }
-        foreach ((array) $value as $item) {
+        foreach ((array)$value as $item) {
             $pl = $add->getQB()->addValue($item);
             $add->where($op, "$tablealias.$colname $comp $pl");
         }
@@ -412,13 +416,13 @@ abstract class AbstractBaseType
      * The default implementation should be good for nearly all types. However some
      * types may need to do proper SQLite type casting to have the right order.
      *
-     * Generally if you implemented @see select() you probably want to implement this,
-     * too.
-     *
-     * @param QueryBuilder $QB
+     * Generally if you implemented @param QueryBuilder $QB
      * @param string $tablealias The table the currently saved value is stored in
      * @param string $colname The column name on above table (always single column!)
      * @param string $order either ASC or DESC
+     * @see select() you probably want to implement this,
+     * too.
+     *
      */
     public function sort(QueryBuilder $QB, $tablealias, $colname, $order)
     {
@@ -480,11 +484,11 @@ abstract class AbstractBaseType
     /**
      * This is the value to be used as argument to a filter for another column.
      *
-     * In a sense this is the counterpart to the @see filter() function
-     *
-     * @param string $value
+     * In a sense this is the counterpart to the @param string $value
      *
      * @return string
+     * @see filter() function
+     *
      */
     public function compareValue($value)
     {
@@ -516,8 +520,8 @@ abstract class AbstractBaseType
      * JSON encoded and returned to the caller. Access additional parameter via $INPUT
      * as usual
      *
-     * @throws StructException when something goes wrong
      * @return mixed
+     * @throws StructException when something goes wrong
      */
     public function handleAjax()
     {
@@ -541,8 +545,8 @@ abstract class AbstractBaseType
      *
      * This default does a LIKE operation
      *
-     * @see Search::$COMPARATORS
      * @return string
+     * @see Search::$COMPARATORS
      */
     public function getDefaultComparator()
     {

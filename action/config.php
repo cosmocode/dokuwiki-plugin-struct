@@ -7,19 +7,21 @@
  * @author  Andreas Gohr, Michael Große <dokuwiki@cosmocode.de>
  */
 
+use dokuwiki\Extension\ActionPlugin;
+use dokuwiki\Extension\EventHandler;
+use dokuwiki\Extension\Event;
 use dokuwiki\plugin\struct\meta\Column;
 use dokuwiki\plugin\struct\types\AbstractBaseType;
 
-class action_plugin_struct_config extends DokuWiki_Action_Plugin
+class action_plugin_struct_config extends ActionPlugin
 {
-
     /**
      * Registers a callback function for a given event
      *
      * @param Doku_Event_Handler $controller DokuWiki's event controller object
      * @return void
      */
-    public function register(Doku_Event_Handler $controller)
+    public function register(EventHandler $controller)
     {
         $controller->register_hook('AJAX_CALL_UNKNOWN', 'BEFORE', $this, 'handleAjax');
         $controller->register_hook('DOKUWIKI_STARTED', 'AFTER', $this, 'addJsinfo');
@@ -32,7 +34,7 @@ class action_plugin_struct_config extends DokuWiki_Action_Plugin
      * @param mixed $param [the parameters passed as fifth argument to register_hook() when this
      *                           handler was registered]
      */
-    public function handleAjax(Doku_Event $event, $param)
+    public function handleAjax(Event $event, $param)
     {
         if ($event->data != 'plugin_struct_config') return;
         $event->preventDefault();
@@ -54,7 +56,7 @@ class action_plugin_struct_config extends DokuWiki_Action_Plugin
      *
      * @param Doku_Event $event
      */
-    public function addJsinfo(Doku_Event $event)
+    public function addJsinfo(Event $event)
     {
         global $JSINFO;
         $JSINFO['plugins']['struct']['disableDeleteSerial'] = $this->getConf('disableDeleteSerial');

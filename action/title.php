@@ -7,24 +7,26 @@
  * @author  Andreas Gohr, Michael Große <dokuwiki@cosmocode.de>
  */
 
-use dokuwiki\plugin\struct\meta\StructException;
+use dokuwiki\Extension\ActionPlugin;
+use dokuwiki\Extension\EventHandler;
+use dokuwiki\Extension\Event;
 use dokuwiki\plugin\struct\meta\PageMeta;
+use dokuwiki\plugin\struct\meta\StructException;
 
 /**
  * Class action_plugin_struct_title
  *
  * Saves the page title when meta data is saved
  */
-class action_plugin_struct_title extends DokuWiki_Action_Plugin
+class action_plugin_struct_title extends ActionPlugin
 {
-
     /**
      * Registers a callback function for a given event
      *
      * @param Doku_Event_Handler $controller DokuWiki's event controller object
      * @return void
      */
-    public function register(Doku_Event_Handler $controller)
+    public function register(EventHandler $controller)
     {
         $controller->register_hook('PARSER_METADATA_RENDER', 'AFTER', $this, 'handleMeta');
     }
@@ -35,7 +37,7 @@ class action_plugin_struct_title extends DokuWiki_Action_Plugin
      * @param Doku_Event $event
      * @param $param
      */
-    public function handleMeta(Doku_Event $event, $param)
+    public function handleMeta(Event $event, $param)
     {
         $id = $event->data['page'];
 
@@ -48,7 +50,7 @@ class action_plugin_struct_title extends DokuWiki_Action_Plugin
                 $latest &&
                 // external edits do not have last change info
                 isset($event->data['current']['last_change']['date']) &&
-                (int) $latest['lastrev'] === $event->data['current']['last_change']['date']
+                (int)$latest['lastrev'] === $event->data['current']['last_change']['date']
             ) {
                 return;
             }

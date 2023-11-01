@@ -7,6 +7,9 @@
  * @author  Andreas Gohr, Michael Große <dokuwiki@cosmocode.de>
  */
 
+use dokuwiki\Extension\ActionPlugin;
+use dokuwiki\Extension\Event;
+use dokuwiki\Extension\EventHandler;
 use dokuwiki\plugin\struct\meta\Schema;
 
 /**
@@ -18,10 +21,9 @@ use dokuwiki\plugin\struct\meta\Schema;
  * The real output creation is done within the syntax component
  * @see syntax_plugin_struct_output
  */
-class action_plugin_struct_output extends DokuWiki_Action_Plugin
+class action_plugin_struct_output extends ActionPlugin
 {
-
-    const DW2PDF_PLACEHOLDER_PREFIX = 'PLUGIN_STRUCT';
+    protected const DW2PDF_PLACEHOLDER_PREFIX = 'PLUGIN_STRUCT';
 
     /**
      * Registers a callback function for a given event
@@ -29,7 +31,7 @@ class action_plugin_struct_output extends DokuWiki_Action_Plugin
      * @param Doku_Event_Handler $controller DokuWiki's event controller object
      * @return void
      */
-    public function register(Doku_Event_Handler $controller)
+    public function register(EventHandler $controller)
     {
         $controller->register_hook('PARSER_HANDLER_DONE', 'AFTER', $this, 'handleOutput');
         $controller->register_hook('PLUGIN_DW2PDF_REPLACE', 'BEFORE', $this, 'replaceDw2pdf');
@@ -43,9 +45,10 @@ class action_plugin_struct_output extends DokuWiki_Action_Plugin
      * @param Doku_Event $event
      * @param $param
      */
-    public function handleOutput(Doku_Event $event, $param)
+    public function handleOutput(Event $event, $param)
     {
         global $ID;
+        if (!$ID) return;
         if (!page_exists($ID)) return;
 
         $pos = 0;
@@ -54,7 +57,7 @@ class action_plugin_struct_output extends DokuWiki_Action_Plugin
         // display struct data at the bottom?
         if ($this->getConf('bottomoutput')) {
             $ins = count($event->data->calls);
-        } else if (!$this->getConf('topoutput')) {
+        } elseif (!$this->getConf('topoutput')) {
             foreach ($event->data->calls as $num => $call) {
                 // try to find the first header
                 if ($call[0] == 'header') {
@@ -75,15 +78,15 @@ class action_plugin_struct_output extends DokuWiki_Action_Plugin
             $event->data->calls,
             $ins + 1,
             0,
-            array(
-                array(
+            [
+                [
                     'plugin',
-                    array(
-                        'struct_output', array('pos' => $pos), DOKU_LEXER_SPECIAL, ''
-                    ),
+                    [
+                        'struct_output', ['pos' => $pos], DOKU_LEXER_SPECIAL, ''
+                    ],
                     $pos
-                )
-            )
+                ]
+            ]
         );
     }
 
@@ -94,7 +97,7 @@ class action_plugin_struct_output extends DokuWiki_Action_Plugin
      * @param Doku_Event $event
      * @param $param
      */
-    public function replaceDw2pdf(Doku_Event $event, $param)
+    public function replaceDw2pdf(Event $event, $param)
     {
         if (!$event->data['id'] || !page_exists($event->data['id'])) return;
 
@@ -130,7 +133,7 @@ class action_plugin_struct_output extends DokuWiki_Action_Plugin
      * @param Doku_Event $event
      * @param $param
      */
-    public function cleanupDw2pdf(Doku_Event $event, $param)
+    public function cleanupDw2pdf(Event $event, $param)
     {
         $pattern = '~@' . self::DW2PDF_PLACEHOLDER_PREFIX . '_[^@]+?@~';
         $event->data['content'] = preg_replace($pattern, '', $event->data['content']);

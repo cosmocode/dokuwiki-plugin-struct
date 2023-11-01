@@ -13,7 +13,6 @@ use dokuwiki\plugin\struct\types\DateTime;
  */
 class RevisionColumn extends Column
 {
-
     /**
      * PageColumn constructor.
      *

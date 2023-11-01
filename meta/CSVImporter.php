@@ -13,7 +13,6 @@ use dokuwiki\plugin\struct\types\Page;
  */
 class CSVImporter
 {
-
     /** @var  Schema */
     protected $schema;
 
@@ -24,7 +23,7 @@ class CSVImporter
     protected $sqlite;
 
     /** @var Column[] The single values to store index => col */
-    protected $columns = array();
+    protected $columns = [];
 
     /** @var int current line number */
     protected $line = 0;
@@ -180,7 +179,7 @@ class CSVImporter
     protected function readLine($line)
     {
         // prepare values for single value table
-        $values = array();
+        $values = [];
         foreach ($this->columns as $i => $column) {
             if (!isset($line[$i])) throw new StructException('Missing field at CSV line %d', $this->line);
 
@@ -210,7 +209,7 @@ class CSVImporter
     {
         $data = array_combine($this->header, $values);
         // pid is a non-data column and must be supplied to the AccessTable separately
-        $pid = isset($data['pid']) ? $data['pid'] : '';
+        $pid = $data['pid'] ?? '';
         unset($data['pid']);
         $table = $this->schema->getTable();
 

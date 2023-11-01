@@ -3,6 +3,7 @@
 /**
  * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
  *
+ * @author Sevynidd <sevynidd02@protonmail.com>
  * @author Axel Schwarzer <SchwarzerA@gmail.com>
  * @author Jürgen <hans-juergen.schuemmer@schuette.de>
  * @author Joerg <scooter22@gmx.de>
@@ -15,12 +16,14 @@ $lang['headline']              = 'Strukturierte Daten';
 $lang['page schema']           = 'Seiten Schema';
 $lang['lookup schema']         = 'Lookup Schema';
 $lang['edithl']                = 'Bearbeitung von Schema <i>%s</i>';
+$lang['internal']              = 'Dieses interne Schema ist nicht editierbar.';
 $lang['create']                = 'Neues Schema anlegen';
 $lang['schemaname']            = 'Schema-Name:';
 $lang['save']                  = 'Speichern';
 $lang['createhint']            = 'Achtung: Schemas können später nicht umbenannt werden';
 $lang['pagelabel']             = 'Seite';
 $lang['rowlabel']              = 'Reihe #';
+$lang['publishedlabel']        = 'Veröffentlicht';
 $lang['revisionlabel']         = 'Zuletzt geändert';
 $lang['userlabel']             = 'letzter Bearbeitender';
 $lang['summarylabel']          = 'Letzte Zusammenfassung';
@@ -79,6 +82,7 @@ $lang['Exception nolookupmix'] = 'Sie können nicht mehr als eine Suche aggregie
 $lang['Exception No data saved'] = 'Keine Daten gespeichert';
 $lang['Exception no sqlite']   = 'Das \'Struct Plugin\' benötigt das \'Sqlite Plugin\'. Bitte installieren und aktivieren.';
 $lang['Exception column not in table'] = 'Die Spalte %s existiert im Schema %s nicht.';
+$lang['Exception datefilter'] = 'Der Filter: \'<code>$Date(%s)$</code>\' enthält einen ungültigen Wert';
 $lang['Warning: no filters for cloud'] = 'Filter werden in \'Struct Clouds\' nicht unterstützt';
 $lang['sort']                  = 'Nach dieser Spalte sortieren';
 $lang['next']                  = 'Nächste Seite';
@@ -109,3 +113,6 @@ $lang['Exception schema missing'] = 'Schema %s existiert nicht!';
 $lang['no_lookup_for_page']    = 'Sie können den Lookup Editor nicht bei einem Seiten-Schema benutzen!';
 $lang['lookup new entry']      = 'Neuen Eintrag anlegen';
 $lang['bureaucracy_action_struct_lookup_thanks'] = 'Der Eintrag wurde gespeichert. <a href="%s">Neuen Eintrag hinzufügen</a>.';
+
+$lang['filter_title'] = 'Filter';
+$lang['filter_button'] = 'Filter anwenden';

@@ -7,6 +7,7 @@
  * @author  Andreas Gohr, Michael Große <dokuwiki@cosmocode.de>
  */
 
+use dokuwiki\Extension\Plugin;
 use dokuwiki\plugin\struct\meta\AccessDataValidator;
 use dokuwiki\plugin\struct\meta\AccessTable;
 use dokuwiki\plugin\struct\meta\Assignments;
@@ -24,14 +25,13 @@ use dokuwiki\plugin\struct\meta\StructException;
  *
  * Remember to check permissions yourself!
  */
-class helper_plugin_struct extends DokuWiki_Plugin
+class helper_plugin_struct extends Plugin
 {
-
     /**
      * Class names of renderers which should NOT render struct data.
      * All descendants are also blacklisted.
      */
-    const BLACKLIST_RENDERER = [
+    public const BLACKLIST_RENDERER = [
         'Doku_Renderer_metadata',
         '\renderer_plugin_qc'
     ];
@@ -56,10 +56,10 @@ class helper_plugin_struct extends DokuWiki_Plugin
             $assignments = Assignments::getInstance();
             $schemas = $assignments->getPageAssignments($page, false);
         } else {
-            $schemas = array($schema);
+            $schemas = [$schema];
         }
 
-        $result = array();
+        $result = [];
         foreach ($schemas as $schema) {
             $schemaData = AccessTable::getPageAccess($schema, $page, $time);
             $result[$schema] = $schemaData->getDataArray();
@@ -82,14 +82,14 @@ class helper_plugin_struct extends DokuWiki_Plugin
      * entry handle it, but that would be rather unclean and might be problematic when multiple
      * calls are done within the same request.
      *
-     * @todo should this try to lock the page?
-     *
-     *
      * @param string $page
      * @param array $data ('schema' => ( 'fieldlabel' => 'value', ...))
      * @param string $summary
      * @param string $summary
      * @throws StructException
+     * @todo should this try to lock the page?
+     *
+     *
      */
     public function saveData($page, $data, $summary = '', $minor = false)
     {
@@ -102,7 +102,7 @@ class helper_plugin_struct extends DokuWiki_Plugin
         // validate and see if anything changes
         $valid = AccessDataValidator::validateDataForPage($data, $page, $errors);
         if ($valid === false) {
-            throw new StructException("Validation failed:\n%s", join("\n", $errors));
+            throw new StructException("Validation failed:\n%s", implode("\n", $errors));
         }
         if (!$valid) return; // empty array when no changes were detected
 
@@ -120,8 +120,8 @@ class helper_plugin_struct extends DokuWiki_Plugin
     /**
      * Save lookup data row
      *
-     * @param AccessTable        $access the table into which to save the data
-     * @param array             $data   data to be saved in the form of [columnName => 'data']
+     * @param AccessTable $access the table into which to save the data
+     * @param array $data data to be saved in the form of [columnName => 'data']
      */
     public function saveLookupData(AccessTable $access, $data)
     {
@@ -164,15 +164,15 @@ class helper_plugin_struct extends DokuWiki_Plugin
      * @return Schema[]
      * @throws StructException
      */
-    public function getSchema($schema = null)
+    public static function getSchema($schema = null)
     {
         if (is_null($schema)) {
             $schemas = Schema::getAll();
         } else {
-            $schemas = array($schema);
+            $schemas = [$schema];
         }
 
-        $result = array();
+        $result = [];
         foreach ($schemas as $table) {
             $result[$table] = new Schema($table);
         }

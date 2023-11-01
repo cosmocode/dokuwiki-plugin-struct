@@ -7,14 +7,11 @@
  * @author  Andreas Gohr, Michael Große <dokuwiki@cosmocode.de>
  */
 
+use dokuwiki\plugin\struct\meta\AccessTablePage;
 use dokuwiki\plugin\struct\meta\AggregationEditorTable;
-
-// must be run within Dokuwiki
-if (!defined('DOKU_INC')) die();
 
 class syntax_plugin_struct_global extends syntax_plugin_struct_table
 {
-
     /** @var string which class to use for output */
     protected $tableclass = AggregationEditorTable::class;
 
@@ -46,10 +43,8 @@ class syntax_plugin_struct_global extends syntax_plugin_struct_table
         $config = parent::handle($match, $state, $pos, $handler);
         if (is_null($config)) return null;
 
-        $config = $this->addTypeFilter($config);
-
         // adjust some things for the lookup editor
-        $config['cols'] = array('*'); // always select all columns
+        $config['cols'] = $config['cols'] ?: ['*']; // optional columns definition
         if (isset($config['rownumbers'])) unset($config['rownumbers']); // this annoying to update dynamically
         return $config;
     }
@@ -62,7 +57,10 @@ class syntax_plugin_struct_global extends syntax_plugin_struct_table
      */
     protected function addTypeFilter($config)
     {
-        $config['filter'][] = ['%rowid%', '!=', (string)\dokuwiki\plugin\struct\meta\AccessTablePage::DEFAULT_PAGE_RID, 'AND'];
+        $config['filter'][] = [
+            '%rowid%', '!=',
+            (string)AccessTablePage::DEFAULT_PAGE_RID, 'AND'
+        ];
         $config['filter'][] = ['%pageid%', '=*', '^(?![\s\S])', 'AND'];
         $config['withpid'] = 0; // flag for the editor to distinguish data types
         return $config;

@@ -9,13 +9,12 @@ use dokuwiki\plugin\struct\meta\ValidationException;
 
 class DateTime extends Date
 {
-
-    protected $config = array(
+    protected $config = [
         'format' => '', // filled by constructor
         'prefilltoday' => false,
         'pastonly' => false,
-        'futureonly' => false
-    );
+        'futureonly' => false,
+    ];
 
     /**
      * DateTime constructor.
@@ -36,7 +35,7 @@ class DateTime extends Date
     /**
      * Return the editor to edit a single value
      *
-     * @param string $name     the form name where this has to be stored
+     * @param string $name the form name where this has to be stored
      * @param string $rawvalue the current value
      * @param string $htmlID
      *
@@ -48,13 +47,13 @@ class DateTime extends Date
             $rawvalue = date('Y-m-d\TH:i');
         }
         $rawvalue = str_replace(' ', 'T', $rawvalue);
-        $params = array(
+        $params = [
             'name' => $name,
             'value' => $rawvalue,
             'class' => 'struct_datetime',
             'type' => 'datetime-local', // HTML5 datetime picker
             'id' => $htmlID,
-        );
+        ];
         $attributes = buildAttributes($params, true);
         return "<input $attributes />";
     }
@@ -72,12 +71,12 @@ class DateTime extends Date
     public function validate($rawvalue)
     {
         $rawvalue = trim($rawvalue);
-        list($date, $time) = preg_split('/[ |T]/', $rawvalue, 2);
+        [$date, $time] = array_pad(preg_split('/[ |T]/', $rawvalue, 2), 2, '');
         $date = trim($date);
         $time = trim($time);
 
-        list($year, $month, $day) = explode('-', $date, 3);
-        if (!checkdate((int) $month, (int) $day, (int) $year)) {
+        [$year, $month, $day] = explode('-', $date, 3);
+        if (!checkdate((int)$month, (int)$day, (int)$year)) {
             throw new ValidationException('invalid datetime format');
         }
         if ($this->config['pastonly'] && strtotime($rawvalue) > time()) {
@@ -87,9 +86,9 @@ class DateTime extends Date
             throw new ValidationException('futureonly');
         }
 
-        list($h, $m) = explode(':', $time, 3); // drop seconds
-        $h = (int) $h;
-        $m = (int) $m;
+        [$h, $m] = array_pad(explode(':', $time, 3), 2, ''); // drop seconds
+        $h = (int)$h;
+        $m = (int)$m;
         if ($h < 0 || $h > 23 || $m < 0 || $m > 59) {
             throw new ValidationException('invalid datetime format');
         }
@@ -128,21 +127,21 @@ class DateTime extends Date
     public function filter(QueryBuilderWhere $add, $tablealias, $colname, $comp, $value, $op)
     {
         $col = "$tablealias.$colname";
+        $QB = $add->getQB();
 
         // when accessing the revision column we need to convert from Unix timestamp
         if (is_a($this->context, 'dokuwiki\plugin\struct\meta\RevisionColumn')) {
-            $QB = $add->getQB();
             $rightalias = $QB->generateTableAlias();
             $col = "DATETIME($rightalias.lastrev, 'unixepoch', 'localtime')";
             $QB->addLeftJoin($tablealias, 'titles', $rightalias, "$tablealias.pid = $rightalias.pid");
         }
 
-        /** @var QueryBuilderWhere $add Where additionional queries are added to*/
+        /** @var QueryBuilderWhere $add Where additional queries are added to */
         if (is_array($value)) {
             $add = $add->where($op); // sub where group
             $op = 'OR';
         }
-        foreach ((array) $value as $item) {
+        foreach ((array)$value as $item) {
             $pl = $QB->addValue($item);
             $add->where($op, "$col $comp $pl");
         }

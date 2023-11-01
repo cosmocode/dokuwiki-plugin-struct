@@ -8,7 +8,6 @@ use dokuwiki\plugin\struct\meta\QueryBuilderWhere;
 //We prefixing this type with "Abstract" to hide it in Schema Editor
 class AutoSummary extends AbstractBaseType
 {
-
     /**
      * When handling `%lastsummary%` get the data from the `titles` table instead the `data_` table.
      *
@@ -59,6 +58,5 @@ class AutoSummary extends AbstractBaseType
         $sub = $add->where($op);
         $pl = $QB->addValue($value);
         $sub->whereOr("$rightalias.lastsummary $comp $pl");
-        return;
     }
 }

@@ -67,5 +67,5 @@ function formatString(format) {
  * Custom onSelect handler for struct img button
  */
 window.insertStructMedia = function (edid, mediaid, opts, align) {
-    jQuery('#' + edid).val(mediaid).change();
+    jQuery(document.getElementById(edid)).val(mediaid).change();
 };

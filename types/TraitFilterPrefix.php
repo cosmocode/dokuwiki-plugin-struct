@@ -14,7 +14,6 @@ use dokuwiki\plugin\struct\meta\QueryBuilderWhere;
  */
 trait TraitFilterPrefix
 {
-
     /**
      * Comparisons are done against the full string (including prefix/postfix)
      *
@@ -28,7 +27,8 @@ trait TraitFilterPrefix
     public function filter(QueryBuilderWhere $add, $tablealias, $colname, $comp, $value, $op)
     {
         $add = $add->where($op); // open a subgroup
-        $add->where('AND', "$tablealias.$colname != ''"); // make sure the field isn't empty
+        $add->where('AND', "$tablealias.$colname != ''");
+         // make sure the field isn't empty
         $op = 'AND';
 
         /** @var QueryBuilderWhere $add Where additionional queries are added to */
@@ -37,7 +37,7 @@ trait TraitFilterPrefix
             $op = 'OR';
         }
         $QB = $add->getQB();
-        foreach ((array) $value as $item) {
+        foreach ((array)$value as $item) {
             $column = "$tablealias.$colname";
 
             if ($this->config['prefix']) {

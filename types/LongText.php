@@ -2,19 +2,16 @@
 
 namespace dokuwiki\plugin\struct\types;
 
-use dokuwiki\plugin\struct\meta\QueryBuilder;
-use dokuwiki\plugin\struct\meta\QueryBuilderWhere;
-
 class LongText extends AbstractMultiBaseType
 {
     use TraitFilterPrefix;
 
-    protected $config = array(
+    protected $config = [
         'prefix' => '',
         'postfix' => '',
         'rows' => '5',
         'cols' => '50'
-    );
+    ];
 
 
     /**
@@ -61,13 +58,13 @@ class LongText extends AbstractMultiBaseType
     public function valueEditor($name, $rawvalue, $htmlID)
     {
         $rawvalue = formText($rawvalue);
-        $params = array(
+        $params = [
             'name' => $name,
             'class' => 'struct_' . strtolower($this->getClass()),
             'id' => $htmlID,
             'rows' => $this->config['rows'],
             'cols' => $this->config['cols']
-        );
+        ];
         $attributes = buildAttributes($params, true);
 
         return "<textarea $attributes>$rawvalue</textarea>";

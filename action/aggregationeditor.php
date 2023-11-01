@@ -7,10 +7,13 @@
  * @author  Andreas Gohr, Michael Große <dokuwiki@cosmocode.de>
  */
 
+use dokuwiki\Extension\ActionPlugin;
+use dokuwiki\Extension\EventHandler;
+use dokuwiki\Extension\Event;
 use dokuwiki\plugin\struct\meta\AccessTable;
 use dokuwiki\plugin\struct\meta\AccessTableGlobal;
-use dokuwiki\plugin\struct\meta\Column;
 use dokuwiki\plugin\struct\meta\AggregationEditorTable;
+use dokuwiki\plugin\struct\meta\Column;
 use dokuwiki\plugin\struct\meta\Schema;
 use dokuwiki\plugin\struct\meta\SearchConfig;
 use dokuwiki\plugin\struct\meta\StructException;
@@ -21,11 +24,10 @@ use dokuwiki\plugin\struct\meta\Value;
  *
  * Handle global and serial data table editing
  */
-class action_plugin_struct_aggregationeditor extends DokuWiki_Action_Plugin
+class action_plugin_struct_aggregationeditor extends ActionPlugin
 {
-
     /** @var  Column */
-    protected $column = null;
+    protected $column;
 
     /** @var string */
     protected $pid = '';
@@ -39,16 +41,29 @@ class action_plugin_struct_aggregationeditor extends DokuWiki_Action_Plugin
      * @param Doku_Event_Handler $controller DokuWiki's event controller object
      * @return void
      */
-    public function register(Doku_Event_Handler $controller)
+    public function register(EventHandler $controller)
     {
+        $controller->register_hook('DOKUWIKI_STARTED', 'AFTER', $this, 'addJsinfo');
         $controller->register_hook('AJAX_CALL_UNKNOWN', 'BEFORE', $this, 'handleAjax');
     }
 
     /**
+     * Add user's permissions to JSINFO
+     *
      * @param Doku_Event $event
-     * @param $param
      */
-    public function handleAjax(Doku_Event $event, $param)
+    public function addJsinfo(Event $event)
+    {
+        global $ID;
+        global $JSINFO;
+        $JSINFO['plugins']['struct']['isPageEditor'] = auth_quickaclcheck($ID) >= AUTH_EDIT;
+    }
+
+
+    /**
+     * @param Doku_Event $event
+     */
+    public function handleAjax(Event $event)
     {
         $len = strlen('plugin_struct_aggregationeditor_');
         if (substr($event->data, 0, $len) != 'plugin_struct_aggregationeditor_') {
@@ -139,19 +154,26 @@ class action_plugin_struct_aggregationeditor extends DokuWiki_Action_Plugin
     {
         global $INPUT;
         global $lang;
-        $tablename = $INPUT->str('schema');
+
+        $searchconf = $INPUT->arr('searchconf');
+        $tablename = $searchconf['schemas'][0][0];
 
         $schema = new Schema($tablename);
         if (!$schema->isEditable()) {
             return;
         } // no permissions, no editor
+        // separate check for serial data in JS
 
         echo '<div class="struct_entry_form">';
         echo '<fieldset>';
         echo '<legend>' . $this->getLang('lookup new entry') . '</legend>';
         /** @var action_plugin_struct_edit $edit */
         $edit = plugin_load('action', 'struct_edit');
-        foreach ($schema->getColumns(false) as $column) {
+
+        // filter columns based on searchconf cols from syntax
+        $columns = $this->resolveColumns($searchconf, $schema);
+
+        foreach ($columns as $column) {
             $label = $column->getLabel();
             $field = new Value($column, '');
             echo $edit->makeField($field, "entry[$label]");
@@ -165,6 +187,34 @@ class action_plugin_struct_aggregationeditor extends DokuWiki_Action_Plugin
         echo '<div class="err"></div>';
         echo '</fieldset>';
         echo '</div>';
+    }
+
+    /**
+     * Names of columns in the new entry editor: either all,
+     * or the selection defined in config. If config contains '*',
+     * just return the full set.
+     *
+     * @param array $searchconf
+     * @param Schema $schema
+     * @return array
+     */
+    protected function resolveColumns($searchconf, $schema)
+    {
+        // if no valid column config, return all columns
+        if (
+            empty($searchconf['cols']) ||
+            !is_array($searchconf['cols']) ||
+            in_array('*', $searchconf['cols'])
+        ) {
+            return $schema->getColumns(false);
+        }
+
+        $columns = [];
+        foreach ($searchconf['cols'] as $col) {
+            $columns[] = $schema->findColumn($col);
+        }
+        // filter invalid columns (where findColumn() returned false)
+        return array_filter($columns);
     }
 
     /**

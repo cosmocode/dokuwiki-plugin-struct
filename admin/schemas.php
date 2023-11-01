@@ -7,6 +7,8 @@
  * @author  Andreas Gohr, Michael Große <dokuwiki@cosmocode.de>
  */
 
+use dokuwiki\Extension\AdminPlugin;
+use dokuwiki\Form\InputElement;
 use dokuwiki\Form\Form;
 use dokuwiki\plugin\struct\meta\CSVExporter;
 use dokuwiki\plugin\struct\meta\CSVImporter;
@@ -18,9 +20,8 @@ use dokuwiki\plugin\struct\meta\SchemaEditor;
 use dokuwiki\plugin\struct\meta\SchemaImporter;
 use dokuwiki\plugin\struct\meta\StructException;
 
-class admin_plugin_struct_schemas extends DokuWiki_Admin_Plugin
+class admin_plugin_struct_schemas extends AdminPlugin
 {
-
     /**
      * @return int sort number in admin menu
      */
@@ -45,7 +46,6 @@ class admin_plugin_struct_schemas extends DokuWiki_Admin_Plugin
         global $INPUT;
         global $ID;
         global $config_cascade;
-        $config_file_path = end($config_cascade['main']['local']);
 
         // form submit
         $table = Schema::cleanTableName($INPUT->str('table'));
@@ -87,7 +87,7 @@ class admin_plugin_struct_schemas extends DokuWiki_Admin_Plugin
                     $datatype = $INPUT->str('importtype');
                     if ($datatype === CSVExporter::DATATYPE_PAGE) {
                         $csvImporter = new CSVPageImporter($table, $_FILES['csvfile']['tmp_name'], $datatype);
-                    } else if ($datatype === CSVExporter::DATATYPE_SERIAL) {
+                    } elseif ($datatype === CSVExporter::DATATYPE_SERIAL) {
                         $csvImporter = new CSVSerialImporter($table, $_FILES['csvfile']['tmp_name'], $datatype);
                     } else {
                         $csvImporter = new CSVImporter($table, $_FILES['csvfile']['tmp_name'], $datatype);
@@ -118,7 +118,7 @@ class admin_plugin_struct_schemas extends DokuWiki_Admin_Plugin
                     $schema->delete();
                     msg($this->getLang('del_ok'), 1);
                     touch(action_plugin_struct_cache::getSchemaRefreshFile());
-                    send_redirect(wl($ID, array('do' => 'admin', 'page' => 'struct_schemas'), true, '&'));
+                    send_redirect(wl($ID, ['do' => 'admin', 'page' => 'struct_schemas'], true, '&'));
                 } catch (StructException $e) {
                     msg(hsc($e->getMessage()), -1);
                 }
@@ -135,7 +135,7 @@ class admin_plugin_struct_schemas extends DokuWiki_Admin_Plugin
                     $schema->clear();
                     msg($this->getLang('clear_ok'), 1);
                     touch(action_plugin_struct_cache::getSchemaRefreshFile());
-                    send_redirect(wl($ID, array('do' => 'admin', 'page' => 'struct_schemas'), true, '&'));
+                    send_redirect(wl($ID, ['do' => 'admin', 'page' => 'struct_schemas'], true, '&'));
                 } catch (StructException $e) {
                     msg(hsc($e->getMessage()), -1);
                 }
@@ -156,6 +156,11 @@ class admin_plugin_struct_schemas extends DokuWiki_Admin_Plugin
 
             echo $this->locale_xhtml('editor_edit');
             echo '<h2>' . sprintf($this->getLang('edithl'), hsc($table)) . '</h2>';
+
+            if ($schema->getConfig()['internal']) {
+                echo $this->getLang('internal');
+                return;
+            }
 
             echo '<ul class="tabs" id="plugin__struct_tabs">';
             /** @noinspection HtmlUnknownAnchorTarget */
@@ -185,7 +190,7 @@ class admin_plugin_struct_schemas extends DokuWiki_Admin_Plugin
      */
     protected function htmlJson(Schema $schema)
     {
-        $form = new Form(array('enctype' => 'multipart/form-data', 'id' => 'plugin__struct_json'));
+        $form = new Form(['enctype' => 'multipart/form-data', 'id' => 'plugin__struct_json']);
         $form->setHiddenField('do', 'admin');
         $form->setHiddenField('page', 'struct_schemas');
         $form->setHiddenField('table', $schema->getTable());
@@ -196,7 +201,7 @@ class admin_plugin_struct_schemas extends DokuWiki_Admin_Plugin
         $form->addFieldsetClose();
 
         $form->addFieldsetOpen($this->getLang('import'));
-        $form->addElement(new \dokuwiki\Form\InputElement('file', 'schemafile'))->attr('accept', '.json');
+        $form->addElement(new InputElement('file', 'schemafile'))->attr('accept', '.json');
         $form->addButton('import', $this->getLang('btn_import'));
         $form->addHTML('<p>' . $this->getLang('import_warning') . '</p>');
         $form->addFieldsetClose();
@@ -234,10 +239,13 @@ class admin_plugin_struct_schemas extends DokuWiki_Admin_Plugin
             ->val(CSVExporter::DATATYPE_SERIAL)
             ->addClass('edit block');
         $form->addHTML('<br>');
-        $form->addElement(new \dokuwiki\Form\InputElement('file', 'csvfile'))->attr('accept', '.csv');
+        $form->addElement(new InputElement('file', 'csvfile'))->attr('accept', '.csv');
         $form->addButton('importcsv', $this->getLang('btn_import'));
         $form->addCheckbox('createPage', 'Create missing pages')->addClass('block edit');
-        $form->addHTML('<p><a href="https://www.dokuwiki.org/plugin:struct:csvimport">' . $this->getLang('admin_csvhelp') . '</a></p>');
+        $form->addHTML(
+            '<p><a href="https://www.dokuwiki.org/plugin:struct:csvimport">' .
+            $this->getLang('admin_csvhelp') . '</a></p>'
+        );
         $form->addFieldsetClose();
 
         return $form->toHTML();
@@ -251,7 +259,7 @@ class admin_plugin_struct_schemas extends DokuWiki_Admin_Plugin
      */
     protected function htmlDelete(Schema $schema)
     {
-        $form = new Form(array('id' => 'plugin__struct_delete'));
+        $form = new Form(['id' => 'plugin__struct_delete']);
         $form->setHiddenField('do', 'admin');
         $form->setHiddenField('page', 'struct_schemas');
         $form->setHiddenField('table', $schema->getTable());
@@ -299,34 +307,26 @@ class admin_plugin_struct_schemas extends DokuWiki_Admin_Plugin
     {
         global $ID;
 
-        $toc = array();
+        $toc = [];
         $link = wl(
             $ID,
-            array(
-                   'do' => 'admin',
-                   'page' => 'struct_assignments'
-               )
+            ['do' => 'admin', 'page' => 'struct_assignments']
         );
         $toc[] = html_mktocitem($link, $this->getLang('menu_assignments'), 0, '');
         $slink = wl(
             $ID,
-            array(
-                   'do' => 'admin',
-                   'page' => 'struct_schemas'
-               )
+            ['do' => 'admin', 'page' => 'struct_schemas']
         );
         $toc[] = html_mktocitem($slink, $this->getLang('menu'), 0, '');
 
-        $tables = Schema::getAll();
-        if ($tables) {
-            foreach ($tables as $table) {
+        $schemas = helper_plugin_struct::getSchema();
+        if ($schemas) {
+            foreach ($schemas as $schema) {
+                if ($schema->isInternal()) continue;
+                $table = $schema->getTable();
                 $link = wl(
                     $ID,
-                    array(
-                           'do' => 'admin',
-                           'page' => 'struct_schemas',
-                           'table' => $table
-                       )
+                    ['do' => 'admin', 'page' => 'struct_schemas', 'table' => $table]
                 );
 
                 $toc[] = html_mktocitem($link, hsc($table), 1, '');

@@ -2,10 +2,9 @@
 
 namespace dokuwiki\plugin\struct\meta;
 
+use dokuwiki\Extension\Plugin;
 use dokuwiki\Form\Form;
 use dokuwiki\plugin\struct\types\Text;
-
-if (!defined('JSON_PRETTY_PRINT')) define('JSON_PRETTY_PRINT', 0); // PHP 5.3 compatibility
 
 /**
  * Class SchemaEditor
@@ -20,7 +19,7 @@ class SchemaEditor
     /** @var Schema the schema that is edited */
     protected $schema;
 
-    /** @var \DokuWiki_Plugin  */
+    /** @var Plugin */
     protected $hlp;
 
     /**
@@ -43,7 +42,7 @@ class SchemaEditor
      */
     public function getEditor()
     {
-        $form = new Form(array('method' => 'POST', 'id' => 'plugin__struct_editor'));
+        $form = new Form(['method' => 'POST', 'id' => 'plugin__struct_editor']);
         $form->setHiddenField('do', 'admin');
         $form->setHiddenField('page', 'struct_schemas');
         $form->setHiddenField('table', $this->schema->getTable());
@@ -60,7 +59,7 @@ class SchemaEditor
         </tr>");
 
 
-        foreach ($this->schema->getColumns() as $key => $col) {
+        foreach ($this->schema->getColumns() as $col) {
             $form->addHTML($this->adminColumn($col->getColref(), $col));
         }
 
@@ -70,8 +69,13 @@ class SchemaEditor
         $form->addHTML('</table>');
 
         $form->addFieldsetOpen();
+
         $config = json_encode($this->schema->getConfig(), JSON_PRETTY_PRINT);
-        $form->addHTML('<textarea name="schema[config]" id="schemaConfig" cols="45" rows="10" class="config">' . hsc($config) . '</textarea>');
+        $form->addHTML(
+            '<textarea name="schema[config]" id="schemaConfig" cols="45" rows="10" class="config">' .
+            hsc($config) .
+            '</textarea>'
+        );
         $form->addFieldsetClose();
 
 
@@ -88,10 +92,14 @@ class SchemaEditor
     protected function initJSONEditor()
     {
         $html = '';
-        $html .= '<link href="' . DOKU_BASE . 'lib/plugins/struct/jsoneditor/jsoneditor.min.css" rel="stylesheet" type="text/css">';
-        $html .= '<link href="' . DOKU_BASE . 'lib/plugins/struct/jsoneditor/setup.css" rel="stylesheet" type="text/css">';
-        $html .= '<script src="' . DOKU_BASE . 'lib/plugins/struct/jsoneditor/jsoneditor-minimalist.min.js" defer="defer"></script>';
-        $html .= '<script src="' . DOKU_BASE . 'lib/plugins/struct/jsoneditor/setup.js" defer="defer"></script>';
+        $html .= '<link href="' . DOKU_BASE .
+            'lib/plugins/struct/jsoneditor/jsoneditor.min.css" rel="stylesheet" type="text/css">';
+        $html .= '<link href="' . DOKU_BASE .
+            'lib/plugins/struct/jsoneditor/setup.css" rel="stylesheet" type="text/css">';
+        $html .= '<script src="' . DOKU_BASE .
+            'lib/plugins/struct/jsoneditor/jsoneditor-minimalist.min.js" defer="defer"></script>';
+        $html .= '<script src="' . DOKU_BASE .
+            'lib/plugins/struct/jsoneditor/setup.js" defer="defer"></script>';
         return $html;
     }
 
@@ -127,7 +135,9 @@ class SchemaEditor
 
         $html .= '<td class="config">';
         $config = json_encode($col->getType()->getConfig(), JSON_PRETTY_PRINT);
-        $html .= '<textarea name="' . $base . '[config]" cols="45" rows="10" class="config">' . hsc($config) . '</textarea>';
+        $html .= '<textarea name="' . $base . '[config]" cols="45" rows="10" class="config">' .
+            hsc($config) .
+            '</textarea>';
         $html .= '</td>';
 
         $types = array_keys(Column::allTypes());

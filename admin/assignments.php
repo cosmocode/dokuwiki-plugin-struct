@@ -8,15 +8,12 @@
  */
 
 // must be run within Dokuwiki
+use dokuwiki\Extension\AdminPlugin;
 use dokuwiki\plugin\struct\meta\Assignments;
-use dokuwiki\plugin\struct\meta\Schema;
 use dokuwiki\plugin\struct\meta\StructException;
 
-if (!defined('DOKU_INC')) die();
-
-class admin_plugin_struct_assignments extends DokuWiki_Admin_Plugin
+class admin_plugin_struct_assignments extends AdminPlugin
 {
-
     /**
      * @return int sort number in admin menu
      */
@@ -81,8 +78,7 @@ class admin_plugin_struct_assignments extends DokuWiki_Admin_Plugin
             }
 
 
-
-            send_redirect(wl($ID, array('do' => 'admin', 'page' => 'struct_assignments'), true, '&'));
+            send_redirect(wl($ID, ['do' => 'admin', 'page' => 'struct_assignments'], true, '&'));
         }
     }
 
@@ -123,14 +119,14 @@ class admin_plugin_struct_assignments extends DokuWiki_Admin_Plugin
 
             $link = wl(
                 $ID,
-                array(
-                'do' => 'admin',
-                'page' => 'struct_assignments',
-                'action' => 'delete',
-                'sectok' => getSecurityToken(),
-                'assignment[tbl]' => $schema,
-                'assignment[assign]' => $assignee,
-                )
+                [
+                    'do' => 'admin',
+                    'page' => 'struct_assignments',
+                    'action' => 'delete',
+                    'sectok' => getSecurityToken(),
+                    'assignment[tbl]' => $schema,
+                    'assignment[assign]' => $assignee
+                ]
             );
 
             echo '<tr>';
@@ -145,7 +141,10 @@ class admin_plugin_struct_assignments extends DokuWiki_Admin_Plugin
         echo '<td><input type="text" name="assignment[assign]" /></td>';
         echo '<td>';
         echo '<select name="assignment[tbl]">';
-        foreach (Schema::getAll() as $table) {
+        $schemas = helper_plugin_struct::getSchema();
+        foreach ($schemas as $schema) {
+            if ($schema->isInternal()) continue;
+            $table = $schema->getTable();
             echo '<option value="' . hsc($table) . '">' . hsc($table) . '</option>';
         }
         echo '</select>';

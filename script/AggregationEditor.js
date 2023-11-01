@@ -9,6 +9,8 @@ const AggregationEditor = function (idx, table) {
     const schema = $table.parents('.structaggregation').data('schema');
     if (!schema) return;
 
+    const searchconf = JSON.parse($table.parents('.structaggregation').attr('data-searchconf'));
+
     /**
      * Adds delete row buttons to each row
      */
@@ -79,6 +81,11 @@ const AggregationEditor = function (idx, table) {
     function addForm(data) {
         if ($form) $form.remove();
         var $agg = $table.parents('.structaggregation');
+        const searchconf = JSON.parse($agg.attr('data-searchconf'));
+        const withpid = searchconf['withpid'];
+        const isPageEditor = JSINFO.plugins.struct.isPageEditor;
+
+        if (withpid && !isPageEditor) return;
 
         $form = jQuery('<form></form>');
         $form.html(data);
@@ -89,8 +96,7 @@ const AggregationEditor = function (idx, table) {
         }).appendTo($form); // add the search config to the form
 
         // if page id needs to be passed to backend, add pid
-        const searchconf = JSON.parse($agg.attr('data-searchconf'));
-        if (searchconf['withpid']) {
+        if (withpid) {
             jQuery('<input>').attr({
                 type: 'hidden',
                 name: 'pid',
@@ -123,9 +129,6 @@ const AggregationEditor = function (idx, table) {
                     $errors.text(xhr.responseText).show();
                 })
         });
-
-        // focus first input
-        $form.find('input, textarea').first().focus();
     }
 
     /**
@@ -139,7 +142,7 @@ const AggregationEditor = function (idx, table) {
         DOKU_BASE + 'lib/exe/ajax.php',
         {
             call: 'plugin_struct_aggregationeditor_new',
-            schema: schema
+            searchconf: searchconf
         },
         function (data) {
             if (!data) return;

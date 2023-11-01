@@ -2,6 +2,7 @@
 
 namespace dokuwiki\plugin\struct\meta;
 
+use dokuwiki\Extension\Event;
 use dokuwiki\plugin\struct\types\AbstractBaseType;
 
 /**
@@ -17,7 +18,6 @@ use dokuwiki\plugin\struct\types\AbstractBaseType;
  */
 class Column
 {
-
     /** @var int fields are sorted by this value */
     protected $sort;
     /** @var AbstractBaseType the type of this column */
@@ -39,10 +39,10 @@ class Column
      */
     public function __construct($sort, AbstractBaseType $type, $colref = 0, $enabled = true, $table = '')
     {
-        $this->sort = (int) $sort;
+        $this->sort = (int)$sort;
         $this->type = $type;
-        $this->colref = (int) $colref;
-        $this->enabled = (bool) $enabled;
+        $this->colref = (int)$colref;
+        $this->enabled = (bool)$enabled;
         $this->table = $table;
     }
 
@@ -119,7 +119,8 @@ class Column
      */
     public function getColName($enforceSingleColumn = true)
     {
-        if ($enforceSingleColumn && $this->isMulti()) throw new StructException('Calling getColName on a multi value column makes no sense.');
+        if ($enforceSingleColumn && $this->isMulti())
+            throw new StructException('Calling getColName on a multi value column makes no sense.');
         return 'col' . $this->colref;
     }
 
@@ -188,7 +189,7 @@ class Column
         if (!is_null($map) && !$reload) return $map;
 
         // get our own types
-        $map = array();
+        $map = [];
         $files = glob(DOKU_PLUGIN . 'struct/types/*.php');
         foreach ($files as $file) {
             $file = basename($file, '.php');
@@ -199,7 +200,7 @@ class Column
         }
 
         // let plugins add their own
-        trigger_event('PLUGIN_STRUCT_TYPECLASS_INIT', $map);
+        Event::createAndTrigger('PLUGIN_STRUCT_TYPECLASS_INIT', $map);
 
         ksort($map);
         return $map;

@@ -7,7 +7,6 @@
     fieldset {
         width: 100%;
         padding: 0.5em 0;
-        display: table;
         text-align: left;
 
         legend {
@@ -31,63 +30,110 @@
             background: transparent url(../../images/closed.png) 5px center no-repeat;
         }
     }
-    div.field {
-        display: block;
 
-        label {
-            display: inline-block;
+    div.field {
+        display: flex;
+        padding: 0.5em;
+
+        &:hover {
+            background-color: @ini_background_alt;
+        }
+
+        > label {
             text-align: left;
             font-weight: normal;
-            width: 10em;
-
-            &:hover {
-                background-color: @ini_background_alt;
-            }
+            width: 12em;
+            flex-shrink: 0;
 
             span.label {
+                padding-right: 16px;
                 display: block;
-                box-sizing: border-box;
-                padding-left: 0.5em;
-                padding-top: 0.25em;
-                padding-bottom: 0.25em;
 
                 // fixes for bootstrap3 template
                 color: @ini_text;
                 font-size: 100%;
                 text-align: left;
-            }
 
-            span.label.hashint {
-                background: url(../../images/info.png) no-repeat right 5px center;
-            }
 
-            span.input {
-                display: table-cell;
-                padding-left: 0.25em;
-                padding-top: 0.25em;
-                padding-bottom: 0.25em;
-
-                input:not([type='checkbox']):not([type='color']), textarea, select {
-                    width: 380px;
+                &.hashint {
+                    background: url(../../images/info.png) no-repeat right 5px top;
                 }
             }
         }
-    }
 
-    // this should not influence the design
-    .newtemplate {
-        display: inline;
+        > span.input {
+            display: flex;
+            text-align: left;
+            flex-grow: 1;
+            flex-wrap: wrap;
+
+            // general input fields
+            input:not([type='checkbox']):not([type='color']),
+            textarea,
+            select {
+                width: 100%;
+
+                // smaller input types
+                &.struct_media,
+                &.struct_date {
+                    width: 30%;
+                }
+            }
+
+            // checkboxes
+            label {
+                margin-right: 1em;
+                white-space: nowrap;
+            }
+
+            // wrap multi-value fields
+            .multiwrap, .newtemplate {
+                display: inline;
+                width: fit-content;
+            }
+
+            // space multi-value fields
+            .multiwrap {
+                margin: 0 0.25em 0.25em 0;
+            }
+
+            // overlay media button on top of input field
+            button.struct_media {
+                width: 2.5em;
+                margin-left: -2.5em;
+            }
+
+            // input hints
+            small {
+                display: block;
+                color: @ini_text_alt;
+            }
+        }
     }
-    // add some spacing to multi-value fields
-    .multiwrap {
-        display: inline-block;
-        margin: 0 0.25em 0.25em 0;
+}
+
+/*responsive - small screen*/
+@media (max-width: 480px) {
+    .dokuwiki .struct_entry_form div.field {
+        flex-wrap: wrap;
+
+        label {
+            > span {
+                text-align: left;
+                width: 100%;
+            }
+        }
+
+        span.input {
+            width: 100%;
+        }
     }
 }
 
 /**
  * Bureaucracy form adjustments
  */
+
 .dokuwiki form.bureaucracy__plugin div.field {
     display: flex;
     justify-content: flex-end;
@@ -139,6 +185,7 @@
 @media (max-width: 480px) {
     .dokuwiki form.bureaucracy__plugin div.field {
         flex-wrap: wrap;
+
         label {
             > span {
                 text-align: left;
@@ -155,6 +202,7 @@
 /**
  * Tabs in the Schema Editor
  */
+
 #plugin__struct_delete,
 #plugin__struct_json {
     border: 1px solid @ini_border;
@@ -189,6 +237,7 @@ form.struct_newschema {
 /**
  * The Schema Editor
  */
+
 #plugin__struct_editor {
     table.inline {
         width: 100%;
@@ -212,6 +261,7 @@ form.struct_newschema {
         td.config > div {
             overflow: auto;
             height: 2em;
+
             div.jsoneditor-outer {
                 margin: 0;
                 padding: 0;
@@ -222,6 +272,7 @@ form.struct_newschema {
             opacity: 1;
         }
     }
+
     fieldset {
         width: 100%;
         padding-left: 0;
@@ -237,6 +288,7 @@ form.struct_newschema {
 /**
  * In page output
  */
+
 #plugin__struct_output {
     margin-right: 16em; // space for the TOC
     border: 1px solid @ini_border;
@@ -279,9 +331,10 @@ form.struct_newschema {
 /**
  * Aggregation
  */
+
 .dokuwiki .structaggregation {
 
-    &.listaggregation > ul li div {
+    &.structaggregationlist > ul li div {
         display: inline;
 
         p {
@@ -289,6 +342,31 @@ form.struct_newschema {
             margin: 0;
         }
     }
+
+    /* Indexed List */
+
+    &.structaggregationlist.is-indexed > ul {
+        list-style: none;
+        display: flex;
+        flex-wrap: wrap;
+        padding: 0;
+        gap: 0.5em;
+
+
+        > li {
+            flex: 1 1 30%;
+            min-width: 18em;
+            max-width: 100%;
+            margin: 0;
+            overflow: hidden;
+
+            > div.li {
+                font-size: 1.5em;
+                font-weight: bold;
+            }
+        }
+    }
+
 
     table th {
         a {
@@ -298,6 +376,7 @@ form.struct_newschema {
             &.sort-up::before {
                 content: '↑';
             }
+
             &.sort-down::before {
                 content: '↓';
             }
@@ -346,7 +425,7 @@ form.struct_newschema {
     }
 }
 
-.dokuwiki .structcloud {
+.dokuwiki .structaggregationcloud {
     ul {
         text-align: center;
 
@@ -375,6 +454,7 @@ form.struct_newschema {
 /**
  * Lookup Aggregation Editor
  */
+
 .dokuwiki .structaggregationeditor {
     table.inline {
         min-width: 100%;
@@ -388,6 +468,7 @@ form.struct_newschema {
 /**
  * General Output styles
  */
+
 .dokuwiki div.struct_color {
     width: 1.2em;
     height: 1.2em;
@@ -398,6 +479,7 @@ form.struct_newschema {
 /**
  * Inline Editor Overlay
  */
+
 .dokuwiki .struct_inlineditor {
     position: absolute;
     top: 0;
@@ -420,6 +502,7 @@ form.struct_newschema {
 /**
  * Errors on AJAX
  */
+
 .dokuwiki .structaggregationeditor form,
 .dokuwiki .struct_inlineditor {
     .err {
@@ -429,5 +512,70 @@ form.struct_newschema {
         background-color: @ini_highlight;
         color: @ini_text;
         text-align: left;
+    }
+}
+
+/**
+ * Struct Filter
+ */
+.dokuwiki .structaggregationfilter {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1em;
+    box-sizing: border-box;
+
+    details {
+        position: relative;
+        max-width: 30%;
+        border: 1px solid transparent;
+        padding: 0.25em 0.5em;
+        cursor: pointer;
+
+        &[open] {
+            background-color: @ini_background_alt;
+
+            ul {
+                z-index: 10;
+                min-width: 15em;
+                border: 1px solid @ini_border;
+            }
+        }
+
+        /** needed for Sprintdoc template */
+        summary {
+            display: list-item;
+        }
+
+        ul {
+            left: -1px;
+            right: -1px;
+            position: absolute;
+            padding: 0;
+            background-color: @ini_background;
+            max-height: 33vh;
+            overflow-y: auto;
+
+            li {
+                margin: 0;
+                text-overflow: ellipsis;
+                overflow: hidden;
+                padding: 0.25em 0.5em;
+
+                &.active {
+                    background-color: @ini_background_alt;
+                    a {
+                        font-weight: bold;
+                    }
+                }
+
+                &:hover {
+                    background-color: @ini_background_alt;
+                }
+
+                a {
+                    display: block;
+                }
+            }
+        }
     }
 }

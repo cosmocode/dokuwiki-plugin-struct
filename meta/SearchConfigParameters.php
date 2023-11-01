@@ -9,7 +9,6 @@ namespace dokuwiki\plugin\struct\meta;
  */
 class SearchConfigParameters
 {
-
     /** @var string parameter name to pass filters */
     public static $PARAM_FILTER = 'flt';
     /** @var string parameter name to pass offset */
@@ -21,11 +20,11 @@ class SearchConfigParameters
     protected $searchConfig;
 
     /** @var null|array */
-    protected $sort = null;
+    protected $sort;
     /** @var int */
     protected $offset = 0;
     /** @var  array */
-    protected $filters = array();
+    protected $filters = [];
 
     /**
      * Initializes the dynamic parameters from $INPUT
@@ -40,13 +39,13 @@ class SearchConfigParameters
         $confHlp = plugin_load('helper', 'struct_config');
 
         if ($INPUT->has(self::$PARAM_SORT)) {
-            list($colname, $sort) = $confHlp->parseSort($INPUT->str(self::$PARAM_SORT));
+            [$colname, $sort] = $confHlp->parseSort($INPUT->str(self::$PARAM_SORT));
             $this->setSort($colname, $sort);
         }
 
         if ($INPUT->has(self::$PARAM_FILTER)) {
             foreach ($INPUT->arr(self::$PARAM_FILTER) as $colcomp => $filter) {
-                list($colname, $comp, $value,) = $confHlp->parseFilterLine('AND', $colcomp . $filter);
+                [$colname, $comp, $value, ] = $confHlp->parseFilterLine('AND', $colcomp . $filter);
                 $this->addFilter($colname, $comp, $value);
             }
         }
@@ -60,11 +59,11 @@ class SearchConfigParameters
      * Returns the full qualified name for a given column
      *
      * @param string|Column $column
-     * @return bool|string
+     * @return false|string
      */
     protected function resolveColumn($column)
     {
-        if (!is_a($column, '\dokuwiki\plugin\struct\meta\Column')) {
+        if (!is_a($column, Column::class)) {
             $column = $this->searchConfig->findColumn($column);
             if (!$column) return false;
         }
@@ -82,7 +81,7 @@ class SearchConfigParameters
     {
         $column = $this->resolveColumn($column);
         if (!$column) return;
-        $this->sort = array($column, $asc);
+        $this->sort = [$column, $asc];
     }
 
     /**
@@ -115,7 +114,7 @@ class SearchConfigParameters
      * Adds another filter
      *
      * When there is a filter for that column already, the new filter overwrites it. Setting a
-     * blank value is the same as calling @see removeFilter()
+     * blank value is the same as calling removeFilter()
      *
      * @param string|Column $column
      * @param string $comp the comparator
@@ -129,7 +128,7 @@ class SearchConfigParameters
         if (trim($value) === '') {
             $this->removeFilter($column);
         } else {
-            $this->filters[$column] = array($comp, $value);
+            $this->filters[$column] = [$comp, $value];
         }
     }
 
@@ -150,7 +149,7 @@ class SearchConfigParameters
      */
     public function clearFilters()
     {
-        $this->filters = array();
+        $this->filters = [];
     }
 
     /**
@@ -172,20 +171,20 @@ class SearchConfigParameters
      */
     public function getURLParameters()
     {
-        $params = array();
+        $params = [];
         if ($this->offset) {
             $params[self::$PARAM_OFFSET] = $this->offset;
         }
 
         if ($this->sort) {
-            list($column, $asc) = $this->sort;
+            [$column, $asc] = $this->sort;
             if (!$asc) $column = "^$column";
             $params[self::$PARAM_SORT] = $column;
         }
 
         if ($this->filters) {
             foreach ($this->filters as $column => $filter) {
-                list($comp, $value) = $filter;
+                [$comp, $value] = $filter;
                 $key = self::$PARAM_FILTER . '[' . $column . $comp . ']';
                 $params[$key] = $value;
             }
@@ -195,34 +194,22 @@ class SearchConfigParameters
     }
 
     /**
-     * Updates the given config array with the values currently set
-     *
-     * This should only be called once at the initialization
-     *
-     * @param array $config
-     * @return array
+     * Applies the dynamic filter settings to the SearchConfig
      */
-    public function updateConfig($config)
+    public function apply()
     {
         if ($this->offset) {
-            $config['offset'] = $this->offset;
+            $this->searchConfig->setOffset($this->offset);
         }
 
         if ($this->sort) {
-            list($column, $asc) = $this->sort;
-            $config['sort'] = array(
-                array($column, $asc)
-            );
+            $this->searchConfig->clearSort(); // remove any existing sort
+            $this->searchConfig->addSort($this->sort[0], $this->sort[1]);
         }
 
-        if ($this->filters) {
-            if (empty($config['filter'])) $config['filter'] = array();
-            foreach ($this->filters as $column => $filter) {
-                list($comp, $value) = $filter;
-                $config['filter'][] = array($column, $comp, $value, 'AND');
-            }
+        foreach ($this->filters as $colName => $filter) {
+            [$comp, $value] = $filter;
+            $this->searchConfig->addDynamicFilter($colName, $value, $comp, 'AND');
         }
-
-        return $config;
     }
 }

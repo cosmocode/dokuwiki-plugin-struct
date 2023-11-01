@@ -6,13 +6,12 @@ use dokuwiki\plugin\struct\meta\ValidationException;
 
 class Date extends AbstractBaseType
 {
-
-    protected $config = array(
+    protected $config = [
         'format' => 'Y/m/d',
         'prefilltoday' => false,
         'pastonly' => false,
         'futureonly' => false
-    );
+    ];
 
     /**
      * Output the stored data
@@ -38,7 +37,7 @@ class Date extends AbstractBaseType
     /**
      * Return the editor to edit a single value
      *
-     * @param string $name     the form name where this has to be stored
+     * @param string $name the form name where this has to be stored
      * @param string $rawvalue the current value
      * @param string $htmlID
      *
@@ -50,13 +49,13 @@ class Date extends AbstractBaseType
             $rawvalue = date('Y-m-d');
         }
 
-        $params = array(
+        $params = [
             'name' => $name,
             'value' => $rawvalue,
             'class' => 'struct_date',
-            'type' => 'date',  // HTML5 date picker
+            'type' => 'date', // HTML5 date picker
             'id' => $htmlID,
-        );
+        ];
         $attributes = buildAttributes($params, true);
         return "<input $attributes />";
     }
@@ -74,10 +73,10 @@ class Date extends AbstractBaseType
     public function validate($rawvalue)
     {
         $rawvalue = parent::validate($rawvalue);
-        list($rawvalue) = explode(' ', $rawvalue, 2); // strip off time if there is any
+        [$rawvalue] = explode(' ', $rawvalue, 2); // strip off time if there is any
 
-        list($year, $month, $day) = explode('-', $rawvalue, 3);
-        if (!checkdate((int) $month, (int) $day, (int) $year)) {
+        [$year, $month, $day] = explode('-', $rawvalue, 3);
+        if (!checkdate((int)$month, (int)$day, (int)$year)) {
             throw new ValidationException('invalid date format');
         }
         if ($this->config['pastonly'] && strtotime($rawvalue) > time()) {

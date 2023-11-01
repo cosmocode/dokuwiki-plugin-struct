@@ -7,22 +7,23 @@
  * @author  Andreas Gohr, Michael Große <dokuwiki@cosmocode.de>
  */
 
+use dokuwiki\Extension\SyntaxPlugin;
+use dokuwiki\Extension\Event;
 use dokuwiki\plugin\struct\meta\AccessTable;
 use dokuwiki\plugin\struct\meta\Assignments;
 use dokuwiki\plugin\struct\meta\StructException;
 
-class syntax_plugin_struct_output extends DokuWiki_Syntax_Plugin
+class syntax_plugin_struct_output extends SyntaxPlugin
 {
-
     protected $hasBeenRendered = false;
 
-    const XHTML_OPEN = '<div id="plugin__struct_output">';
-    const XHTML_CLOSE = '</div>';
+    protected const XHTML_OPEN = '<div id="plugin__struct_output">';
+    protected const XHTML_CLOSE = '</div>';
 
     /**
      * Regexp to check on which actions the struct data may be rendered
      */
-    const WHITELIST_ACTIONS = '/^(show|export_.*)$/';
+    protected const WHITELIST_ACTIONS = '/^(show|export_.*)$/';
 
     /**
      * @return string Syntax mode type
@@ -73,7 +74,7 @@ class syntax_plugin_struct_output extends DokuWiki_Syntax_Plugin
     public function handle($match, $state, $pos, Doku_Handler $handler)
     {
         // this is never called
-        return array();
+        return [];
     }
 
     /**
@@ -98,7 +99,7 @@ class syntax_plugin_struct_output extends DokuWiki_Syntax_Plugin
                 return true;
             }
         }
-        if ($ID != $INFO['id']) return true;
+        if (!isset($INFO['id']) || ($ID != $INFO['id'])) return true;
         if (!$INFO['exists']) return true;
         if ($this->hasBeenRendered) return true;
         if (!preg_match(self::WHITELIST_ACTIONS, act_clean($ACT))) return true;
@@ -123,15 +124,15 @@ class syntax_plugin_struct_output extends DokuWiki_Syntax_Plugin
                 continue; // no such schema at this revision
             }
 
-            $rendercontext = array(
+            $rendercontext = [
                 'renderer' => $renderer,
                 'format' => $format,
                 'meta' => p_get_metadata($ID),
                 'schemadata' => $schemadata,
                 'hasdata' => &$hasdata
-            );
+            ];
 
-            $event = new \Doku_Event(
+            $event = new Event(
                 'PLUGIN_STRUCT_RENDER_SCHEMA_DATA',
                 $rendercontext
             );
@@ -166,6 +167,10 @@ class syntax_plugin_struct_output extends DokuWiki_Syntax_Plugin
 
         $rendercontext['hasdata'] = true;
 
+        if ($format == 'xhtml') {
+            $renderer->doc .= '<div class="struct_output_' . $schemadata->getSchema()->getTable() . '">';
+        }
+
         $renderer->table_open();
         $renderer->tablethead_open();
         $renderer->tablerow_open();
@@ -193,6 +198,10 @@ class syntax_plugin_struct_output extends DokuWiki_Syntax_Plugin
         }
         $renderer->tabletbody_close();
         $renderer->table_close();
+
+        if ($format == 'xhtml') {
+            $renderer->doc .= '</div>';
+        }
     }
 }
 

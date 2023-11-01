@@ -13,17 +13,16 @@ namespace dokuwiki\plugin\struct\types;
  */
 abstract class AbstractMultiBaseType extends AbstractBaseType
 {
-
     /**
      * @param string $name
      * @param \string[] $rawvalues
-     * @param string $htmlID   a unique id to be referenced by the label
+     * @param string $htmlID a unique id to be referenced by the label
      *
      * @return string
      */
     public function multiValueEditor($name, $rawvalues, $htmlID)
     {
-        $value = join(', ', $rawvalues);
+        $value = implode(', ', $rawvalues);
 
         return
             '<div class="multiwrap">' .

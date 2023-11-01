@@ -2,7 +2,6 @@
 
 namespace dokuwiki\plugin\struct\meta;
 
-use dokuwiki\plugin\struct\types\AbstractBaseType;
 use dokuwiki\plugin\struct\types\Page;
 
 /**
@@ -14,7 +13,6 @@ use dokuwiki\plugin\struct\types\Page;
  */
 class PageColumn extends Column
 {
-
     /**
      * PageColumn constructor.
      *

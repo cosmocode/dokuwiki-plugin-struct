@@ -7,13 +7,13 @@ use dokuwiki\plugin\struct\types\User;
 /**
  * Class UserColumn
  *
- * Just like a column, but does not reference one of the col* data columns but the lasteditor column in the titles table.
+ * Just like a column, but does not reference one of the col* data columns
+ * but the lasteditor column in the titles table.
  *
  * @package dokuwiki\plugin\struct\meta
  */
 class UserColumn extends Column
 {
-
     /**
      * PageColumn constructor.
      *

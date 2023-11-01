@@ -2,12 +2,14 @@
 
 namespace dokuwiki\plugin\struct\test\mock;
 
-use \dokuwiki\plugin\struct\meta;
+use dokuwiki\plugin\struct\meta;
 
-class QueryBuilder extends meta\QueryBuilder {
+class QueryBuilder extends meta\QueryBuilder
+{
     public $from;
 
-    public function fixPlaceholders($sql) {
+    public function fixPlaceholders($sql)
+    {
         return parent::fixPlaceholders($sql);
     }
 
@@ -16,7 +18,8 @@ class QueryBuilder extends meta\QueryBuilder {
      *
      * @return array ($sql, $opts)
      */
-    public function getWhereSQL() {
+    public function getWhereSQL()
+    {
         return $this->fixPlaceholders($this->filters()->toSQL());
     }
 }

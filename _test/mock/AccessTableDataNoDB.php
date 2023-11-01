@@ -5,7 +5,8 @@ namespace dokuwiki\plugin\struct\test\mock;
 use dokuwiki\plugin\struct\meta\Column;
 
 
-class AccessTableDataNoDB extends AccessTablePage {
+class AccessTableDataNoDB extends AccessTablePage
+{
 
 
     /** @noinspection PhpMissingParentConstructorInspection
@@ -13,7 +14,8 @@ class AccessTableDataNoDB extends AccessTablePage {
      * @param string $pid
      * @param $ts
      */
-    public function __construct($table, $pid, $ts) {
+    public function __construct($table, $pid, $ts)
+    {
 
         // we do intialization by parent here, because we don't need the whole database behind the class
         $this->schema = new SchemaNoDB($table, $ts);
@@ -21,11 +23,13 @@ class AccessTableDataNoDB extends AccessTablePage {
         $this->ts = $ts;
     }
 
-    public function buildGetDataSQL($idColumn = 'pid') {
+    public function buildGetDataSQL($idColumn = 'pid')
+    {
         return parent::buildGetDataSQL($idColumn);
     }
 
-    public function setColumns($singles, $multis) {
+    public function setColumns($singles, $multis)
+    {
         $this->schema->columns = array();
         $sort = 0;
         foreach ($singles as $single) {
@@ -38,7 +42,8 @@ class AccessTableDataNoDB extends AccessTablePage {
         }
     }
 
-    protected function getLastRevisionTimestamp() {
+    protected function getLastRevisionTimestamp()
+    {
         return $this->ts;
     }
 

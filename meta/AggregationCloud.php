@@ -2,109 +2,41 @@
 
 namespace dokuwiki\plugin\struct\meta;
 
-class AggregationCloud
+class AggregationCloud extends Aggregation
 {
+    /** @var int */
+    protected $max;
 
-    /**
-     * @var string the page id of the page this is rendered to
-     */
-    protected $id;
-
-    /**
-     * @var string the Type of renderer used
-     */
-    protected $mode;
-
-    /**
-     * @var \Doku_Renderer the DokuWiki renderer used to create the output
-     */
-    protected $renderer;
-
-    /**
-     * @var SearchConfig the configured search - gives access to columns etc.
-     */
-    protected $searchConfig;
-
-    /**
-     * @var Column[] the list of columns to be displayed
-     */
-    protected $columns;
-
-    /**
-     * @var  Value[][] the search result
-     */
-    protected $result;
-
-    /**
-     * @var int number of all results
-     */
-    protected $resultCount;
+    /** @var int */
+    protected $min;
 
     /**
      * Initialize the Aggregation renderer and executes the search
      *
-     * You need to call @see render() on the resulting object.
-     *
-     * @param string $id
+     * You need to call @param string $id
      * @param string $mode
      * @param \Doku_Renderer $renderer
      * @param SearchConfig $searchConfig
+     * @see render() on the resulting object.
+     *
      */
     public function __construct($id, $mode, \Doku_Renderer $renderer, SearchCloud $searchConfig)
     {
-        $this->id = $id;
-        $this->mode = $mode;
-        $this->renderer = $renderer;
-        $this->searchConfig = $searchConfig;
-        $this->data = $searchConfig->getConf();
-        $this->columns = $searchConfig->getColumns();
-        $this->result = $this->searchConfig->execute();
-        $this->resultCount = $this->searchConfig->getCount();
+        parent::__construct($id, $mode, $renderer, $searchConfig);
 
         $this->max = $this->result[0]['count'];
         $this->min = end($this->result)['count'];
     }
 
-    /**
-     * Create the cloud on the renderer
-     */
-    public function render()
+    /** @inheritdoc */
+    public function render($showNotFound = false)
     {
-
         $this->sortResults();
-
-        $this->startScope();
         $this->startList();
         foreach ($this->result as $result) {
             $this->renderTag($result);
         }
         $this->finishList();
-        $this->finishScope();
-        return;
-    }
-
-    /**
-     * Adds additional info to document and renderer in XHTML mode
-     *
-     * @see finishScope()
-     */
-    protected function startScope()
-    {
-        // wrapping div
-        if ($this->mode != 'xhtml') return;
-        $this->renderer->doc .= "<div class=\"structcloud\">";
-    }
-
-    /**
-     * Closes the table and anything opened in startScope()
-     *
-     * @see startScope()
-     */
-    protected function finishScope()
-    {
-        // wrapping div
-        if ($this->mode != 'xhtml') return;
-        $this->renderer->doc .= '</div>';
     }
 
     /**
@@ -144,7 +76,8 @@ class AggregationCloud
         $this->renderer->listcontent_open();
 
         if ($this->mode == 'xhtml') {
-            $this->renderer->doc .= "<div style='font-size:$weight%' data-count='$count' class='cloudtag struct_$type'>";
+            $this->renderer->doc .=
+                "<div style='font-size:$weight%' data-count='$count' class='cloudtag struct_$type'>";
         }
 
         $value->renderAsTagCloudLink($this->renderer, $this->mode, $target, $filter, $weight);

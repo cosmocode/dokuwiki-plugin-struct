@@ -11,7 +11,6 @@ use dokuwiki\plugin\struct\meta\AccessTablePage;
 
 class syntax_plugin_struct_serial extends syntax_plugin_struct_global
 {
-
     /**
      * Connect serial pattern to lexer.
      *

@@ -2,17 +2,14 @@
 
 namespace dokuwiki\plugin\struct\types;
 
-use dokuwiki\plugin\struct\meta\QueryBuilder;
-use dokuwiki\plugin\struct\meta\QueryBuilderWhere;
-
 class Text extends AbstractMultiBaseType
 {
     use TraitFilterPrefix;
 
-    protected $config = array(
+    protected $config = [
         'prefix' => '',
-        'postfix' => '',
-    );
+        'postfix' => ''
+    ];
 
     /**
      * Output the stored data

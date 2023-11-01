@@ -6,10 +6,9 @@ use dokuwiki\plugin\struct\meta\ValidationException;
 
 class Color extends AbstractBaseType
 {
-
-    protected $config = array(
+    protected $config = [
         'default' => '#ffffff'
-    );
+    ];
 
     /**
      * @inheritDoc
@@ -22,7 +21,7 @@ class Color extends AbstractBaseType
         }
 
         // ignore if default
-        if ($rawvalue == strtolower($this->config['default'])) {
+        if ($rawvalue === strtolower($this->config['default'])) {
             $rawvalue = '';
         }
 
@@ -35,7 +34,8 @@ class Color extends AbstractBaseType
     public function renderValue($value, \Doku_Renderer $R, $mode)
     {
         if ($mode == 'xhtml') {
-            $R->doc .= '<div title="' . hsc($value) . '" style="background-color:' . hsc($value) . ';" class="struct_color"></div>';
+            $R->doc .= '<div title="' . hsc($value) . '" style="background-color:' . hsc($value) . ';"
+                        class="struct_color"></div>';
         } else {
             $R->cdata($value);
         }
@@ -53,7 +53,7 @@ class Color extends AbstractBaseType
                 $this->renderValue($value, $R, $mode);
             }
         } else {
-            $R->cdata(join(', ', $values));
+            $R->cdata(implode(', ', $values));
         }
         return true;
     }
@@ -68,13 +68,13 @@ class Color extends AbstractBaseType
             $rawvalue = $this->config['default'];
         }
 
-        $params = array(
+        $params = [
             'name' => $name,
             'value' => $rawvalue,
             'class' => 'struct_color',
             'type' => 'color',
             'id' => $htmlID
-        );
+        ];
         $attributes = buildAttributes($params, true);
         return "<input $attributes />";
     }
@@ -88,7 +88,9 @@ class Color extends AbstractBaseType
         if ($mode == 'xhtml') {
             $url = wl($page, $filter);
             $style = "background-color:$color;";
-            $R->doc .= "<a class='struct_color_tagcloud' href='$url' style='$style'><span class='a11y'>$color</span></a>";
+            $R->doc .= "<a class='struct_color_tagcloud' href='$url' style='$style'>
+                        <span class='a11y'>$color</span>
+                        </a>";
             return;
         }
         $R->internallink("$page?$filter", $color);
@@ -116,23 +118,23 @@ class Color extends AbstractBaseType
             return 0;
         }
 
-        $red   = hexdec(substr($color, 1, 2));
+        $red = hexdec(substr($color, 1, 2));
         $green = hexdec(substr($color, 3, 2));
-        $blue  = hexdec(substr($color, 5, 2));
+        $blue = hexdec(substr($color, 5, 2));
 
         $min = min([$red, $green, $blue]);
         $max = max([$red, $green, $blue]);
 
-        if ($max == $red) {
+        if ($max === $red) {
             $hue = ($green - $blue) / ($max - $min);
         }
-        if ($max == $green) {
+        if ($max === $green) {
             $hue = 2 + ($blue - $red) / ($max - $min);
         }
-        if ($max == $blue) {
+        if ($max === $blue) {
             $hue = 4 + ($red - $green) / ($max - $min);
         }
-        $hue = $hue * 60;
+        $hue *= 60;
         if ($hue < 0) {
             $hue += 360;
         }

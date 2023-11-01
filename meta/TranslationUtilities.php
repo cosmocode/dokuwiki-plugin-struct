@@ -1,11 +1,9 @@
 <?php
 
-namespace  dokuwiki\plugin\struct\meta;
+namespace dokuwiki\plugin\struct\meta;
 
 trait TranslationUtilities
 {
-
-
     /**
      * Add the translatable keys to the configuration
      *
@@ -15,7 +13,7 @@ trait TranslationUtilities
      *
      * @param string[] $keysToInitialize the keys for which to initialize language fields
      */
-    protected function initTransConfig(array $keysToInitialize = array('label', 'hint'))
+    protected function initTransConfig(array $keysToInitialize = ['label', 'hint'])
     {
         global $conf;
         $lang = $conf['lang'];
@@ -29,7 +27,7 @@ trait TranslationUtilities
 
         foreach ($keysToInitialize as $key) {
             if (!isset($this->config[$key])) {
-                $this->config[$key] = array();
+                $this->config[$key] = [];
             }
             // initialize missing keys
             foreach ($langs as $lang) {

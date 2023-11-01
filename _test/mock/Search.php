@@ -2,9 +2,10 @@
 
 namespace dokuwiki\plugin\struct\test\mock;
 
-use \dokuwiki\plugin\struct\meta;
+use dokuwiki\plugin\struct\meta;
 
-class Search extends meta\Search {
+class Search extends meta\Search
+{
     public $schemas = array();
     /** @var  meta\Column[] */
     public $columns = array();
@@ -12,4 +13,15 @@ class Search extends meta\Search {
     public $sortby = array();
 
     public $filter = array();
+
+    public $dynamicFilter = array();
+
+    /**
+     * Register a dummy function that always returns false
+     */
+    public function isNotPublisher()
+    {
+        $this->dbHelper = new helper_plugin_struct_db;
+        $this->sqlite->getPdo()->sqliteCreateFunction('IS_PUBLISHER', [$this->dbHelper, 'IS_PUBLISHER'], -1);
+    }
 }

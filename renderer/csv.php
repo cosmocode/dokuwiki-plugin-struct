@@ -1,5 +1,7 @@
 <?php
 
+// phpcs:disable PSR1.Methods.CamelCapsMethodName.NotCamelCaps
+
 /**
  * CSV export of tabular data generated in Aggregations
  *
@@ -10,7 +12,6 @@
  */
 class renderer_plugin_struct_csv extends Doku_Renderer
 {
-
     protected $first = false;
 
     /**
@@ -23,7 +24,7 @@ class renderer_plugin_struct_csv extends Doku_Renderer
         global $INPUT;
 
         if (
-            !isset($this->info['struct_table_hash']) or
+            !isset($this->info['struct_table_hash']) ||
             $this->info['struct_table_hash'] != $INPUT->str('hash')
         ) {
             return false;
@@ -49,15 +50,15 @@ class renderer_plugin_struct_csv extends Doku_Renderer
     /**
      * Set proper headers
      */
-    public function document_start() // phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
+    public function document_start()
     {
         global $ID;
-        $filename = noNS($ID) . '.csv';
-        $headers = array(
+        $filename = noNS($ID ?? 'data') . '.csv';
+        $headers = [
             'Content-Type' => 'text/csv',
             'Content-Disposition' => 'attachment; filename="' . $filename . '";'
-        );
-        p_set_metadata($ID, array('format' => array('struct_csv' => $headers)));
+        ];
+        p_set_metadata($ID, ['format' => ['struct_csv' => $headers]]);
         // don't cache
         $this->nocache();
     }
@@ -65,7 +66,7 @@ class renderer_plugin_struct_csv extends Doku_Renderer
     /**
      * Opening a table row prevents the separator for the first following cell
      */
-    public function tablerow_open() // phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
+    public function tablerow_open()
     {
         if (!$this->doOutput()) return;
         $this->first = true;
@@ -77,8 +78,9 @@ class renderer_plugin_struct_csv extends Doku_Renderer
      * @param int $colspan ignored
      * @param null $align ignored
      * @param int $rowspan ignored
+     *
      */
-    public function tablecell_open($colspan = 1, $align = null, $rowspan = 1) // phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
+    public function tablecell_open($colspan = 1, $align = null, $rowspan = 1)
     {
         if (!$this->doOutput()) return;
         if (!$this->first) {
@@ -92,7 +94,7 @@ class renderer_plugin_struct_csv extends Doku_Renderer
     /**
      * Close the text wrapper
      */
-    public function tablecell_close() // phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
+    public function tablecell_close()
     {
         if (!$this->doOutput()) return;
         $this->doc .= '"';
@@ -105,7 +107,7 @@ class renderer_plugin_struct_csv extends Doku_Renderer
      * @param null $align ignored
      * @param int $rowspan ignored
      */
-    public function tableheader_open($colspan = 1, $align = null, $rowspan = 1) // phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
+    public function tableheader_open($colspan = 1, $align = null, $rowspan = 1)
     {
         $this->tablecell_open($colspan, $align, $rowspan);
     }
@@ -113,7 +115,7 @@ class renderer_plugin_struct_csv extends Doku_Renderer
     /**
      * Alias for tablecell_close
      */
-    public function tableheader_close() // phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
+    public function tableheader_close()
     {
         $this->tablecell_close();
     }
@@ -121,7 +123,7 @@ class renderer_plugin_struct_csv extends Doku_Renderer
     /**
      * Add CRLF newline at the end of one line
      */
-    public function tablerow_close() // phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
+    public function tablerow_close()
     {
         if (!$this->doOutput()) return;
         $this->doc .= "\r\n";
@@ -145,7 +147,7 @@ class renderer_plugin_struct_csv extends Doku_Renderer
 
     public function internallink($link, $title = null)
     {
-        if (is_null($title) or is_array($title) or $title == '') {
+        if (is_null($title) || is_array($title) || $title == '') {
             $title = $this->_simpleTitle($link);
         }
         $this->cdata($title);
@@ -153,7 +155,7 @@ class renderer_plugin_struct_csv extends Doku_Renderer
 
     public function externallink($link, $title = null)
     {
-        if (is_null($title) or is_array($title) or $title == '') {
+        if (is_null($title) || is_array($title) || $title == '') {
             $title = $link;
         }
         $this->cdata($title);
@@ -245,7 +247,7 @@ class renderer_plugin_struct_csv extends Doku_Renderer
 
     public function locallink($hash, $name = null)
     {
-        if (is_null($name) or is_array($name) or $name == '') {
+        if (is_null($name) || is_array($name) || $name == '') {
             $name = $hash;
         }
         $this->cdata($name);
@@ -253,7 +255,7 @@ class renderer_plugin_struct_csv extends Doku_Renderer
 
     public function interwikilink($link, $title, $wikiName, $wikiUri)
     {
-        if (is_array($title) or $title == '') {
+        if (is_array($title) || $title == '') {
             $title = $wikiName . '>' . $link;
         }
         $this->cdata($title);
@@ -261,7 +263,7 @@ class renderer_plugin_struct_csv extends Doku_Renderer
 
     public function filelink($link, $title = null)
     {
-        if (is_null($title) or is_array($title) or $title == '') {
+        if (is_null($title) || is_array($title) || $title == '') {
             $title = $link;
         }
         $this->cdata($title);
@@ -269,7 +271,7 @@ class renderer_plugin_struct_csv extends Doku_Renderer
 
     public function windowssharelink($link, $title = null)
     {
-        if (is_null($title) or is_array($title) or $title == '') {
+        if (is_null($title) || is_array($title) || $title == '') {
             $title = $link;
         }
         $this->cdata($title);

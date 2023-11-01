@@ -2,7 +2,6 @@
 
 use dokuwiki\plugin\struct\meta\AccessTable;
 use dokuwiki\plugin\struct\meta\AccessTableGlobal;
-use dokuwiki\plugin\struct\meta\StructException;
 
 /**
  * Allows adding a lookup schema as a bureaucracy action
@@ -10,13 +9,12 @@ use dokuwiki\plugin\struct\meta\StructException;
  */
 class helper_plugin_struct_lookup extends helper_plugin_bureaucracy_action
 {
-
     /**
      * Performs struct_lookup action
      *
-     * @param helper_plugin_bureaucracy_field[] $fields  array with form fields
-     * @param string $thanks  thanks message
-     * @param array  $argv    array with entries: template, pagename, separator
+     * @param helper_plugin_bureaucracy_field[] $fields array with form fields
+     * @param string $thanks thanks message
+     * @param array $argv array with entries: template, pagename, separator
      * @return array|mixed
      *
      * @throws Exception
@@ -26,13 +24,13 @@ class helper_plugin_struct_lookup extends helper_plugin_bureaucracy_action
         global $ID;
 
         // get all struct values and their associated schemas
-        $tosave = array();
+        $tosave = [];
         foreach ($fields as $field) {
             if (!is_a($field, 'helper_plugin_struct_field')) continue;
             /** @var helper_plugin_struct_field $field */
             $tbl = $field->column->getTable();
             $lbl = $field->column->getLabel();
-            if (!isset($tosave[$tbl])) $tosave[$tbl] = array();
+            if (!isset($tosave[$tbl])) $tosave[$tbl] = [];
             $tosave[$tbl][$lbl] = $field->getParam('value');
         }
 

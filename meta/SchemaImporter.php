@@ -2,8 +2,6 @@
 
 namespace dokuwiki\plugin\struct\meta;
 
-if (!defined('JSON_PRETTY_PRINT')) define('JSON_PRETTY_PRINT', 0); // PHP 5.3 compatibility
-
 /**
  * Class SchemaImporter
  *
@@ -13,14 +11,13 @@ if (!defined('JSON_PRETTY_PRINT')) define('JSON_PRETTY_PRINT', 0); // PHP 5.3 co
  */
 class SchemaImporter extends SchemaBuilder
 {
-
     /**
      * Import a schema using JSON
      *
-     * @todo sanity checking of the input data should be added
-     *
      * @param string $table
      * @param string $json
+     * @todo sanity checking of the input data should be added
+     *
      */
     public function __construct($table, $json)
     {
@@ -57,12 +54,8 @@ class SchemaImporter extends SchemaBuilder
 
             throw new StructException('JSON couldn\'t be decoded: ' . $error);
         }
-        $config = isset($input['config']) ? $input['config'] : array();
-        $data = array(
-            'config' => json_encode($config),
-            'cols' => array(),
-            'new' => array(),
-        );
+        $config = $input['config'] ?? [];
+        $data = ['config' => json_encode($config), 'cols' => [], 'new' => []];
 
         foreach ($input['columns'] as $column) {
             // config has to stay json

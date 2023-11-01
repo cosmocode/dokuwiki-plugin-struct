@@ -3,8 +3,8 @@
 /**
  * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
  *
+ * @author Schplurtz le Déboulonné <schplurtz@laposte.net>
  * @author zadaz <zadaz@example.com>
- * @author Schplurtz le Déboulonné <Schplurtz@laposte.net>
  * @author Nat <natdoub@hotmail.com>
  * @author salabdou <salabdou@gmail.com>
  * @author Andreas Gohr, Michael Große <dokuwiki@cosmocode.de>
@@ -20,12 +20,14 @@ $lang['headline']              = 'Données structurées';
 $lang['page schema']           = 'Schéma de page';
 $lang['lookup schema']         = 'Schéma de consultation';
 $lang['edithl']                = 'Édition du schéma <i>%s</i>';
+$lang['internal']              = 'Le schéma interne n\'est pas modifiable.';
 $lang['create']                = 'Créer un nouveau schéma';
 $lang['schemaname']            = 'Nom du schéma :';
 $lang['save']                  = 'Sauvegarder';
 $lang['createhint']            = 'Remarque : les schémas ne peuvent être renommés ultérieurement.';
 $lang['pagelabel']             = 'Page';
 $lang['rowlabel']              = 'N° de ligne';
+$lang['publishedlabel']        = 'Publié';
 $lang['revisionlabel']         = 'Dernière mise à jour';
 $lang['userlabel']             = 'Dernier éditeur';
 $lang['summarylabel']          = 'Dernier résumé';

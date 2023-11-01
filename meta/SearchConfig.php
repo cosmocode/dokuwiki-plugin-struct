@@ -11,7 +11,6 @@ namespace dokuwiki\plugin\struct\meta;
  */
 class SearchConfig extends Search
 {
-
     /** @var int default aggregation caching (depends on last struct save) */
     public static $CACHE_DEFAULT = 1;
     /** @var int caching depends on current user */
@@ -37,8 +36,9 @@ class SearchConfig extends Search
     /**
      * SearchConfig constructor.
      * @param array $config The parsed configuration for this search
+     * @param bool $dynamic Should dynamic parameters be applied?
      */
-    public function __construct($config)
+    public function __construct($config, $dynamic = true)
     {
         parent::__construct();
 
@@ -53,10 +53,6 @@ class SearchConfig extends Search
         // cache flag setting
         $this->cacheFlag = self::$CACHE_DEFAULT;
         if (!empty($config['filters'])) $this->cacheFlag = $this->determineCacheFlag($config['filters']);
-
-        // apply dynamic paramters
-        $this->dynamicParameters = new SearchConfigParameters($this);
-        $config = $this->dynamicParameters->updateConfig($config);
 
         // configure search from configuration
         if (!empty($config['filter'])) foreach ($config['filter'] as $filter) {
@@ -73,6 +69,12 @@ class SearchConfig extends Search
 
         if (!empty($config['offset'])) {
             $this->setOffset($config['offset']);
+        }
+
+        // prepare dynamic parameters
+        $this->dynamicParameters = new SearchConfigParameters($this);
+        if ($dynamic) {
+            $this->dynamicParameters->apply();
         }
 
         $this->config = $config;
@@ -109,35 +111,48 @@ class SearchConfig extends Search
      */
     protected function applyFilterVars($filter)
     {
+        global $INPUT;
         global $INFO;
-        if (is_null($INFO)) {
-            $INFO = ['id' => null];
+        if (!isset($INFO['id'])) {
+            $INFO['id'] = '';
         }
 
         // apply inexpensive filters first
         $filter = str_replace(
-            array(
+            [
                 '$ID$',
                 '$NS$',
                 '$PAGE$',
                 '$USER$',
                 '$TODAY$'
-            ),
-            array(
+            ],
+            [
                 $INFO['id'],
                 getNS($INFO['id']),
                 noNS($INFO['id']),
-                isset($_SERVER['REMOTE_USER']) ? $_SERVER['REMOTE_USER'] : '',
+                $INPUT->server->str('REMOTE_USER'),
                 date('Y-m-d')
-            ),
+            ],
             $filter
         );
 
         // apply struct column placeholder (we support only one!)
+        // or apply date formula, given as strtotime
         if (preg_match('/^(.*?)(?:\$STRUCT\.(.*?)\$)(.*?)$/', $filter, $match)) {
             $filter = $this->applyFilterVarsStruct($match);
         } elseif (preg_match('/^(.*?)(?:\$USER\.(.*?)\$)(.*?)$/', $filter, $match)) {
             $filter = $this->applyFilterVarsUser($match);
+        } elseif (preg_match('/^(.*?)(?:\$DATE\((.*?)\)\$?)(.*?)$/', $filter, $match)) {
+            $toparse = $match[2];
+            if ($toparse == '') {
+                $toparse = 'now';
+            }
+            $timestamp = strtotime($toparse);
+            if ($timestamp === false) {
+                throw new StructException('datefilter', hsc($toparse));
+            } else {
+                $filter = str_replace($filter, date('Y-m-d', $timestamp), $filter);
+            }
         }
 
         return $filter;
@@ -161,7 +176,7 @@ class SearchConfig extends Search
             $label = $column->getLabel();
             $table = $column->getTable();
         } else {
-            list($table, $label) = explode('.', $key);
+            [$table, $label] = sexplode('.', $key, 2, '');
         }
 
         // get the data from the current page
@@ -173,7 +188,7 @@ class SearchConfig extends Search
             }
             $value = $data[$label]->getCompareValue();
 
-            if (is_array($value) && !count($value)) {
+            if (is_array($value) && $value === []) {
                 $value = '';
             }
         } else {
@@ -182,7 +197,7 @@ class SearchConfig extends Search
 
         // apply any pre and postfixes, even when multi value
         if (is_array($value)) {
-            $filter = array();
+            $filter = [];
             foreach ($value as $item) {
                 $filter[] = $match[1] . $item . $match[3];
             }
@@ -205,7 +220,7 @@ class SearchConfig extends Search
 
         $key = strtolower($match[2]);
 
-        if (!in_array($key, array('name', 'mail', 'grps'))) {
+        if (!in_array($key, ['name', 'mail', 'grps'])) {
             throw new StructException('"%s" is not a valid USER key', $key);
         }
 
@@ -227,7 +242,7 @@ class SearchConfig extends Search
     }
 
     /**
-     * Access the dynamic paramters of this search
+     * Access the dynamic parameters of this search
      *
      * Note: This call returns a clone of the parameters as they were initialized
      *
@@ -239,7 +254,11 @@ class SearchConfig extends Search
     }
 
     /**
-     * @return array the current config
+     * Get the config this search was initialized with
+     *
+     * Note that the search may have been modified by dynamic parameters or additional member calls
+     *
+     * @return array
      */
     public function getConf()
     {

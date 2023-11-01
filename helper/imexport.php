@@ -7,14 +7,16 @@
  * @author  Andreas Gohr, Michael Große <dokuwiki@cosmocode.de>
  */
 
+use dokuwiki\Extension\Plugin;
+use dokuwiki\plugin\sqlite\SQLiteDB;
+use dokuwiki\plugin\struct\meta\StructException;
+use dokuwiki\plugin\struct\meta\SchemaImporter;
 use dokuwiki\plugin\struct\meta\Assignments;
 use dokuwiki\plugin\struct\meta\Schema;
 
-class helper_plugin_struct_imexport extends DokuWiki_Plugin
+class helper_plugin_struct_imexport extends Plugin
 {
-
     private $sqlite;
-
 
     /**
      * this possibly duplicates @see helper_plugin_struct::getSchema()
@@ -35,10 +37,10 @@ class helper_plugin_struct_imexport extends DokuWiki_Plugin
         /** @var \helper_plugin_struct_db $helper */
         $helper = plugin_load('helper', 'struct_db');
         $this->sqlite = $helper->getDB(false);
-        if (!$this->sqlite) return;
+        if (!$this->sqlite instanceof SQLiteDB) return;
 
         $schemaName = $this->sqlite->escape_string($schemaName);
-        $sql = array();
+        $sql = [];
         $sql[] = "DELETE FROM schema_assignments_patterns WHERE tbl = '$schemaName'";
         $sql[] = "DELETE FROM schema_assignments WHERE tbl = '$schemaName'";
         foreach ($patterns as $pattern) {
@@ -62,12 +64,10 @@ class helper_plugin_struct_imexport extends DokuWiki_Plugin
         /** @var \helper_plugin_struct_db $helper */
         $helper = plugin_load('helper', 'struct_db');
         $this->sqlite = $helper->getDB(false);
-        if (!$this->sqlite) return array();
+        if (!$this->sqlite instanceof SQLiteDB) return [];
 
         $sql = 'SELECT pattern FROM schema_assignments_patterns WHERE tbl = ?';
-        $res = $this->sqlite->query($sql, $schemaName);
-        $patterns = $this->sqlite->res2arr($res);
-        $this->sqlite->res_close($res);
+        $patterns = $this->sqlite->queryAll($sql, $schemaName);
         return array_map(function ($elem) {
             return $elem['pattern'];
         }, $patterns);
@@ -98,11 +98,11 @@ class helper_plugin_struct_imexport extends DokuWiki_Plugin
      *                      If blank, the current user is used.
      * @return bool|int the id of the new schema version or false on error.
      *
-     * @throws dokuwiki\plugin\struct\meta\StructException
+     * @throws StructException
      */
     public function importSchema($schemaName, $schemaJSON, $user = null)
     {
-        $importer = new \dokuwiki\plugin\struct\meta\SchemaImporter($schemaName, $schemaJSON);
+        $importer = new SchemaImporter($schemaName, $schemaJSON);
         if (!blank($user)) {
             $importer->setUser($user);
         }

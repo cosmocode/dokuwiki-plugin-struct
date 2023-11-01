@@ -14,12 +14,14 @@ $lang['headline'] = 'Structured Data';
 $lang['page schema'] = 'Page Schema:';
 $lang['lookup schema'] = 'Lookup Schema:';
 $lang['edithl'] = 'Editing schema <i>%s</i>';
+$lang['internal'] = 'This internal schema is not editable.';
 $lang['create'] = 'Create new Schema';
 $lang['schemaname'] = 'Schema Name:';
 $lang['save'] = 'Save';
 $lang['createhint'] = 'Please note: schemas can not be renamed later';
 $lang['pagelabel'] = 'Page';
 $lang['rowlabel'] = 'Row #';
+$lang['publishedlabel'] = 'Published';
 $lang['revisionlabel'] = 'Last Updated';
 $lang['userlabel'] = 'Last Editor';
 $lang['summarylabel'] = 'Last Summary';
@@ -63,6 +65,7 @@ $lang['multidropdown'] = 'Hold CTRL or CMD to select multiple values.';
 $lang['duplicate_label'] = "Label <code>%s</code> already exists in schema, second occurance was renamed to <code>%s</code>.";
 
 $lang['emptypage'] = 'Struct data has not been saved for an empty page';
+$lang['na'] = 'n/a';
 
 $lang['validation_prefix'] = "Field [%s]: ";
 
@@ -86,14 +89,15 @@ $lang['Exception nolookupmix'] = 'You can not aggregate more than one Lookup or 
 $lang['Exception No data saved'] = 'No data saved';
 $lang['Exception no sqlite'] = 'The struct plugin requires the sqlite plugin. Please install and enable it.';
 $lang['Exception column not in table'] = 'There is no column %s in schema %s.';
+$lang['Exception datefilter'] = 'The filter: \'<code>$Date(%s)$</code>\' contains an unsupported value.';
 
 $lang['Warning: no filters for cloud'] = 'Filters are not supported for struct clouds.';
 
-$lang['sort']      = 'Sort by this column';
-$lang['next']      = 'Next page';
-$lang['prev']      = 'Previous page';
+$lang['sort'] = 'Sort by this column';
+$lang['next'] = 'Next page';
+$lang['prev'] = 'Previous page';
 
-$lang['none']      = 'Nothing found';
+$lang['none'] = 'Nothing found';
 $lang['csvexport'] = 'CSV Export';
 
 $lang['admin_csvexport'] = 'Export raw data to a CSV file';
@@ -108,9 +112,9 @@ $lang['admin_csvhelp'] = 'Please refer to the manual on CSV Import for format de
 
 $lang['tablefilteredby'] = 'Filtered by %s';
 $lang['tableresetfilter'] = 'Show all (remove filter/sort)';
-$lang['comparator =']  = 'equals';
-$lang['comparator <']  = 'is less than';
-$lang['comparator >']  = 'is greater than';
+$lang['comparator ='] = 'equals';
+$lang['comparator <'] = 'is less than';
+$lang['comparator >'] = 'is greater than';
 $lang['comparator <='] = 'is less than or euqals';
 $lang['comparator >='] = 'is greater than or equals';
 $lang['comparator !='] = 'does not equal';
@@ -126,5 +130,8 @@ $lang['js']['actions'] = 'Actions';
 $lang['js']['lookup_delete'] = 'Delete Entry';
 
 $lang['bureaucracy_action_struct_lookup_thanks'] = 'The entry has been stored. <a href="%s">Add another entry</a>.';
+
+$lang['filter_title'] = 'Aggregation filters';
+$lang['filter_button'] = 'Apply filters';
 
 //Setup VIM: ex: et ts=4 :

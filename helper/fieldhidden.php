@@ -13,9 +13,9 @@ class helper_plugin_struct_fieldhidden extends helper_plugin_struct_field
      *
      * Outputs the represented field using the passed Doku_Form object.
      *
-     * @param array     $params Additional HTML specific parameters
-     * @param Doku_Form $form   The target Doku_Form object
-     * @param int       $formid unique identifier of the form which contains this field
+     * @param array $params Additional HTML specific parameters
+     * @param Doku_Form $form The target Doku_Form object
+     * @param int $formid unique identifier of the form which contains this field
      */
     public function renderfield($params, Doku_Form $form, $formid)
     {

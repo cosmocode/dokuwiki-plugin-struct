@@ -8,7 +8,6 @@ namespace dokuwiki\plugin\struct\meta;
  */
 class QueryBuilderWhere
 {
-
     /** @var  QueryBuilderWhere[]|string */
     protected $statement;
     /** @var string */
@@ -28,7 +27,7 @@ class QueryBuilderWhere
         $this->QB = $QB;
         $this->type = $type;
         if ($statement === null) {
-            $this->statement = array();
+            $this->statement = [];
         } else {
             $this->statement = $statement;
         }

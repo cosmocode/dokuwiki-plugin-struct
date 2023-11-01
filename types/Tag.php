@@ -5,20 +5,18 @@ namespace dokuwiki\plugin\struct\types;
 use dokuwiki\plugin\struct\meta\Column;
 use dokuwiki\plugin\struct\meta\QueryBuilder;
 use dokuwiki\plugin\struct\meta\QueryBuilderWhere;
-use dokuwiki\plugin\struct\meta\Schema;
 use dokuwiki\plugin\struct\meta\SearchConfigParameters;
-use dokuwiki\plugin\struct\meta\StructException;
+use dokuwiki\Utf8\PhpString;
 
 class Tag extends AbstractMultiBaseType
 {
-
-    protected $config = array(
+    protected $config = [
         'page' => '',
-        'autocomplete' => array(
+        'autocomplete' => [
             'mininput' => 2,
-            'maxresult' => 5,
-        ),
-    );
+            'maxresult' => 5
+        ]
+    ];
 
     /**
      * @param int|string $value
@@ -29,7 +27,8 @@ class Tag extends AbstractMultiBaseType
     public function renderValue($value, \Doku_Renderer $R, $mode)
     {
         $context = $this->getContext();
-        $filter = SearchConfigParameters::$PARAM_FILTER . '[' . $context->getTable() . '.' . $context->getLabel() . '*~]=' . $value;
+        $filter = SearchConfigParameters::$PARAM_FILTER .
+            '[' . $context->getTable() . '.' . $context->getLabel() . '*~]=' . $value;
 
         $page = trim($this->config['page']);
         if (!$page) $page = cleanID($context->getLabel());
@@ -49,29 +48,27 @@ class Tag extends AbstractMultiBaseType
 
         // check minimum length
         $lookup = trim($INPUT->str('search'));
-        if (utf8_strlen($lookup) < $this->config['autocomplete']['mininput']) return array();
+        if (PhpString::strlen($lookup) < $this->config['autocomplete']['mininput']) return [];
 
         // results wanted?
         $max = $this->config['autocomplete']['maxresult'];
-        if ($max <= 0) return array();
+        if ($max <= 0) return [];
 
         $context = $this->getContext();
         $sql = $this->buildSQLFromContext($context);
-        $opt = array("%$lookup%");
+        $opt = ["%$lookup%"];
 
         /** @var \helper_plugin_struct_db $hlp */
         $hlp = plugin_load('helper', 'struct_db');
         $sqlite = $hlp->getDB();
-        $res = $sqlite->query($sql, $opt);
-        $rows = $sqlite->res2arr($res);
-        $sqlite->res_close($res);
+        $rows = $sqlite->queryAll($sql, $opt);
 
-        $result = array();
+        $result = [];
         foreach ($rows as $row) {
-                $result[] = array(
-                    'label' => $row['value'],
-                    'value' => $row['value'],
-                );
+            $result[] = [
+                'label' => $row['value'],
+                'value' => $row['value']
+            ];
         }
 
         return $result;
@@ -127,12 +124,12 @@ class Tag extends AbstractMultiBaseType
      */
     public function filter(QueryBuilderWhere $add, $tablealias, $colname, $comp, $value, $op)
     {
-        /** @var QueryBuilderWhere $add Where additionional queries are added to*/
+        /** @var QueryBuilderWhere $add Where additionional queries are added to */
         if (is_array($value)) {
             $add = $add->where($op); // sub where group
             $op = 'OR';
         }
-        foreach ((array) $value as $item) {
+        foreach ((array)$value as $item) {
             $pl = $add->getQB()->addValue($item);
             $add->where($op, "LOWER(REPLACE($tablealias.$colname, ' ', '')) $comp LOWER(REPLACE($pl, ' ', ''))");
         }
