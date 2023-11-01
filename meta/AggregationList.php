@@ -89,11 +89,16 @@ class AggregationList extends Aggregation
      */
     protected function renderListItem($resultrow, $depth, $showEmpty = false)
     {
-        $sepbyheaders = $this->searchConfig->getConf()['sepbyheaders'];
-        $headers = $this->searchConfig->getConf()['headers'];
+        $config = $this->searchConfig->getConf();
+        $sepbyheaders = $config['sepbyheaders'];
+        $headers = $config['headers'];
 
         foreach ($resultrow as $index => $value) {
-            $column = $index + $depth; // the resultrow is shifted by the nesting depth
+            // when nesting, the resultrow is shifted by the nesting depth
+            $column = $index;
+            if ($config['nesting']) {
+                $column += $depth;
+            }
             if ($sepbyheaders && !empty($headers[$column])) {
                 $header = $headers[$column];
             } else {

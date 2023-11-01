@@ -279,14 +279,14 @@ class ConfigParser
         $value = '';
         $len = strlen($line);
         for ($i = 0; $i < $len; $i++) {
-            if ($line[$i] == '"') {
+            if ($line[$i] === '"') {
                 if ($inQuote) {
                     if ($escapedQuote) {
                         $value .= '"';
                         $escapedQuote = false;
                         continue;
                     }
-                    if ($line[$i + 1] == '"') {
+                    if (isset($line[$i + 1]) && $line[$i + 1] === '"') {
                         $escapedQuote = true;
                         continue;
                     }
@@ -299,7 +299,7 @@ class ConfigParser
                     $value = ''; //don't store stuff before the opening quote
                     continue;
                 }
-            } elseif ($line[$i] == ',') {
+            } elseif ($line[$i] === ',') {
                 if ($inQuote) {
                     $value .= ',';
                     continue;
