@@ -69,7 +69,7 @@ class User extends AbstractMultiBaseType
         global $INPUT;
 
         if (!$auth->canDo('getUsers')) {
-            throw new StructException('The user backend can not search for users');
+            return [];
         }
 
         // check minimum length
