@@ -182,7 +182,10 @@ class AccessTableDataReplacementTest extends StructTest
                     data_bar.pid = '' OR (
                         GETACCESSLEVEL(data_bar.pid) > 0
                         AND PAGEEXISTS(data_bar.pid) = 1
-                        AND (ASSIGNED = 1 OR ASSIGNED IS NULL)
+                        AND (
+                            data_bar.rid != 0
+                            OR (ASSIGNED = 1 OR ASSIGNED IS NULL)
+                        )
                     )
                 )
             AND (

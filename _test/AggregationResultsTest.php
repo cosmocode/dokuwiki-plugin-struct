@@ -53,8 +53,10 @@ class AggregationResultsTest extends StructTest
                 'third' => "foobar$i",
                 'fourth' => "barfoo$i",
             ];
-            $access = MockAccessTableAlias::getSerialAccess('schema1', "test$i");
-            $access->saveData($data);
+            $accessSerial = MockAccessTableAlias::getSerialAccess('schema1', "test$i");
+            $accessSerial->saveData($data);
+            $accessPage = MockAccessTableAlias::getPageAccess('schema1', "test$i");
+            $accessPage->saveData($data);
         }
     }
 
@@ -66,7 +68,7 @@ class AggregationResultsTest extends StructTest
         // \syntax_plugin_struct_serial accesses the global $ID
         $id = 'test1';
         $schema = 'schema1';
-        $result = $this->fetchResult($schema, $id);
+        $result = $this->fetchNonPageResults($schema, $id);
 
         $this->assertCount(1, $result);
         $this->assertEquals('test1', $result[0][0]->getValue());
@@ -83,13 +85,13 @@ class AggregationResultsTest extends StructTest
     public function test_filter_text()
     {
         $schema = 'schema1';
-        $result = $this->fetchResult($schema, 'test0');
+        $result = $this->fetchNonPageResults($schema, 'test0');
         $this->assertCount(1, $result);
 
-        $result = $this->fetchResult($schema, 'test0', ['first', '=', 'foo0', 'AND']);
+        $result = $this->fetchNonPageResults($schema, 'test0', ['first', '=', 'foo0', 'AND']);
         $this->assertCount(1, $result);
 
-        $result = $this->fetchResult($schema, 'test0', ['first', '!=', 'foo0', 'AND']);
+        $result = $this->fetchNonPageResults($schema, 'test0', ['first', '!=', 'foo0', 'AND']);
         $this->assertCount(0, $result);
     }
 
@@ -97,16 +99,16 @@ class AggregationResultsTest extends StructTest
     public function test_filter_multi()
     {
         $schema = 'schema1';
-        $result = $this->fetchPagesResult($schema, '');
-        $this->assertCount(3, $result);
+        $result = $this->fetchAllResults($schema, '');
+        $this->assertCount(6, $result);
 
-        $result = $this->fetchPagesResult($schema, '', ['second', '=', 'green', 'AND']);
-        $this->assertCount(2, $result);
+        $result = $this->fetchAllResults($schema, '', ['second', '=', 'green', 'AND']);
+        $this->assertCount(4, $result);
 
         $this->markTestIncomplete('negative filters currently do not work on multi fields. See #512');
 
-        $result = $this->fetchPagesResult($schema, '', ['second', '!~', 'green', 'AND']);
-        $this->assertCount(1, $result);
+        $result = $this->fetchAllResults($schema, '', ['second', '!~', 'green', 'AND']);
+        $this->assertCount(2, $result);
     }
 
     /**
@@ -116,15 +118,15 @@ class AggregationResultsTest extends StructTest
     {
         $this->prepareLookup();
         $schema = 'pageschema';
-        $result = $this->fetchResult($schema);
+        $result = $this->fetchNonPageResults($schema);
         $this->assertCount(3, $result);
 
         // 'usetitles' = true
-        $result = $this->fetchResult($schema, '', ['singletitle', '*~', 'another', 'AND']);
+        $result = $this->fetchNonPageResults($schema, '', ['singletitle', '*~', 'another', 'AND']);
         $this->assertCount(1, $result);
 
         // 'usetitles' = false
-        $result = $this->fetchResult($schema, '', ['singlepage', '*~', 'this', 'AND']);
+        $result = $this->fetchNonPageResults($schema, '', ['singlepage', '*~', 'this', 'AND']);
         $this->assertCount(0, $result);
     }
 
@@ -135,13 +137,13 @@ class AggregationResultsTest extends StructTest
     {
         $this->prepareDatetime();
         $schema = 'datetime';
-        $result = $this->fetchResult($schema);
+        $result = $this->fetchNonPageResults($schema);
         $this->assertCount(3, $result);
 
-        $result = $this->fetchResult($schema, '', ['field', '<', '2023-01-02', 'AND']);
+        $result = $this->fetchNonPageResults($schema, '', ['field', '<', '2023-01-02', 'AND']);
         $this->assertCount(1, $result);
 
-        $result = $this->fetchResult($schema, '', ['field', '<', '2023-01-01 11:00', 'AND']);
+        $result = $this->fetchNonPageResults($schema, '', ['field', '<', '2023-01-01 11:00', 'AND']);
         $this->assertCount(0, $result);
     }
 
@@ -150,27 +152,27 @@ class AggregationResultsTest extends StructTest
      */
     public function test_assignments()
     {
-        $result = $this->fetchPagesResult('schema1');
-        $this->assertCount(3, $result);
+        $result = $this->fetchAllResults('schema1');
+        $this->assertCount(6, $result);
 
         // revoke assignment
         $assignments = mock\Assignments::getInstance();
         $assignments->deassignPageSchema('test0', 'schema1');
 
-        $result = $this->fetchPagesResult('schema1');
-        $this->assertCount(2, $result);
+        $result = $this->fetchAllResults('schema1');
+        $this->assertCount(5, $result);
     }
 
 
     /**
-     * Initialize a lookup table from syntax and return the result from its internal search.
+     * Initialize a table from syntax and return the result from its internal search.
      *
      * @param string $schema
      * @param string $id
      * @param array $filters
      * @return \dokuwiki\plugin\struct\meta\Value[][]
      */
-    protected function fetchPagesResult($schema, $id = '', $filters = [])
+    protected function fetchAllResults($schema, $id = '', $filters = [])
     {
         $syntaxConfig = ['schema: ' . $schema, 'cols: %pageid%, %rowid%, *'];
         $configParser = new ConfigParser($syntaxConfig);
@@ -191,13 +193,13 @@ class AggregationResultsTest extends StructTest
      * @param array $filters
      * @return \dokuwiki\plugin\struct\meta\Value[][]
      */
-    protected function fetchResult($schema, $id = '', $filters = [])
+    protected function fetchNonPageResults($schema, $id = '', $filters = [])
     {
         $syntaxConfig = ['schema: ' . $schema, 'cols: %pageid%, %rowid%, *'];
         $configParser = new ConfigParser($syntaxConfig);
         $config = $configParser->getConfig();
 
-        // FIXME simulate addYypeFilter() from \syntax_plugin_struct_serial or \syntax_plugin_struct_lookup
+        // simulate addYypeFilter() from \syntax_plugin_struct_serial and \syntax_plugin_struct_lookup
         if ($id) {
             $config['filter'][] = ['%rowid%', '!=', (string)AccessTablePage::DEFAULT_PAGE_RID, 'AND'];
             $config['filter'][] = ['%pageid%', '=', $id, 'AND'];
