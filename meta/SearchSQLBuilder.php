@@ -47,7 +47,8 @@ class SearchSQLBuilder
                 $subOr = $subAnd->whereSubOr();
                 $subOr->whereAnd("GETACCESSLEVEL($datatable.pid) > 0");
                 $subOr->whereAnd("PAGEEXISTS($datatable.pid) = 1");
-                $subOr->whereAnd('(ASSIGNED = 1 OR ASSIGNED IS NULL)');
+                // make sure to check assignment for page data only
+                $subOr->whereAnd("($datatable.rid != 0 OR (ASSIGNED = 1 OR ASSIGNED IS NULL))");
 
                 // add conditional schema assignment check
                 $this->qb->addLeftJoin(

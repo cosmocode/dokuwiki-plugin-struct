@@ -5,7 +5,9 @@ namespace dokuwiki\plugin\struct\meta;
 /**
  * Class Assignments
  *
- * Manages the assignment of schemas (table names) to pages and namespaces
+ * Manages the assignment of schemas (table names) to pages and namespaces.
+ * An assignment is created when actual struct data is attached to the page.
+ * Assignment are never deleted, only their "assigned" status is changed.
  *
  * This is a singleton. Assignment data is only loaded once per request.
  *
