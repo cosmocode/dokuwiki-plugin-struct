@@ -78,25 +78,21 @@ class Page extends AbstractMultiBaseType
         $max = $this->config['autocomplete']['maxresult'];
         if ($max <= 0) return [];
 
-        // lookup with namespace and postfix applied
-        $namespace = $this->config['autocomplete']['namespace'];
-        if ($namespace) {
-            // namespace may be relative, resolve in current context
-            $namespace .= ':foo'; // resolve expects pageID
-            $resolver = new PageResolver($INPUT->str('ns') . ':foo'); // resolve relative to current namespace
-            $namespace = $resolver->resolveId($namespace);
-            $namespace = getNS($namespace);
-        }
+        // apply namespace and postfix
         $postfix = $this->config['autocomplete']['postfix'];
-        if ($namespace) $lookup .= ' @' . $namespace;
 
         $data = ft_pageLookup($lookup, true, $this->config['usetitles']);
         if ($data === []) return [];
 
-        // this basically duplicates what we do in ajax_qsearch()
+        $namespace = $this->config['autocomplete']['namespace'];
+
+        // this basically duplicates what we do in ajax_qsearch() but with ns filter
         $result = [];
         $counter = 0;
         foreach ($data as $id => $title) {
+            if (!empty($namespace) && !$this->nsMatch($id, $namespace)) {
+                continue;
+            }
             if ($this->config['usetitles']) {
                 $name = $title . ' (' . $id . ')';
             } else {
@@ -223,5 +219,36 @@ class Page extends AbstractMultiBaseType
         $sub->whereOr("$tablealias.$colname $comp $pl");
         $pl = $QB->addValue($value);
         $sub->whereOr("$rightalias.title $comp $pl");
+    }
+
+    /**
+     * Check if the given id matches at configured namespace (pattern):
+     * simple string or regex pattern with delimiter "/"
+     *
+     * @param string $id
+     * @param string $namespace
+     * @return bool
+     */
+    public function nsMatch($id, $namespace)
+    {
+        $searchNS = getNS($id);
+        if (!$searchNS) {
+            return false; // root
+        }
+
+        // prepare any namespace for preg_match()
+        $searchNS = ':' . $searchNS . ':';
+        // absolute namespace?
+        if (PhpString::substr($namespace, 0, 1) === ':') {
+            $namespace = '^' . $namespace;
+        }
+        // non-regex namespace?
+        if (PhpString::substr($namespace, 0, 1) !== '/') {
+            $namespace = '(?::|^)' . $namespace ;
+            $namespace = '/' . $namespace . '/';
+        }
+        preg_match($namespace, $searchNS, $matches);
+
+        return !empty($matches);
     }
 }

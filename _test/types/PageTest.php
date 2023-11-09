@@ -10,7 +10,7 @@ use dokuwiki\plugin\struct\types\Page;
 /**
  * Testing the Page Type
  *
- * @group plugin_structp
+ * @group plugin_struct
  * @group plugins
  */
 class PageTest extends StructTest
@@ -21,13 +21,14 @@ class PageTest extends StructTest
         parent::setUp();
 
         saveWikiText('syntax', 'dummy', 'test');
+        saveWikiText('foo:syntax:test_special.characters', 'dummy text', 'dummy summary');
 
         // make sure the search index is initialized
         idx_addPage('wiki:syntax');
         idx_addPage('syntax');
         idx_addPage('wiki:welcome');
         idx_addPage('wiki:dokuwiki');
-
+        idx_addPage('foo:syntax:test_special.characters');
     }
 
     public function test_sort()
@@ -214,7 +215,8 @@ class PageTest extends StructTest
         $this->assertEquals(
             [
                 ['label' => 'syntax', 'value' => 'syntax'],
-                ['label' => 'syntax (wiki)', 'value' => 'wiki:syntax']
+                ['label' => 'syntax (wiki)', 'value' => 'wiki:syntax'],
+                ['label' => 'test_special.characters (foo:syntax)', 'value' => 'foo:syntax:test_special.characters'],
             ], $page->handleAjax()
         );
 
@@ -222,12 +224,18 @@ class PageTest extends StructTest
         $this->assertEquals(
             [
                 ['label' => 'syntax', 'value' => 'syntax'],
-                ['label' => 'syntax (wiki)', 'value' => 'wiki:syntax']
+                ['label' => 'syntax (wiki)', 'value' => 'wiki:syntax'],
+                ['label' => 'test_special.characters (foo:syntax)', 'value' => 'foo:syntax:test_special.characters'],
             ], $page->handleAjax()
         );
 
         $INPUT->set('search', 's'); // under mininput
         $this->assertEquals([], $page->handleAjax());
+
+        $INPUT->set('search', 'test_special.char'); // special characters in id
+        $this->assertEquals([
+            ['label' => 'test_special.characters (foo:syntax)', 'value' => 'foo:syntax:test_special.characters']
+        ], $page->handleAjax());
     }
 
     public function test_ajax_namespace()
@@ -249,6 +257,28 @@ class PageTest extends StructTest
         $this->assertEquals([['label' => 'syntax (wiki)', 'value' => 'wiki:syntax']], $page->handleAjax());
     }
 
+    public function test_ajax_namespace_multiple()
+    {
+        global $INPUT;
+
+        $page = new Page(
+            [
+                'autocomplete' => [
+                    'mininput' => 2,
+                    'maxresult' => 5,
+                    'namespace' => '(wiki|foo)',
+                    'postfix' => '',
+                ],
+            ]
+        );
+
+        $INPUT->set('search', 'ynt');
+        $this->assertEquals([
+            ['label' => 'syntax (wiki)', 'value' => 'wiki:syntax'],
+            ['label' => 'test_special.characters (foo:syntax)', 'value' => 'foo:syntax:test_special.characters']
+        ], $page->handleAjax());
+    }
+
     public function test_ajax_postfix()
     {
         global $INPUT;
@@ -268,4 +298,60 @@ class PageTest extends StructTest
         $this->assertEquals([['label' => 'dokuwiki (wiki)', 'value' => 'wiki:dokuwiki']], $page->handleAjax());
     }
 
+    /**
+     * Test simple namespace matching in autocompletion
+     *
+     * @return void
+     */
+    public function test_namespace_matching_simple()
+    {
+        $page = new Page();
+
+        $this->assertTrue($page->nsMatch('foo:start', 'foo'));
+        $this->assertFalse($page->nsMatch('start#foo', 'foo'));
+        $this->assertFalse($page->nsMatch('ns:foo', ':foo'));
+        $this->assertTrue($page->nsMatch('ns:foo:start', 'foo'));
+        $this->assertTrue($page->nsMatch('ns:foo:start#headline', 'foo'));
+        $this->assertTrue($page->nsMatch('foo-bar:start', 'foo-bar'));
+        $this->assertTrue($page->nsMatch('foo-bar:start-with_special.chars', 'foo-bar'));
+        $this->assertTrue($page->nsMatch('foo.bar:start', 'foo.bar'));
+        $this->assertFalse($page->nsMatch('ns:foo.bar', 'foo.bar'));
+        $this->assertTrue($page->nsMatch('ns:foo.bar:start', 'foo.bar'));
+        $this->assertFalse($page->nsMatch('ns:foo_bar:start', ':foo_bar'));
+        $this->assertTrue($page->nsMatch('8bar:start', '8bar'));
+        $this->assertTrue($page->nsMatch('ns:8bar:start', '8bar'));
+        $this->assertFalse($page->nsMatch('ns:98bar:start', '8bar'));
+    }
+
+    /**
+     * Test regex namespace matching in autocompletion
+     *
+     * @return void
+     */
+    public function test_namespace_matching_regex()
+    {
+        $page = new Page();
+
+        $namespace = '/(foo:|^:foo:|(?::|^)bar:|foo:bar|foo-bar:|^:foo_bar:|foo\.bar:|(?::|^)8bar:)/';
+
+        $this->assertTrue($page->nsMatch('foo:start', $namespace));
+        $this->assertFalse($page->nsMatch('start#foo', $namespace));
+        $this->assertFalse($page->nsMatch('ns:foo', $namespace));
+        $this->assertTrue($page->nsMatch('bar:foo', $namespace));
+        $this->assertTrue($page->nsMatch('ns:foo:start', $namespace));
+        $this->assertTrue($page->nsMatch('ns:foo:start#headline', $namespace));
+        $this->assertTrue($page->nsMatch('foo-bar:start', $namespace));
+        $this->assertTrue($page->nsMatch('foo-bar:start-with_special.chars', $namespace));
+        $this->assertTrue($page->nsMatch('foo.bar:start', $namespace));
+        $this->assertFalse($page->nsMatch('ns:foo.bar', $namespace));
+        $this->assertTrue($page->nsMatch('ns:foo.bar:start', $namespace));
+        $this->assertFalse($page->nsMatch('ns:foo_bar:start', $namespace));
+        $this->assertTrue($page->nsMatch('8bar:start', $namespace));
+        $this->assertTrue($page->nsMatch('ns:8bar:start', $namespace));
+        $this->assertFalse($page->nsMatch('ns:98bar:start', $namespace));
+
+        $namespace = '/^:systems:[^:]+:components:([^:]+:){1,2}$/';
+        $this->assertTrue($page->nsMatch('systems:system1:components:sub1:sub2:start', $namespace));
+        $this->assertFalse($page->nsMatch('systems:system1:components:sub1:sub2:sub3:start', $namespace));
+    }
 }
