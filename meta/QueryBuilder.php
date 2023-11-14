@@ -241,7 +241,7 @@ class QueryBuilder
                 'ORDER BY ' . implode(",\n", $this->orderby) . "\n";
         }
 
-        return [$sql, $this->values];
+        return [$sql, array_values($this->values)];
     }
 
     /**

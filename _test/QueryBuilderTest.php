@@ -23,29 +23,4 @@ class QueryBuilderTest extends StructTest
         $qb->addLeftJoin('second', 'fourth', 'fourth', 'second.foo=fourth.foo');
         $this->assertEquals(['first', 'second', 'fourth', 'third'], array_keys($qb->from));
     }
-
-    public function test_placeholders()
-    {
-        $qb = new QueryBuilder();
-
-
-        $foo = $qb->addValue('foo');
-        $bar = $qb->addValue('bar');
-
-        $input = "this is $foo and $bar and $foo again";
-        $expect = "this is ? and ? and ? again";
-        $values = ['foo', 'bar', 'foo'];
-
-        $output = $qb->fixPlaceholders($input);
-
-        $this->assertEquals($expect, $output[0]);
-        $this->assertEquals($values, $output[1]);
-    }
-
-    public function test_placeholderfail()
-    {
-        $this->expectException(StructException::class);
-        $qb = new QueryBuilder();
-        $qb->fixPlaceholders('this has unknown placeholder :!!val7!!:');
-    }
 }

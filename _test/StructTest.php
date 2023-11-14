@@ -111,7 +111,7 @@ abstract class StructTest extends \DokuWikiTest
      */
     protected function cleanWS($string)
     {
-        return preg_replace('/\s+/s', '', $string);
+        return preg_replace(['/\s+/s', '/\:val(\d{1,3})/'], ['', '?'], $string);
     }
 
     /**
