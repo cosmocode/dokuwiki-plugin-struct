@@ -183,7 +183,7 @@ class QueryBuilder
         static $count = 0;
         $count++;
 
-        $placeholder = ":!!val$count!!:"; // sqlite plugin does not support named parameters, yet so we have simulate it
+        $placeholder = ":val$count";
         $this->values[$placeholder] = $value;
         return $placeholder;
     }
@@ -241,33 +241,7 @@ class QueryBuilder
                 'ORDER BY ' . implode(",\n", $this->orderby) . "\n";
         }
 
-        return $this->fixPlaceholders($sql);
-    }
-
-    /**
-     * Replaces the named placeholders with ? placeholders
-     *
-     * Until the sqlite plugin can use named placeholder properly
-     *
-     * @param string $sql
-     * @return array
-     */
-    protected function fixPlaceholders($sql)
-    {
-        $vals = [];
-
-        while (preg_match('/(:!!val\d+!!:)/', $sql, $m)) {
-            $pl = $m[1];
-
-            if (!array_key_exists($pl, $this->values)) {
-                throw new StructException('Placeholder not found');
-            }
-
-            $sql = preg_replace("/$pl/", '?', $sql, 1);
-            $vals[] = $this->values[$pl];
-        }
-
-        return [$sql, $vals];
+        return [$sql, array_values($this->values)];
     }
 
     /**

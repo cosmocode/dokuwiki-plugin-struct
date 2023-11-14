@@ -8,11 +8,6 @@ class QueryBuilder extends meta\QueryBuilder
 {
     public $from;
 
-    public function fixPlaceholders($sql)
-    {
-        return parent::fixPlaceholders($sql);
-    }
-
     /**
      * for debugging where statements
      *
@@ -20,6 +15,6 @@ class QueryBuilder extends meta\QueryBuilder
      */
     public function getWhereSQL()
     {
-        return $this->fixPlaceholders($this->filters()->toSQL());
+        return [$this->filters()->toSQL(), array_values($this->values)];
     }
 }
