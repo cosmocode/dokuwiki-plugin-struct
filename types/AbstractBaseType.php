@@ -426,7 +426,7 @@ abstract class AbstractBaseType
      */
     public function sort(QueryBuilder $QB, $tablealias, $colname, $order)
     {
-        $QB->addOrderBy("$tablealias.$colname $order");
+        $QB->addOrderBy("$tablealias.$colname COLLATE NOCASE $order");
     }
 
     /**

@@ -149,7 +149,7 @@ class Page extends AbstractMultiBaseType
 
         $rightalias = $QB->generateTableAlias();
         $QB->addLeftJoin($tablealias, 'titles', $rightalias, "$tablealias.$colname = $rightalias.pid");
-        $QB->addOrderBy("$rightalias.title $order");
+        $QB->addOrderBy("$rightalias.title COLLATE NOCASE $order");
         $QB->addOrderBy("$tablealias.$colname $order");
     }
 
