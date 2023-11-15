@@ -205,7 +205,7 @@ class PageTest extends StructTest
                 'autocomplete' => [
                     'mininput' => 2,
                     'maxresult' => 5,
-                    'namespace' => '',
+                    'filter' => '',
                     'postfix' => '',
                 ],
             ]
@@ -238,6 +238,10 @@ class PageTest extends StructTest
         ], $page->handleAjax());
     }
 
+    /**
+     * Test deprecated option namespace
+     * @return void
+     */
     public function test_ajax_namespace()
     {
         global $INPUT;
@@ -257,7 +261,7 @@ class PageTest extends StructTest
         $this->assertEquals([['label' => 'syntax (wiki)', 'value' => 'wiki:syntax']], $page->handleAjax());
     }
 
-    public function test_ajax_namespace_multiple()
+    public function test_ajax_filter_multiple()
     {
         global $INPUT;
 
@@ -266,7 +270,7 @@ class PageTest extends StructTest
                 'autocomplete' => [
                     'mininput' => 2,
                     'maxresult' => 5,
-                    'namespace' => '(wiki|foo)',
+                    'filter' => '(wiki|foo)',
                     'postfix' => '',
                 ],
             ]
@@ -279,6 +283,10 @@ class PageTest extends StructTest
         ], $page->handleAjax());
     }
 
+    /**
+     * Test deprecated option postfix
+     * @return void
+     */
     public function test_ajax_postfix()
     {
         global $INPUT;

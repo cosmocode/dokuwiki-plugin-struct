@@ -5,6 +5,7 @@ namespace dokuwiki\plugin\struct\types;
 use dokuwiki\File\PageResolver;
 use dokuwiki\plugin\struct\meta\QueryBuilder;
 use dokuwiki\plugin\struct\meta\QueryBuilderWhere;
+use dokuwiki\plugin\struct\meta\StructException;
 use dokuwiki\Utf8\PhpString;
 
 /**
@@ -256,7 +257,12 @@ class Page extends AbstractMultiBaseType
             $filter = '^' . $filter;
         }
 
-        return (bool)preg_match('/' . $filter . '/', ':' . $id, $matches);
+        try {
+            $check = preg_match('/' . $filter . '/', ':' . $id, $matches);
+        } catch (\Exception $e) {
+            throw new StructException("Error processing regular expression '$filter'");
+        }
+        return (bool)$check;
     }
 
     /**
