@@ -28,7 +28,8 @@ class AggregationEditorTable extends AggregationTable
     public function startScope()
     {
         // unique identifier for this aggregation
-        $this->renderer->info['struct_table_hash'] = md5(var_export($this->data, true));
+        $hash = md5(var_export($this->data, true));
+        $this->renderer->info['struct_table_hash'] = $hash;
 
         if ($this->mode != 'xhtml') return;
 
@@ -42,11 +43,9 @@ class AggregationEditorTable extends AggregationTable
         $classes = $this->getScopeClasses();
         $classes[] = 'structaggregationeditor';
         $classes = implode(' ', $classes);
-        $this->renderer->doc .= "<div class=\"$classes\" 
+        $this->renderer->doc .= "<div id=\"$hash\"
+                                      class=\"$classes\"
                                       data-schema=\"$table\" data-searchconf=\"$config\">";
-
-        // unique identifier for this aggregation
-        $this->renderer->info['struct_table_hash'] = md5(var_export($this->data, true));
     }
 
     /**

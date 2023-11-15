@@ -119,7 +119,11 @@ abstract class Aggregation
     {
         if ($this->mode == 'xhtml') {
             $classes = $this->getScopeClasses();
-            $this->renderer->doc .= '<div class="' . implode(' ', $classes) . '">';
+
+            $hash = $this->renderer->info['struct_table_hash'] ?? '';
+            $id = $hash ? " id=\"$hash\" " : '';
+
+            $this->renderer->doc .= '<div ' . $id . 'class="' . implode(' ', $classes) . '">';
         }
     }
 

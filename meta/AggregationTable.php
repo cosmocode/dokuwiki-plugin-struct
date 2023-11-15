@@ -281,7 +281,12 @@ class AggregationTable extends Aggregation
             $this->renderer->doc .= '<th>';
 
             // BEGIN FORM
-            $form = new \Doku_Form(['method' => 'GET', 'action' => wl($this->id)]);
+            $form = new \Doku_Form(
+                [
+                    'method' => 'GET',
+                    'action' => wl($this->id, $this->renderer->info['struct_table_hash'], false, '#')
+                ]
+            );
             unset($form->_hidden['sectok']); // we don't need it here
             if (!$conf['userewrite']) $form->addHidden('id', $this->id);
 
