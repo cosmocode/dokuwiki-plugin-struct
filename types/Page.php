@@ -5,6 +5,7 @@ namespace dokuwiki\plugin\struct\types;
 use dokuwiki\File\PageResolver;
 use dokuwiki\plugin\struct\meta\QueryBuilder;
 use dokuwiki\plugin\struct\meta\QueryBuilderWhere;
+use dokuwiki\plugin\struct\meta\StructException;
 use dokuwiki\Utf8\PhpString;
 
 /**
@@ -21,8 +22,7 @@ class Page extends AbstractMultiBaseType
         'autocomplete' => [
             'mininput' => 2,
             'maxresult' => 5,
-            'namespace' => '',
-            'postfix' => ''
+            'filter' => '',
         ]
     ];
 
@@ -78,25 +78,18 @@ class Page extends AbstractMultiBaseType
         $max = $this->config['autocomplete']['maxresult'];
         if ($max <= 0) return [];
 
-        // lookup with namespace and postfix applied
-        $namespace = $this->config['autocomplete']['namespace'];
-        if ($namespace) {
-            // namespace may be relative, resolve in current context
-            $namespace .= ':foo'; // resolve expects pageID
-            $resolver = new PageResolver($INPUT->str('ns') . ':foo'); // resolve relative to current namespace
-            $namespace = $resolver->resolveId($namespace);
-            $namespace = getNS($namespace);
-        }
-        $postfix = $this->config['autocomplete']['postfix'];
-        if ($namespace) $lookup .= ' @' . $namespace;
-
         $data = ft_pageLookup($lookup, true, $this->config['usetitles']);
         if ($data === []) return [];
 
-        // this basically duplicates what we do in ajax_qsearch()
+        $filter = $this->config['autocomplete']['filter'];
+
+        // this basically duplicates what we do in ajax_qsearch() but with a filter
         $result = [];
         $counter = 0;
         foreach ($data as $id => $title) {
+            if (!empty($filter) && !$this->filterMatch($id, $filter)) {
+                continue;
+            }
             if ($this->config['usetitles']) {
                 $name = $title . ' (' . $id . ')';
             } else {
@@ -106,11 +99,6 @@ class Page extends AbstractMultiBaseType
                 } else {
                     $name = $id;
                 }
-            }
-
-            // check suffix
-            if ($postfix && substr($id, -1 * strlen($postfix)) != $postfix) {
-                continue; // page does not end in postfix, don't suggest it
             }
 
             $result[] = [
@@ -223,5 +211,59 @@ class Page extends AbstractMultiBaseType
         $sub->whereOr("$tablealias.$colname $comp $pl");
         $pl = $QB->addValue($value);
         $sub->whereOr("$rightalias.title $comp $pl");
+    }
+
+    /**
+     * Check if the given id matches a configured filter pattern
+     *
+     * @param string $id
+     * @param string $filter
+     * @return bool
+     */
+    public function filterMatch($id, $filter)
+    {
+        // absolute namespace?
+        if (PhpString::substr($filter, 0, 1) === ':') {
+            $filter = '^' . $filter;
+        }
+
+        try {
+            $check = preg_match('/' . $filter . '/', ':' . $id, $matches);
+        } catch (\Exception $e) {
+            throw new StructException("Error processing regular expression '$filter'");
+        }
+        return (bool)$check;
+    }
+
+    /**
+     * Merge the current config with the base config of the type.
+     *
+     * In contrast to parent, this method does not throw away unknown keys.
+     * Required to migrate deprecated / obsolete options, no longer part of type config.
+     *
+     * @param array $current Current configuration
+     * @param array $config Base Type configuration
+     */
+    protected function mergeConfig($current, &$config)
+    {
+        foreach ($current as $key => $value) {
+            if (isset($config[$key]) && is_array($config[$key])) {
+                $this->mergeConfig($value, $config[$key]);
+            } else {
+                $config[$key] = $value;
+            }
+        }
+
+        // migrate autocomplete options 'namespace' and 'postfix' to 'filter'
+        if (empty($config['autocomplete']['filter'])) {
+            if (!empty($config['autocomplete']['namespace'])) {
+                $config['autocomplete']['filter'] = $config['autocomplete']['namespace'];
+                unset($config['autocomplete']['namespace']);
+            }
+            if (!empty($config['autocomplete']['postfix'])) {
+                $config['autocomplete']['filter'] .= '.+?' . $config['autocomplete']['postfix'] . '$';
+                unset($config['autocomplete']['postfix']);
+            }
+        }
     }
 }
