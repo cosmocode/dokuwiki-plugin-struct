@@ -42,9 +42,14 @@ class ValueValidator
         }
         // strip empty fields from multi vals
         // but keep at least one so we can properly delete multivalues on update
-        if (is_array($rawvalue) && count($rawvalue) > 1) {
+        // some fields like media or date can post an array with multiple empty strings
+        // because they use multiple inputs instead of comma separation in one input
+        if (is_array($rawvalue)) {
             $rawvalue = array_filter($rawvalue, [$this, 'filter']);
             $rawvalue = array_values($rawvalue); // reset the array keys
+            if (empty($rawvalue)) {
+                $rawvalue = [''];
+            }
         }
 
         // validate data
