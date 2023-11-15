@@ -80,7 +80,8 @@ class AggregationCloud extends Aggregation
                 "<div style='font-size:$weight%' data-count='$count' class='cloudtag struct_$type'>";
         }
 
-        $value->renderAsTagCloudLink($this->renderer, $this->mode, $target, $filter, $weight);
+        $showCount = $this->searchConfig->getConf()['summarize'] ? $count : 0;
+        $value->renderAsTagCloudLink($this->renderer, $this->mode, $target, $filter, $weight, $showCount);
 
         if ($this->mode == 'xhtml') {
             $this->renderer->doc .= '</div>';
