@@ -188,11 +188,12 @@ class Value
      * @param string $page
      * @param string $filterQuery
      * @param int $weight
+     * @param int $showCount
      */
-    public function renderAsTagCloudLink(\Doku_Renderer $R, $mode, $page, $filterQuery, $weight)
+    public function renderAsTagCloudLink(\Doku_Renderer $R, $mode, $page, $filterQuery, $weight, $showCount)
     {
         $value = is_array($this->value) ? $this->value[0] : $this->value;
-        $this->column->getType()->renderTagCloudLink($value, $R, $mode, $page, $filterQuery, $weight);
+        $this->column->getType()->renderTagCloudLink($value, $R, $mode, $page, $filterQuery, $weight, $showCount);
     }
 
     /**

@@ -121,7 +121,7 @@ class Media extends AbstractBaseType
     /**
      * @inheritDoc
      */
-    public function renderTagCloudLink($value, \Doku_Renderer $R, $mode, $page, $filter, $weight)
+    public function renderTagCloudLink($value, \Doku_Renderer $R, $mode, $page, $filter, $weight, $showCount)
     {
         $media = $this->displayValue($value);
         if ($mode == 'xhtml' && $this->getConfig()['mime'] == 'image/') {

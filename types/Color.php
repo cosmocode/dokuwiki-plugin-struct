@@ -82,7 +82,7 @@ class Color extends AbstractBaseType
     /**
      * @inheritDoc
      */
-    public function renderTagCloudLink($value, \Doku_Renderer $R, $mode, $page, $filter, $weight)
+    public function renderTagCloudLink($value, \Doku_Renderer $R, $mode, $page, $filter, $weight, $showCount)
     {
         $color = $this->displayValue($value);
         if ($mode == 'xhtml') {
