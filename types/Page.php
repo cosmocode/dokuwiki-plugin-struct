@@ -27,28 +27,6 @@ class Page extends AbstractMultiBaseType
     ];
 
     /**
-     * Return the current configuration.
-     * Overwrites parent method to migrate deprecated options.
-     *
-     * @return array
-     */
-    public function getConfig()
-    {
-        // migrate autocomplete options 'namespace' and 'postfix' to 'filter'
-        if (empty($this->config['autocomplete']['filter'])) {
-            if (!empty($this->config['autocomplete']['namespace'])) {
-                $this->config['autocomplete']['filter'] = $this->config['autocomplete']['namespace'];
-                unset($this->config['autocomplete']['namespace']);
-            }
-            if (!empty($this->config['autocomplete']['postfix'])) {
-                $this->config['autocomplete']['filter'] .= '.+?' . $this->config['autocomplete']['postfix'] . '$';
-                unset($this->config['autocomplete']['namespace']);
-            }
-        }
-        return $this->config;
-    }
-
-    /**
      * Output the stored data
      *
      * @param string $value the value stored in the database - JSON when titles are used
@@ -104,14 +82,6 @@ class Page extends AbstractMultiBaseType
         if ($data === []) return [];
 
         $filter = $this->config['autocomplete']['filter'];
-
-        // try to use deprecated options namespace and postfix as filter
-        $namespace = $this->config['autocomplete']['namespace'] ?? '';
-        $postfix = $this->config['autocomplete']['postfix'] ?? '';
-        if (!$filter) {
-            $filter = $namespace ? $namespace . ':' : '';
-            $filter .= $postfix ? '.+?' . $postfix . '$' : '';
-        }
 
         // this basically duplicates what we do in ajax_qsearch() but with a filter
         $result = [];
@@ -281,6 +251,18 @@ class Page extends AbstractMultiBaseType
                 $this->mergeConfig($value, $config[$key]);
             } else {
                 $config[$key] = $value;
+            }
+        }
+
+        // migrate autocomplete options 'namespace' and 'postfix' to 'filter'
+        if (empty($config['autocomplete']['filter'])) {
+            if (!empty($config['autocomplete']['namespace'])) {
+                $config['autocomplete']['filter'] = $config['autocomplete']['namespace'];
+                unset($config['autocomplete']['namespace']);
+            }
+            if (!empty($config['autocomplete']['postfix'])) {
+                $config['autocomplete']['filter'] .= '.+?' . $config['autocomplete']['postfix'] . '$';
+                unset($config['autocomplete']['postfix']);
             }
         }
     }
