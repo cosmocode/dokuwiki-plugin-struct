@@ -21,10 +21,31 @@ class Page extends AbstractMultiBaseType
         'autocomplete' => [
             'mininput' => 2,
             'maxresult' => 5,
-            'namespace' => '',
-            'postfix' => ''
+            'filter' => '',
         ]
     ];
+
+    /**
+     * Return the current configuration.
+     * Overwrites parent method to migrate deprecated options.
+     *
+     * @return array
+     */
+    public function getConfig()
+    {
+        // migrate autocomplete options 'namespace' and 'postfix' to 'filter'
+        if (empty($this->config['autocomplete']['filter'])) {
+            if (!empty($this->config['autocomplete']['namespace'])) {
+                $this->config['autocomplete']['filter'] = $this->config['autocomplete']['namespace'];
+                unset($this->config['autocomplete']['namespace']);
+            }
+            if (!empty($this->config['autocomplete']['postfix'])) {
+                $this->config['autocomplete']['filter'] .= '.+?' . $this->config['autocomplete']['postfix'] . '$';
+                unset($this->config['autocomplete']['namespace']);
+            }
+        }
+        return $this->config;
+    }
 
     /**
      * Output the stored data
@@ -78,19 +99,24 @@ class Page extends AbstractMultiBaseType
         $max = $this->config['autocomplete']['maxresult'];
         if ($max <= 0) return [];
 
-        // apply namespace and postfix
-        $postfix = $this->config['autocomplete']['postfix'];
-
         $data = ft_pageLookup($lookup, true, $this->config['usetitles']);
         if ($data === []) return [];
 
-        $namespace = $this->config['autocomplete']['namespace'];
+        $filter = $this->config['autocomplete']['filter'];
 
-        // this basically duplicates what we do in ajax_qsearch() but with ns filter
+        // try to use deprecated options namespace and postfix as filter
+        $namespace = $this->config['autocomplete']['namespace'] ?? '';
+        $postfix = $this->config['autocomplete']['postfix'] ?? '';
+        if (!$filter) {
+            $filter = $namespace ? $namespace . ':' : '';
+            $filter .= $postfix ? '.+?' . $postfix . '$' : '';
+        }
+
+        // this basically duplicates what we do in ajax_qsearch() but with a filter
         $result = [];
         $counter = 0;
         foreach ($data as $id => $title) {
-            if (!empty($namespace) && !$this->nsMatch($id, $namespace)) {
+            if (!empty($filter) && !$this->filterMatch($id, $filter)) {
                 continue;
             }
             if ($this->config['usetitles']) {
@@ -102,11 +128,6 @@ class Page extends AbstractMultiBaseType
                 } else {
                     $name = $id;
                 }
-            }
-
-            // check suffix
-            if ($postfix && substr($id, -1 * strlen($postfix)) != $postfix) {
-                continue; // page does not end in postfix, don't suggest it
             }
 
             $result[] = [
@@ -222,33 +243,39 @@ class Page extends AbstractMultiBaseType
     }
 
     /**
-     * Check if the given id matches at configured namespace (pattern):
-     * simple string or regex pattern with delimiter "/"
+     * Check if the given id matches a configured filter pattern
      *
      * @param string $id
-     * @param string $namespace
+     * @param string $filter
      * @return bool
      */
-    public function nsMatch($id, $namespace)
+    public function filterMatch($id, $filter)
     {
-        $searchNS = getNS($id);
-        if (!$searchNS) {
-            return false; // root
-        }
-
-        // prepare any namespace for preg_match()
-        $searchNS = ':' . $searchNS . ':';
         // absolute namespace?
-        if (PhpString::substr($namespace, 0, 1) === ':') {
-            $namespace = '^' . $namespace;
+        if (PhpString::substr($filter, 0, 1) === ':') {
+            $filter = '^' . $filter;
         }
-        // non-regex namespace?
-        if (PhpString::substr($namespace, 0, 1) !== '/') {
-            $namespace = '(?::|^)' . $namespace ;
-            $namespace = '/' . $namespace . '/';
-        }
-        preg_match($namespace, $searchNS, $matches);
 
-        return !empty($matches);
+        return (bool)preg_match('/' . $filter . '/', ':' . $id, $matches);
+    }
+
+    /**
+     * Merge the current config with the base config of the type.
+     *
+     * In contrast to parent, this method does not throw away unknown keys.
+     * Required to migrate deprecated / obsolete options, no longer part of type config.
+     *
+     * @param array $current Current configuration
+     * @param array $config Base Type configuration
+     */
+    protected function mergeConfig($current, &$config)
+    {
+        foreach ($current as $key => $value) {
+            if (isset($config[$key]) && is_array($config[$key])) {
+                $this->mergeConfig($value, $config[$key]);
+            } else {
+                $config[$key] = $value;
+            }
+        }
     }
 }

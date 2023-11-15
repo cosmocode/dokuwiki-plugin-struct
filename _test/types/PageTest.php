@@ -296,62 +296,74 @@ class PageTest extends StructTest
 
         $INPUT->set('search', 'oku');
         $this->assertEquals([['label' => 'dokuwiki (wiki)', 'value' => 'wiki:dokuwiki']], $page->handleAjax());
+
+        $page = new Page(
+            [
+                'autocomplete' => [
+                    'mininput' => 2,
+                    'maxresult' => 5,
+                    'namespace' => 'wiki',
+                    'postfix' => 'iki',
+                ],
+            ]
+        );
+
+        $INPUT->set('search', 'oku');
+        $this->assertEquals([['label' => 'dokuwiki (wiki)', 'value' => 'wiki:dokuwiki']], $page->handleAjax());
     }
 
     /**
-     * Test simple namespace matching in autocompletion
+     * Test simple filter matching in autocompletion
      *
      * @return void
      */
-    public function test_namespace_matching_simple()
+    public function test_filter_matching_simple()
     {
         $page = new Page();
 
-        $this->assertTrue($page->nsMatch('foo:start', 'foo'));
-        $this->assertFalse($page->nsMatch('start#foo', 'foo'));
-        $this->assertFalse($page->nsMatch('ns:foo', ':foo'));
-        $this->assertTrue($page->nsMatch('ns:foo:start', 'foo'));
-        $this->assertTrue($page->nsMatch('ns:foo:start#headline', 'foo'));
-        $this->assertTrue($page->nsMatch('foo-bar:start', 'foo-bar'));
-        $this->assertTrue($page->nsMatch('foo-bar:start-with_special.chars', 'foo-bar'));
-        $this->assertTrue($page->nsMatch('foo.bar:start', 'foo.bar'));
-        $this->assertFalse($page->nsMatch('ns:foo.bar', 'foo.bar'));
-        $this->assertTrue($page->nsMatch('ns:foo.bar:start', 'foo.bar'));
-        $this->assertFalse($page->nsMatch('ns:foo_bar:start', ':foo_bar'));
-        $this->assertTrue($page->nsMatch('8bar:start', '8bar'));
-        $this->assertTrue($page->nsMatch('ns:8bar:start', '8bar'));
-        $this->assertFalse($page->nsMatch('ns:98bar:start', '8bar'));
+        $this->assertTrue($page->filterMatch('foo:start', 'foo'));
+        $this->assertTrue($page->filterMatch('start#foo', 'foo'));
+        $this->assertFalse($page->filterMatch('ns:foo', ':foo'));
+        $this->assertTrue($page->filterMatch('foo-bar:start', 'foo-bar'));
+        $this->assertTrue($page->filterMatch('foo-bar:start-with_special.chars', 'foo-bar'));
+        $this->assertTrue($page->filterMatch('foo.bar:start', 'foo.bar'));
+        $this->assertTrue($page->filterMatch('ns:foo.bar', 'foo.bar'));
+        $this->assertTrue($page->filterMatch('ns:foo.bar:start', 'foo.bar'));
+        $this->assertFalse($page->filterMatch('ns:foo_bar:start', ':foo_bar'));
+        $this->assertTrue($page->filterMatch('8bar:start', '8bar'));
+        $this->assertTrue($page->filterMatch('ns:8bar:start', '8bar'));
+        $this->assertTrue($page->filterMatch('ns:98bar:start', '8bar'));
     }
 
     /**
-     * Test regex namespace matching in autocompletion
+     * Test pattern matching in autocompletion
      *
      * @return void
      */
-    public function test_namespace_matching_regex()
+    public function test_filter_matching_regex()
     {
         $page = new Page();
 
-        $namespace = '/(foo:|^:foo:|(?::|^)bar:|foo:bar|foo-bar:|^:foo_bar:|foo\.bar:|(?::|^)8bar:)/';
+        $filter = '(foo:|^:foo:|(?::|^)bar:|foo:bar|foo-bar:|^:foo_bar:|foo\.bar:|(?::|^)8bar:)';
 
-        $this->assertTrue($page->nsMatch('foo:start', $namespace));
-        $this->assertFalse($page->nsMatch('start#foo', $namespace));
-        $this->assertFalse($page->nsMatch('ns:foo', $namespace));
-        $this->assertTrue($page->nsMatch('bar:foo', $namespace));
-        $this->assertTrue($page->nsMatch('ns:foo:start', $namespace));
-        $this->assertTrue($page->nsMatch('ns:foo:start#headline', $namespace));
-        $this->assertTrue($page->nsMatch('foo-bar:start', $namespace));
-        $this->assertTrue($page->nsMatch('foo-bar:start-with_special.chars', $namespace));
-        $this->assertTrue($page->nsMatch('foo.bar:start', $namespace));
-        $this->assertFalse($page->nsMatch('ns:foo.bar', $namespace));
-        $this->assertTrue($page->nsMatch('ns:foo.bar:start', $namespace));
-        $this->assertFalse($page->nsMatch('ns:foo_bar:start', $namespace));
-        $this->assertTrue($page->nsMatch('8bar:start', $namespace));
-        $this->assertTrue($page->nsMatch('ns:8bar:start', $namespace));
-        $this->assertFalse($page->nsMatch('ns:98bar:start', $namespace));
+        $this->assertTrue($page->filterMatch('foo:start', $filter));
+        $this->assertFalse($page->filterMatch('start#foo', $filter));
+        $this->assertFalse($page->filterMatch('ns:foo', $filter));
+        $this->assertTrue($page->filterMatch('bar:foo', $filter));
+        $this->assertTrue($page->filterMatch('ns:foo:start', $filter));
+        $this->assertTrue($page->filterMatch('ns:foo:start#headline', $filter));
+        $this->assertTrue($page->filterMatch('foo-bar:start', $filter));
+        $this->assertTrue($page->filterMatch('foo-bar:start-with_special.chars', $filter));
+        $this->assertTrue($page->filterMatch('foo.bar:start', $filter));
+        $this->assertFalse($page->filterMatch('ns:foo.bar', $filter));
+        $this->assertTrue($page->filterMatch('ns:foo.bar:start', $filter));
+        $this->assertFalse($page->filterMatch('ns:foo_bar:start', $filter));
+        $this->assertTrue($page->filterMatch('8bar:start', $filter));
+        $this->assertTrue($page->filterMatch('ns:8bar:start', $filter));
+        $this->assertFalse($page->filterMatch('ns:98bar:start', $filter));
 
-        $namespace = '/^:systems:[^:]+:components:([^:]+:){1,2}$/';
-        $this->assertTrue($page->nsMatch('systems:system1:components:sub1:sub2:start', $namespace));
-        $this->assertFalse($page->nsMatch('systems:system1:components:sub1:sub2:sub3:start', $namespace));
+        $filter = '^:systems:[^:]+:components:([^:]+:){1,2}[^:]+$';
+        $this->assertTrue($page->filterMatch('systems:system1:components:sub1:sub2:start', $filter));
+        $this->assertFalse($page->filterMatch('systems:system1:components:sub1:sub2:sub3:start', $filter));
     }
 }
