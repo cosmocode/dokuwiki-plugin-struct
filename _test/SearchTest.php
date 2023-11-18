@@ -235,8 +235,8 @@ class SearchTest extends StructTest
         $this->assertEquals(2, count($joincols));
         $this->assertInstanceOf(meta\PageColumn::class, $joincols[0]);
         $this->assertInstanceOf(meta\PageColumn::class, $joincols[1]);
-        $this->assertEquals('schema2', $joincols[0]->getTable());
-        $this->assertEquals('schema1', $joincols[1]->getTable());
+        $this->assertEquals('schema1', $joincols[0]->getTable());
+        $this->assertEquals('schema2', $joincols[1]->getTable());
 
         $search->addColumn('first');
         $this->assertEquals('schema1', $search->columns[0]->getTable());

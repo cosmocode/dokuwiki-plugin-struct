@@ -122,7 +122,9 @@ class Search
     }
 
     /**
-     * Returns the columns being matched against for a JOIN ... ON expression.
+     * Returns the columns being matched against for a JOIN ... ON
+     * expression. The result will be ordered such that the first
+     * column is the one from a previously-joined schema.
      * 
      * @param Schema $schema The schema being JOINed to the query
      * @param string $left The LHS of the JOIN ON comparison
@@ -139,10 +141,15 @@ class Search
             throw new StructException('Unrecognoside field ' . $right);
         }
         $table = $schema->getTable();
-        if (($lcol->getTable() != $table) == ($rcol->getTable() != $table)) {
+        $left_is_old_table = $lcol->getTable() != $table;
+        if ($left_is_old_table == ($rcol->getTable() != $table)) {
             throw new StructException("Exactly one side of ON condition $left = $right must be a column of $table" );
         }
-        return array($lcol, $rcol);
+        if ($left_is_old_table) {
+            return array($lcol, $rcol);
+        } else {
+            return array($rcol, $lcol);
+        }
     }
 
     /**

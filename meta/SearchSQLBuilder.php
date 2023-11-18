@@ -36,8 +36,15 @@ class SearchSQLBuilder
             $datatable = 'data_' . $schema->getTable();
             if ($first_table) {
                 // follow up tables
-                // TODO: Think I'm going to need to create a joinOn method for columns
-                $this->qb->addLeftJoin($first_table, $datatable, $datatable, "$first_table.pid = $datatable.pid");
+                [$lcol, $rcol] = $this->joins[$schema->getTable()];
+                $lefttable = 'data_' . $lcol->getTable();
+                $righttable = 'data_' . $rcol->getTable();
+                $add = new QueryBuilderWhere($QB);
+                $lcol->getType()->joinCondition(
+                    $add, $lefttable, $lcol->getColName(),
+                    $righttable, $rcol->getColName(), $rcol->getType()
+                );
+                $QB->addLeftJoin($lefttable, $righttable, $righttable, $add->toSQL());
             } else {
                 // first table
                 $this->qb->addTable($datatable);

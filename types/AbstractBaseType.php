@@ -391,6 +391,43 @@ abstract class AbstractBaseType
     }
 
     /**
+     * Place a condition expression in $add which $left_table and
+     * $right_table can be JOINed ON.  Semantically, this provides an
+     * equality comparison between two columns in the two
+     * schemas. However, in practice it may require more complex
+     * logic, including additional JOINs to pull in other data or
+     * handle multi-valued columns.
+     *
+     * @param QueryBuilderWhere $add The condition ON which to JOIN the tables
+     * @param string $left_table The name of the left table being JOINed
+     * @param string $left_colname The name of the column in the left table being compared against for the JOIN
+     * @param string $right_table The name of the right table being JOINed
+     * @param string $right_colname The name of hte column in the right table being compared against for hte JOIN
+     * @param AbstractBaseType $right_coltype The type of $right_colname
+     */
+    public function joinCondition(QueryBuilderWhere $add, $left_table, $left_colname, $right_table, $right_colname, $right_coltype)
+    {
+        $lhs = $this->joinArgument($add, $left_table, $left_colname);
+        $rhs = $right_coltype->joinArgument($add, $right_table, $right_colname);
+        $add->where('AND', "$lhs = $rhs");
+    }
+
+    /**
+     * Returns an expression for one side of the equality-comparison
+     * used when JOINing schemas in aggregations. It may add
+     * additional conditions to the $add expression or JOIN other
+     * tables, as needed.
+     *
+     * @param QueryBuilderWhere $add The condition ON which to JOIN the tables. May not be used.
+     * @param string $table Name of the table being JOINed
+     * @param string $colname Name of the column being JOINed ON
+     * @return string One side of the equality comparion being used for the JOIN
+     */
+    protected function joinArgument(QueryBuilderWhere $add, $table, $colname) {
+        return "$table.$colname";
+    }
+    
+    /**
      * Add the proper selection for this type to the current Query
      *
      * The default implementation here should be good for nearly all types, it simply
