@@ -32,31 +32,31 @@ class SearchSQLBuilder
     {
         // basic tables
         $first_table = '';
+        $added_schemas = [];
         foreach ($schemas as $schema) {
             $datatable = 'data_' . $schema->getTable();
+            $new_pid = false;
             if ($first_table) {
                 // follow up tables
                 [$lcol, $rcol] = $this->joins[$schema->getTable()];
-                $lefttable = 'data_' . $lcol->getTable();
-                $righttable = 'data_' . $rcol->getTable();
-                $add = new QueryBuilderWhere($QB);
-                $lcol->getType()->joinCondition(
-                    $add, $lefttable, $lcol->getColName(),
-                    $righttable, $rcol->getColName(), $rcol->getType()
-                );
-                $QB->addLeftJoin($lefttable, $righttable, $righttable, $add->toSQL());
+                if ($lcol->getLabel() == '%pageid%' and $rcol->getLabel() == '%pageid%') {
+                    // Simple (default) case where we join on page IDs
+                    $QB->addLeftJoin($first_table, $datatable, $datatable, "$first_table.pid = $datatable.pid");
+                } else {
+                    // Custom join on some other columns
+                    $lefttable = 'data_' . $lcol->getTable();
+                    $righttable = 'data_' . $rcol->getTable();
+                    $add = new QueryBuilderWhere($QB);
+                    // TODO: Only tricky columns to join over are pages, as they are the only ones that add some OR clauses. For rest, think I can modify filter to handle case of $value being another column.
+                    $lcol->getType()->joinCondition(
+                        $add, $lefttable, $lcol->getColName(),
+                        $righttable, $rcol->getColName(), $rcol->getType()
+                    );
+                    $QB->addLeftJoin($lefttable, $righttable, $righttable, $add->toSQL());
+                }
             } else {
                 // first table
                 $this->qb->addTable($datatable);
-
-                // add conditional page clauses if pid has a value
-                $subAnd = $this->qb->filters()->whereSubAnd();
-                $subAnd->whereAnd("$datatable.pid = ''");
-                $subOr = $subAnd->whereSubOr();
-                $subOr->whereAnd("GETACCESSLEVEL($datatable.pid) > 0");
-                $subOr->whereAnd("PAGEEXISTS($datatable.pid) = 1");
-                // make sure to check assignment for page data only
-                $subOr->whereAnd("($datatable.rid != 0 OR (ASSIGNED = 1 OR ASSIGNED IS NULL))");
 
                 // add conditional schema assignment check
                 $this->qb->addLeftJoin(
@@ -67,6 +67,15 @@ class SearchSQLBuilder
                     AND $datatable.pid = schema_assignments.pid
                     AND schema_assignments.tbl = '{$schema->getTable()}'"
                 );
+
+                // add conditional page clauses if pid has a value
+                $subAnd = $this->qb->filters()->whereSubAnd();
+                $subAnd->whereAnd("$datatable.pid = ''");
+                $subOr = $subAnd->whereSubOr();
+                $subOr->whereAnd("GETACCESSLEVEL($datatable.pid) > 0");
+                $subOr->whereAnd("PAGEEXISTS($datatable.pid) = 1");
+                // make sure to check assignment for page data only
+                $subOr->whereAnd("($datatable.rid != 0 OR (ASSIGNED = 1 OR ASSIGNED IS NULL))");
 
                 $this->qb->addSelectColumn($datatable, 'rid');
                 $this->qb->addSelectColumn($datatable, 'pid', 'PID');

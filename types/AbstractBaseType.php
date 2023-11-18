@@ -373,8 +373,8 @@ abstract class AbstractBaseType
      */
     public function joinMulti(QueryBuilder $QB, $datatable, $multitable, $colref, $test_rid = true) {
         $MN = $QB->generateTableAlias('M');
-        $condition = "$datatable.pid = $MN.pid";
-        if ($test_rid) $condition .= "AND $datatable.rid = $MN.rid";
+        $condition = "$datatable.pid = $MN.pid ";
+        if ($test_rid) $condition .= "AND $datatable.rid = $MN.rid ";
         $condition .= "AND $datatable.rev = $MN.rev AND $MN.colref = $colref";
         $QB->addLeftJoin(
             $datatable,
@@ -434,6 +434,18 @@ abstract class AbstractBaseType
         $lhs = $this->joinArgument($add, $left_table, $left_colname);
         $rhs = $right_coltype->joinArgument($add, $right_table, $right_colname);
         $add->where('AND', "$lhs = $rhs");
+        $AN = $add->getQB()->generateTableAlias('A');
+        $subquery = "(SELECT assigned
+                     FROM schema_assignments AS $AN
+                     WHERE $left_table.pid != '' AND
+                           $left_table.pid = $AN.pid AND
+                           $AN.tbl = '{$this->getContext()->getTable()}')";
+        $subAnd = $add->whereSubAnd();
+        $subAnd->whereOr("$left_table.pid = ''");
+        $subOr = $subAnd->whereSubOr();
+        $subOr->whereAnd("GETACCESSLEVEL($left_table.pid) > 0");
+        $subOr->whereAnd("PAGEEXISTS($left_table.pid) = 1");
+        $subOr->whereAnd("($subquery = 1 OR $subquery IS NULL)");
     }
 
     /**
@@ -452,7 +464,41 @@ abstract class AbstractBaseType
     }
     
     /**
-     * Add the proper selection for this type to the current Query
+     * Add the proper selection for this type to the current Query. Handles the
+     * possibility of multi-valued columns.
+     *
+     * @param QueryBuilder $QB
+     * @param string $singletable The name of the table the saved value(s) are stored in, if the column is single-valued
+     * @param string $multitable The name of the table the values are stored in if the column is multi-valued
+     * @param string $alias The added selection *has* to use this column alias
+     * @param bool $test_rid Whether to require RIDs to be equal if JOINing multi-table
+     * @param string|null $concat_sep Seperator to concatenate mutli-values together. If null, don't perform concatentation.
+     */
+    public function select(QueryBuilder $QB, $singletable, $multitable, $alias, $test_rid = true, $concat_sep = null, )
+    {
+        if ($this->isMulti()) {
+            $colref = $this->getContext()->getColref();
+            $datatable = $this->joinMulti($QB, $singletable, $multitable, $colref, $test_rid);
+            $colname = 'value';
+        } else {
+            $datatable = $singletable;
+            $colname = $this->getContext()->getColName();
+        }
+        $this->selectCol($QB, $datatable, $colname, $alias);
+        if ($this->isMulti()) {
+            if (!is_null($concat_sep)) {
+                $sel = $QB->getSelectStatement($alias);
+                $QB->addSelectStatement("GROUP_CONCAT_DISTINCT($sel, '$concat_sep')", $alias);
+            }
+        } else {
+            $QB->addGroupByStatement($alias);
+        }
+    }
+
+    /**
+     * Internal function to add the proper selection for a column of this type to the
+     * current Query. It is called from the `select` method, after any joins needed
+     * for multi-valued tables are handled.
      *
      * The default implementation here should be good for nearly all types, it simply
      * passes the given parameters to the query builder. But type may do more fancy
@@ -467,32 +513,13 @@ abstract class AbstractBaseType
      * current page context for a join or sub select.
      *
      * @param QueryBuilder $QB
-     * @param string $tablename The plane name of the table the currently saved value(s) are stored in (no prefixed with data_ or multi_)
+     * @param string $tablealias The table the currently saved value(s) are stored in
      * @param string $colname The column name on above table
-     * @param bool $test_rid Whether to require RIDs to be equal if JOINing multi-table
      * @param string $alias The added selection *has* to use this column alias
-     * @param string|null $concat_sep Seperator to concatenate mutli-values together. If null, don't perform concatentation.
      */
-    public function select(QueryBuilder $QB, $tablename, $multialias, $alias, $test_rid = true, $concat_sep = null)
+    protected function selectCol(QueryBuilder $QB, $tablealias, $colname, $alias)
     {
-        $datatable = 'data_' . $tablename;
-        if ($this->isMulti()) {
-            $multitable = 'multi_' . $tablename;
-            $colref = $this->getContext()->getColref();
-            $datatable = $this->joinMulti($QB, $datatable, $multitable, $colref, $test_rid);
-            $colname = 'value';
-        } else {
-            $colname = $this->getContext()->getColName();
-        }
-        $QB->addSelectColumn($datatable, $colname, $alias);
-        if ($this->isMulti()) {
-            if (!is_null($concat_multi)) {
-                $sel = $QB->getSelectStatement($alias);
-                $QB->addSelectStatement("GROUP_CONCAT_DISTINCT($sel, '$concat_sep')", $alias);
-            }
-        } else {
-            $QB->addGroupByStatement($alias);
-        }
+        $QB->addSelectColumn($tablealias, $colname, $alias);
     }
 
     /**
@@ -505,7 +532,7 @@ abstract class AbstractBaseType
      * @param string $tablealias The table the currently saved value is stored in
      * @param string $colname The column name on above table (always single column!)
      * @param string $order either ASC or DESC
-     * @see select() you probably want to implement this,
+     * @see selectCol() you probably want to implement this,
      * too.
      *
      */
