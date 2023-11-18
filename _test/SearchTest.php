@@ -230,6 +230,14 @@ class SearchTest extends StructTest
         $search->addSchema('schema2', 'foo');
         $this->assertCount(2, $search->schemas);
 
+        $this->assertEquals(1, count($search->joins));
+        $joincols = $search->joins['schema2'];
+        $this->assertEquals(2, count($joincols));
+        $this->assertInstanceOf(meta\PageColumn::class, $joincols[0]);
+        $this->assertInstanceOf(meta\PageColumn::class, $joincols[1]);
+        $this->assertEquals('schema2', $joincols[0]->getTable());
+        $this->assertEquals('schema1', $joincols[1]->getTable());
+
         $search->addColumn('first');
         $this->assertEquals('schema1', $search->columns[0]->getTable());
         $this->assertEquals(1, $search->columns[0]->getColref());
@@ -439,5 +447,63 @@ EOD;
         $this->assertEquals(array('18.7', '10e5', '-100'),
             $this->callInaccessibleMethod($search, 'parseFilterValueList', array('(18.7, 10e5, -100)')));
 
+    }
+
+    public function test_join()
+    {
+        $search = new mock\Search();
+
+        $search->addSchema('schema2', 'foo');
+        $search->addSchema('schema1', '', array('foo.athird', '=', 'third'));
+        $this->assertEquals(2, count($search->schemas));
+
+        $this->assertEquals(1, count($search->joins));
+        $joincols = $search->joins['schema1'];
+        $this->assertEquals(2, count($joincols));
+        $this->assertEquals('schema2', $joincols[0]->getTable());
+        $this->assertEquals('athird', $joincols[0]->getLabel());
+        $this->assertEquals('schema1', $joincols[1]->getTable());
+        $this->assertEquals('third', $joincols[1]->getLabel());
+ 
+        $search->addColumn('%pageid%');
+        $search->addColumn('first');
+        $search->addFilter('afourth', 'fourth data', '=');
+
+        $result = $search->execute();
+        $count = $search->getCount();
+
+        // check result dimensions
+        $this->assertEquals(2, $count, 'result count'); // full result set
+        $this->assertEquals(2, count($result), 'result rows'); // wanted result set
+
+        // check the values
+        $this->assertEquals('page01', $result[0][0]->getValue());
+        $this->assertEquals('test:document', $result[1][0]->getValue());
+        $this->assertEquals('first data', $result[0][1]->getValue());
+        $this->assertEquals('first data', $result[1][1]->getValue());
+    }
+
+
+    public function invalidJoins_testdata() {
+        return array(
+            array('first', '<>', 'afirst'),
+            array('first', '=', 'third'),
+            array('foo.athird', '=', 'afirst'),
+            array('notaschema.first', '=', 'schema1.first'),
+            array('notacolumn', '=', 'schema1.first'),
+            array('foo.athird', '=', 'schema1.notacolumn'),
+        );
+    }
+    
+    /**
+     * @dataProvider invalidJoins_testdata
+     *
+     */
+    public function test_invalid_joins($lhs, $comp, $rhs)
+    {
+        $search = new mock\Search();
+        $search->addSchema('schema1');
+        $this->setExpectedException(meta\StructException::class);
+        $search->addSchema('schema2', 'foo', array($lhs, $comp, $rhs));
     }
 }
