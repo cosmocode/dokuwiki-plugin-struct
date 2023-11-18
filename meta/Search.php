@@ -103,13 +103,46 @@ class Search
 
         $this->schemas[$schema->getTable()] = $schema;
         if ($alias) $this->aliases[$alias] = $schema->getTable();
-        if (is_null($this->firstschema)) $this->firstschema = $scheam->getTable();
-        if (count($joinon) == 0) {
-            $joinon = array(
-                "{$schema->getTable()}.%pageid%", '=', "{$this->firstschema}.%pageid%"
-            );
+        if (is_null($this->firstschema)) {
+            $this->firstschema = $schema->getTable();
+            if (count($joinon) > 0) {
+                throw new StructException('JOIN condition not supported for first schema');
+            }
+        } else {
+            if (count($joinon) == 0) {
+                $joinon = array(
+                    "{$schema->getTable()}.%pageid%", '=', "{$this->firstschema}.%pageid%"
+                );
+            }
+            if ($joinon[1] != '=') {
+                throw new StructException('Only equality comparison is supported for JOIN conditions'); 
+            }
+            $this->joins[$schema->getTable()] = $this->getJoinColumns($schema, $joinon[0], $joinon[2]);
         }
-        $this->joins[$schema->getTable()] = $joinon;
+    }
+
+    /**
+     * Returns the columns being matched against for a JOIN ... ON expression.
+     * 
+     * @param Schema $schema The schema being JOINed to the query
+     * @param string $left The LHS of the JOIN ON comparison
+     * @param string $right the RHS of the JOIN ON comparison
+     * @return array The first element is the LHS column object and second is the RHS
+     */
+    protected function getJoinColumns($schema, $left, $right) {
+        $lcol = $this->findColumn($left);
+        if ($lcol === false) {
+            throw new StructException('Unrecognoside field ' . $left);
+        }
+        $rcol = $this->findColumn($right);
+        if ($rcol === false) {
+            throw new StructException('Unrecognoside field ' . $right);
+        }
+        $table = $schema->getTable();
+        if (($lcol->getTable() != $table) == ($rcol->getTable() != $table)) {
+            throw new StructException("Exactly one side of ON condition $left = $right must be a column of $table" );
+        }
+        return array($lcol, $rcol);
     }
 
     /**

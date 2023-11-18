@@ -198,22 +198,13 @@ class ConfigParser
         $parts = explode(',', $val);
         $firsttable = null;
         foreach ($parts as $part) {
-            $words = array_pad(explode(' ', trim($part)), 2, '');
-            [$table, $alias, $on] = $words;
+            $segments = explode('ON', trim($part));
+            [$table, $alias] =  array_pad(explode(' ', trim($segments[0])), 2, '');
             $table = trim($table);
             $alias = trim($alias);
             if (!$table) continue;
-            if (is_null($firsttable)) $firsttable = $alias ? $alias : $table;
-            if ($on == 'ON') {
-                if (count($schemas) == 0) {
-                    throw new StructException('Can not specify JOIN ON for first schema'); 
-                }
-                $condition = $this->helper->parseFilter(
-                    implode(' ', array_slice($words, 3))
-                );
-                if ($condition[1] != '=') {
-                    throw new StructException('Only equality comparison is supported for JOIN conditions'); 
-                }
+            if (count($segments) > 1) {
+                $condition = $this->helper->parseFilter($segments[1]);
             } else {
                 $condition = [];
             }

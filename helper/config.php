@@ -50,7 +50,7 @@ class helper_plugin_struct_config extends Plugin
      * @return array ($col, $comp, $value)
      * @throws StructException
      */
-    protected function parseFilter($val)
+    public function parseFilter($val)
     {
 
         $comps = Search::$COMPARATORS;
