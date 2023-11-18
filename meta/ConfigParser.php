@@ -43,7 +43,7 @@ class ConfigParser
     public function __construct($lines)
     {
         /** @var \helper_plugin_struct_config $helper */
-        $helper = plugin_load('helper', 'struct_config');
+        $this->helper = plugin_load('helper', 'struct_config');
         // parse info
         foreach ($lines as $line) {
             [$key, $val] = $this->splitLine($line);
@@ -88,7 +88,7 @@ class ConfigParser
                 case 'order':
                 case 'sort':
                     $sorts = $this->parseValues($val);
-                    $sorts = array_map([$helper, 'parseSort'], $sorts);
+                    $sorts = array_map([$this->helper, 'parseSort'], $sorts);
                     $this->config['sort'] = array_merge($this->config['sort'], $sorts);
                     break;
                 case 'where':
@@ -99,7 +99,7 @@ class ConfigParser
                     $logic = 'AND';
                 case 'filteror':
                 case 'or':
-                    $flt = $helper->parseFilterLine($logic, $val);
+                    $flt = $this->helper->parseFilterLine($logic, $val);
                     if ($flt) {
                         $this->config['filter'][] = $flt;
                     }
@@ -196,13 +196,28 @@ class ConfigParser
     {
         $schemas = [];
         $parts = explode(',', $val);
+        $firsttable = null;
         foreach ($parts as $part) {
-            [$table, $alias] = sexplode(' ', trim($part), 2, '');
+            $words = array_pad(explode(' ', trim($part)), 2, '');
+            [$table, $alias, $on] = $words;
             $table = trim($table);
             $alias = trim($alias);
             if (!$table) continue;
-
-            $schemas[] = [$table, $alias];
+            if (is_null($firsttable)) $firsttable = $alias ? $alias : $table;
+            if ($on == 'ON') {
+                if (count($schemas) == 0) {
+                    throw new StructException('Can not specify JOIN ON for first schema'); 
+                }
+                $condition = $this->helper->parseFilter(
+                    implode(' ', array_slice($words, 3))
+                );
+                if ($condition[1] != '=') {
+                    throw new StructException('Only equality comparison is supported for JOIN conditions'); 
+                }
+            } else {
+                $condition = [];
+            }
+            $schemas[] = [$table, $alias, $condition];
         }
         return $schemas;
     }
