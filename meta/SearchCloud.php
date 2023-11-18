@@ -56,29 +56,18 @@ class SearchCloud extends SearchConfig
         $QB->filters()->where('AND', 'tag IS NOT \'\'');
 
         $col = $this->columns[0];
-        if ($col->isMulti()) {
-            $multitable = "multi_{$col->getTable()}";
-            $MN = $QB->generateTableAlias('M');
-
-            $QB->addLeftJoin(
-                $datatable,
-                $multitable,
-                $MN,
-                "$datatable.pid = $MN.pid AND
-                     $datatable.rid = $MN.rid AND
-                     $datatable.rev = $MN.rev AND
-                     $MN.colref = {$col->getColref()}"
-            );
-
-            $col->getType()->select($QB, $MN, 'value', 'tag');
-            $colname = $MN . '.value';
-        } else {
-            $col->getType()->select($QB, $datatable, $col->getColName(), 'tag');
-            $colname = $datatable . '.' . $col->getColName();
-        }
-        $QB->addSelectStatement("COUNT($colname)", 'count');
+        $col->getType()->select(
+            $QB, 'data_' . $datatable, 'multi_' . $col->getTable(), 'tag', true
+        );
+        
+        $QB->addSelectStatement('COUNT(tag)', 'count');
         $QB->addSelectColumn('schema_assignments', 'assigned', 'ASSIGNED');
-        $QB->addGroupByStatement('tag');
+        if ($col->isMulti()) {
+            // This GROUP BY was added with the SELECT statement for a
+            // single-valued column, just need to make sure it's added
+            // in the case of multi-valued as well.
+            $QB->addGroupByStatement('tag');
+        }
         $QB->addOrderBy('count DESC');
 
         [$sql, $opts] = $QB->getSQL();

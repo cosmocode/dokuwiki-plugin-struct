@@ -34,11 +34,15 @@ class AccessTableDataNoDB extends AccessTablePage
         $sort = 0;
         foreach ($singles as $single) {
             $sort += 1;
-            $this->schema->columns[] = new Column($sort, new $single(), $sort);
+            $col = new Column($sort, new $single(), $sort);
+            $col->getType()->setContext($col);
+            $this->schema->columns[] = $col;
         }
         foreach ($multis as $multi) {
             $sort += 1;
-            $this->schema->columns[] = new Column($sort, new $multi(null, null, true), $sort);
+            $col = new Column($sort, new $multi(null, null, true), $sort);
+            $col->getType()->setContext($col);
+            $this->schema->columns[] = $col;
         }
     }
 

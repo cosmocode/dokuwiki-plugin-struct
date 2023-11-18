@@ -23,6 +23,8 @@ class QueryBuilder
     /** @var  string[] */
     protected $groupby = [];
 
+    protected $aliasCount = 0;
+
     /**
      * QueryBuilder constructor.
      */
@@ -196,9 +198,8 @@ class QueryBuilder
      */
     public function generateTableAlias($prefix = 'T')
     {
-        static $count = 0;
-        $count++;
-        return $prefix . $count;
+        $this->aliasCount++;
+        return $prefix . $this->aliasCount;
     }
 
     /**

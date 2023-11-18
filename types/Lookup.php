@@ -230,12 +230,12 @@ class Lookup extends Dropdown
      * @param string $colname
      * @param string $alias
      */
-    public function select(QueryBuilder $QB, $tablealias, $colname, $alias)
+    public function selectCol(QueryBuilder $QB, $tablealias, $colname, $alias)
     {
         $schema = 'data_' . $this->config['schema'];
         $column = $this->getLookupColumn();
         if (!$column) {
-            parent::select($QB, $tablealias, $colname, $alias);
+            parent::selectCol($QB, $tablealias, $colname, $alias);
             return;
         }
 
@@ -248,7 +248,7 @@ class Lookup extends Dropdown
             "$tablealias.$colname = STRUCT_JSON($rightalias.pid, CAST($rightalias.rid AS DECIMAL)) " .
             "AND $rightalias.latest = 1"
         );
-        $column->getType()->select($QB, $rightalias, $field, $alias);
+        $column->getType()->selectCol($QB, $rightalias, $field, $alias);
         $sql = $QB->getSelectStatement($alias);
         $QB->addSelectStatement("STRUCT_JSON($tablealias.$colname, $sql)", $alias);
     }

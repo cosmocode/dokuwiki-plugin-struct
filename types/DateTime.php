@@ -102,7 +102,7 @@ class DateTime extends Date
      * @param string $colname
      * @param string $alias
      */
-    public function select(QueryBuilder $QB, $tablealias, $colname, $alias)
+    public function selectCol(QueryBuilder $QB, $tablealias, $colname, $alias)
     {
         $col = "$tablealias.$colname";
 

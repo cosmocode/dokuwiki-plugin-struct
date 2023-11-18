@@ -16,7 +16,7 @@ class AutoSummary extends AbstractBaseType
      * @param string $colname
      * @param string $alias
      */
-    public function select(QueryBuilder $QB, $tablealias, $colname, $alias)
+    public function selectCol(QueryBuilder $QB, $tablealias, $colname, $alias)
     {
         $rightalias = $QB->generateTableAlias();
         $QB->addLeftJoin($tablealias, 'titles', $rightalias, "$tablealias.pid = $rightalias.pid");

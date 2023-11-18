@@ -505,25 +505,9 @@ abstract class AccessTable
         $QB->addGroupByStatement("DATA.$idColumn");
 
         foreach ($this->schema->getColumns(false) as $col) {
-            $colref = $col->getColref();
-            $colname = 'col' . $colref;
-            $outname = 'out' . $colref;
-
-            if ($col->getType()->isMulti()) {
-                $tn = 'M' . $colref;
-                $QB->addLeftJoin(
-                    'DATA',
-                    $mtable,
-                    $tn,
-                    "DATA.$idColumn = $tn.$idColumn AND DATA.rev = $tn.rev AND $tn.colref = $colref"
-                );
-                $col->getType()->select($QB, $tn, 'value', $outname);
-                $sel = $QB->getSelectStatement($outname);
-                $QB->addSelectStatement("GROUP_CONCAT_DISTINCT($sel, '$sep')", $outname);
-            } else {
-                $col->getType()->select($QB, 'DATA', $colname, $outname);
-                $QB->addGroupByStatement($outname);
-            }
+            $col->getType()->select(
+                $QB, 'DATA', $mtable, 'out' . $col->getColref(), false, $sep
+            );
         }
 
         $pl = $QB->addValue($this->{$idColumn});

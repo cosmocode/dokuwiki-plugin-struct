@@ -121,10 +121,10 @@ class Page extends AbstractMultiBaseType
      * @param string $colname
      * @param string $alias
      */
-    public function select(QueryBuilder $QB, $tablealias, $colname, $alias)
+    public function selectCol(QueryBuilder $QB, $tablealias, $colname, $alias)
     {
         if (!$this->config['usetitles']) {
-            parent::select($QB, $tablealias, $colname, $alias);
+            parent::selectCol($QB, $tablealias, $colname, $alias);
             return;
         }
         $rightalias = $QB->generateTableAlias();

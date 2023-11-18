@@ -106,7 +106,7 @@ class User extends AbstractMultiBaseType
      * @param string $colname
      * @param string $alias
      */
-    public function select(QueryBuilder $QB, $tablealias, $colname, $alias)
+    public function selectCol(QueryBuilder $QB, $tablealias, $colname, $alias)
     {
         if (is_a($this->context, 'dokuwiki\plugin\struct\meta\UserColumn')) {
             $rightalias = $QB->generateTableAlias();
@@ -115,7 +115,7 @@ class User extends AbstractMultiBaseType
             return;
         }
 
-        parent::select($QB, $tablealias, $colname, $alias);
+        parent::selectCol($QB, $tablealias, $colname, $alias);
     }
 
     /**

@@ -91,29 +91,10 @@ class SearchSQLBuilder
         $sep = Search::CONCAT_SEPARATOR;
         $n = 0;
         foreach ($columns as $col) {
-            $CN = 'C' . $n++;
-
-            if ($col->isMulti()) {
-                $datatable = "data_{$col->getTable()}";
-                $multitable = "multi_{$col->getTable()}";
-                $MN = $this->qb->generateTableAlias('M');
-
-                $this->qb->addLeftJoin(
-                    $datatable,
-                    $multitable,
-                    $MN,
-                    "$datatable.pid = $MN.pid AND $datatable.rid = $MN.rid AND
-                     $datatable.rev = $MN.rev AND
-                     $MN.colref = {$col->getColref()}"
-                );
-
-                $col->getType()->select($this->qb, $MN, 'value', $CN);
-                $sel = $this->qb->getSelectStatement($CN);
-                $this->qb->addSelectStatement("GROUP_CONCAT_DISTINCT($sel, '$sep')", $CN);
-            } else {
-                $col->getType()->select($this->qb, 'data_' . $col->getTable(), $col->getColName(), $CN);
-                $this->qb->addGroupByStatement($CN);
-            }
+            $col->getType()->select(
+                $QB, 'data_' . $col->getTable(), 'multi_' . $col->getTable(),
+                'C' . $n++, true, $sep
+            );
         }
     }
 

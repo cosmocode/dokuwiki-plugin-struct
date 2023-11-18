@@ -488,7 +488,7 @@ abstract class AbstractBaseType
         if ($this->isMulti()) {
             if (!is_null($concat_multi)) {
                 $sel = $QB->getSelectStatement($alias);
-                $QB->addSelectStatement("GROUP_CONCAT($sel, '$concat_sep')", $alias);
+                $QB->addSelectStatement("GROUP_CONCAT_DISTINCT($sel, '$concat_sep')", $alias);
             }
         } else {
             $QB->addGroupByStatement($alias);

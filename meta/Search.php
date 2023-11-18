@@ -678,25 +678,39 @@ class Search
 
         // add "fake" column for special col
         if ($colname == '%pageid%') {
-            return new PageColumn(0, new Page(), $table_or_first);
+            $col = new PageColumn(0, new Page(), $table_or_first);
+            $col->getType()->setContext($col);
+            return $col;
         }
         if ($colname == '%title%') {
-            return new PageColumn(0, new Page(['usetitles' => true]), $table_or_first);
+            $col = new PageColumn(0, new Page(['usetitles' => true]), $table_or_first);
+            $col->getType()->setContext($col);
+            return $col;
         }
         if ($colname == '%lastupdate%') {
-            return new RevisionColumn(0, new DateTime(), $table_or_first);
+            $col = new RevisionColumn(0, new DateTime(), $table_or_first);
+            $col->getType()->setContext($col);
+            return $col;
         }
         if ($colname == '%lasteditor%') {
-            return new UserColumn(0, new User(), $table_or_first);
+            $col = new UserColumn(0, new User(), $table_or_first);
+            $col->getType()->setContext($col);
+            return $col;
         }
         if ($colname == '%lastsummary%') {
-            return new SummaryColumn(0, new AutoSummary(), $table_or_first);
+            $col = new SummaryColumn(0, new AutoSummary(), $table_or_first);
+            $col->getType()->setContext($col);
+            return $col;
         }
         if ($colname == '%rowid%') {
-            return new RowColumn(0, new Decimal(), $table_or_first);
+            $col = new RowColumn(0, new Decimal(), $table_or_first);
+            $col->getType()->setContext($col);
+            return $col;
         }
         if ($colname == '%published%') {
-            return new PublishedColumn(0, new Decimal(), $schema_list[0]);
+            $col = new PublishedColumn(0, new Decimal(), $schema_list[0]);
+            $col->getType()->setContext($col);
+            return $col;
         }
 
         /*

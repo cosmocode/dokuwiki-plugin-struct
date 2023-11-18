@@ -51,12 +51,12 @@ class AccessTableDataSQLTest extends StructTest
                 "SELECT DATA.pid AS PID,
                         DATA.col1 AS out1,
                         DATA.col2 AS out2,
-                        GROUP_CONCAT_DISTINCT(M3.value,'" . Search::CONCAT_SEPARATOR . "') AS out3
+                        GROUP_CONCAT_DISTINCT(M1.value,'" . Search::CONCAT_SEPARATOR . "') AS out3
                    FROM data_testtable AS DATA
-                   LEFT OUTER JOIN multi_testtable AS M3
-                     ON DATA.pid = M3.pid
-                    AND DATA.rev = M3.rev
-                    AND M3.colref = 3
+                   LEFT OUTER JOIN multi_testtable AS M1
+                     ON DATA.pid = M1.pid
+                    AND DATA.rev = M1.rev
+                    AND M1.colref = 3
                   WHERE (DATA.pid = ?
                     AND DATA.rev = ?)
                GROUP BY DATA.pid,out1,out2",
