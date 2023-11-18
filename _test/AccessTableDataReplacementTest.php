@@ -184,7 +184,7 @@ class AccessTableDataReplacementTest extends StructTest
                         AND PAGEEXISTS(data_bar.pid) = 1
                         AND (
                             data_bar.rid != 0
-                            OR (data_bar_ASSIGNED = 1 OR data_bar_ASSIGNED IS NULL)
+                            OR (ASSIGNED = 1 OR ASSIGNED IS NULL)
                         )
                     )
                 )

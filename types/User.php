@@ -139,29 +139,22 @@ class User extends AbstractMultiBaseType
     }
 
     /**
-     * When using `%lasteditor%`, we need to compare against the `title` table.
-     *
-     * @param QueryBuilderWhere $add
-     * @param string $tablealias
-     * @param string $colname
-     * @param string $comp
-     * @param string|string[] $value
-     * @param string $op
+     * @param QueryBuilderWhere &$add The WHERE or ON clause which will contain the conditional expression this comparator will be used in
+     * @param string $tablealias The table the values are stored in
+     * @param string $colname The column name on the above table
+     * @param string &$op the logical operator this filter shoudl use
+     * @return string The SQL expression to be used on one side of the comparison operator
      */
-    public function filter(QueryBuilderWhere $add, $tablealias, $colname, $comp, $value, $op)
-    {
+    protected function getSqlCompareValue(QueryBuilderWhere &$add, $tablealias,
+                                          $colname, &$op) {
         if (is_a($this->context, 'dokuwiki\plugin\struct\meta\UserColumn')) {
             $QB = $add->getQB();
             $rightalias = $QB->generateTableAlias();
             $QB->addLeftJoin($tablealias, 'titles', $rightalias, "$tablealias.pid = $rightalias.pid");
-
-            // compare against page and title
-            $sub = $add->where($op);
-            $pl = $QB->addValue($value);
-            $sub->whereOr("$rightalias.lasteditor $comp $pl");
-            return;
+            return "$rightalias.lasteditor";
         }
 
-        parent::filter($add, $tablealias, $colname, $comp, $value, $op);
+        return parent::getSqlCompareValue($add, $tablealias, $colname, $comp, $value, $op);
     }
+
 }

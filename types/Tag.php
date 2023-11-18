@@ -115,23 +115,24 @@ class Tag extends AbstractMultiBaseType
     /**
      * Normalize tags before comparing
      *
-     * @param QueryBuilder $QB
-     * @param string $tablealias
-     * @param string $colname
-     * @param string $comp
-     * @param string|string[] $value
-     * @param string $op
+     * @param QueryBuilderWhere &$add The WHERE or ON clause which will contain the conditional expression this comparator will be used in
+     * @param string $tablealias The table the values are stored in
+     * @param string $colname The column name on the above table
+     * @param string &$op the logical operator this filter shoudl use
+     * @return string The SQL expression to be used on one side of the comparison operator
      */
-    public function filter(QueryBuilderWhere $add, $tablealias, $colname, $comp, $value, $op)
-    {
-        /** @var QueryBuilderWhere $add Where additionional queries are added to */
-        if (is_array($value)) {
-            $add = $add->where($op); // sub where group
-            $op = 'OR';
-        }
-        foreach ((array)$value as $item) {
-            $pl = $add->getQB()->addValue($item);
-            $add->where($op, "LOWER(REPLACE($tablealias.$colname, ' ', '')) $comp LOWER(REPLACE($pl, ' ', ''))");
-        }
+    protected function getSqlCompareValue(QueryBuilderWhere &$add, $tablealias,
+                                          $colname, &$op) {
+        return "LOWER(REPLACE($tablealias.$colname, ' ', ''))";
+    }
+
+    /**
+     * Normalize before comparing.
+     *
+     * @param string $value The value a column is being compared to
+     * @return string A SQL expression processing the value in some way.
+     */
+    protected function getSqlConstantValue($value) {
+        return "LOWER(REPLACE($value, ' ', ''))";
     }
 }

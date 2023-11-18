@@ -185,32 +185,25 @@ class Page extends AbstractMultiBaseType
     }
 
     /**
-     * When using titles, we need to compare against the title table, too
+     * When using titles, we need to compare against the title table, too.
      *
-     * @param QueryBuilderWhere $add
-     * @param string $tablealias
-     * @param string $colname
-     * @param string $comp
-     * @param string $value
-     * @param string $op
+     * @param QueryBuilderWhere &$add The WHERE or ON clause which will contain the conditional expression this comparator will be used in
+     * @param string $tablealias The table the values are stored in
+     * @param string $colname The column name on the above table
+     * @param string &$op the logical operator this filter shoudl use
+     * @return array The SQL expression to be used on one side of the comparison operator
      */
-    public function filter(QueryBuilderWhere $add, $tablealias, $colname, $comp, $value, $op)
+    protected function getSqlCompareValue(QueryBuilderWhere &$add, $tablealias,
+                                          $colname, &$op)
     {
         if (!$this->config['usetitles']) {
-            parent::filter($add, $tablealias, $colname, $comp, $value, $op);
-            return;
+            return parent::getSqlCompareValue($add, $tablealias, $colname, $op);
         }
 
         $QB = $add->getQB();
         $rightalias = $QB->generateTableAlias();
         $QB->addLeftJoin($tablealias, 'titles', $rightalias, "$tablealias.$colname = $rightalias.pid");
-
-        // compare against page and title
-        $sub = $add->where($op);
-        $pl = $QB->addValue($value);
-        $sub->whereOr("$tablealias.$colname $comp $pl");
-        $pl = $QB->addValue($value);
-        $sub->whereOr("$rightalias.title $comp $pl");
+        return ["$tablealias.$colname", "$rightalias.title"];
     }
 
     /**
@@ -266,4 +259,19 @@ class Page extends AbstractMultiBaseType
             }
         }
     }
+
+    // /**
+    //  * When using titles, we need to compare against the title table, too
+    //  *
+    //  * @param QueryBuilderWhere $add
+    //  * @param string $table
+    //  * @param string $colname
+    //  * @return string One side of the equality comparion being used for the JOIN
+    //  */
+    // protected function joinArgument(QueryBuilderWhere $add, $table, $colname) {
+    //     if (!$this->config['usetitles']) {
+    //         return parent::joinArgument($add, $table, $colname);
+    //     }
+    //     // FIXME: How to handle multiple values 
+    // }
 }

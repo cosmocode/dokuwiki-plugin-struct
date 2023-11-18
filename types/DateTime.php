@@ -116,16 +116,19 @@ class DateTime extends Date
         $QB->addSelectStatement($col, $alias);
     }
 
+
     /**
-     * @param QueryBuilderWhere $add
-     * @param string $tablealias
-     * @param string $colname
-     * @param string $comp
-     * @param string|\string[] $value
-     * @param string $op
+     * Handle case of a revision column, where you need to convert from a Unix 
+     * timestamp.
+     *
+     * @param QueryBuilderWhere &$add The WHERE or ON clause which will contain the conditional expression this comparator will be used in
+     * @param string $tablealias The table the values are stored in
+     * @param string $colname The column name on the above table
+     * @return string The SQL expression to be used on one side of the comparison operator
+     * @param string &$op the logical operator this filter shoudl use
      */
-    public function filter(QueryBuilderWhere $add, $tablealias, $colname, $comp, $value, $op)
-    {
+    protected function getSqlCompareValue(QueryBuilderWhere &$add, $tablealias,
+                                          $colname, &$op) {
         $col = "$tablealias.$colname";
         $QB = $add->getQB();
 
@@ -136,17 +139,9 @@ class DateTime extends Date
             $QB->addLeftJoin($tablealias, 'titles', $rightalias, "$tablealias.pid = $rightalias.pid");
         }
 
-        /** @var QueryBuilderWhere $add Where additional queries are added to */
-        if (is_array($value)) {
-            $add = $add->where($op); // sub where group
-            $op = 'OR';
-        }
-        foreach ((array)$value as $item) {
-            $pl = $QB->addValue($item);
-            $add->where($op, "$col $comp $pl");
-        }
+        return $col;
     }
-
+ 
     /**
      * When sorting `%lastupdated%`, then sort the data from the `titles` table instead the `data_` table.
      *

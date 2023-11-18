@@ -403,15 +403,57 @@ abstract class AbstractBaseType
      */
     public function filter(QueryBuilderWhere $add, $tablealias, $colname, $comp, $value, $op)
     {
+        $compareVal = $this->getSqlCompareValue($add, $tablealias, $colname, $op);
         /** @var QueryBuilderWhere $add Where additionional queries are added to */
         if (is_array($value)) {
             $add = $add->where($op); // sub where group
             $op = 'OR';
         }
         foreach ((array)$value as $item) {
-            $pl = $add->getQB()->addValue($item);
-            $add->where($op, "$tablealias.$colname $comp $pl");
+            if (is_array($compareVal)) {
+                $sub = $add->where($op);
+                $op = 'OR'; // safe to do, as if the previous line is
+                            // executed again it means $value is an
+                            // array and $op was already 'OR' anyway
+            } else {
+                $sub = $add;
+            }
+            $pl = $this->getSqlConstantValue($add->getQB()->addValue($item));
+            foreach ((array)$compareVal as $lhs) {
+                $sub->where($op, "$lhs $comp $pl");
+            }
         }
+    }
+
+    /**
+     * This function provides the SQL expression for this column which is used to
+     * compare against in a filter expression or a JOIN condition. In simple cases
+     * that is all it will need to do. However, for some columnt types, it may
+     * need to add additional logic to the conditional expression or make
+     * additional JOINs.
+     *
+     * @param QueryBuilderWhere &$add The WHERE or ON clause which will contain the conditional expression this comparator will be used in
+     * @param string $tablealias The table the values are stored in
+     * @param string $colname The column name on the above table
+     * @param string &$op the logical operator this filter shoudl use
+     * @return string|array The SQL expression to be used on one side of the comparison operator
+     */
+    protected function getSqlCompareValue(QueryBuilderWhere &$add, $tablealias,
+                                          $colname, &$op) {
+        return "$tablealias.$colname";
+    }
+
+    /**
+     * Handle the value that a column is being compared against. In
+     * most cases this method will just return the value unchanged,
+     * but for some types it may be necessary to preform some sort of
+     * transformation (e.g., casting it to a decimal).
+     *
+     * @param string $value The value a column is being compared to
+     * @return string A SQL expression processing the value in some way.
+     */
+    protected function getSqlConstantValue($value) {
+        return $value;
     }
 
     /**
@@ -474,7 +516,7 @@ abstract class AbstractBaseType
      * @param bool $test_rid Whether to require RIDs to be equal if JOINing multi-table
      * @param string|null $concat_sep Seperator to concatenate mutli-values together. If null, don't perform concatentation.
      */
-    public function select(QueryBuilder $QB, $singletable, $multitable, $alias, $test_rid = true, $concat_sep = null, )
+    public function select(QueryBuilder $QB, $singletable, $multitable, $alias, $test_rid = true, $concat_sep = null)
     {
         if ($this->isMulti()) {
             $colref = $this->getContext()->getColref();

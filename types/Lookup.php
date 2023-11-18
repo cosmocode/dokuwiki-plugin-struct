@@ -256,20 +256,18 @@ class Lookup extends Dropdown
     /**
      * Compare against lookup table
      *
-     * @param QueryBuilderWhere $add
-     * @param string $tablealias
-     * @param string $colname
-     * @param string $comp
-     * @param string|\string[] $value
-     * @param string $op
+     * @param QueryBuilderWhere &$add The WHERE or ON clause which will contain the conditional expression this comparator will be used in
+     * @param string $tablealias The table the values are stored in
+     * @param string $colname The column name on the above table
+     * @param string &$op the logical operator this filter shoudl use
+     * @return string|array The SQL expression to be used on one side of the comparison operator
      */
-    public function filter(QueryBuilderWhere $add, $tablealias, $colname, $comp, $value, $op)
-    {
+    protected function getSqlCompareValue(QueryBuilderWhere &$add, $tablealias,
+                                          $colname, &$op) {
         $schema = 'data_' . $this->config['schema'];
         $column = $this->getLookupColumn();
         if (!$column) {
-            parent::filter($add, $tablealias, $colname, $comp, $value, $op);
-            return;
+            return parent::getSqlCompareValue($add, $tablealias, $colname, $op);
         }
         $field = $column->getColName();
 
@@ -283,7 +281,22 @@ class Lookup extends Dropdown
             "$tablealias.$colname = STRUCT_JSON($rightalias.pid, CAST($rightalias.rid AS DECIMAL)) AND " .
             "$rightalias.latest = 1"
         );
-        $column->getType()->filter($add, $rightalias, $field, $comp, $value, $op);
+        return $column->getType()->getSqlCompareValue($add, $rightalias, $field, $op);
+    }
+
+    /**
+     * Handle the value that a column is being compared against.
+     *
+     * @param string $value The value a column is being compared to
+     * @return string A SQL expression processing the value in some way.
+     */
+    protected function getSqlConstantValue($value) {
+        $schema = 'data_' . $this->config['schema'];
+        $column = $this->getLookupColumn();
+        if (!$column) {
+            return parent::getSqlConstantValue($value);
+        }
+        return $column->getType()->getSqlConstantValue($value);
     }
 
     /**
