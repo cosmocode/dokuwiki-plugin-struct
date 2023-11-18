@@ -46,13 +46,11 @@ class SearchSQLBuilder
                     // Custom join on some other columns
                     $lefttable = 'data_' . $lcol->getTable();
                     $righttable = 'data_' . $rcol->getTable();
-                    $add = new QueryBuilderWhere($QB);
-                    // TODO: Only tricky columns to join over are pages, as they are the only ones that add some OR clauses. For rest, think I can modify filter to handle case of $value being another column.
-                    $lcol->getType()->joinCondition(
-                        $add, $lefttable, $lcol->getColName(),
-                        $righttable, $rcol->getColName(), $rcol->getType()
+                    $on = $lcol->getType()->joinCondition(
+                        $lefttable, $lcol->getColName(), $righttable,
+                        $rcol->getColName(), $rcol->getType()
                     );
-                    $QB->addLeftJoin($lefttable, $righttable, $righttable, $add->toSQL());
+                    $QB->addLeftJoin($lefttable, $righttable, $righttable, $on);
                 }
             } else {
                 // first table
