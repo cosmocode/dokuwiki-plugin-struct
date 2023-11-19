@@ -27,8 +27,9 @@ class SearchSQLBuilder
      * Add the schemas to the query
      *
      * @param Schema[] $schemas Schema names to query
+     * @param array $joins Conditionals to be used when joining tables
      */
-    public function addSchemas($schemas)
+    public function addSchemas($schemas, $joins)
     {
         // basic tables
         $first_table = '';
@@ -38,10 +39,10 @@ class SearchSQLBuilder
             $new_pid = false;
             if ($first_table) {
                 // follow up tables
-                [$lcol, $rcol] = $this->joins[$schema->getTable()];
+                [$lcol, $rcol] = $joins[$schema->getTable()];
                 if ($lcol->getLabel() == '%pageid%' and $rcol->getLabel() == '%pageid%') {
                     // Simple (default) case where we join on page IDs
-                    $QB->addLeftJoin($first_table, $datatable, $datatable, "$first_table.pid = $datatable.pid");
+                    $this->qb->addLeftJoin($first_table, $datatable, $datatable, "$first_table.pid = $datatable.pid");
                 } else {
                     // Custom join on some other columns
                     $lefttable = 'data_' . $lcol->getTable();
@@ -50,7 +51,7 @@ class SearchSQLBuilder
                         $lefttable, $lcol->getColName(), $righttable,
                         $rcol->getColName(), $rcol->getType()
                     );
-                    $QB->addLeftJoin($lefttable, $righttable, $righttable, $on);
+                    $this->qb->addLeftJoin($lefttable, $righttable, $righttable, $on);
                 }
             } else {
                 // first table

@@ -581,7 +581,7 @@ class Search
     {
         $sqlBuilder = new SearchSQLBuilder();
         $sqlBuilder->setSelectLatest($this->selectLatest);
-        $sqlBuilder->addSchemas($this->schemas);
+        $sqlBuilder->addSchemas($this->schemas, $this->joins);
         $sqlBuilder->addColumns($this->columns);
         $sqlBuilder->addFilters($this->filter);
         $sqlBuilder->addFilters($this->dynamicFilter);
