@@ -99,7 +99,7 @@ class SearchSQLBuilder
         $n = 0;
         foreach ($columns as $col) {
             $col->getType()->select(
-                $QB, 'data_' . $col->getTable(), 'multi_' . $col->getTable(),
+                $this->qb, 'data_' . $col->getTable(), 'multi_' . $col->getTable(),
                 'C' . $n++, true, $sep
             );
         }
