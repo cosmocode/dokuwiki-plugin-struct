@@ -118,17 +118,18 @@ class DateTime extends Date
 
 
     /**
-     * Handle case of a revision column, where you need to convert from a Unix 
+     * Handle case of a revision column, where you need to convert from a Unix
      * timestamp.
      *
-     * @param QueryBuilderWhere &$add The WHERE or ON clause which will contain the conditional expression this comparator will be used in
+     * @param QueryBuilderWhere &$add The WHERE or ON clause to contain the conditional this comparator will be used in
      * @param string $tablealias The table the values are stored in
      * @param string $colname The column name on the above table
      * @return string The SQL expression to be used on one side of the comparison operator
-     * @param string &$op the logical operator this filter shoudl use
+     * @param string &$op the logical operator this filter should use
+     * @return string|array The SQL expression to be used on one side of the comparison operator
      */
-    protected function getSqlCompareValue(QueryBuilderWhere &$add, $tablealias,
-                                          $colname, &$op) {
+    protected function getSqlCompareValue(QueryBuilderWhere &$add, $tablealias, $colname, &$op)
+    {
         $col = "$tablealias.$colname";
         $QB = $add->getQB();
 
@@ -141,7 +142,7 @@ class DateTime extends Date
 
         return $col;
     }
- 
+
     /**
      * When sorting `%lastupdated%`, then sort the data from the `titles` table instead the `data_` table.
      *

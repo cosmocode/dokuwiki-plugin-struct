@@ -506,7 +506,12 @@ abstract class AccessTable
 
         foreach ($this->schema->getColumns(false) as $col) {
             $col->getType()->select(
-                $QB, 'DATA', $mtable, 'out' . $col->getColref(), false, $sep
+                $QB,
+                'DATA',
+                $mtable,
+                'out' . $col->getColref(),
+                false,
+                $sep
             );
         }
 

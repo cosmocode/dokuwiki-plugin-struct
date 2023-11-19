@@ -115,14 +115,14 @@ class Tag extends AbstractMultiBaseType
     /**
      * Normalize tags before comparing
      *
-     * @param QueryBuilderWhere &$add The WHERE or ON clause which will contain the conditional expression this comparator will be used in
+     * @param QueryBuilderWhere &$add The WHERE or ON clause to contain the conditional this comparator will be used in
      * @param string $tablealias The table the values are stored in
      * @param string $colname The column name on the above table
-     * @param string &$op the logical operator this filter shoudl use
+     * @param string &$op the logical operator this filter should use
      * @return string The SQL expression to be used on one side of the comparison operator
      */
-    protected function getSqlCompareValue(QueryBuilderWhere &$add, $tablealias,
-                                          $colname, &$op) {
+    protected function getSqlCompareValue(QueryBuilderWhere &$add, $tablealias, $colname, &$op)
+    {
         return "LOWER(REPLACE($tablealias.$colname, ' ', ''))";
     }
 
@@ -132,7 +132,8 @@ class Tag extends AbstractMultiBaseType
      * @param string $value The value a column is being compared to
      * @return string A SQL expression processing the value in some way.
      */
-    protected function getSqlConstantValue($value) {
+    protected function getSqlConstantValue($value)
+    {
         return "LOWER(REPLACE($value, ' ', ''))";
     }
 }

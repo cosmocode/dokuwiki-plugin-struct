@@ -371,7 +371,8 @@ abstract class AbstractBaseType
      * @param bool $test_rid Whether to require RIDs to be equal in the JOIN condition
      * @return string Alias for the multi-table
      */
-    public function joinMulti(QueryBuilder $QB, $datatable, $multitable, $colref, $test_rid = true) {
+    public function joinMulti(QueryBuilder $QB, $datatable, $multitable, $colref, $test_rid = true)
+    {
         $MN = $QB->generateTableAlias('M');
         $condition = "$datatable.pid = $MN.pid ";
         if ($test_rid) $condition .= "AND $datatable.rid = $MN.rid ";
@@ -384,7 +385,7 @@ abstract class AbstractBaseType
         );
         return $MN;
     }
-    
+
     /**
      * This function is used to modify an aggregation query to add a filter
      * for the given column matching the given value. A type should add at
@@ -432,14 +433,14 @@ abstract class AbstractBaseType
      * need to add additional logic to the conditional expression or make
      * additional JOINs.
      *
-     * @param QueryBuilderWhere &$add The WHERE or ON clause which will contain the conditional expression this comparator will be used in
+     * @param QueryBuilderWhere &$add The WHERE or ON clause to contain the conditional this comparator will be used in
      * @param string $tablealias The table the values are stored in
      * @param string $colname The column name on the above table
-     * @param string &$op the logical operator this filter shoudl use
+     * @param string &$op the logical operator this filter should use
      * @return string|array The SQL expression to be used on one side of the comparison operator
      */
-    protected function getSqlCompareValue(QueryBuilderWhere &$add, $tablealias,
-                                          $colname, &$op) {
+    protected function getSqlCompareValue(QueryBuilderWhere &$add, $tablealias, $colname, &$op)
+    {
         return "$tablealias.$colname";
     }
 
@@ -452,7 +453,8 @@ abstract class AbstractBaseType
      * @param string $value The value a column is being compared to
      * @return string A SQL expression processing the value in some way.
      */
-    protected function getSqlConstantValue($value) {
+    protected function getSqlConstantValue($value)
+    {
         return $value;
     }
 
@@ -477,8 +479,11 @@ abstract class AbstractBaseType
         $add = new QueryBuilderWhere($QB);
         $op = 'AND';
         $lhs = $this->getSqlCompareValue($add, $left_table, $left_colname, $op);
-        $rhs = $this->getSqlConstantValue($right_coltype->getSqlCompareValue($add, $right_table, $right_colname, $op));
-        // FIXME: Need to handle possibility of getSqlCompareValue returning multiple values (i.e., due to joining on page name)
+        $rhs = $this->getSqlConstantValue(
+            $right_coltype->getSqlCompareValue($add, $right_table, $right_colname, $op)
+        );
+        // FIXME: Need to handle possibility of getSqlCompareValue returning multiple
+        //        values (i.e., due to joining on page name)
         // FIXME: Need to consider how/whether to handle multi-valued columns
         $AN = $add->getQB()->generateTableAlias('A');
         $subquery = "(SELECT assigned
@@ -506,10 +511,11 @@ abstract class AbstractBaseType
      * @param string $colname Name of the column being JOINed ON
      * @return string One side of the equality comparion being used for the JOIN
      */
-    protected function joinArgument(QueryBuilderWhere $add, $table, $colname) {
+    protected function joinArgument(QueryBuilderWhere $add, $table, $colname)
+    {
         return "$table.$colname";
     }
-    
+
     /**
      * Add the proper selection for this type to the current Query. Handles the
      * possibility of multi-valued columns.
@@ -519,7 +525,7 @@ abstract class AbstractBaseType
      * @param string $multitable The name of the table the values are stored in if the column is multi-valued
      * @param string $alias The added selection *has* to use this column alias
      * @param bool $test_rid Whether to require RIDs to be equal if JOINing multi-table
-     * @param string|null $concat_sep Seperator to concatenate mutli-values together. If null, don't perform concatentation.
+     * @param string|null $concat_sep Seperator to concatenate mutli-values together. Don't concatenate if null.
      */
     public function select(QueryBuilder $QB, $singletable, $multitable, $alias, $test_rid = true, $concat_sep = null)
     {

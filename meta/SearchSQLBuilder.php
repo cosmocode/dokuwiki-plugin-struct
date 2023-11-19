@@ -48,8 +48,12 @@ class SearchSQLBuilder
                     $lefttable = 'data_' . $lcol->getTable();
                     $righttable = 'data_' . $rcol->getTable();
                     $on = $lcol->getType()->joinCondition(
-                        $this->qb, $lefttable, $lcol->getColName(), $righttable,
-                        $rcol->getColName(), $rcol->getType()
+                        $this->qb,
+                        $lefttable,
+                        $lcol->getColName(),
+                        $righttable,
+                        $rcol->getColName(),
+                        $rcol->getType()
                     );
                     $this->qb->addLeftJoin($lefttable, $righttable, $righttable, $on);
                 }
@@ -100,8 +104,12 @@ class SearchSQLBuilder
         $n = 0;
         foreach ($columns as $col) {
             $col->getType()->select(
-                $this->qb, 'data_' . $col->getTable(), 'multi_' . $col->getTable(),
-                'C' . $n++, true, $sep
+                $this->qb,
+                'data_' . $col->getTable(),
+                'multi_' . $col->getTable(),
+                'C' . $n++,
+                true,
+                $sep
             );
         }
     }

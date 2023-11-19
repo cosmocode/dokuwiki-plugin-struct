@@ -56,10 +56,8 @@ class SearchCloud extends SearchConfig
         $QB->filters()->where('AND', 'tag IS NOT \'\'');
 
         $col = $this->columns[0];
-        $col->getType()->select(
-            $QB, 'data_' . $datatable, 'multi_' . $col->getTable(), 'tag', true
-        );
-        
+        $col->getType()->select($QB, 'data_' . $datatable, 'multi_' . $col->getTable(), 'tag', true);
+
         $QB->addSelectStatement('COUNT(tag)', 'count');
         $QB->addSelectColumn('schema_assignments', 'assigned', 'ASSIGNED');
         if ($col->isMulti()) {

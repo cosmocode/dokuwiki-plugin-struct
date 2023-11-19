@@ -115,7 +115,7 @@ class Search
                 );
             }
             if ($joinon[1] != '=') {
-                throw new StructException('Only equality comparison is supported for JOIN conditions'); 
+                throw new StructException('Only equality comparison is supported for JOIN conditions');
             }
             $this->joins[$schema->getTable()] = $this->getJoinColumns($schema, $joinon[0], $joinon[2]);
         }
@@ -125,13 +125,14 @@ class Search
      * Returns the columns being matched against for a JOIN ... ON
      * expression. The result will be ordered such that the first
      * column is the one from a previously-joined schema.
-     * 
+     *
      * @param Schema $schema The schema being JOINed to the query
      * @param string $left The LHS of the JOIN ON comparison
      * @param string $right the RHS of the JOIN ON comparison
      * @return array The first element is the LHS column object and second is the RHS
      */
-    protected function getJoinColumns($schema, $left, $right) {
+    protected function getJoinColumns($schema, $left, $right)
+    {
         $lcol = $this->findColumn($left);
         if ($lcol === false) {
             throw new StructException('Unrecognoside field ' . $left);
@@ -143,7 +144,7 @@ class Search
         $table = $schema->getTable();
         $left_is_old_table = $lcol->getTable() != $table;
         if ($left_is_old_table == ($rcol->getTable() != $table)) {
-            throw new StructException("Exactly one side of ON condition $left = $right must be a column of $table" );
+            throw new StructException("Exactly one side of ON condition $left = $right must be a column of $table");
         }
         if ($left_is_old_table) {
             return array($lcol, $rcol);
