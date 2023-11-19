@@ -464,6 +464,7 @@ abstract class AbstractBaseType
      * logic, including additional JOINs to pull in other data or
      * handle multi-valued columns.
      *
+     * @param QueryBuilder $QB
      * @param string $left_table The name of the left table being JOINed
      * @param string $left_colname The name of the column in the left table being compared against for the JOIN
      * @param string $right_table The name of the right table being JOINed
@@ -471,15 +472,14 @@ abstract class AbstractBaseType
      * @param AbstractBaseType $right_coltype The type of $right_colname
      * @return string SQL expression on which to join schemas
      */
-    public function joinCondition($left_table, $left_colname, $right_table, $right_colname, $right_coltype)
+    public function joinCondition($QB, $left_table, $left_colname, $right_table, $right_colname, $right_coltype)
     {
-        $add = new QueryBuilderWhere();
+        $add = new QueryBuilderWhere($QB);
         $op = 'AND';
         $lhs = $this->getSqlCompareValue($add, $left_table, $left_colname, $op);
         $rhs = $this->getSqlConstantValue($right_coltype->getSqlCompareValue($add, $right_table, $right_colname, $op));
         // FIXME: Need to handle possibility of getSqlCompareValue returning multiple values (i.e., due to joining on page name)
         // FIXME: Need to consider how/whether to handle multi-valued columns
-        $add->where($op, "$lhs = $rhs");
         $AN = $add->getQB()->generateTableAlias('A');
         $subquery = "(SELECT assigned
                      FROM schema_assignments AS $AN
@@ -492,6 +492,7 @@ abstract class AbstractBaseType
         $subOr->whereAnd("GETACCESSLEVEL($left_table.pid) > 0");
         $subOr->whereAnd("PAGEEXISTS($left_table.pid) = 1");
         $subOr->whereAnd("($subquery = 1 OR $subquery IS NULL)");
+        return "$lhs = $rhs";
     }
 
     /**

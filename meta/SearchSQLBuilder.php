@@ -48,7 +48,7 @@ class SearchSQLBuilder
                     $lefttable = 'data_' . $lcol->getTable();
                     $righttable = 'data_' . $rcol->getTable();
                     $on = $lcol->getType()->joinCondition(
-                        $lefttable, $lcol->getColName(), $righttable,
+                        $this->qb, $lefttable, $lcol->getColName(), $righttable,
                         $rcol->getColName(), $rcol->getType()
                     );
                     $this->qb->addLeftJoin($lefttable, $righttable, $righttable, $on);
