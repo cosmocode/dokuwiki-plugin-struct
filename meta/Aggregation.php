@@ -30,6 +30,9 @@ abstract class Aggregation
     /** @var int number of all results */
     protected $resultCount;
 
+    /** @var string usually a div, but AggregationValue needs to be wrapped in a span */
+    protected $tagName = 'div';
+
     /**
      * @todo we might be able to get rid of this helper and move this to SearchConfig
      * @var \helper_plugin_struct_config
@@ -123,7 +126,7 @@ abstract class Aggregation
             $hash = $this->renderer->info['struct_table_hash'] ?? '';
             $id = $hash ? " id=\"$hash\" " : '';
 
-            $this->renderer->doc .= '<div ' . $id . 'class="' . implode(' ', $classes) . '">';
+            $this->renderer->doc .= '<' . $this->tagName .  $id . ' class="' . implode(' ', $classes) . '">';
         }
     }
 
@@ -137,7 +140,7 @@ abstract class Aggregation
     public function finishScope()
     {
         if ($this->mode == 'xhtml') {
-            $this->renderer->doc .= '</div>';
+            $this->renderer->doc .= '</' . $this->tagName . '>';
         }
     }
 }

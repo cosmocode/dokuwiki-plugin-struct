@@ -24,6 +24,8 @@ class AggregationValue extends Aggregation
         $searchConfig->setOffset(0);
 
         parent::__construct($id, $mode, $renderer, $searchConfig);
+
+        $this->tagName = 'span';
     }
 
     /**
