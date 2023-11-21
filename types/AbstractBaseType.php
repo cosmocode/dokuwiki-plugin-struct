@@ -350,9 +350,9 @@ abstract class AbstractBaseType
      * @param string $page the target to which should be linked
      * @param string $filter the filter to apply to the aggregations on $page
      * @param int $weight the scaled weight of the item. implemented as css font-size on the outside container
-     * @param int $showCount count for the tag, only passed if summarize was set in config
+     * @param int|null $showCount count for the tag, only passed if summarize was set in config
      */
-    public function renderTagCloudLink($value, \Doku_Renderer $R, $mode, $page, $filter, $weight, $showCount)
+    public function renderTagCloudLink($value, \Doku_Renderer $R, $mode, $page, $filter, $weight, $showCount = null)
     {
         $value = $this->displayValue($value);
         if ($showCount) {
