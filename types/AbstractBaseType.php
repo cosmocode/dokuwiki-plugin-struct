@@ -404,7 +404,15 @@ abstract class AbstractBaseType
      */
     public function filter(QueryBuilderWhere $add, $tablealias, $colname, $comp, $value, $op)
     {
-        $compareVal = $this->getSqlCompareValue($add, $tablealias, $colname, $op);
+        $additional_join = $this->getAdditionalJoinForComparison($add, $tablealias, $colname);
+        if (!is_null($additional_join)) {
+            $add->getQB()->addLeftJoin($additional_join[0], $additional_join[1], $additional_join[2], $additional_join[3]);
+            $oldalias = $tablealias;
+            $tablealias = $additional_join[2];
+        } else {
+            $oldalias = null;
+        }
+        $compareVal = $this->getSqlCompareValue($add, $tablealias, $oldalias, $colname, $op);
         /** @var QueryBuilderWhere $add Where additionional queries are added to */
         if (is_array($value)) {
             $add = $add->where($op); // sub where group
@@ -419,7 +427,7 @@ abstract class AbstractBaseType
             } else {
                 $sub = $add;
             }
-            $pl = $this->getSqlConstantValue($add->getQB()->addValue($item));
+            $pl = $this->wrapValue($add->getQB()->addValue($item));
             foreach ((array)$compareVal as $lhs) {
                 $sub->where($op, "$lhs $comp $pl");
             }
@@ -435,13 +443,29 @@ abstract class AbstractBaseType
      *
      * @param QueryBuilderWhere &$add The WHERE or ON clause to contain the conditional this comparator will be used in
      * @param string $tablealias The table the values are stored in
+     * @param string|null $oldalias A previous alias used for this table (only used by Page)
      * @param string $colname The column name on the above table
      * @param string &$op the logical operator this filter should use
      * @return string|array The SQL expression to be used on one side of the comparison operator
      */
-    protected function getSqlCompareValue(QueryBuilderWhere &$add, $tablealias, $colname, &$op)
+    protected function getSqlCompareValue(QueryBuilderWhere &$add, $tablealias, $oldalias, $colname, &$op)
     {
         return "$tablealias.$colname";
+    }
+
+    /**
+     * This function provides arguments for an additional JOIN operation needed
+     * to perform a comparison (e.g., for a JOIN or FILTER), or null if no
+     * additional JOIN is needed.
+     *
+     * @param QueryBuilderWhere &$add The WHERE or ON clause to contain the conditional this comparator will be used in
+     * @param string $tablealias The table the values are stored in
+     * @param string $colname The column name on the above table
+     * @return null|array [$leftalias, $righttable, $rightalias, $onclause]
+     */
+    protected function getAdditionalJoinForComparison(QueryBuilderWhere &$add, $tablealias, $colname)
+    {
+        return null;
     }
 
     /**
@@ -453,7 +477,7 @@ abstract class AbstractBaseType
      * @param string $value The value a column is being compared to
      * @return string A SQL expression processing the value in some way.
      */
-    protected function getSqlConstantValue($value)
+    protected function wrapValue($value)
     {
         return $value;
     }
@@ -474,30 +498,49 @@ abstract class AbstractBaseType
      * @param AbstractBaseType $right_coltype The type of $right_colname
      * @return string SQL expression on which to join schemas
      */
-    public function joinCondition($QB, $left_table, $left_colname, $right_table, $right_colname, $right_coltype)
+    public function joinCondition($QB, &$left_table, $left_colname, $right_table, $right_colname, $right_coltype)
     {
         $add = new QueryBuilderWhere($QB);
         $op = 'AND';
-        $lhs = $this->getSqlCompareValue($add, $left_table, $left_colname, $op);
-        $rhs = $this->getSqlConstantValue(
-            $right_coltype->getSqlCompareValue($add, $right_table, $right_colname, $op)
-        );
-        // FIXME: Need to handle possibility of getSqlCompareValue returning multiple
-        //        values (i.e., due to joining on page name)
-        // FIXME: Need to consider how/whether to handle multi-valued columns
+        $additional_join = $this->getAdditionalJoinForComparison($add, $left_table, $left_colname);
+        // FIXME: How to work with multiple lhs or rhs values (i.e., due to Page types)?
+        // In rhs secondary join, compare lhs ID and (possibly) title against rhs title only. In returned join condition, compare against secondary PID and the column value against lhs ID/title. At most one side of comparison will have multiple values.
+        if (!is_null($additional_join)) {
+            $add->getQB()->addLeftJoin($additional_join[0], $additional_join[1], $additional_join[2], $additional_join[3]);
+            $lhs = $this->getSqlCompareValue($add, $additional_join[2], $left_table, $left_colname, $op);
+        } else {
+            $lhs = $this->getSqlCompareValue($add, $left_table, null, $left_colname, $op);
+        }
+        $additional_join = $right_coltype->getAdditionalJoinForComparison($add, $right_table, $right_colname);
+        // FIXME: Are calls to wrapValue redundant, given that I'm already translating the current value using $this->getSqlCompareValue? They can be, if both lhs and rhs columns are of the same type.
+        if (!is_null($additional_join)) {
+            $rhs = $this->wrapValue(
+                $right_coltype->getSqlCompareValue($add, $additional_join[2], $right_table, $right_colname, $op)
+            );
+            $add->getQB()->addLeftJoin($left_table, $additional_join[1], $additional_join[2], "$lhs = $rhs");
+            $left_table = $additional_join[2];
+            $result = $additional_join[3];
+        } else {
+            $rhs = $this->wrapValue(
+                $right_coltype->getSqlCompareValue($add, $right_table, null, $right_colname, $op)
+            );
+            $result = "$lhs = $rhs";
+        }
+        // FIXME: Can I do this somehow without needing to execute the subquery twice?
         $AN = $add->getQB()->generateTableAlias('A');
         $subquery = "(SELECT assigned
                      FROM schema_assignments AS $AN
-                     WHERE $left_table.pid != '' AND
-                           $left_table.pid = $AN.pid AND
-                           $AN.tbl = '{$this->getContext()->getTable()}')";
+                     WHERE $right_table.pid != '' AND
+                           $right_table.pid = $AN.pid AND
+                           $AN.tbl = '{$right_coltype->getContext()->getTable()}')";
         $subAnd = $add->whereSubAnd();
-        $subAnd->whereOr("$left_table.pid = ''");
+        $subAnd->whereOr("$right_table.pid = ''");
         $subOr = $subAnd->whereSubOr();
-        $subOr->whereAnd("GETACCESSLEVEL($left_table.pid) > 0");
-        $subOr->whereAnd("PAGEEXISTS($left_table.pid) = 1");
-        $subOr->whereAnd("($subquery = 1 OR $subquery IS NULL)");
-        return "$lhs = $rhs";
+        $subOr->whereAnd("GETACCESSLEVEL($right_table.pid) > 0");
+        $subOr->whereAnd("PAGEEXISTS($right_table.pid) = 1");
+        $subOr->whereAnd("($right_table.rid != 0 OR ($subquery = 1 OR $subquery IS NULL))");
+        // FIXME: Need to consider how/whether to handle multi-valued columns
+        return $result;
     }
 
     /**

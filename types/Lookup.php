@@ -258,30 +258,44 @@ class Lookup extends Dropdown
      *
      * @param QueryBuilderWhere &$add The WHERE or ON clause to contain the conditional this comparator will be used in
      * @param string $tablealias The table the values are stored in
+     * @param string|null $oldalias A previous alias used for this table (only used by Page)
      * @param string $colname The column name on the above table
      * @param string &$op the logical operator this filter should use
      * @return string|array The SQL expression to be used on one side of the comparison operator
      */
-    protected function getSqlCompareValue(QueryBuilderWhere &$add, $tablealias, $colname, &$op)
+    protected function getSqlCompareValue(QueryBuilderWhere &$add, $tablealias, $oldalias, $colname, &$op)
     {
-        $schema = 'data_' . $this->config['schema'];
         $column = $this->getLookupColumn();
         if (!$column) {
-            return parent::getSqlCompareValue($add, $tablealias, $colname, $op);
+            return parent::getSqlCompareValue($add, $tablealias, $oldalias, $colname, $op);
         }
         $field = $column->getColName();
+        return $column->getType()->getSqlCompareValue($add, $tablealias, $oldalias, $field, $op);
+    }
 
-        // compare against lookup field
+    /**
+     * This function provides arguments for an additional JOIN operation needed
+     * to perform a comparison (e.g., for a JOIN or FILTER), or null if no
+     * additional JOIN is needed.
+     *
+     * @param QueryBuilderWhere &$add The WHERE or ON clause to contain the conditional this comparator will be used in
+     * @param string $tablealias The table the values are stored in
+     * @param string $colname The column name on the above table
+     * @return null|array [$leftalias, $righttable, $rightalias, $onclause]
+     */
+    protected function getAdditionalJoinForComparison(QueryBuilderWhere &$add, $tablealias, $colname)
+    {
+        if (!$this->getLookupColumn()) return null;
+        $schema = 'data_' . $this->config['schema'];
         $QB = $add->getQB();
         $rightalias = $QB->generateTableAlias();
-        $QB->addLeftJoin(
+        return [
             $tablealias,
             $schema,
             $rightalias,
             "$tablealias.$colname = STRUCT_JSON($rightalias.pid, CAST($rightalias.rid AS DECIMAL)) AND " .
             "$rightalias.latest = 1"
-        );
-        return $column->getType()->getSqlCompareValue($add, $rightalias, $field, $op);
+        ];
     }
 
     /**
@@ -290,14 +304,14 @@ class Lookup extends Dropdown
      * @param string $value The value a column is being compared to
      * @return string A SQL expression processing the value in some way.
      */
-    protected function getSqlConstantValue($value)
+    protected function wrapValue($value)
     {
         $schema = 'data_' . $this->config['schema'];
         $column = $this->getLookupColumn();
         if (!$column) {
-            return parent::getSqlConstantValue($value);
+            return parent::wrapValue($value);
         }
-        return $column->getType()->getSqlConstantValue($value);
+        return $column->getType()->wrapValue($value);
     }
 
     /**

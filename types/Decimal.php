@@ -157,11 +157,12 @@ class Decimal extends AbstractMultiBaseType
      *
      * @param QueryBuilderWhere &$add The WHERE or ON clause to contain the conditional  this comparator will be used in
      * @param string $tablealias The table the values are stored in
+     * @param string|null $oldalias A previous alias used for this table (only used by Page)
      * @param string $colname The column name on the above table
      * @param string &$op the logical operator this filter should use
      * @return string The SQL expression to be used on one side of the comparison operator
      */
-    protected function getSqlCompareValue(QueryBuilderWhere &$add, $tablealias, $colname, &$op)
+    protected function getSqlCompareValue(QueryBuilderWhere &$add, $tablealias, $oldalias, $colname, &$op)
     {
         $add = $add->where($op); // open a subgroup
         $add->where('AND', "$tablealias.$colname != ''");
@@ -174,7 +175,7 @@ class Decimal extends AbstractMultiBaseType
      * @param string $value The value a column is being compared to
      * @return string SQL expression casting $value to a decimal
      */
-    protected function getSqlConstantValue($value)
+    protected function wrapValue($value)
     {
         return "CAST($value AS DECIMAL)";
     }

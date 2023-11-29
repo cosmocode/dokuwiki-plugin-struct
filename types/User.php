@@ -141,19 +141,37 @@ class User extends AbstractMultiBaseType
     /**
      * @param QueryBuilderWhere &$add The WHERE or ON clause to contain the conditional this comparator will be used in
      * @param string $tablealias The table the values are stored in
+     * @param string|null $oldalias A previous alias used for this table (only used by Page)
      * @param string $colname The column name on the above table
      * @param string &$op the logical operator this filter should use
      * @return string The SQL expression to be used on one side of the comparison operator
      */
-    protected function getSqlCompareValue(QueryBuilderWhere &$add, $tablealias, $colname, &$op)
+    protected function getSqlCompareValue(QueryBuilderWhere &$add, $tablealias, $oldalias, $colname, &$op)
+    {
+        if (is_a($this->context, 'dokuwiki\plugin\struct\meta\UserColumn')) {
+            return "$tablealias.lasteditor";
+        }
+
+        return parent::getSqlCompareValue($add, $tablealias, $oldalias, $colname, $comp, $value, $op);
+    }
+
+    /**
+     * This function provides arguments for an additional JOIN operation needed
+     * to perform a comparison (e.g., for a JOIN or FILTER), or null if no
+     * additional JOIN is needed.
+     *
+     * @param QueryBuilderWhere &$add The WHERE or ON clause to contain the conditional this comparator will be used in
+     * @param string $tablealias The table the values are stored in
+     * @param string $colname The column name on the above table
+     * @return null|array [$leftalias, $righttable, $rightalias, $onclause]
+     */
+    protected function getAdditionalJoinForComparison(QueryBuilderWhere &$add, $tablealias, $colname)
     {
         if (is_a($this->context, 'dokuwiki\plugin\struct\meta\UserColumn')) {
             $QB = $add->getQB();
             $rightalias = $QB->generateTableAlias();
-            $QB->addLeftJoin($tablealias, 'titles', $rightalias, "$tablealias.pid = $rightalias.pid");
-            return "$rightalias.lasteditor";
+            return [$tablealias, 'titles', $rightalias, "$tablealias.pid = $rightalias.pid"];
         }
-
-        return parent::getSqlCompareValue($add, $tablealias, $colname, $comp, $value, $op);
+        return parent::getAdditionalJoinForComparison($add, $tablealias, $colname);
     }
 }
