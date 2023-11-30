@@ -550,7 +550,10 @@ abstract class AbstractBaseType
         // values.
         if (!is_null($additional_join)) {
             $add->getQB()->addLeftJoin(
-                $additional_join[0], $additional_join[1], $additional_join[2], $additional_join[3]
+                $additional_join[0],
+                $additional_join[1],
+                $additional_join[2],
+                $additional_join[3]
             );
             $lhs = $this->getSqlCompareValue($add, $additional_join[2], $left_table, $left_colname, $op);
         } else {
