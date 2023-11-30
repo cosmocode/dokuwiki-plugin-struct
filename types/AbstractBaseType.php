@@ -486,7 +486,7 @@ abstract class AbstractBaseType
         }
         return $this->wrapValue($value);
     }
-    
+
     /**
      * Handle the value that a column is being compared against. In
      * most cases this method will just return the value unchanged,
