@@ -614,6 +614,32 @@ EOD;
 
     public function test_join_string_against_pagetitle()
     {
+        $search = new mock\Search();
+
+        $search->addSchema('pageschema', '');
+        $search->addSchema('schema2', 'foo', array('pageschema.%title%', '=', 'afirst'));
+        $search->addColumn('foo.%pageid%');
+        $search->addColumn('pageschema.%pageid%');
+        $search->addColumn('afourth');
+        $search->addColumn('singlepage');
+
+        $result = $search->execute();
+        $count = $search->getCount();
+
+        // check result dimensions
+        $this->assertEquals(2, $count, 'result count'); // full result set
+        $this->assertEquals(2, count($result), 'result rows'); // wanted result set
+
+        // check the values
+        $this->assertEquals('test:document2', $result[0][0]->getValue());
+        $this->assertEquals('page01', $result[0][1]->getValue());
+        $this->assertEquals('', $result[0][2]->getValue());
+        $this->assertEquals('page12', $result[0][3]->getValue());
+        $this->assertEquals('test:document3', $result[1][0]->getValue());
+        $this->assertEquals('test:document', $result[1][1]->getValue());
+        $this->assertEquals('abcd', $result[1][2]->getValue());
+        $this->assertEquals('page01', $result[1][3]->getValue());
+
     }
 
     public function test_join_pagetitle_against_pagetitle() {

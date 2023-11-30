@@ -118,7 +118,20 @@ class QueryBuilder
             throw new StructException('Table Alias already exists');
         }
 
-        $pos = array_search($leftalias, array_keys($this->from));
+        if (count($this->from) > 0){
+            $pos = 0;
+            $matches = [];
+            preg_match_all('/\w+(?=\.\w+)/', $onclause, $matches);
+            $matches[0][] = $leftalias;
+            $matches = array_unique($matches[0]);
+            $existing = array_keys($this->from);
+            foreach ($matches as $match) {
+                $p = array_search($match, $existing);
+                if ($p > $pos) $pos = $p;
+            }
+        } else {
+            $pos = false;
+        }
         $statement = "LEFT OUTER JOIN $righttable AS $rightalias ON $onclause";
         $this->from = $this->arrayInsert($this->from, [$rightalias => $statement], $pos + 1);
         $this->type[$rightalias] = 'join';
