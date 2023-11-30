@@ -137,9 +137,19 @@ class Search
         if ($lcol === false) {
             throw new StructException('Unrecognoside field ' . $left);
         }
+        if ($lcol->getType()->isMulti()) {
+            throw new StructException(
+                "Column $left is multi-valued, but JOINs are not supported on multi-valued columns"
+            );
+        }
         $rcol = $this->findColumn($right);
         if ($rcol === false) {
             throw new StructException('Unrecognoside field ' . $right);
+        }
+        if ($rcol->getType()->isMulti()) {
+            throw new StructException(
+                "Column $right is multi-valued, but JOINs are not supported on multi-valued columns"
+            );
         }
         $table = $schema->getTable();
         $left_is_old_table = $lcol->getTable() != $table;

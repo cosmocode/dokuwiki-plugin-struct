@@ -539,7 +539,6 @@ abstract class AbstractBaseType
         $subOr->whereAnd("GETACCESSLEVEL($right_table.pid) > 0");
         $subOr->whereAnd("PAGEEXISTS($right_table.pid) = 1");
         $subOr->whereAnd("($right_table.rid != 0 OR ($subquery = 1 OR $subquery IS NULL))");
-        // FIXME: Need to consider how/whether to handle multi-valued columns
         return $result;
     }
 

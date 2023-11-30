@@ -569,6 +569,8 @@ EOD;
             array('notaschema.first', '=', 'schema1.first'),
             array('notacolumn', '=', 'schema1.first'),
             array('foo.athird', '=', 'schema1.notacolumn'),
+            array('schema1.second', '=', 'schema2.afirst'),
+            array('schema1.first', '=', 'scheam2.asecond'),
         );
     }
     
