@@ -84,5 +84,31 @@ class UserTest extends StructTest
 
         $INPUT->set('search', 'test');
         $this->assertEquals([], $user->handleAjax());
+
+        // Check that numeric usernames are handled properly; PHP's
+        // strange handling of array keys that look like integers has
+        // caused bugs with this in the past.
+        global $auth;
+        $auth->createUser('12345', 'secret_password', 'Some Person', 'someone@example.com');
+        $auth->createUser('54321', 'another_password', 'Someone Else', 's.else@example.com');
+        
+        $user = new User(
+            [
+                'autocomplete' => [
+                    'fullname' => true,
+                    'mininput' => 2,
+                    'maxresult' => 5,
+                ],
+            ]
+        );
+        
+        $INPUT->set('search', 'Some');
+        $this->assertEquals(
+            [
+                ['label' => 'Some Person [12345]', 'value' => '12345'],
+                ['label' => 'Someone Else [54321]', 'value' => '54321']
+            ],
+            $user->handleAjax()
+        );
     }
 }
