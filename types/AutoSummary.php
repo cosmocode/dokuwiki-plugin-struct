@@ -69,5 +69,4 @@ class AutoSummary extends AbstractBaseType
         $rightalias = $QB->generateTableAlias();
         return [$tablealias, 'titles', $rightalias, "$tablealias.pid = $rightalias.pid"];
     }
-
 }

@@ -118,7 +118,7 @@ class QueryBuilder
             throw new StructException('Table Alias already exists');
         }
 
-        if (count($this->from) > 0){
+        if (count($this->from) > 0) {
             $pos = 0;
             $matches = [];
             preg_match_all('/\w+(?=\.\w+)/', $onclause, $matches);

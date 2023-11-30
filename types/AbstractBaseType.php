@@ -406,7 +406,12 @@ abstract class AbstractBaseType
     {
         $additional_join = $this->getAdditionalJoinForComparison($add, $tablealias, $colname);
         if (!is_null($additional_join)) {
-            $add->getQB()->addLeftJoin($additional_join[0], $additional_join[1], $additional_join[2], $additional_join[3]);
+            $add->getQB()->addLeftJoin(
+                $additional_join[0],
+                $additional_join[1],
+                $additional_join[2],
+                $additional_join[3]
+            );
             $oldalias = $tablealias;
             $tablealias = $additional_join[2];
         } else {
@@ -506,7 +511,13 @@ abstract class AbstractBaseType
         }
         if (!$lhs_array) $lhs = array_fill(0, $nrhs, $lhs);
         if (!$rhs_array) $rhs = array_fill(0, $nlhs, $rhs);
-        $comparisons = array_map(function ($l, $r) { return "($l = $r)"; }, $lhs, $rhs);
+        $comparisons = array_map(
+            function ($l, $r) {
+                return "($l = $r)";
+            },
+            $lhs,
+            $rhs
+        );
         return implode(' OR ', $comparisons);
     }
 
@@ -531,8 +542,12 @@ abstract class AbstractBaseType
         $add = new QueryBuilderWhere($QB);
         $op = 'AND';
         $additional_join = $this->getAdditionalJoinForComparison($add, $left_table, $left_colname);
-        // FIXME: How to work with multiple lhs or rhs values (i.e., due to Page types)?
-        // In rhs secondary join, compare lhs ID and (possibly) title against rhs title only. In returned join condition, compare against secondary PID and the column value against lhs ID/title. At most one side of comparison will have multiple values.
+        // When dealing with joins over page types:
+        // In rhs secondary join, compare lhs ID and (possibly) title
+        // against rhs title only. In returned join condition, compare
+        // against secondary PID and the column value against lhs
+        // ID/title. At most one side of comparison will have multiple
+        // values.
         if (!is_null($additional_join)) {
             $add->getQB()->addLeftJoin($additional_join[0], $additional_join[1], $additional_join[2], $additional_join[3]);
             $lhs = $this->getSqlCompareValue($add, $additional_join[2], $left_table, $left_colname, $op);
