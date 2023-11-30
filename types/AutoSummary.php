@@ -50,7 +50,7 @@ class AutoSummary extends AbstractBaseType
      */
     protected function getSqlCompareValue(QueryBuilderWhere &$add, $tablealias, $oldalias, $colname, &$op)
     {
-        return "$table.lastsummary";
+        return "$tablealias.lastsummary";
     }
 
     /**
