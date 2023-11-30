@@ -474,6 +474,20 @@ abstract class AbstractBaseType
     }
 
     /**
+     * Handle the value(s) that a column is being compared against. If $value is an array, each element will be wrapped.
+     *
+     * @param string|array $value The value(s) a column is being compared to
+     * @return string|array SQL expression(s) processing the value in some way.
+     */
+    protected function wrapValues($value)
+    {
+        if (is_array($value)) {
+            return array_map([$this, 'wrapValue'], $value);
+        }
+        return $this->wrapValue($value);
+    }
+    
+    /**
      * Handle the value that a column is being compared against. In
      * most cases this method will just return the value unchanged,
      * but for some types it may be necessary to preform some sort of
@@ -573,8 +587,7 @@ abstract class AbstractBaseType
         }
         $additional_join = $right_coltype->getAdditionalJoinForComparison($add, $right_table, $right_colname);
         if (!is_null($additional_join)) {
-            // FIXME: This won't necessarily work over arrays
-            $rhs = $this->wrapValue(
+            $rhs = $this->wrapValues(
                 $right_coltype->getSqlCompareValue($add, $additional_join[2], $right_table, $right_colname, $op)
             );
             $result = $right_coltype->joinConditionIfAdditionalJoin($lhs, $rhs, $additional_join[3]);
@@ -586,8 +599,7 @@ abstract class AbstractBaseType
             );
             $left_table = $additional_join[2];
         } else {
-            // FIXME: This won't necessarily work over arrays
-            $rhs = $this->wrapValue(
+            $rhs = $this->wrapValues(
                 $right_coltype->getSqlCompareValue($add, $right_table, null, $right_colname, $op)
             );
             $result = $this->equalityComparison($lhs, $rhs);
