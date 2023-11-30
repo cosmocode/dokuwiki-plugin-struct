@@ -522,7 +522,25 @@ abstract class AbstractBaseType
     }
 
     /**
-     * Returns a SQL expression ON which JOIN $left_table and
+     * Returns a SQL expression on which to join two tables, when the
+     * column of the right table being joined on is of this data
+     * type. This should only be called if joining on this data type
+     * requires introducing an additional join (i.e., if
+     * getAdditionalJoinForComparison returns an array).
+     *
+     * @param QueryBuilder $QB
+     * @param string $lhs Left hand side of the ON clause (for left table)
+     * @param string $rhs Right hand side of the ON clause (for right table)
+     * @param string $additional_join_condition The ON clause of the additional join
+     * @return string SQL expression to be returned by joinCondition
+     */
+    protected function joinConditionIfAdditionalJoin($lhs, &$rhs, $additional_join_condition)
+    {
+        return $additional_join_condition;
+    }
+
+    /**
+     * Returns a SQL expression ON which to JOIN $left_table and
      * $right_table.  Semantically, this provides an
      * equality comparison between two columns in the two
      * schemas. However, in practice it may require more complex
@@ -542,12 +560,6 @@ abstract class AbstractBaseType
         $add = new QueryBuilderWhere($QB);
         $op = 'AND';
         $additional_join = $this->getAdditionalJoinForComparison($add, $left_table, $left_colname);
-        // When dealing with joins over page types:
-        // In rhs secondary join, compare lhs ID and (possibly) title
-        // against rhs title only. In returned join condition, compare
-        // against secondary PID and the column value against lhs
-        // ID/title. At most one side of comparison will have multiple
-        // values.
         if (!is_null($additional_join)) {
             $add->getQB()->addLeftJoin(
                 $additional_join[0],
@@ -565,13 +577,7 @@ abstract class AbstractBaseType
             $rhs = $this->wrapValue(
                 $right_coltype->getSqlCompareValue($add, $additional_join[2], $right_table, $right_colname, $op)
             );
-            $result = $additional_join[3];
-            if (is_array($rhs)) {
-                // Case where right column is a Page type that is using titles
-                // FIXME: Bad to have implementation of subclass bleading in like this.
-                [$rhs_id, $rhs] = $rhs;
-                $result .= ' OR ' . $this->equalityComparison($lhs, $rhs_id);
-            }
+            $result = $right_coltype->joinConditionIfAdditionalJoin($lhs, $rhs, $additional_join[3]);
             $add->getQB()->addLeftJoin(
                 $left_table,
                 $additional_join[1],

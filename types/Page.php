@@ -226,6 +226,25 @@ class Page extends AbstractMultiBaseType
     }
 
     /**
+     * Returns a SQL expression on which to join two tables, when the
+     * column of the right table being joined on is of this data
+     * type. This should only be called if joining on this data type
+     * requires introducing an additional join (i.e., if
+     * getAdditionalJoinForComparison returns an array).
+     *
+     * @param QueryBuilder $QB
+     * @param string $lhs Left hand side of the ON clause (for left table)
+     * @param string $rhs Right hand side of the ON clause (for right table)
+     * @param string $additional_join_condition The ON clause of the additional join
+     * @return string SQL expression to be returned by joinCondition
+     */
+    protected function joinConditionIfAdditionalJoin($lhs, &$rhs, $additional_join_condition)
+    {
+        [$rhs_id, $rhs] = $rhs;
+        return $additional_join_condition . ' OR ' . $this->equalityComparison($lhs, $rhs_id);
+    }
+
+    /**
      * Check if the given id matches a configured filter pattern
      *
      * @param string $id
