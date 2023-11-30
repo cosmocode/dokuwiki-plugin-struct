@@ -483,6 +483,34 @@ abstract class AbstractBaseType
     }
 
     /**
+     * Returns a SQL expression making an equality comparison between
+     * two values. If one of the values is an array, then the
+     * conditional expression will evaluate to true if the other value
+     * is equal to any element in the array. If both values are arrays
+     * then they must be the same length and the expression will
+     * evaluate to true if a pair of items with the same indices in
+     * the two arrays are equal.
+     *
+     * @param string|array $lhs The first value to be compared
+     * @param string|array $rhs The second value to be compared
+     * @return string SQL expression for equality comparison
+     */
+    protected function equalityComparison($lhs, $rhs)
+    {
+        $lhs_array = is_array($lhs);
+        $rhs_array = is_array($rhs);
+        $nlhs = $lhs_array ? count($lhs) : 1;
+        $nrhs = $rhs_array ? count($rhs) : 1;
+        if ($lhs_array and $rhs_array and count($lhs) != count($rhs)) {
+            throw new StructException("Arrays not of equal length.");
+        }
+        if (!$lhs_array) $lhs = array_fill(0, $nrhs, $lhs);
+        if (!$rhs_array) $rhs = array_fill(0, $nlhs, $rhs);
+        $comparisons = array_map(function ($l, $r) { return "($l = $r)"; }, $lhs, $rhs);
+        return implode(' OR ', $comparisons);
+    }
+
+    /**
      * Returns a SQL expression ON which JOIN $left_table and
      * $right_table.  Semantically, this provides an
      * equality comparison between two columns in the two
@@ -512,19 +540,31 @@ abstract class AbstractBaseType
             $lhs = $this->getSqlCompareValue($add, $left_table, null, $left_colname, $op);
         }
         $additional_join = $right_coltype->getAdditionalJoinForComparison($add, $right_table, $right_colname);
-        // FIXME: Are calls to wrapValue redundant, given that I'm already translating the current value using $this->getSqlCompareValue? They can be, if both lhs and rhs columns are of the same type.
         if (!is_null($additional_join)) {
+            // FIXME: This won't necessarily work over arrays
             $rhs = $this->wrapValue(
                 $right_coltype->getSqlCompareValue($add, $additional_join[2], $right_table, $right_colname, $op)
             );
-            $add->getQB()->addLeftJoin($left_table, $additional_join[1], $additional_join[2], "$lhs = $rhs");
-            $left_table = $additional_join[2];
             $result = $additional_join[3];
+            if (is_array($rhs)) {
+                // Case where right column is a Page type that is using titles
+                // FIXME: Bad to have implementation of subclass bleading in like this.
+                [$rhs_id, $rhs] = $rhs;
+                $result .= ' OR ' . $this->equalityComparison($lhs, $rhs_id);
+            }
+            $add->getQB()->addLeftJoin(
+                $left_table,
+                $additional_join[1],
+                $additional_join[2],
+                $this->equalityComparison($lhs, $rhs)
+            );
+            $left_table = $additional_join[2];
         } else {
+            // FIXME: This won't necessarily work over arrays
             $rhs = $this->wrapValue(
                 $right_coltype->getSqlCompareValue($add, $right_table, null, $right_colname, $op)
             );
-            $result = "$lhs = $rhs";
+            $result = $this->equalityComparison($lhs, $rhs);
         }
         // FIXME: Can I do this somehow without needing to execute the subquery twice?
         $AN = $add->getQB()->generateTableAlias('A');
