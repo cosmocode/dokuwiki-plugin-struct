@@ -76,9 +76,9 @@ class User extends AbstractMultiBaseType
 
         if (
             !auth_isMember(
-            $conf['plugin']['struct']['allow_username_autocomplete'],
-            $_SERVER['REMOTE_USER'],
-            (array) $USERINFO['grps']
+                $conf['plugin']['struct']['allow_username_autocomplete'],
+                $_SERVER['REMOTE_USER'],
+                (array) $USERINFO['grps']
             )
         ) {
             return [];
