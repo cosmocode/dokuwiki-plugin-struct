@@ -60,7 +60,6 @@ class User extends AbstractMultiBaseType
      * Autocompletion for user names
      *
      * @return array
-     * @todo should we have any security mechanism? Currently everybody can look up users
      */
     public function handleAjax()
     {
