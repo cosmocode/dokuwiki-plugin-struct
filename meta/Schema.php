@@ -92,7 +92,7 @@ class Schema
             $this->id = $result['id'];
             $this->user = $result['user'];
             $this->ts = $result['ts'];
-            $config = json_decode($result['config'], true);
+            $config = json_decode($result['config'], true, 512, JSON_THROW_ON_ERROR);
         }
         $this->config = array_merge($baseconfig, $config);
         $this->initTransConfig(['label']);
@@ -120,7 +120,7 @@ class Schema
                 $class = 'dokuwiki\\plugin\\struct\\types\\Text';
             }
 
-            $config = json_decode($row['config'], true);
+            $config = json_decode($row['config'], true, 512, JSON_THROW_ON_ERROR);
             /** @var AbstractBaseType $type */
             $type = new $class($config, $row['label'], $row['ismulti'], $row['tid']);
             $column = new Column(
@@ -325,9 +325,7 @@ class Schema
         if (!$withDisabled) {
             return array_filter(
                 $this->columns,
-                function (Column $col) {
-                    return $col->isEnabled();
-                }
+                static fn(Column $col) => $col->isEnabled()
             );
         }
 

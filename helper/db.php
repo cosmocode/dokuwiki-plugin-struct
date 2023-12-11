@@ -80,7 +80,7 @@ class helper_plugin_struct_db extends Plugin
      */
     public function STRUCT_JSON(...$args) // phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
     {
-        return json_encode($args);
+        return json_encode($args, JSON_THROW_ON_ERROR);
     }
 
     /**

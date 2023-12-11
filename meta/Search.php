@@ -293,9 +293,7 @@ class Search
      */
     protected function filterWrapAsterisks($value)
     {
-        $map = function ($input) {
-            return "*$input*";
-        };
+        $map = static fn($input) => "*$input*";
 
         if (is_array($value)) {
             $value = array_map($map, $value);
@@ -313,9 +311,7 @@ class Search
      */
     protected function filterChangeToLike($value)
     {
-        $map = function ($input) {
-            return str_replace('*', '%', $input);
-        };
+        $map = static fn($input) => str_replace('*', '%', $input);
 
         if (is_array($value)) {
             $value = array_map($map, $value);
@@ -464,9 +460,7 @@ class Search
         $this->result_pids = [];
         $result = [];
         $cursor = -1;
-        $pageidAndRevOnly = array_reduce($this->columns, function ($pageidAndRevOnly, Column $col) {
-            return $pageidAndRevOnly && ($col->getTid() == 0);
-        }, true);
+        $pageidAndRevOnly = array_reduce($this->columns, static fn($pageidAndRevOnly, Column $col) => $pageidAndRevOnly && ($col->getTid() == 0), true);
         while ($row = $res->fetch(\PDO::FETCH_ASSOC)) {
             $cursor++;
             if ($cursor < $this->range_begin) continue;

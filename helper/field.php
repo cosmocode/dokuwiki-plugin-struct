@@ -141,9 +141,7 @@ class helper_plugin_struct_field extends helper_plugin_bureaucracy_field
         }
 
         if (!empty($value) && $this->column->getType() instanceof User) {
-            $value = array_map(function ($user) {
-                return userlink($user, true);
-            }, $value);
+            $value = array_map(static fn($user) => userlink($user, true), $value);
         }
 
         //check if matched string containts a pair of brackets
@@ -167,7 +165,7 @@ class helper_plugin_struct_field extends helper_plugin_bureaucracy_field
             $this->column->getType() instanceof Page
             && $this->column->getType()->getConfig()['usetitles']
         ) {
-            $preparedValue = json_encode([$preparedValue, null]);
+            $preparedValue = json_encode([$preparedValue, null], JSON_THROW_ON_ERROR);
         }
 
         $value = new Value($this->column, $preparedValue);

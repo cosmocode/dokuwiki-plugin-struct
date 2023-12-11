@@ -39,7 +39,7 @@ class action_plugin_struct_inline extends ActionPlugin
     /**
      * Registers a callback function for a given event
      *
-     * @param Doku_Event_Handler $controller DokuWiki's event controller object
+     * @param EventHandler $controller DokuWiki's event controller object
      * @return void
      */
     public function register(EventHandler $controller)
@@ -48,7 +48,7 @@ class action_plugin_struct_inline extends ActionPlugin
     }
 
     /**
-     * @param Doku_Event $event
+     * @param Event $event
      * @param $param
      */
     public function handleAjax(Event $event, $param)
@@ -182,7 +182,7 @@ class action_plugin_struct_inline extends ActionPlugin
         $value = $this->schemadata->getDataColumn($this->column);
         $R = new Doku_Renderer_xhtml();
         $value->render($R, 'xhtml'); // FIXME use configured default renderer
-        $data = json_encode(['value' => $R->doc, 'rev' => $this->schemadata->getTimestamp()]);
+        $data = json_encode(['value' => $R->doc, 'rev' => $this->schemadata->getTimestamp()], JSON_THROW_ON_ERROR);
         echo $data;
     }
 

@@ -16,7 +16,7 @@ class action_plugin_struct_cache extends ActionPlugin
     /**
      * Registers a callback function for a given event
      *
-     * @param Doku_Event_Handler $controller DokuWiki's event controller object
+     * @param EventHandler $controller DokuWiki's event controller object
      * @return void
      */
     public function register(EventHandler $controller)
@@ -39,7 +39,7 @@ class action_plugin_struct_cache extends ActionPlugin
      * For pages potentially containing schema data, refresh the cache when schema data has been
      * updated
      *
-     * @param Doku_Event $event event object by reference
+     * @param Event $event event object by reference
      * @param mixed $param [the parameters passed as fifth argument to register_hook() when this
      *                           handler was registered]
      * @return bool
@@ -62,7 +62,7 @@ class action_plugin_struct_cache extends ActionPlugin
      * For pages containing an aggregation, add the last modified date of the database itself
      * to the cache dependencies
      *
-     * @param Doku_Event $event event object by reference
+     * @param Event $event event object by reference
      * @param mixed $param [the parameters passed as fifth argument to register_hook() when this
      *                           handler was registered]
      * @return bool
@@ -119,7 +119,7 @@ class action_plugin_struct_cache extends ActionPlugin
     /**
      * Disable cache when dymanic parameters are present
      *
-     * @param Doku_Event $event event object by reference
+     * @param Event $event event object by reference
      * @param mixed $param [the parameters passed as fifth argument to register_hook() when this
      *                           handler was registered]
      * @return bool

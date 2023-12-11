@@ -131,7 +131,7 @@ class Lookup extends Dropdown
 
         $options = ['' => ''];
         for ($i = 0; $i < $len; $i++) {
-            $val = json_encode([$pids[$i], (int)$rids[$i]]);
+            $val = json_encode([$pids[$i], (int)$rids[$i]], JSON_THROW_ON_ERROR);
             $options[$val] = $result[$i][0]->getDisplayValue();
         }
         return $options;

@@ -31,7 +31,7 @@ class action_plugin_struct_bureaucracy extends ActionPlugin
     /**
      * Registers a callback function for a given event
      *
-     * @param Doku_Event_Handler $controller DokuWiki's event controller object
+     * @param EventHandler $controller DokuWiki's event controller object
      * @return void
      */
     public function register(EventHandler $controller)
@@ -45,7 +45,7 @@ class action_plugin_struct_bureaucracy extends ActionPlugin
     /**
      * Load a whole schema as fields
      *
-     * @param Doku_Event $event event object by reference
+     * @param Event $event event object by reference
      * @param mixed $param [the parameters passed as fifth argument to register_hook() when this
      *                           handler was registered]
      * @return bool
@@ -82,7 +82,7 @@ class action_plugin_struct_bureaucracy extends ActionPlugin
     /**
      * Replace lookup fields placeholder's values
      *
-     * @param Doku_Event $event event object by reference
+     * @param Event $event event object by reference
      * @param mixed $param [the parameters passed as fifth argument to register_hook() when this
      *                           handler was registered]
      * @return bool
@@ -115,8 +115,8 @@ class action_plugin_struct_bureaucracy extends ActionPlugin
                     // lookups can reference pages or global data, so check both pid and rid
                     // make sure not to double decode pid!
                     $originalPid = $pid;
-                    $pid = json_decode($pid)[0] ?? $pid;
-                    $rid = json_decode($originalPid)[1] ?? null;
+                    $pid = json_decode($pid, null, 512, JSON_THROW_ON_ERROR)[0] ?? $pid;
+                    $rid = json_decode($originalPid, null, 512, JSON_THROW_ON_ERROR)[1] ?? null;
                     if (($pid && $pids[$i] === $pid) || ($rid && $rids[$i] === (string)$rid)) {
                         $field->opt['struct_pids'][] = $pid;
                         $new_value[] = $result[$i][0]->getDisplayValue();
@@ -137,7 +137,7 @@ class action_plugin_struct_bureaucracy extends ActionPlugin
     /**
      * Save the struct data
      *
-     * @param Doku_Event $event event object by reference
+     * @param Event $event event object by reference
      * @param mixed $param [the parameters passed as fifth argument to register_hook() when this
      *                           handler was registered]
      * @return bool

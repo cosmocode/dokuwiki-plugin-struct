@@ -21,7 +21,7 @@ class action_plugin_struct_search extends ActionPlugin
     /**
      * Registers a callback function for a given event
      *
-     * @param Doku_Event_Handler $controller DokuWiki's event controller object
+     * @param EventHandler $controller DokuWiki's event controller object
      * @return void
      */
     public function register(EventHandler $controller)
@@ -33,7 +33,7 @@ class action_plugin_struct_search extends ActionPlugin
     /**
      * Adds the structured data to the page body to be indexed
      *
-     * @param Doku_Event $event event object by reference
+     * @param Event $event event object by reference
      * @param mixed $param [the parameters passed as fifth argument to register_hook() when this
      *                           handler was registered]
      * @return bool
@@ -54,7 +54,7 @@ class action_plugin_struct_search extends ActionPlugin
     /**
      * Adds the structured data to the page body to be snippeted
      *
-     * @param Doku_Event $event event object by reference
+     * @param Event $event event object by reference
      * @param mixed $param [the parameters passed as fifth argument to register_hook() when this
      *                           handler was registered]
      * @return bool
