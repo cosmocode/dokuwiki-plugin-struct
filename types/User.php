@@ -65,7 +65,6 @@ class User extends AbstractMultiBaseType
     {
         /** @var AuthPlugin $auth */
         global $auth;
-        global $conf;
         global $INPUT;
         global $_SERVER;
         global $USERINFO;
@@ -76,7 +75,7 @@ class User extends AbstractMultiBaseType
 
         if (
             !auth_isMember(
-                $conf['plugin']['struct']['allow_username_autocomplete'],
+                $this->getConf('allow_username_autocomplete'),
                 $_SERVER['REMOTE_USER'],
                 (array) $USERINFO['grps']
             )

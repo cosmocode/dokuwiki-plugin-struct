@@ -546,6 +546,18 @@ abstract class AbstractBaseType
     }
 
     /**
+     * Convenience method to access plugin configurations
+     *
+     * @param string $string
+     * @return string
+     */
+    public function getConf($string)
+    {
+        if (is_null($this->hlp)) $this->hlp = plugin_load('helper', 'struct');
+        return $this->hlp->getConf($string);
+    }
+
+    /**
      * With what comparator should dynamic filters filter this type?
      *
      * This default does a LIKE operation
