@@ -126,14 +126,14 @@ class AccessTableDataReplacementTest extends StructTest
                 [
                     "filter    : data = foo"
                 ],
-                "AND ((data_bar.col1 != '' AND data_bar.col1 = ?))",
+                "AND (data_bar.col1 = ?)",
                 "The WHERE-clauses from page-syntax should be wrapped in parentheses"
             ],
             [
                 [
                     "OR    : data = foo"
                 ],
-                "AND ((data_bar.col1 != '' AND data_bar.col1 = ?))",
+                "AND (data_bar.col1 = ?)",
                 "A single OR clause should be treated as AND clauses"
             ],
             [
@@ -141,7 +141,7 @@ class AccessTableDataReplacementTest extends StructTest
                     "filter    : data = foo",
                     "OR        : data = bar"
                 ],
-                "AND ((data_bar.col1 != '' AND data_bar.col1 = ?) OR (data_bar.col1 != '' AND data_bar.col1 = ?))",
+                "AND (data_bar.col1 = ? OR data_bar.col1 = ?)",
                 "The WHERE-clauses from page-syntax should be wrapped in parentheses"
             ],
             [
@@ -149,7 +149,7 @@ class AccessTableDataReplacementTest extends StructTest
                     "OR        : data = bar",
                     "filter    : data = foo"
                 ],
-                "AND ((data_bar.col1 != '' AND data_bar.col1 = ?) AND (data_bar.col1 != '' AND data_bar.col1 = ?))",
+                "AND (data_bar.col1 = ? AND data_bar.col1 = ?)",
                 "A single OR clause should be treated as AND clauses"
             ]
         ];
