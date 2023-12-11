@@ -119,7 +119,7 @@ abstract class AbstractBaseType
     public function getAsEntry()
     {
         return [
-            'config' => json_encode($this->config),
+            'config' => json_encode($this->config, JSON_THROW_ON_ERROR),
             'label' => $this->label,
             'ismulti' => $this->ismulti,
             'class' => $this->getClass()

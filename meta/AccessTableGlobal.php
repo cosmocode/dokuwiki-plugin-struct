@@ -75,9 +75,7 @@ class AccessTableGlobal extends AccessTable
     protected function validateTypeData($data)
     {
         // we do not store completely empty rows
-        $isempty = array_reduce($data, function ($isempty, $cell) {
-            return $isempty && ($cell === '' || $cell === [] || $cell === null);
-        }, true);
+        $isempty = array_reduce($data, static fn($isempty, $cell) => $isempty && ($cell === '' || $cell === [] || $cell === null), true);
 
         return !$isempty;
     }

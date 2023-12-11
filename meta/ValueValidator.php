@@ -47,7 +47,7 @@ class ValueValidator
         if (is_array($rawvalue)) {
             $rawvalue = array_filter($rawvalue, [$this, 'filter']);
             $rawvalue = array_values($rawvalue); // reset the array keys
-            if (empty($rawvalue)) {
+            if ($rawvalue === []) {
                 $rawvalue = [''];
             }
         }

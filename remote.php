@@ -8,6 +8,7 @@
  */
 
 // must be run within Dokuwiki
+use dokuwiki\Remote\RemoteException;
 use dokuwiki\Extension\RemotePlugin;
 use dokuwiki\Remote\AccessDeniedException;
 use dokuwiki\plugin\struct\meta\Value;
@@ -37,7 +38,7 @@ class remote_plugin_struct extends RemotePlugin
      * @param string $schema The schema to use empty for all
      * @param int $time A timestamp if you want historic data (0 for now)
      * @return array ('schema' => ( 'fieldlabel' => 'value', ...))
-     * @throws RemoteAccessDeniedException
+     * @throws AccessDeniedException
      * @throws RemoteException
      */
     public function getData($page, $schema, $time)
@@ -53,7 +54,7 @@ class remote_plugin_struct extends RemotePlugin
         try {
             return $this->hlp->getData($page, $schema, $time);
         } catch (StructException $e) {
-            throw new \dokuwiki\Remote\RemoteException($e->getMessage(), 0, $e);
+            throw new RemoteException($e->getMessage(), 0, $e);
         }
     }
 
@@ -70,7 +71,7 @@ class remote_plugin_struct extends RemotePlugin
      * @param string $summary
      * @param bool $minor
      * @return bool returns always true
-     * @throws RemoteAccessDeniedException
+     * @throws AccessDeniedException
      * @throws RemoteException
      */
     public function saveData($page, $data, $summary, $minor = false)
@@ -85,7 +86,7 @@ class remote_plugin_struct extends RemotePlugin
             $this->hlp->saveData($page, $data, $summary, $minor);
             return true;
         } catch (StructException $e) {
-            throw new \dokuwiki\Remote\RemoteException($e->getMessage(), 0, $e);
+            throw new RemoteException($e->getMessage(), 0, $e);
         }
     }
 
@@ -96,7 +97,7 @@ class remote_plugin_struct extends RemotePlugin
      *
      * @param string $schema the schema to query, empty for all
      * @return array
-     * @throws RemoteAccessDeniedException
+     * @throws AccessDeniedException
      * @throws RemoteException
      */
     public function getSchema($schema = null)
@@ -121,7 +122,7 @@ class remote_plugin_struct extends RemotePlugin
             }
             return $result;
         } catch (StructException $e) {
-            throw new \dokuwiki\Remote\RemoteException($e->getMessage(), 0, $e);
+            throw new RemoteException($e->getMessage(), 0, $e);
         }
     }
 
@@ -140,9 +141,7 @@ class remote_plugin_struct extends RemotePlugin
     {
         $schemaLine = 'schema: ' . implode(', ', $schemas);
         $columnLine = 'cols: ' . implode(', ', $cols);
-        $filterLines = array_map(function ($filter) {
-            return 'filter' . $filter['logic'] . ': ' . $filter['condition'];
-        }, $filter);
+        $filterLines = array_map(static fn($filter) => 'filter' . $filter['logic'] . ': ' . $filter['condition'], $filter);
         $sortLine = 'sort: ' . $sort;
         // schemas, cols, REV?, filter, order
 
@@ -162,7 +161,7 @@ class remote_plugin_struct extends RemotePlugin
             }
             return $data;
         } catch (StructException $e) {
-            throw new \dokuwiki\Remote\RemoteException($e->getMessage(), 0, $e);
+            throw new RemoteException($e->getMessage(), 0, $e);
         }
     }
 }

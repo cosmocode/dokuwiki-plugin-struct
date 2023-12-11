@@ -50,6 +50,7 @@ class InlineConfigParser extends ConfigParser
                 switch ($p) {
                     // Empty (due to extra spaces)
                     case '':
+                    default:
                         // Move straight to next parameter
                         continue 2;
                         break;
@@ -72,10 +73,6 @@ class InlineConfigParser extends ConfigParser
                         $filtering = true;
                         $lines[] = 'filteror: ' . trim($parameters[$i + 1]);
                         $i++;
-                        break;
-                    default:
-                        // Move straight to next parameter
-                        continue 2;
                         break;
                 }
             }

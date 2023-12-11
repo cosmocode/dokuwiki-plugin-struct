@@ -634,9 +634,7 @@ abstract class AccessTable
      */
     protected function clearMulti()
     {
-        $colrefs = array_unique(array_map(function ($val) {
-            return $val[0];
-        }, $this->multiValues));
+        $colrefs = array_unique(array_map(static fn($val) => $val[0], $this->multiValues));
         return $this->sqlite->query(
             "DELETE FROM $this->mtable WHERE pid = ? AND rid = $this->rid AND rev = 0 AND colref IN (" .
             implode(',', $colrefs) . ")",
