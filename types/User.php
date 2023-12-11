@@ -81,17 +81,31 @@ class User extends AbstractMultiBaseType
         if ($max <= 0) return [];
 
         // find users by login, fill up with names if wanted
-        $logins = (array)$auth->retrieveUsers(0, $max, ['user' => $lookup]);
+        // Because a value might be interpreted as integer in the
+        // array key, we temporarily pad each key with a space at the
+        // end to enforce string keys.
+        $pad_keys = function ($logins) {
+            $result = [];
+            foreach ($logins as $login => $info) {
+                $result["$login "] = $info;
+            }
+            return $result;
+        };
+        $logins = $pad_keys($auth->retrieveUsers(0, $max, ['user' => $lookup]));
         if ((count($logins) < $max) && $this->config['autocomplete']['fullname']) {
-            $logins = array_merge($logins, (array)$auth->retrieveUsers(0, $max, ['name' => $lookup]));
+            $logins = array_merge(
+                $logins,
+                $pad_keys($auth->retrieveUsers(0, $max, ['name' => $lookup]))
+            );
         }
 
         // reformat result for jQuery UI Autocomplete
         $users = [];
         foreach ($logins as $login => $info) {
+            $true_login = substr($login, 0, -1);
             $users[] = [
-                'label' => $info['name'] . ' [' . $login . ']',
-                'value' => $login
+                'label' => $info['name'] . ' [' . $true_login . ']',
+                'value' => $true_login
             ];
         }
 
