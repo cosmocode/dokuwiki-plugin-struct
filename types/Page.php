@@ -121,10 +121,10 @@ class Page extends AbstractMultiBaseType
      * @param string $colname
      * @param string $alias
      */
-    public function select(QueryBuilder $QB, $tablealias, $colname, $alias)
+    public function selectCol(QueryBuilder $QB, $tablealias, $colname, $alias)
     {
         if (!$this->config['usetitles']) {
-            parent::select($QB, $tablealias, $colname, $alias);
+            parent::selectCol($QB, $tablealias, $colname, $alias);
             return;
         }
         $rightalias = $QB->generateTableAlias();
@@ -185,32 +185,63 @@ class Page extends AbstractMultiBaseType
     }
 
     /**
-     * When using titles, we need to compare against the title table, too
+     * When using titles, we need to compare against the title table, too.
      *
-     * @param QueryBuilderWhere $add
-     * @param string $tablealias
-     * @param string $colname
-     * @param string $comp
-     * @param string $value
-     * @param string $op
+     * @param QueryBuilderWhere &$add The WHERE or ON clause to contain the conditional this comparator will be used in
+     * @param string $tablealias The table the values are stored in
+     * @param string|null $oldalias A previous alias used for this table (only used by Page)
+     * @param string $colname The column name on the above table
+     * @param string &$op the logical operator this filter should use
+     * @return array The SQL expression to be used on one side of the comparison operator
      */
-    public function filter(QueryBuilderWhere $add, $tablealias, $colname, $comp, $value, $op)
+    protected function getSqlCompareValue(QueryBuilderWhere &$add, $tablealias, $oldalias, $colname, &$op)
     {
         if (!$this->config['usetitles']) {
-            parent::filter($add, $tablealias, $colname, $comp, $value, $op);
-            return;
+            return parent::getSqlCompareValue($add, $tablealias, $oldalias, $colname, $op);
         }
+        if (is_null($oldalias)) {
+            throw new StructException('Table name for Page column not specified.');
+        }
+        return ["$oldalias.$colname", "$tablealias.title"];
+    }
 
+    /**
+     * This function provides arguments for an additional JOIN operation needed
+     * to perform a comparison (e.g., for a JOIN or FILTER), or null if no
+     * additional JOIN is needed.
+     *
+     * @param QueryBuilderWhere &$add The WHERE or ON clause to contain the conditional this comparator will be used in
+     * @param string $tablealias The table the values are stored in
+     * @param string $colname The column name on the above table
+     * @return null|array [$leftalias, $righttable, $rightalias, $onclause]
+     */
+    protected function getAdditionalJoinForComparison(QueryBuilderWhere &$add, $tablealias, $colname)
+    {
+        if (!$this->config['usetitles']) {
+            return parent::getAdditionalJoinForComparison($add, $tablealias, $colname);
+        }
         $QB = $add->getQB();
         $rightalias = $QB->generateTableAlias();
-        $QB->addLeftJoin($tablealias, 'titles', $rightalias, "$tablealias.$colname = $rightalias.pid");
+        return [$tablealias, 'titles', $rightalias, "$tablealias.$colname = $rightalias.pid"];
+    }
 
-        // compare against page and title
-        $sub = $add->where($op);
-        $pl = $QB->addValue($value);
-        $sub->whereOr("$tablealias.$colname $comp $pl");
-        $pl = $QB->addValue($value);
-        $sub->whereOr("$rightalias.title $comp $pl");
+    /**
+     * Returns a SQL expression on which to join two tables, when the
+     * column of the right table being joined on is of this data
+     * type. This should only be called if joining on this data type
+     * requires introducing an additional join (i.e., if
+     * getAdditionalJoinForComparison returns an array).
+     *
+     * @param QueryBuilder $QB
+     * @param string $lhs Left hand side of the ON clause (for left table)
+     * @param string $rhs Right hand side of the ON clause (for right table)
+     * @param string $additional_join_condition The ON clause of the additional join
+     * @return string SQL expression to be returned by joinCondition
+     */
+    protected function joinConditionIfAdditionalJoin($lhs, &$rhs, $additional_join_condition)
+    {
+        [$rhs_id, $rhs] = $rhs;
+        return $additional_join_condition . ' OR ' . $this->equalityComparison($lhs, $rhs_id);
     }
 
     /**

@@ -17,7 +17,7 @@ class ConfigParserTest extends StructTest
     public function test_simple()
     {
         $lines = [
-            "schema    : testtable, another, foo bar",
+            "schema    : testtable, another ON field = %pageid%, foo bar",
             "cols      : %pageid%, count",
             "sort      : ^count",
             "sort      : %pageid%, ^bam",
@@ -49,16 +49,19 @@ class ConfigParserTest extends StructTest
                         [
                             0 => 'testtable',
                             1 => '',
+                            2 => [],
                         ],
                     1 =>
                         [
                             0 => 'another',
                             1 => '',
+                            2 => ['field', '=', '%pageid%'],
                         ],
                     2 =>
                         [
                             0 => 'foo',
                             1 => 'bar',
+                            2 => [],
                         ],
                 ],
             'cols' =>

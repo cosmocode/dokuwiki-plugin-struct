@@ -17,7 +17,7 @@ class InlineConfigParserTest extends StructTest
     public function test_simple()
     {
         // Same initial setup as ConfigParser.test
-        $inline = '"testtable, another, foo bar"."%pageid%, count" ';
+        $inline = '"testtable, another ON another.a = testtable.b, foo bar ON bar.a = testtable.a"."%pageid%, count" ';
         $inline .= '?sort: ^count sort: "%pageid%, ^bam" align: "r,l,center,foo"';
         // Add InlineConfigParser-specific tests:
         $inline .= ' & "%pageid% != start" | "count = 1"';
@@ -38,9 +38,9 @@ class InlineConfigParserTest extends StructTest
             'limit' => 0,
             'rownumbers' => false,
             'schemas' => [
-                ['testtable', ''],
-                ['another', ''],
-                ['foo', 'bar'],
+                ['testtable', '', []],
+                ['another', '', ['another.a', '=', 'testtable.b']],
+                ['foo', 'bar', ['bar.a', '=', 'testtable.a']],
             ],
             'sepbyheaders' => false,
             'sort' => [

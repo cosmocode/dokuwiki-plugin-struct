@@ -77,8 +77,8 @@ class SearchConfigParameterTest extends StructTest
 
         $data = [
             'schemas' => [
-                ['schema1', 'alias1'],
-                ['schema2', 'alias2'],
+                ['schema1', 'alias1', []],
+                ['schema2', 'alias2', []],
             ],
             'cols' => [
                 '%pageid%',
@@ -142,8 +142,8 @@ class SearchConfigParameterTest extends StructTest
     {
         $data = [
             'schemas' => [
-                ['schema1', 'alias1'],
-                ['schema2', 'alias2'],
+                ['schema1', 'alias1', []],
+                ['schema2', 'alias2', []],
             ],
             'cols' => [
                 '%pageid%',
@@ -194,8 +194,8 @@ class SearchConfigParameterTest extends StructTest
     {
         $data = [
             'schemas' => [
-                ['schema1', 'alias1'],
-                ['schema2', 'alias2'],
+                ['schema1', 'alias1', []],
+                ['schema2', 'alias2', []],
             ],
             'cols' => [
                 '%pageid%',
@@ -228,7 +228,7 @@ class SearchConfigParameterTest extends StructTest
 
         $data = [
             'schemas' => [
-                ['schema2', 'alias2'],
+                ['schema2', 'alias2', []],
             ],
             'cols' => [
                 'afirst'

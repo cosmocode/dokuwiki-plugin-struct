@@ -102,7 +102,7 @@ class DateTime extends Date
      * @param string $colname
      * @param string $alias
      */
-    public function select(QueryBuilder $QB, $tablealias, $colname, $alias)
+    public function selectCol(QueryBuilder $QB, $tablealias, $colname, $alias)
     {
         $col = "$tablealias.$colname";
 
@@ -116,35 +116,47 @@ class DateTime extends Date
         $QB->addSelectStatement($col, $alias);
     }
 
+
     /**
-     * @param QueryBuilderWhere $add
-     * @param string $tablealias
-     * @param string $colname
-     * @param string $comp
-     * @param string|\string[] $value
-     * @param string $op
+     * Handle case of a revision column, where you need to convert from a Unix
+     * timestamp.
+     *
+     * @param QueryBuilderWhere &$add The WHERE or ON clause to contain the conditional this comparator will be used in
+     * @param string $tablealias The table the values are stored in
+     * @param string $colname The column name on the above table
+     * @param string|null $oldalias A previous alias used for this table (only used by Page)
+     * @param string &$op the logical operator this filter should use
+     * @return string|array The SQL expression to be used on one side of the comparison operator
      */
-    public function filter(QueryBuilderWhere $add, $tablealias, $colname, $comp, $value, $op)
+    protected function getSqlCompareValue(QueryBuilderWhere &$add, $tablealias, $oldalias, $colname, &$op)
     {
         $col = "$tablealias.$colname";
-        $QB = $add->getQB();
 
         // when accessing the revision column we need to convert from Unix timestamp
         if (is_a($this->context, 'dokuwiki\plugin\struct\meta\RevisionColumn')) {
-            $rightalias = $QB->generateTableAlias();
-            $col = "DATETIME($rightalias.lastrev, 'unixepoch', 'localtime')";
-            $QB->addLeftJoin($tablealias, 'titles', $rightalias, "$tablealias.pid = $rightalias.pid");
+            $col = "DATETIME($tablealias.lastrev, 'unixepoch', 'localtime')";
         }
 
-        /** @var QueryBuilderWhere $add Where additional queries are added to */
-        if (is_array($value)) {
-            $add = $add->where($op); // sub where group
-            $op = 'OR';
+        return $col;
+    }
+
+    /**
+     * This function provides arguments for an additional JOIN operation needed
+     * to perform a comparison (e.g., for a JOIN or FILTER), or null if no
+     * additional JOIN is needed.
+     *
+     * @param QueryBuilderWhere &$add The WHERE or ON clause to contain the conditional this comparator will be used in
+     * @param string $tablealias The table the values are stored in
+     * @param string $colname The column name on the above table
+     * @return null|array [$leftalias, $righttable, $rightalias, $onclause]
+     */
+    protected function getAdditionalJoinForComparison(QueryBuilderWhere &$add, $tablealias, $colname)
+    {
+        if (is_a($this->context, 'dokuwiki\plugin\struct\meta\RevisionColumn')) {
+            $rightalias = $QB->generateTableAlias();
+            return [$tablealias, 'titles', $rightalias, "$tablealias.pid = $rightalias.pid"];
         }
-        foreach ((array)$value as $item) {
-            $pl = $QB->addValue($item);
-            $add->where($op, "$col $comp $pl");
-        }
+        return parent::getAdditionalJoinForComparison($add, $tablealias, $colname);
     }
 
     /**

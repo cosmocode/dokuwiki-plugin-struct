@@ -28,6 +28,9 @@ class Search
     /** @var  \helper_plugin_sqlite */
     protected $sqlite;
 
+    /** @var string first schema added to the search */
+    protected $firstschema;
+
     /** @var Schema[] list of schemas to query */
     protected $schemas = [];
 
@@ -45,6 +48,9 @@ class Search
 
     /** @var array list of aliases tables can be referenced by */
     protected $aliases = [];
+
+    /** @var array list of conditionals to be used when joining tables */
+    protected $joins = array();
 
     /** @var  int begin results from here */
     protected $range_begin = 0;
@@ -86,8 +92,9 @@ class Search
      *
      * @param string $table
      * @param string $alias
+     * @param string $joinon
      */
-    public function addSchema($table, $alias = '')
+    public function addSchema($table, $alias = '', $joinon = array())
     {
         $schema = new Schema($table);
         if (!$schema->getId()) {
@@ -96,6 +103,64 @@ class Search
 
         $this->schemas[$schema->getTable()] = $schema;
         if ($alias) $this->aliases[$alias] = $schema->getTable();
+        if (is_null($this->firstschema)) {
+            $this->firstschema = $schema->getTable();
+            if (count($joinon) > 0) {
+                throw new StructException('JOIN condition not supported for first schema');
+            }
+        } else {
+            if (count($joinon) == 0) {
+                $joinon = array(
+                    "{$schema->getTable()}.%pageid%", '=', "{$this->firstschema}.%pageid%"
+                );
+            }
+            if ($joinon[1] != '=') {
+                throw new StructException('Only equality comparison is supported for JOIN conditions');
+            }
+            $this->joins[$schema->getTable()] = $this->getJoinColumns($schema, $joinon[0], $joinon[2]);
+        }
+    }
+
+    /**
+     * Returns the columns being matched against for a JOIN ... ON
+     * expression. The result will be ordered such that the first
+     * column is the one from a previously-joined schema.
+     *
+     * @param Schema $schema The schema being JOINed to the query
+     * @param string $left The LHS of the JOIN ON comparison
+     * @param string $right the RHS of the JOIN ON comparison
+     * @return array The first element is the LHS column object and second is the RHS
+     */
+    protected function getJoinColumns($schema, $left, $right)
+    {
+        $lcol = $this->findColumn($left);
+        if ($lcol === false) {
+            throw new StructException('Unrecognoside field ' . $left);
+        }
+        if ($lcol->getType()->isMulti()) {
+            throw new StructException(
+                "Column $left is multi-valued, but JOINs are not supported on multi-valued columns"
+            );
+        }
+        $rcol = $this->findColumn($right);
+        if ($rcol === false) {
+            throw new StructException('Unrecognoside field ' . $right);
+        }
+        if ($rcol->getType()->isMulti()) {
+            throw new StructException(
+                "Column $right is multi-valued, but JOINs are not supported on multi-valued columns"
+            );
+        }
+        $table = $schema->getTable();
+        $left_is_old_table = $lcol->getTable() != $table;
+        if ($left_is_old_table == ($rcol->getTable() != $table)) {
+            throw new StructException("Exactly one side of ON condition $left = $right must be a column of $table");
+        }
+        if ($left_is_old_table) {
+            return array($lcol, $rcol);
+        } else {
+            return array($rcol, $lcol);
+        }
     }
 
     /**
@@ -527,7 +592,7 @@ class Search
     {
         $sqlBuilder = new SearchSQLBuilder();
         $sqlBuilder->setSelectLatest($this->selectLatest);
-        $sqlBuilder->addSchemas($this->schemas);
+        $sqlBuilder->addSchemas($this->schemas, $this->joins);
         $sqlBuilder->addColumns($this->columns);
         $sqlBuilder->addFilters($this->filter);
         $sqlBuilder->addFilters($this->dynamicFilter);
@@ -619,30 +684,45 @@ class Search
         if (!$this->schemas) throw new StructException('noschemas');
         $schema_list = array_keys($this->schemas);
 
+        [$colname, $table] = $this->resolveColumn($colname);
+        $table_or_first = $table !== null ? $table : $schema_list[0];
+
         // add "fake" column for special col
         if ($colname == '%pageid%') {
-            return new PageColumn(0, new Page(), $schema_list[0]);
+            $col = new PageColumn(0, new Page(), $table_or_first);
+            $col->getType()->setContext($col);
+            return $col;
         }
         if ($colname == '%title%') {
-            return new PageColumn(0, new Page(['usetitles' => true]), $schema_list[0]);
+            $col = new PageColumn(0, new Page(['usetitles' => true]), $table_or_first);
+            $col->getType()->setContext($col);
+            return $col;
         }
         if ($colname == '%lastupdate%') {
-            return new RevisionColumn(0, new DateTime(), $schema_list[0]);
+            $col = new RevisionColumn(0, new DateTime(), $table_or_first);
+            $col->getType()->setContext($col);
+            return $col;
         }
         if ($colname == '%lasteditor%') {
-            return new UserColumn(0, new User(), $schema_list[0]);
+            $col = new UserColumn(0, new User(), $table_or_first);
+            $col->getType()->setContext($col);
+            return $col;
         }
         if ($colname == '%lastsummary%') {
-            return new SummaryColumn(0, new AutoSummary(), $schema_list[0]);
+            $col = new SummaryColumn(0, new AutoSummary(), $table_or_first);
+            $col->getType()->setContext($col);
+            return $col;
         }
         if ($colname == '%rowid%') {
-            return new RowColumn(0, new Decimal(), $schema_list[0]);
+            $col = new RowColumn(0, new Decimal(), $table_or_first);
+            $col->getType()->setContext($col);
+            return $col;
         }
         if ($colname == '%published%') {
-            return new PublishedColumn(0, new Decimal(), $schema_list[0]);
+            $col = new PublishedColumn(0, new Decimal(), $schema_list[0]);
+            $col->getType()->setContext($col);
+            return $col;
         }
-
-        [$colname, $table] = $this->resolveColumn($colname);
 
         /*
          * If table name is given search only that, otherwise if no strict behavior

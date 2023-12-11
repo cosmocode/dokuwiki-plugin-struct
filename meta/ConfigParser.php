@@ -43,7 +43,7 @@ class ConfigParser
     public function __construct($lines)
     {
         /** @var \helper_plugin_struct_config $helper */
-        $helper = plugin_load('helper', 'struct_config');
+        $this->helper = plugin_load('helper', 'struct_config');
         // parse info
         foreach ($lines as $line) {
             [$key, $val] = $this->splitLine($line);
@@ -88,7 +88,7 @@ class ConfigParser
                 case 'order':
                 case 'sort':
                     $sorts = $this->parseValues($val);
-                    $sorts = array_map([$helper, 'parseSort'], $sorts);
+                    $sorts = array_map([$this->helper, 'parseSort'], $sorts);
                     $this->config['sort'] = array_merge($this->config['sort'], $sorts);
                     break;
                 case 'where':
@@ -99,7 +99,7 @@ class ConfigParser
                     $logic = 'AND';
                 case 'filteror':
                 case 'or':
-                    $flt = $helper->parseFilterLine($logic, $val);
+                    $flt = $this->helper->parseFilterLine($logic, $val);
                     if ($flt) {
                         $this->config['filter'][] = $flt;
                     }
@@ -196,13 +196,19 @@ class ConfigParser
     {
         $schemas = [];
         $parts = explode(',', $val);
+        $firsttable = null;
         foreach ($parts as $part) {
-            [$table, $alias] = sexplode(' ', trim($part), 2, '');
+            $segments = explode('ON', trim($part));
+            [$table, $alias] =  array_pad(explode(' ', trim($segments[0])), 2, '');
             $table = trim($table);
             $alias = trim($alias);
             if (!$table) continue;
-
-            $schemas[] = [$table, $alias];
+            if (count($segments) > 1) {
+                $condition = $this->helper->parseFilter($segments[1]);
+            } else {
+                $condition = [];
+            }
+            $schemas[] = [$table, $alias, $condition];
         }
         return $schemas;
     }

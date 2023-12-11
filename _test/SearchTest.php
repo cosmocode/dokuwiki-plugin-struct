@@ -20,12 +20,14 @@ class SearchTest extends StructTest
 
         $this->loadSchemaJSON('schema1');
         $this->loadSchemaJSON('schema2');
+        $this->loadSchemaJSON('pageschema');
         $_SERVER['REMOTE_USER'] = 'testuser';
 
         $as = mock\Assignments::getInstance();
         $page = 'page01';
         $as->assignPageSchema($page, 'schema1');
         $as->assignPageSchema($page, 'schema2');
+        $as->assignPageSchema($page, 'pageschema');
         saveWikiText($page, "===== TestTitle =====\nabc", "Summary");
         p_get_metadata($page);
         $now = time();
@@ -51,16 +53,28 @@ class SearchTest extends StructTest
             ],
             $now
         );
+        $this->saveData(
+            $page,
+            'pageschema',
+            [
+                'singlepage' => 'page12',
+                'multipage' => ['test:document', $page, 'page16'],
+                'singletitle' => 'page10',
+                'multititle' => ['page12', 'page10'],
+            ],
+            $now,
+        );
 
         $as->assignPageSchema('test:document', 'schema1');
         $as->assignPageSchema('test:document', 'schema2');
+        $as->assignPageSchema('test:document', 'pageschema');
         $this->saveData(
             'test:document',
             'schema1',
             [
                 'first' => 'document first data',
                 'second' => ['second', 'more'],
-                'third' => '',
+                'third' => 'Summary',
                 'fourth' => 'fourth data'
             ],
             $now
@@ -73,6 +87,43 @@ class SearchTest extends StructTest
                 'asecond' => ['second data', 'more data', 'even more'],
                 'athird' => 'third data',
                 'afourth' => 'fourth data'
+            ],
+            $now
+        );
+        $this->saveData(
+            'test:document',
+            'pageschema',
+            [
+                'singlepage' => $page,
+                'multipage' => ['test:document', $page],
+                'singletitle' => 'page10',
+                'multititle' => ['page11', 'page16'],
+            ],
+            $now,
+        );
+
+        $as->assignPageSchema('test:document2', 'schema2');
+        $this->saveData(
+            'test:document2',
+            'schema2',
+            [
+                'afirst' => 'TestTitle',
+                'asecond' => ['test:document', 'fourth data'],
+                'athird' => '',
+                'afourth' => ''
+            ],
+            $now
+        );
+
+        $as->assignPageSchema('test:document3', 'schema2');
+        $this->saveData(
+            'test:document3',
+            'schema2',
+            [
+                'afirst' => 'test:document',
+                'asecond' => [],
+                'athird' => '1234',
+                'afourth' => 'abcd'
             ],
             $now
         );
@@ -229,6 +280,14 @@ class SearchTest extends StructTest
         $search->addSchema('schema1');
         $search->addSchema('schema2', 'foo');
         $this->assertCount(2, $search->schemas);
+
+        $this->assertEquals(1, count($search->joins));
+        $joincols = $search->joins['schema2'];
+        $this->assertEquals(2, count($joincols));
+        $this->assertInstanceOf(meta\PageColumn::class, $joincols[0]);
+        $this->assertInstanceOf(meta\PageColumn::class, $joincols[1]);
+        $this->assertEquals('schema1', $joincols[0]->getTable());
+        $this->assertEquals('schema2', $joincols[1]->getTable());
 
         $search->addColumn('first');
         $this->assertEquals('schema1', $search->columns[0]->getTable());
@@ -439,5 +498,293 @@ EOD;
         $this->assertEquals(array('18.7', '10e5', '-100'),
             $this->callInaccessibleMethod($search, 'parseFilterValueList', array('(18.7, 10e5, -100)')));
 
+    }
+
+    public function test_join()
+    {
+        $search = new mock\Search();
+
+        $search->addSchema('schema2', 'foo');
+        $search->addSchema('schema1', '', array('foo.athird', '=', 'third'));
+        $this->assertEquals(2, count($search->schemas));
+
+        $this->assertEquals(1, count($search->joins));
+        $joincols = $search->joins['schema1'];
+        $this->assertEquals(2, count($joincols));
+        $this->assertEquals('schema2', $joincols[0]->getTable());
+        $this->assertEquals('athird', $joincols[0]->getLabel());
+        $this->assertEquals('schema1', $joincols[1]->getTable());
+        $this->assertEquals('third', $joincols[1]->getLabel());
+ 
+        $search->addColumn('%pageid%');
+        $search->addColumn('first');
+        $search->addFilter('afourth', 'fourth data', '=');
+
+        $result = $search->execute();
+        $count = $search->getCount();
+
+        // check result dimensions
+        $this->assertEquals(2, $count, 'result count'); // full result set
+        $this->assertEquals(2, count($result), 'result rows'); // wanted result set
+
+        // check the values
+        $this->assertEquals('page01', $result[0][0]->getValue());
+        $this->assertEquals('test:document', $result[1][0]->getValue());
+        $this->assertEquals('first data', $result[0][1]->getValue());
+        $this->assertEquals('first data', $result[1][1]->getValue());
+    }
+
+    public function test_join_pageid()
+    {
+        $search = new mock\Search();
+
+        $search->addSchema('schema2', 'foo');
+        $search->addSchema('pageschema', '', array('pageschema.singlepage', '=', 'foo.%pageid%'));
+        $this->assertEquals(2, count($search->schemas));
+
+        $this->assertEquals(1, count($search->joins));
+        $joincols = $search->joins['pageschema'];
+        $this->assertEquals(2, count($joincols));
+        $this->assertEquals('schema2', $joincols[0]->getTable());
+        $this->assertEquals('%pageid%', $joincols[0]->getLabel());
+        $this->assertEquals('pageschema', $joincols[1]->getTable());
+        $this->assertEquals('singlepage', $joincols[1]->getLabel());
+ 
+        $search->addColumn('foo.%pageid%');
+        $search->addColumn('pageschema.%pageid%');
+        $search->addColumn('afourth');
+        $search->addColumn('singletitle');
+
+        $result = $search->execute();
+        $count = $search->getCount();
+
+        // check result dimensions
+        $this->assertEquals(2, $count, 'result count'); // full result set
+        $this->assertEquals(2, count($result), 'result rows'); // wanted result set
+
+        // check the values
+        $this->assertEquals('page01', $result[0][0]->getValue());
+        $this->assertEquals('test:document', $result[0][1]->getValue());
+        $this->assertEquals('fourth data', $result[0][2]->getValue());
+        $this->assertEquals('["page10",null]', $result[0][3]->getValue());
+        $this->assertEquals('page12', $result[1][0]->getValue());
+        $this->assertEquals('page01', $result[1][1]->getValue());
+        $this->assertEquals('page12 fourth data', $result[1][2]->getValue());
+        $this->assertEquals('["page10",null]', $result[1][3]->getValue());
+    }
+
+    // Test joining against Autosummary?
+    
+    public function test_join_pagetitle_against_string()
+    {
+        $search = new mock\Search();
+
+        $search->addSchema('schema2', 'foo');
+        $search->addSchema('pageschema', '', array('pageschema.%title%', '=', 'afirst'));
+        $this->assertEquals(2, count($search->schemas));
+
+        $this->assertEquals(1, count($search->joins));
+        $joincols = $search->joins['pageschema'];
+        $this->assertEquals(2, count($joincols));
+        $this->assertEquals('schema2', $joincols[0]->getTable());
+        $this->assertEquals('afirst', $joincols[0]->getLabel());
+        $this->assertEquals('pageschema', $joincols[1]->getTable());
+        $this->assertEquals('%title%', $joincols[1]->getLabel());
+ 
+        $search->addColumn('foo.%pageid%');
+        $search->addColumn('pageschema.%pageid%');
+        $search->addColumn('afourth');
+        $search->addColumn('singlepage');
+
+        $result = $search->execute();
+        $count = $search->getCount();
+
+        // check result dimensions
+        $this->assertEquals(2, $count, 'result count'); // full result set
+        $this->assertEquals(2, count($result), 'result rows'); // wanted result set
+
+        // check the values
+        $this->assertEquals('test:document2', $result[0][0]->getValue());
+        $this->assertEquals('page01', $result[0][1]->getValue());
+        $this->assertEquals('', $result[0][2]->getValue());
+        $this->assertEquals('page12', $result[0][3]->getValue());
+        $this->assertEquals('test:document3', $result[1][0]->getValue());
+        $this->assertEquals('test:document', $result[1][1]->getValue());
+        $this->assertEquals('abcd', $result[1][2]->getValue());
+        $this->assertEquals('page01', $result[1][3]->getValue());
+    }
+
+    public function test_join_string_against_pagetitle()
+    {
+        $search = new mock\Search();
+
+        $search->addSchema('pageschema', '');
+        $search->addSchema('schema2', 'foo', array('pageschema.%title%', '=', 'afirst'));
+        $search->addColumn('foo.%pageid%');
+        $search->addColumn('pageschema.%pageid%');
+        $search->addColumn('afourth');
+        $search->addColumn('singlepage');
+
+        $result = $search->execute();
+        $count = $search->getCount();
+
+        // check result dimensions
+        $this->assertEquals(2, $count, 'result count'); // full result set
+        $this->assertEquals(2, count($result), 'result rows'); // wanted result set
+
+        // check the values
+        $this->assertEquals('test:document2', $result[0][0]->getValue());
+        $this->assertEquals('page01', $result[0][1]->getValue());
+        $this->assertEquals('', $result[0][2]->getValue());
+        $this->assertEquals('page12', $result[0][3]->getValue());
+        $this->assertEquals('test:document3', $result[1][0]->getValue());
+        $this->assertEquals('test:document', $result[1][1]->getValue());
+        $this->assertEquals('abcd', $result[1][2]->getValue());
+        $this->assertEquals('page01', $result[1][3]->getValue());
+
+    }
+
+    private function setup_pagetitle_join_test_page($letter, $title, $singletitle) {
+        $as = mock\Assignments::getInstance();
+        $letter_up = strtoupper($letter);
+        $now = time();
+        $name = "page_$letter";
+        $as->assignPageSchema($name, 'pageschema');
+        saveWikiText($name, "===== $title =====\nabc", "Summary");
+        p_get_metadata($name);
+        $this->saveData(
+            $name,
+            'pageschema',
+            ['singlepage' => $letter_up, 'multipage' => [], 'singletitle' => $singletitle, 'multititle' => []],
+            $now,
+        );
+        $this->saveData(
+            $name,
+            'schema1',
+            ['first' => "first $letter_up", 'second' => [], 'third' => '', 'fourth' => ''],
+            $now
+        );
+
+    }
+
+    public function test_join_pagetitle_against_pagetitle() {
+        $this->setup_pagetitle_join_test_page('a', 'page_b', 'page_b');
+        $this->setup_pagetitle_join_test_page('b', 'B', 'page_c');
+        $this->setup_pagetitle_join_test_page('c', 'Title', 'Title');
+        $this->setup_pagetitle_join_test_page('d', 'Title', 'page_b');
+        
+        $search = new mock\Search();
+        $search->addSchema('pageschema', '');
+        $search->addSchema('schema1', 'foo', array('pageschema.singletitle', '=', 'foo.%title%'));
+        $search->addColumn('pageschema.%pageid%');
+        $search->addColumn('foo.%pageid%');
+
+        $result = $search->execute();
+        $count = $search->getCount();
+
+        $this->assertEquals(8, $count, 'result count'); // full result set
+        $this->assertEquals(8, count($result), 'result rows'); // wanted result set
+
+        // check the values
+        $this->assertEquals('page_a', $result[0][0]->getValue());
+        $this->assertEquals('page_a', $result[0][1]->getValue());
+
+        $this->assertEquals('page_a', $result[1][0]->getValue());
+        $this->assertEquals('page_b', $result[1][1]->getValue());
+
+        $this->assertEquals('page_b', $result[2][0]->getValue());
+        $this->assertEquals('page_c', $result[2][1]->getValue());
+
+        $this->assertEquals('page_b', $result[3][0]->getValue());
+        $this->assertEquals('page_d', $result[3][1]->getValue());
+
+        $this->assertEquals('page_c', $result[4][0]->getValue());
+        $this->assertEquals('page_c', $result[4][1]->getValue());
+
+        $this->assertEquals('page_c', $result[5][0]->getValue());
+        $this->assertEquals('page_d', $result[5][1]->getValue());
+
+        $this->assertEquals('page_d', $result[6][0]->getValue());
+        $this->assertEquals('page_a', $result[6][1]->getValue());
+
+        $this->assertEquals('page_d', $result[7][0]->getValue());
+        $this->assertEquals('page_b', $result[7][1]->getValue());
+    }
+
+    public function test_join_summary()
+    {
+        $search = new mock\Search();
+
+        $search->addSchema('schema1', 'foo');
+        $search->addSchema('schema2', '', array('schema1.third', '=', 'schema2.%lastsummary%'));
+
+        $search->addColumn('foo.%pageid%');
+        $search->addColumn('schema2.%pageid%');
+        $search->addColumn('afourth');
+        $search->addColumn('first');
+
+        $result = $search->execute();
+        $count = $search->getCount();
+
+        // check result dimensions
+        $this->assertEquals(1, $count, 'result count'); // full result set
+        $this->assertEquals(1, count($result), 'result rows'); // wanted result set
+
+        // check the values
+        $this->assertEquals('test:document', $result[0][0]->getValue());
+        $this->assertEquals('page01', $result[0][1]->getValue());
+        $this->assertEquals('fourth data', $result[0][2]->getValue());
+        $this->assertEquals('document first data', $result[0][3]->getValue());
+    }
+
+    public function test_join_summary2()
+    {
+        $search = new mock\Search();
+
+        $search->addSchema('schema2', '');
+        $search->addSchema('schema1', 'foo', array('schema1.third', '=', 'schema2.%lastsummary%'));
+
+        $search->addColumn('foo.%pageid%');
+        $search->addColumn('schema2.%pageid%');
+        $search->addColumn('afourth');
+        $search->addColumn('first');
+
+        $result = $search->execute();
+        $count = $search->getCount();
+
+        // check result dimensions
+        $this->assertEquals(1, $count, 'result count'); // full result set
+        $this->assertEquals(1, count($result), 'result rows'); // wanted result set
+
+        // check the values
+        $this->assertEquals('test:document', $result[0][0]->getValue());
+        $this->assertEquals('page01', $result[0][1]->getValue());
+        $this->assertEquals('fourth data', $result[0][2]->getValue());
+        $this->assertEquals('document first data', $result[0][3]->getValue());
+    }
+
+    public function invalidJoins_testdata() {
+        return array(
+            array('first', '<>', 'afirst'),
+            array('first', '=', 'third'),
+            array('foo.athird', '=', 'afirst'),
+            array('notaschema.first', '=', 'schema1.first'),
+            array('notacolumn', '=', 'schema1.first'),
+            array('foo.athird', '=', 'schema1.notacolumn'),
+            array('schema1.second', '=', 'schema2.afirst'),
+            array('schema1.first', '=', 'scheam2.asecond'),
+        );
+    }
+    
+    /**
+     * @dataProvider invalidJoins_testdata
+     *
+     */
+    public function test_invalid_joins($lhs, $comp, $rhs)
+    {
+        $search = new mock\Search();
+        $search->addSchema('schema1');
+        $this->setExpectedException(meta\StructException::class);
+        $search->addSchema('schema2', 'foo', array($lhs, $comp, $rhs));
     }
 }

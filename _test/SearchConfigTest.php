@@ -49,7 +49,8 @@ class SearchConfigTest extends StructTest
             ]
         );
 
-        $searchConfig = new SearchConfig(['schemas' => [['schema1', 'alias']]]);
+        $searchConfig = new SearchConfig(['schemas' => [['schema1', 'alias', []]]]);
+
         $this->assertEquals('test', $searchConfig->applyFilterVars('$STRUCT.first$'));
         $this->assertEquals('test', $searchConfig->applyFilterVars('$STRUCT.alias.first$'));
         $this->assertEquals('test', $searchConfig->applyFilterVars('$STRUCT.schema1.first$'));
@@ -94,7 +95,7 @@ class SearchConfigTest extends StructTest
             ]
         );
 
-        $searchConfig = new SearchConfig(['schemas' => [['schema3', 'alias']]]);
+        $searchConfig = new SearchConfig(['schemas' => [['schema3', 'alias', []]]]);
         $this->assertEquals('', $searchConfig->applyFilterVars('$STRUCT.afirst$'));
         $this->assertEquals('test', $searchConfig->applyFilterVars('$STRUCT.schema2.afirst$'));
 

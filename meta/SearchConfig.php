@@ -44,7 +44,7 @@ class SearchConfig extends Search
 
         // setup schemas and columns
         if (!empty($config['schemas'])) foreach ($config['schemas'] as $schema) {
-            $this->addSchema($schema[0], $schema[1]);
+            $this->addSchema($schema[0], $schema[1], $schema[2]);
         }
         if (!empty($config['cols'])) foreach ($config['cols'] as $col) {
             $this->addColumn($col);

@@ -17,40 +17,30 @@ trait TraitFilterPrefix
     /**
      * Comparisons are done against the full string (including prefix/postfix)
      *
-     * @param QueryBuilderWhere $add
-     * @param string $tablealias
-     * @param string $colname
-     * @param string $comp
-     * @param string|string[] $value
-     * @param string $op
+     * @param QueryBuilderWhere &$add The WHERE or ON clause to contain the conditional this comparator will be used in
+     * @param string $tablealias The table the values are stored in
+     * @param string|null $oldalias A previous alias used for this table (only used by Page)
+     * @param string $colname The column name on the above table
+     * @param string &$op the logical operator this filter should use
+     * @return string|array The SQL expression to be used on one side of the comparison operator
      */
-    public function filter(QueryBuilderWhere $add, $tablealias, $colname, $comp, $value, $op)
+    protected function getSqlCompareValue(QueryBuilderWhere &$add, $tablealias, $oldalias, $colname, &$op)
     {
+        $column = parent::getSqlCompareValue($add, $tablealias, $oldalias, $colname, $op);
+
         $add = $add->where($op); // open a subgroup
-        $add->where('AND', "$tablealias.$colname != ''");
-         // make sure the field isn't empty
+        $add->where('AND', "$column != ''"); // make sure the field isn't empty
         $op = 'AND';
 
-        /** @var QueryBuilderWhere $add Where additionional queries are added to */
-        if (is_array($value)) {
-            $add = $add->where($op); // sub where group
-            $op = 'OR';
-        }
         $QB = $add->getQB();
-        foreach ((array)$value as $item) {
-            $column = "$tablealias.$colname";
-
-            if ($this->config['prefix']) {
-                $pl = $QB->addValue($this->config['prefix']);
-                $column = "$pl || $column";
-            }
-            if ($this->config['postfix']) {
-                $pl = $QB->addValue($this->config['postfix']);
-                $column = "$column || $pl";
-            }
-
-            $pl = $QB->addValue($item);
-            $add->where($op, "$column $comp $pl");
+        if ($this->config['prefix']) {
+            $pl = $QB->addValue($this->config['prefix']);
+            $column = "$pl || $column";
         }
+        if ($this->config['postfix']) {
+            $pl = $QB->addValue($this->config['postfix']);
+            $column = "$column || $pl";
+        }
+        return $column;
     }
 }

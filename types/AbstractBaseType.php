@@ -362,6 +362,31 @@ abstract class AbstractBaseType
     }
 
     /**
+     * Creates a JOIN to handle multi-valued columns.
+     *
+     * @param QueryBuilder $QB
+     * @param string $datatable The table for the schema in question
+     * @param string $multitable The table containing multi-valued data for this schema
+     * @param int $colref The ID of the multi-valued column
+     * @param bool $test_rid Whether to require RIDs to be equal in the JOIN condition
+     * @return string Alias for the multi-table
+     */
+    public function joinMulti(QueryBuilder $QB, $datatable, $multitable, $colref, $test_rid = true)
+    {
+        $MN = $QB->generateTableAlias('M');
+        $condition = "$datatable.pid = $MN.pid ";
+        if ($test_rid) $condition .= "AND $datatable.rid = $MN.rid ";
+        $condition .= "AND $datatable.rev = $MN.rev AND $MN.colref = $colref";
+        $QB->addLeftJoin(
+            $datatable,
+            $multitable,
+            $MN,
+            $condition
+        );
+        return $MN;
+    }
+
+    /**
      * This function is used to modify an aggregation query to add a filter
      * for the given column matching the given value. A type should add at
      * least a filter here but could do additional things like joining more
@@ -379,19 +404,274 @@ abstract class AbstractBaseType
      */
     public function filter(QueryBuilderWhere $add, $tablealias, $colname, $comp, $value, $op)
     {
+        $additional_join = $this->getAdditionalJoinForComparison($add, $tablealias, $colname);
+        if (!is_null($additional_join)) {
+            $add->getQB()->addLeftJoin(
+                $additional_join[0],
+                $additional_join[1],
+                $additional_join[2],
+                $additional_join[3]
+            );
+            $oldalias = $tablealias;
+            $tablealias = $additional_join[2];
+        } else {
+            $oldalias = null;
+        }
+        $compareVal = $this->getSqlCompareValue($add, $tablealias, $oldalias, $colname, $op);
         /** @var QueryBuilderWhere $add Where additionional queries are added to */
         if (is_array($value)) {
             $add = $add->where($op); // sub where group
             $op = 'OR';
         }
         foreach ((array)$value as $item) {
-            $pl = $add->getQB()->addValue($item);
-            $add->where($op, "$tablealias.$colname $comp $pl");
+            if (is_array($compareVal)) {
+                $sub = $add->where($op);
+                $op = 'OR'; // safe to do, as if the previous line is
+                            // executed again it means $value is an
+                            // array and $op was already 'OR' anyway
+            } else {
+                $sub = $add;
+            }
+            $pl = $this->wrapValue($add->getQB()->addValue($item));
+            foreach ((array)$compareVal as $lhs) {
+                $sub->where($op, "$lhs $comp $pl");
+            }
         }
     }
 
     /**
-     * Add the proper selection for this type to the current Query
+     * This function provides the SQL expression for this column which is used to
+     * compare against in a filter expression or a JOIN condition. In simple cases
+     * that is all it will need to do. However, for some columnt types, it may
+     * need to add additional logic to the conditional expression or make
+     * additional JOINs.
+     *
+     * @param QueryBuilderWhere &$add The WHERE or ON clause to contain the conditional this comparator will be used in
+     * @param string $tablealias The table the values are stored in
+     * @param string|null $oldalias A previous alias used for this table (only used by Page)
+     * @param string $colname The column name on the above table
+     * @param string &$op the logical operator this filter should use
+     * @return string|array The SQL expression to be used on one side of the comparison operator
+     */
+    protected function getSqlCompareValue(QueryBuilderWhere &$add, $tablealias, $oldalias, $colname, &$op)
+    {
+        return "$tablealias.$colname";
+    }
+
+    /**
+     * This function provides arguments for an additional JOIN operation needed
+     * to perform a comparison (e.g., for a JOIN or FILTER), or null if no
+     * additional JOIN is needed.
+     *
+     * @param QueryBuilderWhere &$add The WHERE or ON clause to contain the conditional this comparator will be used in
+     * @param string $tablealias The table the values are stored in
+     * @param string $colname The column name on the above table
+     * @return null|array [$leftalias, $righttable, $rightalias, $onclause]
+     */
+    protected function getAdditionalJoinForComparison(QueryBuilderWhere &$add, $tablealias, $colname)
+    {
+        return null;
+    }
+
+    /**
+     * Handle the value(s) that a column is being compared against. If $value is an array, each element will be wrapped.
+     *
+     * @param string|array $value The value(s) a column is being compared to
+     * @return string|array SQL expression(s) processing the value in some way.
+     */
+    protected function wrapValues($value)
+    {
+        if (is_array($value)) {
+            return array_map([$this, 'wrapValue'], $value);
+        }
+        return $this->wrapValue($value);
+    }
+
+    /**
+     * Handle the value that a column is being compared against. In
+     * most cases this method will just return the value unchanged,
+     * but for some types it may be necessary to preform some sort of
+     * transformation (e.g., casting it to a decimal).
+     *
+     * @param string $value The value a column is being compared to
+     * @return string A SQL expression processing the value in some way.
+     */
+    protected function wrapValue($value)
+    {
+        return $value;
+    }
+
+    /**
+     * Returns a SQL expression making an equality comparison between
+     * two values. If one of the values is an array, then the
+     * conditional expression will evaluate to true if the other value
+     * is equal to any element in the array. If both values are arrays
+     * then they must be the same length and the expression will
+     * evaluate to true if a pair of items with the same indices in
+     * the two arrays are equal.
+     *
+     * @param string|array $lhs The first value to be compared
+     * @param string|array $rhs The second value to be compared
+     * @return string SQL expression for equality comparison
+     */
+    protected function equalityComparison($lhs, $rhs)
+    {
+        $lhs_array = is_array($lhs);
+        $rhs_array = is_array($rhs);
+        $nlhs = $lhs_array ? count($lhs) : 1;
+        $nrhs = $rhs_array ? count($rhs) : 1;
+        if ($lhs_array and $rhs_array and count($lhs) != count($rhs)) {
+            throw new StructException("Arrays not of equal length.");
+        }
+        if (!$lhs_array) $lhs = array_fill(0, $nrhs, $lhs);
+        if (!$rhs_array) $rhs = array_fill(0, $nlhs, $rhs);
+        $comparisons = array_map(
+            function ($l, $r) {
+                return "($l = $r)";
+            },
+            $lhs,
+            $rhs
+        );
+        return implode(' OR ', $comparisons);
+    }
+
+    /**
+     * Returns a SQL expression on which to join two tables, when the
+     * column of the right table being joined on is of this data
+     * type. This should only be called if joining on this data type
+     * requires introducing an additional join (i.e., if
+     * getAdditionalJoinForComparison returns an array).
+     *
+     * @param QueryBuilder $QB
+     * @param string $lhs Left hand side of the ON clause (for left table)
+     * @param string $rhs Right hand side of the ON clause (for right table)
+     * @param string $additional_join_condition The ON clause of the additional join
+     * @return string SQL expression to be returned by joinCondition
+     */
+    protected function joinConditionIfAdditionalJoin($lhs, &$rhs, $additional_join_condition)
+    {
+        return $additional_join_condition;
+    }
+
+    /**
+     * Returns a SQL expression ON which to JOIN $left_table and
+     * $right_table.  Semantically, this provides an
+     * equality comparison between two columns in the two
+     * schemas. However, in practice it may require more complex
+     * logic, including additional JOINs to pull in other data or
+     * handle multi-valued columns.
+     *
+     * @param QueryBuilder $QB
+     * @param string $left_table The name of the left table being JOINed
+     * @param string $left_colname The name of the column in the left table being compared against for the JOIN
+     * @param string $right_table The name of the right table being JOINed
+     * @param string $right_colname The name of hte column in the right table being compared against for hte JOIN
+     * @param AbstractBaseType $right_coltype The type of $right_colname
+     * @return string SQL expression on which to join schemas
+     */
+    public function joinCondition($QB, &$left_table, $left_colname, $right_table, $right_colname, $right_coltype)
+    {
+        $add = new QueryBuilderWhere($QB);
+        $op = 'AND';
+        $additional_join = $this->getAdditionalJoinForComparison($add, $left_table, $left_colname);
+        if (!is_null($additional_join)) {
+            $add->getQB()->addLeftJoin(
+                $additional_join[0],
+                $additional_join[1],
+                $additional_join[2],
+                $additional_join[3]
+            );
+            $lhs = $this->getSqlCompareValue($add, $additional_join[2], $left_table, $left_colname, $op);
+        } else {
+            $lhs = $this->getSqlCompareValue($add, $left_table, null, $left_colname, $op);
+        }
+        $additional_join = $right_coltype->getAdditionalJoinForComparison($add, $right_table, $right_colname);
+        if (!is_null($additional_join)) {
+            $rhs = $this->wrapValues(
+                $right_coltype->getSqlCompareValue($add, $additional_join[2], $right_table, $right_colname, $op)
+            );
+            $result = $right_coltype->joinConditionIfAdditionalJoin($lhs, $rhs, $additional_join[3]);
+            $add->getQB()->addLeftJoin(
+                $left_table,
+                $additional_join[1],
+                $additional_join[2],
+                $this->equalityComparison($lhs, $rhs)
+            );
+            $left_table = $additional_join[2];
+        } else {
+            $rhs = $this->wrapValues(
+                $right_coltype->getSqlCompareValue($add, $right_table, null, $right_colname, $op)
+            );
+            $result = $this->equalityComparison($lhs, $rhs);
+        }
+        // FIXME: Can I do this somehow without needing to execute the subquery twice?
+        $AN = $add->getQB()->generateTableAlias('A');
+        $subquery = "(SELECT assigned
+                     FROM schema_assignments AS $AN
+                     WHERE $right_table.pid != '' AND
+                           $right_table.pid = $AN.pid AND
+                           $AN.tbl = '{$right_coltype->getContext()->getTable()}')";
+        $subAnd = $add->whereSubAnd();
+        $subAnd->whereOr("$right_table.pid = ''");
+        $subOr = $subAnd->whereSubOr();
+        $subOr->whereAnd("GETACCESSLEVEL($right_table.pid) > 0");
+        $subOr->whereAnd("PAGEEXISTS($right_table.pid) = 1");
+        $subOr->whereAnd("($right_table.rid != 0 OR ($subquery = 1 OR $subquery IS NULL))");
+        return $result;
+    }
+
+    /**
+     * Returns an expression for one side of the equality-comparison
+     * used when JOINing schemas in aggregations. It may add
+     * additional conditions to the $add expression or JOIN other
+     * tables, as needed.
+     *
+     * @param QueryBuilderWhere $add The condition ON which to JOIN the tables. May not be used.
+     * @param string $table Name of the table being JOINed
+     * @param string $colname Name of the column being JOINed ON
+     * @return string One side of the equality comparion being used for the JOIN
+     */
+    protected function joinArgument(QueryBuilderWhere $add, $table, $colname)
+    {
+        return "$table.$colname";
+    }
+
+    /**
+     * Add the proper selection for this type to the current Query. Handles the
+     * possibility of multi-valued columns.
+     *
+     * @param QueryBuilder $QB
+     * @param string $singletable The name of the table the saved value(s) are stored in, if the column is single-valued
+     * @param string $multitable The name of the table the values are stored in if the column is multi-valued
+     * @param string $alias The added selection *has* to use this column alias
+     * @param bool $test_rid Whether to require RIDs to be equal if JOINing multi-table
+     * @param string|null $concat_sep Seperator to concatenate mutli-values together. Don't concatenate if null.
+     */
+    public function select(QueryBuilder $QB, $singletable, $multitable, $alias, $test_rid = true, $concat_sep = null)
+    {
+        if ($this->isMulti()) {
+            $colref = $this->getContext()->getColref();
+            $datatable = $this->joinMulti($QB, $singletable, $multitable, $colref, $test_rid);
+            $colname = 'value';
+        } else {
+            $datatable = $singletable;
+            $colname = $this->getContext()->getColName();
+        }
+        $this->selectCol($QB, $datatable, $colname, $alias);
+        if ($this->isMulti()) {
+            if (!is_null($concat_sep)) {
+                $sel = $QB->getSelectStatement($alias);
+                $QB->addSelectStatement("GROUP_CONCAT_DISTINCT($sel, '$concat_sep')", $alias);
+            }
+        } else {
+            $QB->addGroupByStatement($alias);
+        }
+    }
+
+    /**
+     * Internal function to add the proper selection for a column of this type to the
+     * current Query. It is called from the `select` method, after any joins needed
+     * for multi-valued tables are handled.
      *
      * The default implementation here should be good for nearly all types, it simply
      * passes the given parameters to the query builder. But type may do more fancy
@@ -410,7 +690,7 @@ abstract class AbstractBaseType
      * @param string $colname The column name on above table
      * @param string $alias The added selection *has* to use this column alias
      */
-    public function select(QueryBuilder $QB, $tablealias, $colname, $alias)
+    protected function selectCol(QueryBuilder $QB, $tablealias, $colname, $alias)
     {
         $QB->addSelectColumn($tablealias, $colname, $alias);
     }
@@ -425,7 +705,7 @@ abstract class AbstractBaseType
      * @param string $tablealias The table the currently saved value is stored in
      * @param string $colname The column name on above table (always single column!)
      * @param string $order either ASC or DESC
-     * @see select() you probably want to implement this,
+     * @see selectCol() you probably want to implement this,
      * too.
      *
      */

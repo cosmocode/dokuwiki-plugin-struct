@@ -50,7 +50,7 @@ class helper_plugin_struct_config extends Plugin
      * @return array ($col, $comp, $value)
      * @throws StructException
      */
-    protected function parseFilter($val)
+    public function parseFilter($val)
     {
 
         $comps = Search::$COMPARATORS;
@@ -60,7 +60,7 @@ class helper_plugin_struct_config extends Plugin
         $comps = implode('|', $comps);
 
         if (!preg_match('/^(.*?)(' . $comps . ')(.*)$/', $val, $match)) {
-            throw new StructException('Invalid search filter %s', hsc($val));
+            throw new StructException('Invalid conditional expression %s', hsc($val));
         }
         array_shift($match); // we don't need the zeroth match
         $match[0] = trim($match[0]);

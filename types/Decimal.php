@@ -155,30 +155,29 @@ class Decimal extends AbstractMultiBaseType
     /**
      * Decimals need to be casted to proper type for comparison
      *
-     * @param QueryBuilderWhere $add
-     * @param string $tablealias
-     * @param string $colname
-     * @param string $comp
-     * @param string|\string[] $value
-     * @param string $op
+     * @param QueryBuilderWhere &$add The WHERE or ON clause to contain the conditional  this comparator will be used in
+     * @param string $tablealias The table the values are stored in
+     * @param string|null $oldalias A previous alias used for this table (only used by Page)
+     * @param string $colname The column name on the above table
+     * @param string &$op the logical operator this filter should use
+     * @return string The SQL expression to be used on one side of the comparison operator
      */
-    public function filter(QueryBuilderWhere $add, $tablealias, $colname, $comp, $value, $op)
+    protected function getSqlCompareValue(QueryBuilderWhere &$add, $tablealias, $oldalias, $colname, &$op)
     {
         $add = $add->where($op); // open a subgroup
         $add->where('AND', "$tablealias.$colname != ''");
          // make sure the field isn't empty
         $op = 'AND';
+        return "CAST($tablealias.$colname AS DECIMAL)";
+    }
 
-        /** @var QueryBuilderWhere $add Where additionional queries are added to */
-        if (is_array($value)) {
-            $add = $add->where($op); // sub where group
-            $op = 'OR';
-        }
-
-        foreach ((array)$value as $item) {
-            $pl = $add->getQB()->addValue($item);
-            $add->where($op, "CAST($tablealias.$colname AS DECIMAL) $comp CAST($pl AS DECIMAL)");
-        }
+    /**
+     * @param string $value The value a column is being compared to
+     * @return string SQL expression casting $value to a decimal
+     */
+    protected function wrapValue($value)
+    {
+        return "CAST($value AS DECIMAL)";
     }
 
     /**

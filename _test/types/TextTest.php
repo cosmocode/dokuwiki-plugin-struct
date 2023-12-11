@@ -125,7 +125,7 @@ class TextTest extends StructTest
                 'NOT LIKE', // comp
                 ['%val1%', '%val2%'], // multiple values
                 '((T.col != \'\' AND (? || T.col || ? NOT LIKE ? OR ? || T.col || ? NOT LIKE ?)))', // expect sql
-                ['before', 'after', '%val1%', 'before', 'after', '%val2%',], // expect opts
+                ['before', 'after', '%val1%', '%val2%',], // expect opts
             ],
         ];
 

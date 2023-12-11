@@ -27,28 +27,39 @@ class SearchSQLBuilder
      * Add the schemas to the query
      *
      * @param Schema[] $schemas Schema names to query
+     * @param array $joins Conditionals to be used when joining tables
      */
-    public function addSchemas($schemas)
+    public function addSchemas($schemas, $joins)
     {
         // basic tables
         $first_table = '';
+        $added_schemas = [];
         foreach ($schemas as $schema) {
             $datatable = 'data_' . $schema->getTable();
+            $new_pid = false;
             if ($first_table) {
                 // follow up tables
-                $this->qb->addLeftJoin($first_table, $datatable, $datatable, "$first_table.pid = $datatable.pid");
+                [$lcol, $rcol] = $joins[$schema->getTable()];
+                if ($lcol->getLabel() == '%pageid%' and $rcol->getLabel() == '%pageid%') {
+                    // Simple (default) case where we join on page IDs
+                    $this->qb->addLeftJoin($first_table, $datatable, $datatable, "$first_table.pid = $datatable.pid");
+                } else {
+                    // Custom join on some other columns
+                    $lefttable = 'data_' . $lcol->getTable();
+                    $righttable = 'data_' . $rcol->getTable();
+                    $on = $lcol->getType()->joinCondition(
+                        $this->qb,
+                        $lefttable,
+                        $lcol->getColName(),
+                        $righttable,
+                        $rcol->getColName(),
+                        $rcol->getType()
+                    );
+                    $this->qb->addLeftJoin($lefttable, $righttable, $righttable, $on);
+                }
             } else {
                 // first table
                 $this->qb->addTable($datatable);
-
-                // add conditional page clauses if pid has a value
-                $subAnd = $this->qb->filters()->whereSubAnd();
-                $subAnd->whereAnd("$datatable.pid = ''");
-                $subOr = $subAnd->whereSubOr();
-                $subOr->whereAnd("GETACCESSLEVEL($datatable.pid) > 0");
-                $subOr->whereAnd("PAGEEXISTS($datatable.pid) = 1");
-                // make sure to check assignment for page data only
-                $subOr->whereAnd("($datatable.rid != 0 OR (ASSIGNED = 1 OR ASSIGNED IS NULL))");
 
                 // add conditional schema assignment check
                 $this->qb->addLeftJoin(
@@ -59,6 +70,15 @@ class SearchSQLBuilder
                     AND $datatable.pid = schema_assignments.pid
                     AND schema_assignments.tbl = '{$schema->getTable()}'"
                 );
+
+                // add conditional page clauses if pid has a value
+                $subAnd = $this->qb->filters()->whereSubAnd();
+                $subAnd->whereAnd("$datatable.pid = ''");
+                $subOr = $subAnd->whereSubOr();
+                $subOr->whereAnd("GETACCESSLEVEL($datatable.pid) > 0");
+                $subOr->whereAnd("PAGEEXISTS($datatable.pid) = 1");
+                // make sure to check assignment for page data only
+                $subOr->whereAnd("($datatable.rid != 0 OR (ASSIGNED = 1 OR ASSIGNED IS NULL))");
 
                 $this->qb->addSelectColumn($datatable, 'rid');
                 $this->qb->addSelectColumn($datatable, 'pid', 'PID');
@@ -83,29 +103,14 @@ class SearchSQLBuilder
         $sep = Search::CONCAT_SEPARATOR;
         $n = 0;
         foreach ($columns as $col) {
-            $CN = 'C' . $n++;
-
-            if ($col->isMulti()) {
-                $datatable = "data_{$col->getTable()}";
-                $multitable = "multi_{$col->getTable()}";
-                $MN = $this->qb->generateTableAlias('M');
-
-                $this->qb->addLeftJoin(
-                    $datatable,
-                    $multitable,
-                    $MN,
-                    "$datatable.pid = $MN.pid AND $datatable.rid = $MN.rid AND
-                     $datatable.rev = $MN.rev AND
-                     $MN.colref = {$col->getColref()}"
-                );
-
-                $col->getType()->select($this->qb, $MN, 'value', $CN);
-                $sel = $this->qb->getSelectStatement($CN);
-                $this->qb->addSelectStatement("GROUP_CONCAT_DISTINCT($sel, '$sep')", $CN);
-            } else {
-                $col->getType()->select($this->qb, 'data_' . $col->getTable(), $col->getColName(), $CN);
-                $this->qb->addGroupByStatement($CN);
-            }
+            $col->getType()->select(
+                $this->qb,
+                'data_' . $col->getTable(),
+                'multi_' . $col->getTable(),
+                'C' . $n++,
+                true,
+                $sep
+            );
         }
     }
 
