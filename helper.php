@@ -201,10 +201,12 @@ class helper_plugin_struct extends Plugin
      * @param string $value
      * @return mixed
      * @throws StructException
+     * @throws JsonException
      */
     public static function decodeJson($value)
     {
-        if (!empty($value) && $value[0] !== '[') throw new StructException('Lookup expects JSON');
+        if (empty($value)) return $value;
+        if ($value[0] !== '[') throw new StructException('Lookup expects JSON');
         return json_decode($value, null, 512, JSON_THROW_ON_ERROR);
     }
 }
