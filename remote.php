@@ -141,7 +141,10 @@ class remote_plugin_struct extends RemotePlugin
     {
         $schemaLine = 'schema: ' . implode(', ', $schemas);
         $columnLine = 'cols: ' . implode(', ', $cols);
-        $filterLines = array_map(static fn($filter) => 'filter' . $filter['logic'] . ': ' . $filter['condition'], $filter);
+        $filterLines = array_map(
+            static fn($filter) => 'filter' . $filter['logic'] . ': ' . $filter['condition'],
+            $filter
+        );
         $sortLine = 'sort: ' . $sort;
         // schemas, cols, REV?, filter, order
 

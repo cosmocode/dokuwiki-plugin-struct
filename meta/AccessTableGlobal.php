@@ -57,7 +57,7 @@ class AccessTableGlobal extends AccessTable
         $vals = array_merge($this->getSingleNoninputValues(), $this->singleValues);
         $rid = $this->getRid() ?: "(SELECT (COALESCE(MAX(rid), 0 ) + 1) FROM $this->stable)";
 
-        return "REPLACE INTO $this->stable (rid, $cols) 
+        return "REPLACE INTO $this->stable (rid, $cols)
                       VALUES ($rid," . trim(str_repeat('?,', count($vals)), ',') . ');';
     }
 
@@ -75,7 +75,11 @@ class AccessTableGlobal extends AccessTable
     protected function validateTypeData($data)
     {
         // we do not store completely empty rows
-        $isempty = array_reduce($data, static fn($isempty, $cell) => $isempty && ($cell === '' || $cell === [] || $cell === null), true);
+        $isempty = array_reduce(
+            $data,
+            static fn($isempty, $cell) => $isempty && ($cell === '' || $cell === [] || $cell === null),
+            true
+        );
 
         return !$isempty;
     }

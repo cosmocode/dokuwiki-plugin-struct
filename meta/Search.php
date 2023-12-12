@@ -460,7 +460,11 @@ class Search
         $this->result_pids = [];
         $result = [];
         $cursor = -1;
-        $pageidAndRevOnly = array_reduce($this->columns, static fn($pageidAndRevOnly, Column $col) => $pageidAndRevOnly && ($col->getTid() == 0), true);
+        $pageidAndRevOnly = array_reduce(
+            $this->columns,
+            static fn($pageidAndRevOnly, Column $col) => $pageidAndRevOnly && ($col->getTid() == 0),
+            true
+        );
         while ($row = $res->fetch(\PDO::FETCH_ASSOC)) {
             $cursor++;
             if ($cursor < $this->range_begin) continue;

@@ -229,7 +229,15 @@ class SchemaBuilder
                 continue;
             }
             $valueString[] = "(?, ?, ?, ?, ?, ?)";
-            $arguments = [...$arguments, $colref, $values['pid'], $values['rev'], $values['published'], 1, $values['value']];
+            $arguments = [
+                ...$arguments,
+                $colref,
+                $values['pid'],
+                $values['rev'],
+                $values['published'],
+                1,
+                $values['value']
+            ];
         }
         if ($valueString === []) {
             return;
