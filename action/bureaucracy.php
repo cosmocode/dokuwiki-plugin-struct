@@ -115,9 +115,10 @@ class action_plugin_struct_bureaucracy extends ActionPlugin
                     // lookups can reference pages or global data, so check both pid and rid
                     // make sure not to double decode pid!
                     $originalPid = $pid;
-                    $pid = json_decode($pid, null, 512, JSON_THROW_ON_ERROR)[0] ?? $pid;
-                    $rid = json_decode($originalPid, null, 512, JSON_THROW_ON_ERROR)[1] ?? null;
-                    if (($pid && $pids[$i] === $pid) || ($rid && $rids[$i] === (string)$rid)) {
+                    // do not throw JSON exception here, we supply alternative values if json_decode doesn't
+                    $pid = json_decode($pid, null, 512)[0] ?? $pid;
+                    $rid = json_decode($originalPid, null, 512)[1] ?? null;
+                    if (($pid && $pids[$i] === $pid) || ($rid && $rids[$i] === $rid)) {
                         $field->opt['struct_pids'][] = $pid;
                         $new_value[] = $result[$i][0]->getDisplayValue();
                     }
