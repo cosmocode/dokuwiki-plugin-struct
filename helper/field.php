@@ -158,14 +158,22 @@ class helper_plugin_struct_field extends helper_plugin_bureaucracy_field
      */
     protected function createValue()
     {
-        $preparedValue = $this->opt['value'] ?? '';
+        // input value or appropriately initialized empty value
+        $preparedValue = $this->opt['value'] ?? ($this->column->isMulti() ? [] : '');
 
         // page fields might need to be JSON encoded depending on usetitles config
         if (
             $this->column->getType() instanceof Page
             && $this->column->getType()->getConfig()['usetitles']
         ) {
-            $preparedValue = json_encode([$preparedValue, null], JSON_THROW_ON_ERROR);
+            if ($this->column->isMulti()) {
+                $preparedValue = array_map(
+                    static fn($val) => json_encode([$val, null], JSON_THROW_ON_ERROR),
+                    $preparedValue
+                );
+            } else {
+                $preparedValue = json_encode([$preparedValue, null], JSON_THROW_ON_ERROR);
+            }
         }
 
         $value = new Value($this->column, $preparedValue);
