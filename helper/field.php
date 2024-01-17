@@ -167,7 +167,10 @@ class helper_plugin_struct_field extends helper_plugin_bureaucracy_field
             && $this->column->getType()->getConfig()['usetitles']
         ) {
             if ($this->column->isMulti()) {
-                $preparedValue = array_map(static fn($val) => json_encode([$val, null], JSON_THROW_ON_ERROR), $preparedValue);
+                $preparedValue = array_map(
+                    static fn($val) => json_encode([$val, null], JSON_THROW_ON_ERROR),
+                    $preparedValue
+                );
             } else {
                 $preparedValue = json_encode([$preparedValue, null], JSON_THROW_ON_ERROR);
             }
