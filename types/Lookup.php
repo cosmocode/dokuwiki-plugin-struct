@@ -245,7 +245,8 @@ class Lookup extends Dropdown
             $tablealias,
             $schema,
             $rightalias,
-            "$tablealias.$colname = STRUCT_JSON($rightalias.pid, CAST($rightalias.rid AS DECIMAL)) " .
+            "STRUCT_LOOKUP($tablealias.$colname, 0) = $rightalias.pid " .
+            "AND STRUCT_LOOKUP($tablealias.$colname, 1) = $rightalias.rid " .
             "AND $rightalias.latest = 1"
         );
         $column->getType()->select($QB, $rightalias, $field, $alias);
