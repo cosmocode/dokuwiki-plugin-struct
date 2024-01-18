@@ -144,6 +144,7 @@ class action_plugin_struct_aggregationeditor extends ActionPlugin
             new SearchConfig($config)
         );
 
+        $editorTable->executeSearch();
         echo $editorTable->getFirstRow();
     }
 

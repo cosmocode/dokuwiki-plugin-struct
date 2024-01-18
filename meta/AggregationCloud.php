@@ -20,10 +20,8 @@ class AggregationCloud extends Aggregation
      * @see render() on the resulting object.
      *
      */
-    public function __construct($id, $mode, \Doku_Renderer $renderer, SearchCloud $searchConfig)
+    public function postSearch()
     {
-        parent::__construct($id, $mode, $renderer, $searchConfig);
-
         $this->max = $this->result[0]['count'];
         $this->min = end($this->result)['count'];
     }
