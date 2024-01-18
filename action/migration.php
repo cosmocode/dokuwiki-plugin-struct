@@ -340,6 +340,33 @@ class action_plugin_struct_migration extends ActionPlugin
         return $ok;
     }
 
+    /**
+     * Executes Migration 20
+     *
+     * Adds indexes on "latest" and "published".
+     * Those fields are not part of (autoindexed) primary key, but are used in many queries.
+     *
+     * @param SQLiteDB $sqlite
+     * @return bool
+     */
+    protected function migration20($sqlite)
+    {
+        $ok = true;
+
+        /** @noinspection SqlResolve */
+        $sql = "SELECT name FROM sqlite_master WHERE type = 'table' AND (name LIKE 'data_%' OR name LIKE 'multi_%')";
+        $tables = $sqlite->queryAll($sql);
+
+        foreach ($tables as $row) {
+            $table = $row['name']; // no escaping needed, it's our own tables
+            $sql = "CREATE INDEX idx_$table" . "_latest ON $table(latest);";
+            $ok = $ok && $sqlite->query($sql);
+            $sql = "CREATE INDEX idx_$table" . "_published ON $table(published);";
+            $ok = $ok && $sqlite->query($sql);
+        }
+        return $ok;
+    }
+
 
     /**
      * Returns a select statement to fetch Lookup columns in the current schema
