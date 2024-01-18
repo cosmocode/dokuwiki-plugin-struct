@@ -146,7 +146,6 @@ abstract class Aggregation
      */
     public function postSearch()
     {
-        return;
     }
 
     /**
