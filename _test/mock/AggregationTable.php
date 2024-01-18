@@ -8,7 +8,6 @@ class AggregationTable extends meta\AggregationTable
 {
     public function getResult()
     {
-        $this->executeSearch();
         return $this->result;
     }
 }

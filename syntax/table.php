@@ -122,13 +122,13 @@ class syntax_plugin_struct_table extends SyntaxPlugin
                 throw new StructException('Aggregation class does not inherit Aggregation: ' . $this->tableclass);
             }
 
+            $table->startScope();
+            $table->render(true);
+            $table->finishScope();
+
             if ($format === 'metadata') {
                 /** @var Doku_Renderer_metadata $renderer */
                 $renderer->meta['plugin']['struct']['hasaggregation'] = $search->getCacheFlag();
-            } else {
-                $table->startScope();
-                $table->render(true);
-                $table->finishScope();
             }
         } catch (StructException $e) {
             msg($e->getMessage(), -1, $e->getLine(), $e->getFile());

@@ -12,17 +12,10 @@ class AggregationList extends Aggregation
     /** @var int number of all results */
     protected $resultColumnCount;
 
-    /**
-     * Set our class property after search has been executed in parent
-     * @return void
-     */
-    public function startScope()
+    /** @inheritdoc */
+    public function __construct($id, $mode, \Doku_Renderer $renderer, SearchConfig $searchConfig)
     {
-        parent::startScope();
-    }
-
-    public function postSearch()
-    {
+        parent::__construct($id, $mode, $renderer, $searchConfig);
         $this->resultColumnCount = count($this->columns);
     }
 

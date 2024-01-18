@@ -19,9 +19,18 @@ class AggregationTable extends Aggregation
     protected $resultRids;
     protected $resultRevs;
 
+    public function __construct($id, $mode, \Doku_Renderer $renderer, SearchConfig $searchConfig)
+    {
+        parent::__construct($id, $mode, $renderer, $searchConfig);
+        $this->resultPIDs = $this->searchConfig->getPids();
+        $this->resultRids = $this->searchConfig->getRids();
+        $this->resultRevs = $this->searchConfig->getRevs();
+    }
+
     /** @inheritdoc */
     public function render($showNotFound = false)
     {
+
         // abort early if there are no results at all (not filtered)
         if (!$this->resultCount && !$this->isDynamicallyFiltered() && $showNotFound) {
             $this->renderer->cdata($this->helper->getLang('none'));
@@ -93,13 +102,6 @@ class AggregationTable extends Aggregation
         $this->renderer->info['struct_table_hash'] = md5(var_export($this->data, true));
 
         parent::startScope();
-    }
-
-    public function postSearch()
-    {
-        $this->resultPIDs = $this->searchConfig->getPids();
-        $this->resultRids = $this->searchConfig->getRids();
-        $this->resultRevs = $this->searchConfig->getRevs();
     }
 
     /**

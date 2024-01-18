@@ -8,7 +8,6 @@ class AggregationEditorTable extends meta\AggregationEditorTable
 {
     public function getResult()
     {
-        $this->executeSearch();
         return $this->result;
     }
 }

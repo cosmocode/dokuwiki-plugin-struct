@@ -27,7 +27,9 @@ class AggregationEditorTable extends AggregationTable
      */
     public function startScope()
     {
-        parent::startScope();
+        // unique identifier for this aggregation
+        $hash = md5(var_export($this->data, true));
+        $this->renderer->info['struct_table_hash'] = $hash;
 
         if ($this->mode != 'xhtml') return;
 

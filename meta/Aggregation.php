@@ -60,7 +60,10 @@ abstract class Aggregation
         $this->mode = $mode;
         $this->renderer = $renderer;
         $this->searchConfig = $searchConfig;
-        $this->data = $this->searchConfig->getConf();
+        $this->data = $searchConfig->getConf();
+        $this->columns = $searchConfig->getColumns();
+        $this->result = $this->searchConfig->execute();
+        $this->resultCount = $this->searchConfig->getCount();
         $this->helper = plugin_load('helper', 'struct_config');
     }
 
@@ -101,15 +104,6 @@ abstract class Aggregation
         return $classes;
     }
 
-    public function executeSearch()
-    {
-        $this->columns = $this->searchConfig->getColumns();
-        $this->result = $this->searchConfig->execute();
-        $this->resultCount = $this->searchConfig->getCount();
-
-        $this->postSearch();
-    }
-
     /**
      * Render the actual output to the renderer
      *
@@ -126,9 +120,6 @@ abstract class Aggregation
      */
     public function startScope()
     {
-        if ($this->mode !== 'metadata') {
-            $this->executeSearch();
-        }
         if ($this->mode == 'xhtml') {
             $classes = $this->getScopeClasses();
 
@@ -137,16 +128,6 @@ abstract class Aggregation
 
             $this->renderer->doc .= '<' . $this->tagName .  $id . ' class="' . implode(' ', $classes) . '">';
         }
-    }
-
-    /**
-     * Child classes can set their own class properties based on search result
-     *
-     * @return void
-     */
-    public function postSearch()
-    {
-        return;
     }
 
     /**
