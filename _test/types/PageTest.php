@@ -58,7 +58,7 @@ class PageTest extends StructTest
         $search->addColumn('singletitle');
         $search->addSort('singletitle', true);
         /** @var Value[][] $result */
-        $result = $search->execute();
+        $result = $search->getRows();
 
         $this->assertEquals(3, count($result));
         $this->assertEquals('test3', $result[0][0]->getValue());
@@ -98,7 +98,7 @@ class PageTest extends StructTest
         $search->addColumn('multititle');
 
         /** @var Value[][] $result */
-        $result = $search->execute();
+        $result = $search->getRows();
 
         // no titles:
         $this->assertEquals('wiki:dokuwiki', $result[0][0]->getValue());
@@ -127,28 +127,28 @@ class PageTest extends StructTest
         // search single with title
         $single = clone $search;
         $single->addFilter('singletitle', 'Overview', '*~', 'AND');
-        $result = $single->execute();
+        $result = $single->getRows();
         $this->assertTrue(is_array($result));
         $this->assertEquals(1, count($result));
 
         // search multi with title
         $multi = clone $search;
         $multi->addFilter('multititle', 'Foobar', '*~', 'AND');
-        $result = $multi->execute();
+        $result = $multi->getRows();
         $this->assertTrue(is_array($result));
         $this->assertEquals(1, count($result));
 
         // search single with page
         $single = clone $search;
         $single->addFilter('singletitle', 'wiki:dokuwiki', '*~', 'AND');
-        $result = $single->execute();
+        $result = $single->getRows();
         $this->assertTrue(is_array($result));
         $this->assertEquals(1, count($result));
 
         // search multi with page
         $multi = clone $search;
         $multi->addFilter('multititle', 'welcome', '*~', 'AND');
-        $result = $multi->execute();
+        $result = $multi->getRows();
         $this->assertTrue(is_array($result));
         $this->assertEquals(1, count($result));
     }

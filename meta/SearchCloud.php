@@ -123,7 +123,6 @@ class SearchCloud extends SearchConfig
         }
 
         $res->closeCursor();
-        $this->count = count($result);
         return $result;
     }
 }

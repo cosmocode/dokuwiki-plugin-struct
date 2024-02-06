@@ -103,7 +103,7 @@ class action_plugin_struct_bureaucracy extends ActionPlugin
             $search = new Search();
             $search->addSchema($config['schema']);
             $search->addColumn($config['field']);
-            $result = $search->execute();
+            $result = $search->getRows();
             $pids = $search->getPids();
             $rids = $search->getRids();
 
