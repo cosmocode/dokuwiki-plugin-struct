@@ -16,6 +16,9 @@ class SearchTest extends StructTest
 
     public function setUp(): void
     {
+        // workaround for recent GitHub disk I/O errors
+        parent::setUpBeforeClass();
+
         parent::setUp();
 
         $this->loadSchemaJSON('schema1');
