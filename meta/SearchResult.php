@@ -19,21 +19,50 @@ class SearchResult
     /** @var int */
     protected $count = -1;
 
-    /** @var SearchResult */
-    protected static $instance;
-
     /**
-     * Get the singleton instance of SearchResult
+     * Construct SearchResult
      *
-     * @return SearchResult
+     * @param \PDOStatemen $res
+     * @param int $rangeBegin
+     * @param int $rangeEnd
+     * @param array $columns
+     * @param bool $pageidAndRevOnly
      */
-    public static function getInstance()
+    public function __construct($res, $rangeBegin, $rangeEnd, $columns, $pageidAndRevOnly)
     {
-        if (is_null(self::$instance)) {
-            $class = static::class;
-            self::$instance = new $class();
+        while ($row = $res->fetch(\PDO::FETCH_ASSOC)) {
+            $this->increaseCount();
+            if ($this->getCount() < $rangeBegin) continue;
+            if ($rangeEnd && $this->getCount() >= $rangeEnd) continue;
+
+            $C = 0;
+            $resrow = [];
+            $isempty = true;
+            foreach ($columns as $col) {
+                $val = $row["C$C"];
+                if ($col->isMulti()) {
+                    $val = explode(Search::CONCAT_SEPARATOR, $val);
+                }
+                $value = new Value($col, $val);
+                $isempty &= $this->isEmptyValue($value);
+                $resrow[] = $value;
+                $C++;
+            }
+
+            // skip empty rows
+            if ($isempty && !$pageidAndRevOnly) {
+                $this->decreaseCount();
+                continue;
+            }
+
+            $this->addPid($row['PID']);
+            $this->addRid($row['rid']);
+            $this->addRev($row['rev']);
+            $this->addRow($resrow);
         }
-        return self::$instance;
+
+        $res->closeCursor();
+        $this->increaseCount();
     }
 
     /**
@@ -125,5 +154,18 @@ class SearchResult
     public function decreaseCount()
     {
         $this->count--;
+    }
+
+    /**
+     * Check if the given row is empty or references our own row
+     *
+     * @param Value $value
+     * @return bool
+     */
+    protected function isEmptyValue(Value $value)
+    {
+        if ($value->isEmpty()) return true;
+        if ($value->getColumn()->getTid() == 0) return true;
+        return false;
     }
 }

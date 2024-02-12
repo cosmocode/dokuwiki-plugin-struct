@@ -390,7 +390,6 @@ class Search
     public function getResult()
     {
         if (is_null($this->result)) {
-            $this->result = new SearchResult();
             $this->run();
         }
         return $this->result;
@@ -477,39 +476,8 @@ class Search
             static fn($pageidAndRevOnly, Column $col) => $pageidAndRevOnly && ($col->getTid() == 0),
             true
         );
-        while ($row = $res->fetch(\PDO::FETCH_ASSOC)) {
-            $this->result->increaseCount();
-            if ($this->result->getCount() < $this->range_begin) continue;
-            if ($this->range_end && $this->result->getCount() >= $this->range_end) continue;
 
-            $C = 0;
-            $resrow = [];
-            $isempty = true;
-            foreach ($this->columns as $col) {
-                $val = $row["C$C"];
-                if ($col->isMulti()) {
-                    $val = explode(self::CONCAT_SEPARATOR, $val);
-                }
-                $value = new Value($col, $val);
-                $isempty &= $this->isEmptyValue($value);
-                $resrow[] = $value;
-                $C++;
-            }
-
-            // skip empty rows
-            if ($isempty && !$pageidAndRevOnly) {
-                $this->result->decreaseCount();
-                continue;
-            }
-
-            $this->result->addPid($row['PID']);
-            $this->result->addRid($row['rid']);
-            $this->result->addRev($row['rev']);
-            $this->result->addRow($resrow);
-        }
-
-        $res->closeCursor();
-        $this->result->increaseCount();
+        $this->result = new SearchResult($res, $this->range_begin, $this->range_end, $this->columns, $pageidAndRevOnly);
     }
 
     /**
@@ -677,18 +645,5 @@ class Search
         }
 
         return $col;
-    }
-
-    /**
-     * Check if the given row is empty or references our own row
-     *
-     * @param Value $value
-     * @return bool
-     */
-    protected function isEmptyValue(Value $value)
-    {
-        if ($value->isEmpty()) return true;
-        if ($value->getColumn()->getTid() == 0) return true;
-        return false;
     }
 }
