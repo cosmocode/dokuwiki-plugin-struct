@@ -22,10 +22,10 @@ class SearchResult
     /**
      * Construct SearchResult
      *
-     * @param \PDOStatemen $res
-     * @param int $rangeBegin
-     * @param int $rangeEnd
-     * @param array $columns
+     * @param \PDOStatement $res PDO statement containing the search result
+     * @param int $rangeBegin Begin of requested result range
+     * @param int $rangeEnd End of requested result range
+     * @param Column[] $columns Search columns
      * @param bool $pageidAndRevOnly
      */
     public function __construct($res, $rangeBegin, $rangeEnd, $columns, $pageidAndRevOnly)
@@ -55,13 +55,12 @@ class SearchResult
                 continue;
             }
 
-            $this->addPid($row['PID']);
-            $this->addRid($row['rid']);
-            $this->addRev($row['rev']);
-            $this->addRow($resrow);
+            $this->pids[] = $row['PID'];
+            $this->rids[] = $row['rid'];
+            $this->revs[] = $row['rev'];
+            $this->rows[] = $resrow;
         }
 
-        $res->closeCursor();
         $this->increaseCount();
     }
 
@@ -103,42 +102,6 @@ class SearchResult
     public function getRevs(): array
     {
         return $this->revs;
-    }
-
-    /**
-     * @param string $pid
-     * @return void
-     */
-    public function addPid($pid)
-    {
-        $this->pids[] = $pid;
-    }
-
-    /**
-     * @param int $rid
-     * @return void
-     */
-    public function addRid($rid)
-    {
-        $this->rids[] = $rid;
-    }
-
-    /**
-     * @param int $rev
-     * @return void
-     */
-    public function addRev($rev)
-    {
-        $this->revs[] = $rev;
-    }
-
-    /**
-     * @param array $result
-     * @return void
-     */
-    public function addRow($row)
-    {
-        $this->rows[] = $row;
     }
 
     /**

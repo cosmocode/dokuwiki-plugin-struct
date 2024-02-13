@@ -478,6 +478,7 @@ class Search
         );
 
         $this->result = new SearchResult($res, $this->range_begin, $this->range_end, $this->columns, $pageidAndRevOnly);
+        $res->closeCursor();
     }
 
     /**
