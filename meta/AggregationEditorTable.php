@@ -70,7 +70,7 @@ class AggregationEditorTable extends AggregationTable
         $this->renderer->table_open();
         $this->renderer->doc = '';
 
-        $this->renderResultRow(0, $this->result[0]);
+        $this->renderResultRow(0, $this->searchConfig->getRows()[0]);
         return $this->renderer->doc;
     }
 }

@@ -2,6 +2,7 @@
 
 namespace dokuwiki\plugin\struct\meta;
 
+use dokuwiki\Debug\DebugHelper;
 use dokuwiki\Parsing\Lexer\Lexer;
 use dokuwiki\plugin\struct\types\AutoSummary;
 use dokuwiki\plugin\struct\types\DateTime;
@@ -52,14 +53,10 @@ class Search
     /** @var  int end results here */
     protected $range_end = 0;
 
-    /** @var int the number of results */
-    protected $count = -1;
-    /** @var  string[] the PIDs of the result rows */
-    protected $result_pids;
-    /** @var  array the row ids of the result rows */
-    protected $result_rids = [];
-    /** @var  array the revisions of the result rows */
-    protected $result_revs = [];
+    /**
+     * @var SearchResult
+     */
+    protected $result;
 
     /** @var bool Include latest = 1 in select query */
     protected $selectLatest = true;
@@ -385,58 +382,63 @@ class Search
     }
 
     /**
+     * If the search result object does not exist yet,
+     * the search is run and the result object returned
+     *
+     * @return SearchResult
+     */
+    public function getResult()
+    {
+        if (is_null($this->result)) {
+            $this->run();
+        }
+        return $this->result;
+    }
+
+    /**
      * Return the number of results (regardless of limit and offset settings)
-     *
-     * Use this to implement paging. Important: this may only be called after running @return int
-     * @see execute()
-     *
      */
     public function getCount()
     {
-        if ($this->count < 0) throw new StructException('Count is only accessible after executing the search');
-        return $this->count;
+        return $this->getResult()->getCount();
     }
 
     /**
      * Returns the PID associated with each result row
-     *
-     * Important: this may only be called after running @return \string[]
-     * @see execute()
-     *
      */
     public function getPids()
     {
-        if ($this->result_pids === null)
-            throw new StructException('PIDs are only accessible after executing the search');
-        return $this->result_pids;
+        return $this->getResult()->getPids();
     }
 
     /**
      * Returns the rid associated with each result row
      *
-     * Important: this may only be called after running @return array
-     * @see execute()
-     *
+     * @return array
      */
     public function getRids()
     {
-        if ($this->result_rids === null)
-            throw new StructException('rids are only accessible after executing the search');
-        return $this->result_rids;
+        return $this->getResult()->getRids();
     }
 
     /**
-     * Returns the rid associated with each result row
+     * Returns the revisions of search results
      *
-     * Important: this may only be called after running @return array
-     * @see execute()
-     *
+     * @return array
      */
     public function getRevs()
     {
-        if ($this->result_revs === null)
-            throw new StructException('revs are only accessible after executing the search');
-        return $this->result_revs;
+        return $this->getResult()->getRevs();
+    }
+
+    /**
+     * Returns the actual result rows
+     *
+     * @return Value[][]
+     */
+    public function getRows()
+    {
+        return $this->getResult()->getRows();
     }
 
     /**
@@ -445,11 +447,23 @@ class Search
      * The result is a two dimensional array of Value()s.
      *
      * This will always query for the full result (not using offset and limit) and then
-     * return the wanted range, setting the count (@return Value[][]
-     * @see getCount) to the whole result number
+     * return the wanted range, setting the count to the whole result number
      *
+     * @deprecated Use getRows() instead
+     * @return Value[][]
      */
     public function execute()
+    {
+        DebugHelper::dbgDeprecatedFunction('\dokuwiki\plugin\struct\meta\Search::getRows()');
+        return $this->getRows();
+    }
+
+    /**
+     * Run the actual search and populate the result object
+     *
+     * @return void
+     */
+    protected function run()
     {
         [$sql, $opts] = $this->getSQL();
 
@@ -457,48 +471,14 @@ class Search
         $res = $this->sqlite->query($sql, $opts);
         if ($res === false) throw new StructException("SQL execution failed for\n\n$sql");
 
-        $this->result_pids = [];
-        $result = [];
-        $cursor = -1;
         $pageidAndRevOnly = array_reduce(
             $this->columns,
             static fn($pageidAndRevOnly, Column $col) => $pageidAndRevOnly && ($col->getTid() == 0),
             true
         );
-        while ($row = $res->fetch(\PDO::FETCH_ASSOC)) {
-            $cursor++;
-            if ($cursor < $this->range_begin) continue;
-            if ($this->range_end && $cursor >= $this->range_end) continue;
 
-            $C = 0;
-            $resrow = [];
-            $isempty = true;
-            foreach ($this->columns as $col) {
-                $val = $row["C$C"];
-                if ($col->isMulti()) {
-                    $val = explode(self::CONCAT_SEPARATOR, $val);
-                }
-                $value = new Value($col, $val);
-                $isempty &= $this->isEmptyValue($value);
-                $resrow[] = $value;
-                $C++;
-            }
-
-            // skip empty rows
-            if ($isempty && !$pageidAndRevOnly) {
-                $cursor--;
-                continue;
-            }
-
-            $this->result_pids[] = $row['PID'];
-            $this->result_rids[] = $row['rid'];
-            $this->result_revs[] = $row['rev'];
-            $result[] = $resrow;
-        }
-
+        $this->result = new SearchResult($res, $this->range_begin, $this->range_end, $this->columns, $pageidAndRevOnly);
         $res->closeCursor();
-        $this->count = $cursor + 1;
-        return $result;
     }
 
     /**
@@ -666,18 +646,5 @@ class Search
         }
 
         return $col;
-    }
-
-    /**
-     * Check if the given row is empty or references our own row
-     *
-     * @param Value $value
-     * @return bool
-     */
-    protected function isEmptyValue(Value $value)
-    {
-        if ($value->isEmpty()) return true;
-        if ($value->getColumn()->getTid() == 0) return true;
-        return false;
     }
 }

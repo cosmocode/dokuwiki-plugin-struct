@@ -124,7 +124,7 @@ class Lookup extends Dropdown
         $search->addColumn($field);
         $search->addSort($field);
 
-        $result = $search->execute();
+        $result = $search->getRows();
         $pids = $search->getPids();
         $rids = $search->getRids();
         $len = count($result);

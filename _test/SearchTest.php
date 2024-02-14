@@ -16,6 +16,9 @@ class SearchTest extends StructTest
 
     public function setUp(): void
     {
+        // workaround for recent GitHub disk I/O errors
+        parent::setUpBeforeClass();
+
         parent::setUp();
 
         $this->loadSchemaJSON('schema1');
@@ -103,7 +106,7 @@ class SearchTest extends StructTest
         $search->addColumn('second');
 
         /** @var meta\Value[][] $result */
-        $result = $search->execute();
+        $result = $search->getRows();
 
         $this->assertCount(2, $result, 'result rows');
         $this->assertCount(3, $result[0], 'result columns');
@@ -122,7 +125,7 @@ class SearchTest extends StructTest
         $search->addColumn('second');
 
         /** @var meta\Value[][] $result */
-        $result = $search->execute();
+        $result = $search->getRows();
 
         $this->assertCount(2, $result, 'result rows');
         $this->assertCount(3, $result[0], 'result columns');
@@ -142,7 +145,7 @@ class SearchTest extends StructTest
         $search->addColumn('second');
 
         /** @var meta\Value[][] $result */
-        $result = $search->execute();
+        $result = $search->getRows();
 
         $this->assertCount(0, $result, 'result rows');
     }
@@ -158,7 +161,7 @@ class SearchTest extends StructTest
         $search->addColumn('second');
 
         /** @var meta\Value[][] $result */
-        $result = $search->execute();
+        $result = $search->getRows();
 
         $this->assertCount(2, $result, 'result rows');
         $this->assertCount(4, $result[0], 'result columns');
@@ -185,7 +188,7 @@ class SearchTest extends StructTest
         $search->addColumn('second');
 
         /** @var meta\Value[][] $result */
-        $result = $search->execute();
+        $result = $search->getRows();
 
         $expected_time = dformat(filemtime(wikiFN('page01')), '%Y-%m-%d %H:%M:%S');
 
@@ -214,7 +217,7 @@ class SearchTest extends StructTest
         $search->addColumn('second');
 
         /** @var meta\Value[][] $result */
-        $result = $search->execute();
+        $result = $search->getRows();
 
         $this->assertCount(2, $result, 'result rows');
         $this->assertCount(4, $result[0], 'result columns');
@@ -270,7 +273,7 @@ class SearchTest extends StructTest
         $search->addFilter('second', '%sec%', '~', 'AND');
         $search->addFilter('first', '%rst%', '~', 'AND');
 
-        $result = $search->execute();
+        $result = $search->getRows();
         $count = $search->getCount();
 
         $this->assertEquals(1, $count, 'result count');
@@ -280,40 +283,25 @@ class SearchTest extends StructTest
         // sort by multi-column
         $search->addSort('second');
         $this->assertCount(2, $search->sortby);
-        $result = $search->execute();
+        $result = $search->getRows();
         $count = $search->getCount();
         $this->assertEquals(1, $count, 'result count');
         $this->assertCount(1, $result, 'result rows');
         $this->assertCount(6, $result[0], 'result columns');
-
-        /*
-        {#debugging
-            list($sql, $opts) = $search->getSQL();
-            print "\n";
-            print_r($sql);
-            print "\n";
-            print_r($opts);
-            print "\n";
-            #print_r($result);
-        }
-        */
     }
 
     public function test_ranges()
     {
         $search = new mock\Search();
         $search->addSchema('schema2');
-
         $search->addColumn('%pageid%');
         $search->addColumn('afirst');
         $search->addColumn('asecond');
-
         $search->addFilter('%pageid%', '%ag%', '~', 'AND');
-
         $search->addSort('%pageid%', false);
 
         /** @var meta\Value[][] $result */
-        $result = $search->execute();
+        $result = $search->getRows();
         $count = $search->getCount();
 
         // check result dimensions
@@ -326,9 +314,19 @@ class SearchTest extends StructTest
         $this->assertEquals('page19', $result[1][0]->getValue());
         $this->assertEquals('page18', $result[2][0]->getValue());
 
-        // now add limit
+        // now with limit
+        // new search object because result is fetched only once
+        $search = new mock\Search();
+        $search->addSchema('schema2');
+        $search->addColumn('%pageid%');
+        $search->addColumn('afirst');
+        $search->addColumn('asecond');
+        $search->addFilter('%pageid%', '%ag%', '~', 'AND');
+        $search->addSort('%pageid%', false);
         $search->setLimit(5);
-        $result = $search->execute();
+
+        /** @var meta\Value[][] $result */
+        $result = $search->getRows();
         $count = $search->getCount();
 
         // check result dimensions
@@ -340,8 +338,17 @@ class SearchTest extends StructTest
         $this->assertEquals('page16', $result[4][0]->getValue());
 
         // now add offset
+        // again a new object
+        $search = new mock\Search();
+        $search->addSchema('schema2');
+        $search->addColumn('%pageid%');
+        $search->addColumn('afirst');
+        $search->addColumn('asecond');
+        $search->addFilter('%pageid%', '%ag%', '~', 'AND');
+        $search->addSort('%pageid%', false);
+        $search->setLimit(5);
         $search->setOffset(5);
-        $result = $search->execute();
+        $result = $search->getRows();
         $count = $search->getCount();
 
         // check result dimensions

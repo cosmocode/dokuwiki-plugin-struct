@@ -93,7 +93,7 @@ class AccessTableDataReplacementTest extends StructTest
 
         $search = new meta\SearchConfig($actual_config);
         list(, $opts) = $search->getSQL();
-        $result = $search->execute();
+        $result = $search->getRows();
 
         $this->assertEquals(['page1', 'page2'], $opts, '$STRUCT.table.col$ should not require table to be selected');
         $this->assertEquals('data of page1', $result[0][1]->getValue());
@@ -114,7 +114,7 @@ class AccessTableDataReplacementTest extends StructTest
         $actual_config = $configParser->getConfig();
 
         $search = new meta\SearchConfig($actual_config);
-        $result = $search->execute();
+        $result = $search->getRows();
 
         $this->assertEquals(0, count($result), 'if no pages a given, then none should be shown');
     }

@@ -152,7 +152,7 @@ class remote_plugin_struct extends RemotePlugin
             $parser = new ConfigParser(array_merge([$schemaLine, $columnLine, $sortLine], $filterLines));
             $config = $parser->getConfig();
             $search = new SearchConfig($config);
-            $results = $search->execute();
+            $results = $search->getRows();
             $data = [];
             /** @var Value[] $rowValues */
             foreach ($results as $rowValues) {

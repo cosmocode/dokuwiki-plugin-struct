@@ -24,12 +24,6 @@ abstract class Aggregation
     /** @var Column[] the list of columns to be displayed */
     protected $columns;
 
-    /** @var  Value[][] the search result */
-    protected $result;
-
-    /** @var int number of all results */
-    protected $resultCount;
-
     /** @var string usually a div, but AggregationValue needs to be wrapped in a span */
     protected $tagName = 'div';
 
@@ -62,8 +56,6 @@ abstract class Aggregation
         $this->searchConfig = $searchConfig;
         $this->data = $searchConfig->getConf();
         $this->columns = $searchConfig->getColumns();
-        $this->result = $this->searchConfig->execute();
-        $this->resultCount = $this->searchConfig->getCount();
         $this->helper = plugin_load('helper', 'struct_config');
     }
 

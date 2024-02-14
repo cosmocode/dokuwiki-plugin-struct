@@ -22,8 +22,8 @@ class AggregationList extends Aggregation
     /** @inheritdoc */
     public function render($showNotFound = false)
     {
-        if ($this->result) {
-            $nestedResult = new NestedResult($this->result);
+        if ($this->searchConfig->getResult()) {
+            $nestedResult = new NestedResult($this->searchConfig->getRows());
             $root = $nestedResult->getRoot($this->data['nesting'], $this->data['index']);
             $this->renderNode($root);
         } elseif ($showNotFound) {
