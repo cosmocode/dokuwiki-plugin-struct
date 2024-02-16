@@ -10,6 +10,7 @@ use dokuwiki\Utf8\Sort;
  */
 class AggregationFilter extends Aggregation
 {
+    public $result;
     /**
      * Render the filter form.
      * Reuses the structure of advanced search tools to leverage
