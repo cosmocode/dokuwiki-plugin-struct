@@ -454,7 +454,7 @@ class Search
      */
     public function execute()
     {
-        DebugHelper::dbgDeprecatedFunction('\dokuwiki\plugin\struct\meta\Search::getRows()');
+        DebugHelper::dbgDeprecatedFunction(\dokuwiki\plugin\struct\meta\Search::class . '::getRows()');
         return $this->getRows();
     }
 
