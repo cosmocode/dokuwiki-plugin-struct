@@ -31,15 +31,15 @@ class AggregationValue extends Aggregation
     /**
      * Create the output on the renderer
      *
-     * @param int $show_not_found Whether to display the default text for no records
+     * @param int $showNotFound Whether to display the default text for no records
      */
-    public function render($show_not_found = 0)
+    public function render($showNotFound = 0)
     {
         // Check that we actually got a result
-        if ($this->resultCount) {
-            $this->renderValue($this->result[0]);
+        if ($this->searchConfig->getCount()) {
+            $this->renderValue($this->searchConfig->getRows()[0]);
             // only one result
-        } elseif ($show_not_found) {
+        } elseif ($showNotFound) {
             $this->renderer->cdata($this->helper->getLang('none'));
         }
     }
