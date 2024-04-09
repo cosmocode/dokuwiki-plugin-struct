@@ -20,7 +20,7 @@ class AggregationFilter extends Aggregation
      */
     public function render($showNotFound = false)
     {
-        $colValues = $this->getAllColumnValues($this->result);
+        $colValues = $this->getAllColumnValues($this->searchConfig->getResult()->getRows());
 
         // column dropdowns
         foreach ($colValues as $num => $colData) {
