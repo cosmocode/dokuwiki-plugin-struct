@@ -102,7 +102,7 @@ class DecimalTest extends StructTest
     public function valueProvider()
     {
         return [
-            // $value, $expect, $roundto, $decpoint, $thousands, $trimzeros, $prefix='', $postfix='', $engineering = false
+            // $value, $expect, $roundto, $decpoint, $thousands, $trimzeros, $prefix='', $postfix='', $engineering = false, $format = ''
             ['5000', '5 000,00', '2', ',', ' ', false],
             ['5000', '5 000', '2', ',', ' ', true],
             ['5000', '5 000', '0', ',', ' ', false],
@@ -149,6 +149,21 @@ class DecimalTest extends StructTest
             ['1e15', '1000' . "\xE2\x80\xAF" . 'T', '-1', ',', ' ', true, '', '', true],
             ['1e-21', '0.001' . "\xE2\x80\xAF" . 'a', '-1', ',', ' ', true, '', '', true],
 
+            // test format string
+            // invalid or empty format (ignored)
+            ['5000', '5 000', '-1', '.', ' ', true, '', '', false, ''],
+            ['5000', '5 000.00', '2', '.', ' ', false, '', '', false, '%s'],
+            ['5000', '5 000.00', '2', '.', ' ', false, '', '', false, '%1$d'],
+            ['5000', '5 000.00', '2', '.', ' ', false, '', '', false, '%04d%02d%02d'],
+            // valid format
+            ['1.7', '1.70', '-1', '.', ' ', true, '', '', false, '%01.2f'],
+            ['1.7', '1.70' , '-1', '.', ' ', true, '', '', false, '%01.2F'],
+            ['1.7', '0001' , '-1', '.', ' ', true, '', '', false, "%'.04d"],
+            ['15', '1111' , '-1', '.', ' ', true, '', '', false, '%04b'],
+            ['362525200', '3.625e+8' , '-1', '.', ' ', true, '', '', false, '%.3e'],
+            ['362525200', '3.625E+8' , '-1', '.', ' ', true, '', '', false, '%.3E'],
+            ['1.7', '1' , '2', '.', ' ', false, '', '', false, '%u'],
+
         ];
     }
 
@@ -158,7 +173,8 @@ class DecimalTest extends StructTest
     public function test_renderValue(
         $value, $expect, $roundto, $decpoint,
         $thousands, $trimzeros,
-        $prefix = '', $postfix = '', $engineering = false
+        $prefix = '', $postfix = '', $engineering = false,
+        $format = ''
     )
     {
         $decimal = new Decimal([
@@ -168,7 +184,8 @@ class DecimalTest extends StructTest
             'trimzeros' => $trimzeros,
             'prefix' => $prefix,
             'postfix' => $postfix,
-            'engineering' => $engineering
+            'engineering' => $engineering,
+            'format' => $format
         ]);
         $R = new \Doku_Renderer_xhtml();
         $R->doc = '';
