@@ -113,7 +113,8 @@ class Decimal extends AbstractMultiBaseType
             throw new ValidationException('Decimal max', (float) $this->config['max']);
         }
 
-        return $rawvalue;
+        // remove leading zeros
+        return trim((float))$rawvalue, 0);
     }
 
     /**
