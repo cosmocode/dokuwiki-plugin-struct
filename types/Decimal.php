@@ -115,6 +115,7 @@ class Decimal extends AbstractMultiBaseType
 
         // remove leading zeros
         return $rawvalue;
+
     }
 
     /**
