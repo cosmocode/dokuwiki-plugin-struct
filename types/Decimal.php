@@ -99,7 +99,7 @@ class Decimal extends AbstractMultiBaseType
     public function validate($rawvalue)
     {
         $rawvalue = parent::validate($rawvalue);
-        $rawvalue = trim((float)str_replace(',', '.', $rawvalue), 0); // we accept both
+        $rawvalue = (float)str_replace(',', '.', $rawvalue), 0; // we accept both
 
         if ((string)$rawvalue != (string)(float) $rawvalue) {
             throw new ValidationException('Decimal needed');
@@ -113,9 +113,7 @@ class Decimal extends AbstractMultiBaseType
             throw new ValidationException('Decimal max', (float) $this->config['max']);
         }
 
-        // remove leading zeros
         return $rawvalue;
-
     }
 
     /**
