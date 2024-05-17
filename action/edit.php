@@ -173,8 +173,8 @@ class action_plugin_struct_edit extends ActionPlugin
             $hide = '';
         }
 
-        $html = '<div class="field">';
-        $html .= "<label $hide data-column=\"$colname\" for=\"$id\">";
+        $html = "<div class='field' $hide>";
+        $html .= "<label data-column=\"$colname\" for=\"$id\">";
         $html .= "<span class=\"label $class\" title=\"$hint\">$trans</span>";
         $html .= '</label>';
         $html .= "<span class=\"input\">$input</span>";
