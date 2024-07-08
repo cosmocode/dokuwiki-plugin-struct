@@ -98,11 +98,12 @@ class SearchCloud extends SearchConfig
     /**
      * Execute this search and return the result
      *
-     * The result is a two dimensional array of Value()s.
+     * Because the cloud uses a different search, we omit calling
+     * getResult() und run() methods of the parent class, and return the result array directly.
      *
      * @return Value[][]
      */
-    public function execute()
+    public function getRows()
     {
         [$sql, $opts] = $this->getSQL();
 
