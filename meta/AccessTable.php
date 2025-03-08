@@ -456,6 +456,32 @@ abstract class AccessTable
     {
         $data = [];
 
+        if ($this->isGlobalData()) {
+            foreach ($DBdata as $i => $db_data_row) {
+                $new_data = [
+                    'id'    => $db_data_row['rid'],
+                    ...$this->consolidateRowData([$db_data_row], $asarray)
+                ];
+                $data[] = $new_data;
+            }
+        } else {
+            $data = $this->consolidateRowData($DBdata, $asarray);
+        }
+
+        return $data;
+    }
+
+    /**
+     * Creates a proper result array from the database data for single row
+     *
+     * @param array $DBdata the data row
+     * @param bool $asarray return data as associative array (true) or as array of Values (false)
+     * @return array|Value[]
+     */
+    protected function consolidateRowData($DBdata, $asarray = false)
+    {
+        $data = [];
+
         $sep = Search::CONCAT_SEPARATOR;
 
         foreach ($this->schema->getColumns(false) as $col) {
@@ -489,6 +515,15 @@ abstract class AccessTable
     }
 
     /**
+     * Determine is the data taken from global struct
+     * @return bool
+     */
+    protected function isGlobalData()
+    {
+        return !$this->pid && !$this->rid;
+    }
+
+    /**
      * Builds the SQL statement to select the data for this page and schema
      *
      * @return array Two fields: the SQL string and the parameters array
@@ -502,6 +537,12 @@ abstract class AccessTable
         $QB = new QueryBuilder();
         $QB->addTable($stable, 'DATA');
         $QB->addSelectColumn('DATA', $idColumn, strtoupper($idColumn));
+
+        // add record ids for global data records
+        if ($this->isGlobalData()) {
+            $QB->addSelectColumn('DATA', 'rid');
+        }
+
         $QB->addGroupByStatement("DATA.$idColumn");
 
         foreach ($this->schema->getColumns(false) as $col) {
