@@ -3,7 +3,7 @@
 /**
  * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
  *
- * @author Schplurtz le Déboulonné <schplurtz@laposte.net>
+ * @author Schplurtz le Déboulonné <Schplurtz@laposte.net>
  * @author zadaz <zadaz@example.com>
  * @author Nat <natdoub@hotmail.com>
  * @author salabdou <salabdou@gmail.com>
@@ -86,6 +86,7 @@ $lang['Exception nolookupmix'] = 'Vous ne pouvez pas agréger plus d\'un schéma
 $lang['Exception No data saved'] = 'Aucune donnée sauvegardée';
 $lang['Exception no sqlite']   = 'Le greffon struct requiert le greffon sqlite. Merci de l\'installer et l\'activer.';
 $lang['Exception column not in table'] = 'Il n\'y a pas de colonne %s dans le schéma %s.';
+$lang['Exception datefilter']  = 'Le filtre  \'<code>$Date(%s)$</code>\'  contient une valeur invalide.';
 $lang['Warning: no filters for cloud'] = 'Les filtres ne sont pas utilisables pour les nuages struct.';
 $lang['sort']                  = 'Trier selon cette colonne';
 $lang['next']                  = 'Page suivante';
@@ -115,3 +116,4 @@ $lang['Exception schema missing'] = 'Le schéma %s n\'existe pas !';
 $lang['no_lookup_for_page']    = 'Vous ne pouvez pas utiliser l\'éditeur de consultation sur un schéma de page !';
 $lang['lookup new entry']      = 'Créer une nouvelle entrée';
 $lang['bureaucracy_action_struct_lookup_thanks'] = 'L\'entrée a été stockée. <a href="%s">Ajouter une autre entrée</a>.';
+$lang['filter_button']         = 'Appliquer les filtres';
