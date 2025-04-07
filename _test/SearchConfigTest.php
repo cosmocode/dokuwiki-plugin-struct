@@ -33,6 +33,40 @@ class SearchConfigTest extends StructTest
         $this->assertEquals(date('Y-m-d'), $searchConfig->applyFilterVars('$DATE(now)$'));
     }
 
+    public function test_filtervars_nsorid()
+    {
+        global $INFO;
+
+
+        $searchConfig = new SearchConfig([]);
+
+        // normal page
+        $INFO['id'] = 'foo:bar:baz';
+        $this->assertEquals('foo:bar:baz', $searchConfig->applyFilterVars('$NSORID$'));
+
+        // start page: start in namespace
+        $INFO['id'] = 'foo:bar:start';
+        saveWikiText($INFO['id'], 'start page', 'start created');
+        $this->assertEquals('foo:bar', $searchConfig->applyFilterVars('$NSORID$'));
+        saveWikiText($INFO['id'], '', 'start page deleted');
+        clearstatcache();
+
+        // start page: same as namespace in namespace
+        $INFO['id'] = 'foo:bar:bar';
+        saveWikiText($INFO['id'], 'start page', 'start created');
+        $this->assertEquals('foo:bar', $searchConfig->applyFilterVars('$NSORID$'));
+        saveWikiText($INFO['id'], '', 'start page deleted');
+        clearstatcache();
+
+        // start page: same as namespace in above namespace
+        // incidally this is the same as a normal page
+        $INFO['id'] = 'foo:bar';
+        saveWikiText($INFO['id'], 'start page', 'start created');
+        $this->assertEquals('foo:bar', $searchConfig->applyFilterVars('$NSORID$'));
+        saveWikiText($INFO['id'], '', 'start page deleted');
+        clearstatcache();
+    }
+
     public function test_filtervars_struct()
     {
         global $INFO;
