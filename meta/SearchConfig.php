@@ -95,9 +95,9 @@ class SearchConfig extends Search
         foreach ($filters as $filter) {
             if (is_array($filter)) $filter = $filter[2]; // this is the format we get fro the config parser
 
-            if (strpos($filter, '$USER$') !== false) {
+            if (str_contains($filter, '$USER$')) {
                 $flags |= self::$CACHE_USER;
-            } elseif (strpos($filter, '$TODAY$') !== false) {
+            } elseif (str_contains($filter, '$TODAY$')) {
                 $flags |= self::$CACHE_DATE;
             }
         }
@@ -145,7 +145,7 @@ class SearchConfig extends Search
             $resolver = new PageResolver('');
 
             $start = $resolver->resolveId($ns . ':');
-            if($start === $INFO['id']) {
+            if ($start === $INFO['id']) {
                 // This is a start page, we return the namespace
                 $val = $ns;
             } else {
