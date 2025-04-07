@@ -117,7 +117,7 @@ class SchemaEditor
         $base = 'schema[' . $key . '][' . $column_id . ']'; // base name for all fields
 
         $class = $col->isEnabled() ? '' : 'disabled';
-        if($key === 'new') $class .= ' new';
+        if ($key === 'new') $class .= ' new';
 
         $html = "<tr class=\"$class\">";
 

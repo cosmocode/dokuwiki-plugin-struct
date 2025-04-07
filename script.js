@@ -10,7 +10,7 @@ jQuery(function () {
         EntryEditor(jQuery('#dw__editform, form.bureaucracy__plugin'));
         SchemaEditor();
         jQuery('div.structaggregationeditor table').each(AggregationEditor);
-        InlineEditor(jQuery('div.structaggregation table'));
+        InlineEditor(jQuery('div.structaggregation table, #plugin__struct_output table'));
     }
 
     jQuery(init);
