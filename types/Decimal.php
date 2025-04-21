@@ -15,7 +15,7 @@ use dokuwiki\plugin\struct\meta\ValidationException;
  */
 class Decimal extends AbstractMultiBaseType
 {
-    protected $config = array(
+    protected $config = [
         'min' => '',
         'max' => '',
         'roundto' => '-1',
@@ -24,8 +24,8 @@ class Decimal extends AbstractMultiBaseType
         'trimzeros' => true,
         'prefix' => '',
         'postfix' => '',
-        'engineering' => false
-    );
+        'engineering' => false,
+    ];
 
     /**
      * Output the stored data
@@ -39,8 +39,8 @@ class Decimal extends AbstractMultiBaseType
     {
 
         if ($this->config['engineering']) {
-            $unitsh = array('', 'k', 'M', 'G', 'T');
-            $unitsl = array('', 'm', 'µ', 'n', 'p', 'f', 'a');
+            $unitsh = ['', 'k', 'M', 'G', 'T'];
+            $unitsl = ['', 'm', 'µ', 'n', 'p', 'f', 'a'];
 
             $exp   = floor(log10($value) / 3);
 
@@ -53,7 +53,7 @@ class Decimal extends AbstractMultiBaseType
             }
 
             if (count($units) <= ($pfkey + 1)) { //check if number is within prefixes
-                $pfkey = sizeof($units) - 1;
+                $pfkey = count($units) - 1;
                 $exp   = $pfkey * $exp / abs($exp);
             }
 
@@ -73,7 +73,7 @@ class Decimal extends AbstractMultiBaseType
                 $this->config['thousands']
             );
         } else {
-            $value = floatval($value);
+            $value = (float) $value;
             $value = number_format(
                 $value,
                 (int)$this->config['roundto'],
@@ -81,7 +81,7 @@ class Decimal extends AbstractMultiBaseType
                 $this->config['thousands']
             );
         }
-        if ($this->config['trimzeros'] && (strpos($value, $this->config['decpoint']) !== false)) {
+        if ($this->config['trimzeros'] && (strpos($value, (string) $this->config['decpoint']) !== false)) {
             $value = rtrim($value, '0');
             $value = rtrim($value, $this->config['decpoint']);
         }
@@ -101,16 +101,16 @@ class Decimal extends AbstractMultiBaseType
         $rawvalue = parent::validate($rawvalue);
         $rawvalue = str_replace(',', '.', $rawvalue); // we accept both
 
-        if ((string)$rawvalue != (string)floatval($rawvalue)) {
+        if ((string)$rawvalue != (string)(float) $rawvalue) {
             throw new ValidationException('Decimal needed');
         }
 
-        if ($this->config['min'] !== '' && floatval($rawvalue) < floatval($this->config['min'])) {
-            throw new ValidationException('Decimal min', floatval($this->config['min']));
+        if ($this->config['min'] !== '' && (float) $rawvalue < (float) $this->config['min']) {
+            throw new ValidationException('Decimal min', (float) $this->config['min']);
         }
 
-        if ($this->config['max'] !== '' && floatval($rawvalue) > floatval($this->config['max'])) {
-            throw new ValidationException('Decimal max', floatval($this->config['max']));
+        if ($this->config['max'] !== '' && (float) $rawvalue > (float) $this->config['max']) {
+            throw new ValidationException('Decimal max', (float) $this->config['max']);
         }
 
         return $rawvalue;
@@ -131,7 +131,7 @@ class Decimal extends AbstractMultiBaseType
         $was_neg = $number < 0; // Because +0 == -0
 
         $tmp = explode('.', $number);
-        $out = number_format(abs(floatval($tmp[0])), 0, $dec_point, $thousands_sep);
+        $out = number_format(abs((float) $tmp[0]), 0, $dec_point, $thousands_sep);
         if (isset($tmp[1])) $out .= $dec_point . $tmp[1];
 
         if ($was_neg) $out = "-$out";
@@ -165,7 +165,8 @@ class Decimal extends AbstractMultiBaseType
     public function filter(QueryBuilderWhere $add, $tablealias, $colname, $comp, $value, $op)
     {
         $add = $add->where($op); // open a subgroup
-        $add->where('AND', "$tablealias.$colname != ''"); // make sure the field isn't empty
+        $add->where('AND', "$tablealias.$colname != ''");
+         // make sure the field isn't empty
         $op = 'AND';
 
         /** @var QueryBuilderWhere $add Where additionional queries are added to */

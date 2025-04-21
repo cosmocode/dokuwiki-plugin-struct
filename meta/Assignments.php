@@ -5,7 +5,9 @@ namespace dokuwiki\plugin\struct\meta;
 /**
  * Class Assignments
  *
- * Manages the assignment of schemas (table names) to pages and namespaces
+ * Manages the assignment of schemas (table names) to pages and namespaces.
+ * An assignment is created when actual struct data is attached to the page.
+ * Assignment are never deleted, only their "assigned" status is changed.
  *
  * This is a singleton. Assignment data is only loaded once per request.
  *
@@ -20,7 +22,7 @@ class Assignments
     protected $patterns;
 
     /** @var Assignments */
-    protected static $instance = null;
+    protected static $instance;
 
     /**
      * Get the singleton instance of the Assignments
@@ -30,8 +32,8 @@ class Assignments
      */
     public static function getInstance($forcereload = false)
     {
-        if (is_null(self::$instance) or $forcereload) {
-            $class = get_called_class();
+        if (is_null(self::$instance) || $forcereload) {
+            $class = static::class;
             self::$instance = new $class();
         }
         return self::$instance;
@@ -174,7 +176,7 @@ class Assignments
     public function assignPageSchema($page, $table)
     {
         $sql = 'REPLACE INTO schema_assignments (pid, tbl, assigned) VALUES (?, ?, 1)';
-        return (bool)$this->sqlite->query($sql, array($page, $table));
+        return (bool)$this->sqlite->query($sql, [$page, $table]);
     }
 
     /**
@@ -187,7 +189,7 @@ class Assignments
     public function deassignPageSchema($page, $table)
     {
         $sql = 'REPLACE INTO schema_assignments (pid, tbl, assigned) VALUES (?, ?, 0)';
-        return (bool)$this->sqlite->query($sql, array($page, $table));
+        return (bool)$this->sqlite->query($sql, [$page, $table]);
     }
 
     /**
@@ -209,7 +211,7 @@ class Assignments
      */
     public function getPageAssignments($page, $checkpatterns = true)
     {
-        $tables = array();
+        $tables = [];
         $page = cleanID($page);
 
         if ($checkpatterns) {
@@ -243,7 +245,7 @@ class Assignments
     {
         $sql = 'SELECT pid, tbl, assigned FROM schema_assignments WHERE 1=1';
 
-        $opts = array();
+        $opts = [];
         if ($schema) {
             $sql .= ' AND tbl = ?';
             $opts[] = $schema;
@@ -256,11 +258,11 @@ class Assignments
 
         $list = $this->sqlite->queryAll($sql, $opts);
 
-        $result = array();
+        $result = [];
         foreach ($list as $row) {
             $pid = $row['pid'];
             $tbl = $row['tbl'];
-            if (!isset($result[$pid])) $result[$pid] = array();
+            if (!isset($result[$pid])) $result[$pid] = [];
             $result[$pid][$tbl] = (bool)$row['assigned'];
         }
 
@@ -299,11 +301,9 @@ class Assignments
             if ($ans == $pns) {
                 return true;
             }
-        } else {
+        } elseif (cleanID($pattern) == $page) {
             // exact match
-            if (cleanID($pattern) == $page) {
-                return true;
-            }
+            return true;
         }
 
         return false;
@@ -323,7 +323,7 @@ class Assignments
         $sql = "SELECT DISTINCT tbl FROM schemas WHERE ts <= ? ORDER BY ts DESC";
         $tables = $this->sqlite->queryAll($sql, [$ts]);
 
-        $assigned = array();
+        $assigned = [];
         foreach ($tables as $row) {
             $table = $row['tbl'];
             /** @noinspection SqlResolve */

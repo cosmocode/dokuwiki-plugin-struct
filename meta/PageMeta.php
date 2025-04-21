@@ -8,10 +8,10 @@ class PageMeta
     protected $sqlite;
 
     protected $pid;
-    protected $title = null;
-    protected $lasteditor = null;
-    protected $lastrev = null;
-    protected $lastsummary = null;
+    protected $title;
+    protected $lasteditor;
+    protected $lastrev;
+    protected $lastsummary;
 
     protected $saveNeeded = false;
 

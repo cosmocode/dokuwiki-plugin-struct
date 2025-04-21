@@ -8,11 +8,15 @@
  */
 
 // must be run within Dokuwiki
+use dokuwiki\Remote\RemoteException;
+use dokuwiki\Extension\RemotePlugin;
+use dokuwiki\Remote\AccessDeniedException;
+use dokuwiki\plugin\struct\meta\Value;
 use dokuwiki\plugin\struct\meta\ConfigParser;
 use dokuwiki\plugin\struct\meta\SearchConfig;
 use dokuwiki\plugin\struct\meta\StructException;
 
-class remote_plugin_struct extends DokuWiki_Remote_Plugin
+class remote_plugin_struct extends RemotePlugin
 {
     /** @var helper_plugin_struct hlp */
     protected $hlp;
@@ -24,7 +28,6 @@ class remote_plugin_struct extends DokuWiki_Remote_Plugin
     {
         parent::__construct();
 
-        /** @var helper_plugin_struct hlp */
         $this->hlp = plugin_load('helper', 'struct');
     }
 
@@ -35,7 +38,7 @@ class remote_plugin_struct extends DokuWiki_Remote_Plugin
      * @param string $schema The schema to use empty for all
      * @param int $time A timestamp if you want historic data (0 for now)
      * @return array ('schema' => ( 'fieldlabel' => 'value', ...))
-     * @throws RemoteAccessDeniedException
+     * @throws AccessDeniedException
      * @throws RemoteException
      */
     public function getData($page, $schema, $time)
@@ -43,7 +46,7 @@ class remote_plugin_struct extends DokuWiki_Remote_Plugin
         $page = cleanID($page);
 
         if (auth_quickaclcheck($page) < AUTH_READ) {
-            throw new RemoteAccessDeniedException('no permissions to access data of that page');
+            throw new AccessDeniedException('no permissions to access data of that page');
         }
 
         if (!$schema) $schema = null;
@@ -68,7 +71,7 @@ class remote_plugin_struct extends DokuWiki_Remote_Plugin
      * @param string $summary
      * @param bool $minor
      * @return bool returns always true
-     * @throws RemoteAccessDeniedException
+     * @throws AccessDeniedException
      * @throws RemoteException
      */
     public function saveData($page, $data, $summary, $minor = false)
@@ -76,7 +79,7 @@ class remote_plugin_struct extends DokuWiki_Remote_Plugin
         $page = cleanID($page);
 
         if (auth_quickaclcheck($page) < AUTH_EDIT) {
-            throw new RemoteAccessDeniedException('no permissions to save data for that page');
+            throw new AccessDeniedException('no permissions to save data for that page');
         }
 
         try {
@@ -94,26 +97,27 @@ class remote_plugin_struct extends DokuWiki_Remote_Plugin
      *
      * @param string $schema the schema to query, empty for all
      * @return array
-     * @throws RemoteAccessDeniedException
+     * @throws AccessDeniedException
      * @throws RemoteException
      */
     public function getSchema($schema = null)
     {
         if (!auth_ismanager()) {
-            throw new RemoteAccessDeniedException('you need to be manager to access schema info');
+            throw new AccessDeniedException('you need to be manager to access schema info');
         }
 
         try {
-            $result = array();
+            $result = [];
             $schemas = $this->hlp::getSchema($schema ?: null);
             foreach ($schemas as $name => $schema) {
-                $result[$name] = array();
+                $result[$name] = [];
                 foreach ($schema->getColumns(false) as $column) {
-                    $result[$name][] = array(
+                    $class = explode('\\', get_class($column->getType()));
+                    $class = array_pop($class);
+                    $result[$name][] = [
                         'name' => $column->getLabel(),
-                        'type' => array_pop(explode('\\', get_class($column->getType()))),
-                        'ismulti' => $column->isMulti()
-                    );
+                        'type' => $class,
+                        'ismulti' => $column->isMulti()];
                 }
             }
             return $result;
@@ -137,9 +141,10 @@ class remote_plugin_struct extends DokuWiki_Remote_Plugin
     {
         $schemaLine = 'schema: ' . implode(', ', $schemas);
         $columnLine = 'cols: ' . implode(', ', $cols);
-        $filterLines = array_map(function ($filter) {
-            return 'filter' . $filter['logic'] . ': ' . $filter['condition'];
-        }, $filter);
+        $filterLines = array_map(
+            static fn($filter) => 'filter' . $filter['logic'] . ': ' . $filter['condition'],
+            $filter
+        );
         $sortLine = 'sort: ' . $sort;
         // schemas, cols, REV?, filter, order
 
@@ -147,9 +152,9 @@ class remote_plugin_struct extends DokuWiki_Remote_Plugin
             $parser = new ConfigParser(array_merge([$schemaLine, $columnLine, $sortLine], $filterLines));
             $config = $parser->getConfig();
             $search = new SearchConfig($config);
-            $results = $search->execute();
+            $results = $search->getRows();
             $data = [];
-            /** @var \dokuwiki\plugin\struct\meta\Value[] $rowValues */
+            /** @var Value[] $rowValues */
             foreach ($results as $rowValues) {
                 $row = [];
                 foreach ($rowValues as $value) {

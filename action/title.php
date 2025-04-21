@@ -7,6 +7,9 @@
  * @author  Andreas Gohr, Michael Große <dokuwiki@cosmocode.de>
  */
 
+use dokuwiki\Extension\ActionPlugin;
+use dokuwiki\Extension\EventHandler;
+use dokuwiki\Extension\Event;
 use dokuwiki\plugin\struct\meta\PageMeta;
 use dokuwiki\plugin\struct\meta\StructException;
 
@@ -15,15 +18,15 @@ use dokuwiki\plugin\struct\meta\StructException;
  *
  * Saves the page title when meta data is saved
  */
-class action_plugin_struct_title extends DokuWiki_Action_Plugin
+class action_plugin_struct_title extends ActionPlugin
 {
     /**
      * Registers a callback function for a given event
      *
-     * @param Doku_Event_Handler $controller DokuWiki's event controller object
+     * @param EventHandler $controller DokuWiki's event controller object
      * @return void
      */
-    public function register(Doku_Event_Handler $controller)
+    public function register(EventHandler $controller)
     {
         $controller->register_hook('PARSER_METADATA_RENDER', 'AFTER', $this, 'handleMeta');
     }
@@ -31,10 +34,10 @@ class action_plugin_struct_title extends DokuWiki_Action_Plugin
     /**
      * Store the page's title
      *
-     * @param Doku_Event $event
+     * @param Event $event
      * @param $param
      */
-    public function handleMeta(Doku_Event $event, $param)
+    public function handleMeta(Event $event, $param)
     {
         $id = $event->data['page'];
 

@@ -10,30 +10,19 @@ class AggregationCloud extends Aggregation
     /** @var int */
     protected $min;
 
-    /**
-     * Initialize the Aggregation renderer and executes the search
-     *
-     * You need to call @param string $id
-     * @param string $mode
-     * @param \Doku_Renderer $renderer
-     * @param SearchConfig $searchConfig
-     * @see render() on the resulting object.
-     *
-     */
-    public function __construct($id, $mode, \Doku_Renderer $renderer, SearchCloud $searchConfig)
-    {
-        parent::__construct($id, $mode, $renderer, $searchConfig);
-
-        $this->max = $this->result[0]['count'];
-        $this->min = end($this->result)['count'];
-    }
-
     /** @inheritdoc */
     public function render($showNotFound = false)
     {
-        $this->sortResults();
+
+        if ($this->mode !== 'xhtml') return;
+
+        $rows = $this->searchConfig->getRows();
+        $this->max = $rows[0]['count'];
+        $this->min = end($rows)['count'];
+
+        $this->sortResults($rows);
         $this->startList();
-        foreach ($this->result as $result) {
+        foreach ($rows as $result) {
             $this->renderTag($result);
         }
         $this->finishList();
@@ -80,7 +69,8 @@ class AggregationCloud extends Aggregation
                 "<div style='font-size:$weight%' data-count='$count' class='cloudtag struct_$type'>";
         }
 
-        $value->renderAsTagCloudLink($this->renderer, $this->mode, $target, $filter, $weight);
+        $showCount = $this->searchConfig->getConf()['summarize'] ? $count : 0;
+        $value->renderAsTagCloudLink($this->renderer, $this->mode, $target, $filter, $weight, $showCount);
 
         if ($this->mode == 'xhtml') {
             $this->renderer->doc .= '</div>';
@@ -109,9 +99,9 @@ class AggregationCloud extends Aggregation
     /**
      * Sort the list of results
      */
-    protected function sortResults()
+    protected function sortResults(&$rows)
     {
-        usort($this->result, function ($a, $b) {
+        usort($rows, function ($a, $b) {
             $asort = $a['tag']->getColumn()->getType()->getSortString($a['tag']);
             $bsort = $b['tag']->getColumn()->getType()->getSortString($b['tag']);
             if ($asort < $bsort) {

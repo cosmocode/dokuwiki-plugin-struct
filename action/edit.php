@@ -7,6 +7,9 @@
  * @author  Andreas Gohr, Michael Große <dokuwiki@cosmocode.de>
  */
 
+use dokuwiki\Extension\ActionPlugin;
+use dokuwiki\Extension\EventHandler;
+use dokuwiki\Extension\Event;
 use dokuwiki\Form\Form;
 use dokuwiki\plugin\struct\meta\AccessTable;
 use dokuwiki\plugin\struct\meta\Assignments;
@@ -17,7 +20,7 @@ use dokuwiki\plugin\struct\meta\Value;
  *
  * Handles adding struct forms to the default editor
  */
-class action_plugin_struct_edit extends DokuWiki_Action_Plugin
+class action_plugin_struct_edit extends ActionPlugin
 {
     /**
      * @var string The form name we use to transfer schema data
@@ -27,10 +30,10 @@ class action_plugin_struct_edit extends DokuWiki_Action_Plugin
     /**
      * Registers a callback function for a given event
      *
-     * @param Doku_Event_Handler $controller DokuWiki's event controller object
+     * @param EventHandler $controller DokuWiki's event controller object
      * @return void
      */
-    public function register(Doku_Event_Handler $controller)
+    public function register(EventHandler $controller)
     {
         // add the struct editor to the edit form;
         $controller->register_hook('HTML_EDITFORM_OUTPUT', 'BEFORE', $this, 'handleEditform');
@@ -44,7 +47,7 @@ class action_plugin_struct_edit extends DokuWiki_Action_Plugin
      *
      * @return bool
      */
-    public function addFromData(Doku_Event $event, $_param)
+    public function addFromData(Event $event, $_param)
     {
         $html = $this->getEditorHtml();
 
@@ -61,12 +64,12 @@ class action_plugin_struct_edit extends DokuWiki_Action_Plugin
      *
      * TODO: Remove this after HTML_EDITFORM_OUTPUT is no longer released in DokuWiki stable
      *
-     * @param Doku_Event $event event object by reference
+     * @param Event $event event object by reference
      * @param mixed $param [the parameters passed as fifth argument to register_hook() when this
      *                           handler was registered]
      * @return bool
      */
-    public function handleEditform(Doku_Event $event, $param)
+    public function handleEditform(Event $event, $param)
     {
         $html = $this->getEditorHtml();
 
@@ -120,11 +123,11 @@ class action_plugin_struct_edit extends DokuWiki_Action_Plugin
         if (isset($structdata[$tablename])) {
             $postdata = $structdata[$tablename];
         } else {
-            $postdata = array();
+            $postdata = [];
         }
 
         // we need a short, unique identifier to use in the cookie. this should be good enough
-        $schemaid = 'SRCT' . substr(str_replace(array('+', '/'), '', base64_encode(sha1($tablename, true))), 0, 5);
+        $schemaid = 'SRCT' . substr(str_replace(['+', '/'], '', base64_encode(sha1($tablename, true))), 0, 5);
         $html = '<fieldset data-schema="' . $schemaid . '">';
         $html .= '<legend>' . hsc($schema->getSchema()->getTranslatedLabel()) . '</legend>';
         foreach ($schemadata as $field) {

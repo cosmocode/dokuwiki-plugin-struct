@@ -22,8 +22,8 @@ class AggregationList extends Aggregation
     /** @inheritdoc */
     public function render($showNotFound = false)
     {
-        if ($this->result) {
-            $nestedResult = new NestedResult($this->result);
+        if ($this->searchConfig->getResult()) {
+            $nestedResult = new NestedResult($this->searchConfig->getRows());
             $root = $nestedResult->getRoot($this->data['nesting'], $this->data['index']);
             $this->renderNode($root);
         } elseif ($showNotFound) {
@@ -40,16 +40,16 @@ class AggregationList extends Aggregation
     protected function renderNode(NestedValue $node)
     {
         $self = $node->getValueObject(); // null for root node
-        $children = $node->getChildren($self === null && $this->data['index']); // sort only for index
+        $children = $node->getChildren(!$self instanceof Value && $this->data['index']); // sort only for index
         $results = $node->getResultRows();
 
         // all our content is in a listitem, unless we are the root node
-        if ($self) {
+        if ($self instanceof Value) {
             $this->renderer->listitem_open($node->getDepth() + 1); // levels are 1 based
         }
 
         // render own value if available
-        if ($self) {
+        if ($self instanceof Value) {
             $this->renderer->listcontent_open();
             $this->renderListItem([$self], $node->getDepth(), true); // zero based depth
             $this->renderer->listcontent_close();
@@ -75,7 +75,7 @@ class AggregationList extends Aggregation
         }
 
         // close listitem if opened
-        if ($self) {
+        if ($self instanceof Value) {
             $this->renderer->listitem_close();
         }
     }
@@ -89,11 +89,16 @@ class AggregationList extends Aggregation
      */
     protected function renderListItem($resultrow, $depth, $showEmpty = false)
     {
-        $sepbyheaders = $this->searchConfig->getConf()['sepbyheaders'];
-        $headers = $this->searchConfig->getConf()['headers'];
+        $config = $this->searchConfig->getConf();
+        $sepbyheaders = $config['sepbyheaders'];
+        $headers = $config['headers'];
 
         foreach ($resultrow as $index => $value) {
-            $column = $index + $depth; // the resultrow is shifted by the nesting depth
+            // when nesting, the resultrow is shifted by the nesting depth
+            $column = $index;
+            if ($config['nesting']) {
+                $column += $depth;
+            }
             if ($sepbyheaders && !empty($headers[$column])) {
                 $header = $headers[$column];
             } else {

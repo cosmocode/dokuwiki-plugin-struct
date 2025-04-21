@@ -20,7 +20,7 @@ class AggregationFilter extends Aggregation
      */
     public function render($showNotFound = false)
     {
-        $colValues = $this->getAllColumnValues($this->result);
+        $colValues = $this->getAllColumnValues($this->searchConfig->getResult()->getRows());
 
         // column dropdowns
         foreach ($colValues as $num => $colData) {
@@ -72,14 +72,25 @@ class AggregationFilter extends Aggregation
                 $colName = $value->getColumn()->getFullQualifiedLabel();
                 $colValues[$colName]['column'] = $value->getColumn();
                 $colValues[$colName]['label'] = $value->getColumn()->getTranslatedLabel();
-                $colValues[$colName]['values'] = $colValues[$colName]['values'] ?? [];
+                $colValues[$colName]['values'] ??= [];
 
                 if (empty($value->getDisplayValue())) continue;
 
                 // create an array with [value => displayValue] pairs
                 // the cast to array will handle single and multi-value fields the same
                 // using the full value as key will make sure we don't have duplicates
-                $pairs = array_combine((array)$value->getValue(), (array)$value->getDisplayValue());
+                //
+                // because a value might be interpreted as integer in the array key, we pad
+                // each key with a space at the end to enforce string keys. The space will
+                // be ignored when parsing JSON values and trimmed for all other types.
+                // This is a work around for #665
+                $pairs = array_combine(
+                    array_map(
+                        static fn($v) => "$v ",
+                        (array)$value->getValue()
+                    ),
+                    (array)$value->getDisplayValue()
+                );
                 $colValues[$colName]['values'] = array_merge($colValues[$colName]['values'], $pairs);
             }
         }

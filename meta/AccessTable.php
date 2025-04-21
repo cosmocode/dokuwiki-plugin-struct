@@ -296,7 +296,8 @@ abstract class AccessTable
     protected function getSingleSql()
     {
         $cols = array_merge($this->getSingleNoninputCols(), $this->singleCols);
-        $cols = join(',', $cols);
+        $cols = implode(',', $cols);
+
         $vals = array_merge($this->getSingleNoninputValues(), $this->singleValues);
 
         return "INSERT INTO $this->stable ($cols) VALUES (" . trim(str_repeat('?,', count($vals)), ',') . ');';
@@ -426,7 +427,7 @@ abstract class AccessTable
         foreach ($data as $value) {
             $key = $value->getColumn()->getFullQualifiedLabel();
             $value = $value->getDisplayValue();
-            if (is_array($value)) $value = join(', ', $value);
+            if (is_array($value)) $value = implode(', ', $value);
             $result .= sprintf("% -20s : %s\n", $key, $value);
         }
         return $result;
@@ -439,7 +440,7 @@ abstract class AccessTable
     protected function getDataFromDB()
     {
         $idColumn = self::isTypePage($this->pid, $this->ts) ? 'pid' : 'rid';
-        list($sql, $opt) = $this->buildGetDataSQL($idColumn);
+        [$sql, $opt] = $this->buildGetDataSQL($idColumn);
 
         return $this->sqlite->queryAll($sql, $opt);
     }
@@ -453,7 +454,7 @@ abstract class AccessTable
      */
     protected function consolidateData($DBdata, $asarray = false)
     {
-        $data = array();
+        $data = [];
 
         $sep = Search::CONCAT_SEPARATOR;
 
@@ -633,9 +634,7 @@ abstract class AccessTable
      */
     protected function clearMulti()
     {
-        $colrefs = array_unique(array_map(function ($val) {
-            return $val[0];
-        }, $this->multiValues));
+        $colrefs = array_unique(array_map(static fn($val) => $val[0], $this->multiValues));
         return $this->sqlite->query(
             "DELETE FROM $this->mtable WHERE pid = ? AND rid = $this->rid AND rev = 0 AND colref IN (" .
             implode(',', $colrefs) . ")",

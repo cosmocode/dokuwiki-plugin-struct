@@ -2,6 +2,7 @@
 
 namespace dokuwiki\plugin\struct\meta;
 
+use dokuwiki\Extension\Plugin;
 use dokuwiki\Form\Form;
 use dokuwiki\plugin\struct\types\Text;
 
@@ -18,7 +19,7 @@ class SchemaEditor
     /** @var Schema the schema that is edited */
     protected $schema;
 
-    /** @var \DokuWiki_Plugin */
+    /** @var Plugin */
     protected $hlp;
 
     /**
@@ -41,7 +42,7 @@ class SchemaEditor
      */
     public function getEditor()
     {
-        $form = new Form(array('method' => 'POST', 'id' => 'plugin__struct_editor'));
+        $form = new Form(['method' => 'POST', 'id' => 'plugin__struct_editor']);
         $form->setHiddenField('do', 'admin');
         $form->setHiddenField('page', 'struct_schemas');
         $form->setHiddenField('table', $this->schema->getTable());
@@ -58,7 +59,7 @@ class SchemaEditor
         </tr>");
 
 
-        foreach ($this->schema->getColumns() as $key => $col) {
+        foreach ($this->schema->getColumns() as $col) {
             $form->addHTML($this->adminColumn($col->getColref(), $col));
         }
 
@@ -68,6 +69,7 @@ class SchemaEditor
         $form->addHTML('</table>');
 
         $form->addFieldsetOpen();
+
         $config = json_encode($this->schema->getConfig(), JSON_PRETTY_PRINT);
         $form->addHTML(
             '<textarea name="schema[config]" id="schemaConfig" cols="45" rows="10" class="config">' .

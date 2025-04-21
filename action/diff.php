@@ -7,19 +7,22 @@
  * @author  Andreas Gohr, Michael Große <dokuwiki@cosmocode.de>
  */
 
+use dokuwiki\Extension\ActionPlugin;
+use dokuwiki\Extension\EventHandler;
+use dokuwiki\Extension\Event;
 use dokuwiki\plugin\struct\meta\AccessTable;
 use dokuwiki\plugin\struct\meta\Assignments;
 use dokuwiki\plugin\struct\meta\StructException;
 
-class action_plugin_struct_diff extends DokuWiki_Action_Plugin
+class action_plugin_struct_diff extends ActionPlugin
 {
     /**
      * Registers a callback function for a given event
      *
-     * @param Doku_Event_Handler $controller DokuWiki's event controller object
+     * @param EventHandler $controller DokuWiki's event controller object
      * @return void
      */
-    public function register(Doku_Event_Handler $controller)
+    public function register(EventHandler $controller)
     {
         $controller->register_hook('IO_WIKIPAGE_READ', 'AFTER', $this, 'handleDiffload');
     }
@@ -29,12 +32,12 @@ class action_plugin_struct_diff extends DokuWiki_Action_Plugin
      *
      * This is done by adding pseudo syntax to the page source when it is loaded in diff context
      *
-     * @param Doku_Event $event event object by reference
+     * @param Event $event event object by reference
      * @param mixed $param [the parameters passed as fifth argument to register_hook() when this
      *                           handler was registered]
      * @return bool
      */
-    public function handleDiffload(Doku_Event $event, $param)
+    public function handleDiffload(Event $event, $param)
     {
         global $ACT;
         global $INFO;

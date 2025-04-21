@@ -7,7 +7,7 @@ namespace dokuwiki\plugin\struct\meta;
  */
 class FilterValueListHandler
 {
-    protected $row = array();
+    protected $row = [];
     protected $current_row = 0;
     protected $token = '';
 
@@ -52,10 +52,8 @@ class FilterValueListHandler
      */
     public function singleQuoteString($match, $state, $pos)
     {
-        switch ($state) {
-            case DOKU_LEXER_UNMATCHED:
-                $this->token .= $match;
-                break;
+        if ($state === DOKU_LEXER_UNMATCHED) {
+            $this->token .= $match;
         }
         return true;
     }

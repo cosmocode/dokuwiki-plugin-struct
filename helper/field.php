@@ -60,7 +60,7 @@ class helper_plugin_struct_field extends helper_plugin_bureaucracy_field
             }
         }
 
-        if ($value === array() || $value === '') {
+        if ($value === [] || $value === '') {
             if (!isset($this->opt['optional'])) {
                 $this->error = true;
                 if ($this->column) {
@@ -112,7 +112,7 @@ class helper_plugin_struct_field extends helper_plugin_bureaucracy_field
         $value = $this->getParam('value');
 
         if (is_array($value)) {
-            return array($this, 'replacementMultiValueCallback');
+            return [$this, 'replacementMultiValueCallback'];
         }
 
         if (!empty($value) && $this->column->getType() instanceof User) {
@@ -141,9 +141,7 @@ class helper_plugin_struct_field extends helper_plugin_bureaucracy_field
         }
 
         if (!empty($value) && $this->column->getType() instanceof User) {
-            $value = array_map(function ($user) {
-                return userlink($user, true);
-            }, $value);
+            $value = array_map(static fn($user) => userlink($user, true), $value);
         }
 
         //check if matched string containts a pair of brackets
@@ -160,14 +158,22 @@ class helper_plugin_struct_field extends helper_plugin_bureaucracy_field
      */
     protected function createValue()
     {
-        $preparedValue = $this->opt['value'] ?? '';
+        // input value or appropriately initialized empty value
+        $preparedValue = $this->opt['value'] ?? ($this->column->isMulti() ? [] : '');
 
         // page fields might need to be JSON encoded depending on usetitles config
         if (
             $this->column->getType() instanceof Page
             && $this->column->getType()->getConfig()['usetitles']
         ) {
-            $preparedValue = json_encode([$preparedValue, null]);
+            if ($this->column->isMulti()) {
+                $preparedValue = array_map(
+                    static fn($val) => json_encode([$val, null], JSON_THROW_ON_ERROR),
+                    $preparedValue
+                );
+            } else {
+                $preparedValue = json_encode([$preparedValue, null], JSON_THROW_ON_ERROR);
+            }
         }
 
         $value = new Value($this->column, $preparedValue);
@@ -194,7 +200,7 @@ class helper_plugin_struct_field extends helper_plugin_bureaucracy_field
         $class = $hint ? 'hashint' : '';
         $lclass = $this->error ? 'bureaucracy_error' : '';
         $colname = $field->getColumn()->getFullQualifiedLabel();
-        $required = !empty($this->opt['optional']) ? '' : ' <sup>*</sup>';
+        $required = empty($this->opt['optional']) ? ' <sup>*</sup>' : '';
 
         $id = uniqid('struct__', true);
         $input = $field->getValueEditor($name, $id);
@@ -213,12 +219,12 @@ class helper_plugin_struct_field extends helper_plugin_bureaucracy_field
      * Tries to find the correct column and schema
      *
      * @param string $colname
-     * @return \dokuwiki\plugin\struct\meta\Column
+     * @return Column
      * @throws StructException
      */
     protected function findColumn($colname)
     {
-        list($table, $label) = explode('.', $colname, 2);
+        [$table, $label] = explode('.', $colname, 2);
         if (!$table || !$label) {
             throw new StructException('Field \'%s\' not given in schema.field form', $colname);
         }

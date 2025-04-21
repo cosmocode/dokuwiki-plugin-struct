@@ -24,22 +24,23 @@ class AggregationValue extends Aggregation
         $searchConfig->setOffset(0);
 
         parent::__construct($id, $mode, $renderer, $searchConfig);
+
+        $this->tagName = 'span';
     }
 
     /**
      * Create the output on the renderer
      *
-     * @param int $show_not_found Whether to display the default text for no records
+     * @param int $showNotFound Whether to display the default text for no records
      */
-    public function render($show_not_found = 0)
+    public function render($showNotFound = 0)
     {
         // Check that we actually got a result
-        if ($this->resultCount) {
-            $this->renderValue($this->result[0]); // only one result
-        } else {
-            if ($show_not_found) {
-                $this->renderer->cdata($this->helper->getLang('none'));
-            }
+        if ($this->searchConfig->getCount()) {
+            $this->renderValue($this->searchConfig->getRows()[0]);
+            // only one result
+        } elseif ($showNotFound) {
+            $this->renderer->cdata($this->helper->getLang('none'));
         }
     }
 
@@ -48,7 +49,7 @@ class AggregationValue extends Aggregation
      */
     protected function renderValue($resultrow)
     {
-        foreach ($resultrow as $column => $value) {
+        foreach ($resultrow as $value) {
             if ($value->isEmpty()) {
                 continue;
             }

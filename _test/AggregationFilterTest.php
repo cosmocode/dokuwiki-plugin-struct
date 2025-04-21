@@ -2,7 +2,12 @@
 
 namespace dokuwiki\plugin\struct\test;
 
-
+/**
+ * Testing aggregation filter
+ *
+ * @group plugin_struct
+ * @group plugins
+ */
 class AggregationFilterTest extends StructTest
 {
     protected $items = [
@@ -38,7 +43,7 @@ class AggregationFilterTest extends StructTest
                 'red' => 'red',
                 'yellow' => 'yellow'
             ],
-            $values[0]['values']
+            $this->trimKeys($values[0]['values'])
         );
 
         $this->assertEquals(
@@ -51,12 +56,23 @@ class AggregationFilterTest extends StructTest
                 'car' => 'car',
                 'laptop' => 'laptop'
             ],
-            $values[1]['values']
+            $this->trimKeys($values[1]['values'])
         );
 
         $this->assertEquals(
             'Label 2',
             $values[1]['label']
         );
+    }
+
+    /**
+     * Reverses key padding workaround in AggregationFilter::getAllColumnValues()
+     *
+     * @param array $values
+     * @return int[]|string[]
+     */
+    protected function trimKeys($values)
+    {
+        return array_flip(array_map(static fn($val) => trim($val), array_flip($values)));
     }
 }

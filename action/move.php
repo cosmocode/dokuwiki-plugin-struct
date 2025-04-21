@@ -7,6 +7,10 @@
  * @author  Andreas Gohr, Michael Große <dokuwiki@cosmocode.de>
  */
 
+use dokuwiki\Extension\ActionPlugin;
+use dokuwiki\Extension\EventHandler;
+use dokuwiki\Extension\Event;
+use dokuwiki\plugin\sqlite\SQLiteDB;
 use dokuwiki\plugin\struct\meta\Assignments;
 use dokuwiki\plugin\struct\meta\Column;
 use dokuwiki\plugin\struct\meta\Schema;
@@ -14,18 +18,18 @@ use dokuwiki\plugin\struct\types\Lookup;
 use dokuwiki\plugin\struct\types\Media;
 use dokuwiki\plugin\struct\types\Page;
 
-class action_plugin_struct_move extends DokuWiki_Action_Plugin
+class action_plugin_struct_move extends ActionPlugin
 {
     /** @var helper_plugin_sqlite */
-    protected $db = null;
+    protected $db;
 
     /**
      * Registers a callback function for a given event
      *
-     * @param Doku_Event_Handler $controller DokuWiki's event controller object
+     * @param EventHandler $controller DokuWiki's event controller object
      * @return void
      */
-    public function register(Doku_Event_Handler $controller)
+    public function register(EventHandler $controller)
     {
         $controller->register_hook('PLUGIN_MOVE_PAGE_RENAME', 'AFTER', $this, 'handleMove', true);
         $controller->register_hook('PLUGIN_MOVE_MEDIA_RENAME', 'AFTER', $this, 'handleMove', false);
@@ -34,16 +38,16 @@ class action_plugin_struct_move extends DokuWiki_Action_Plugin
     /**
      * Renames all occurrences of a page ID in the database
      *
-     * @param Doku_Event $event event object by reference
+     * @param Event $event event object by reference
      * @param bool $ispage is this a page move operation?
      * @return bool
      */
-    public function handleMove(Doku_Event $event, $ispage)
+    public function handleMove(Event $event, $ispage)
     {
         /** @var helper_plugin_struct_db $hlp */
         $hlp = plugin_load('helper', 'struct_db');
         $this->db = $hlp->getDB(false);
-        if (!$this->db) return false;
+        if (!$this->db instanceof SQLiteDB) return false;
         $old = $event->data['src_id'];
         $new = $event->data['dst_id'];
 
@@ -63,20 +67,13 @@ class action_plugin_struct_move extends DokuWiki_Action_Plugin
             $schema = new Schema($table);
             foreach ($schema->getColumns() as $col) {
                 if ($ispage) {
-                    switch (get_class($col->getType())) {
-                        case Page::class:
-                            $this->updateColumnID($schema, $col, $old, $new, true);
-                            break;
-                        case Lookup::class:
-                            $this->updateColumnLookup($schema, $col, $old, $new);
-                            break;
+                    if (get_class($col->getType()) == Page::class) {
+                        $this->updateColumnID($schema, $col, $old, $new, true);
+                    } elseif (get_class($col->getType()) == Lookup::class) {
+                        $this->updateColumnLookup($schema, $col, $old, $new);
                     }
-                } else {
-                    switch (get_class($col->getType())) {
-                        case Media::class:
-                            $this->updateColumnID($schema, $col, $old, $new);
-                            break;
-                    }
+                } elseif ($col->getType() instanceof Media) {
+                    $this->updateColumnID($schema, $col, $old, $new);
                 }
             }
         }
@@ -104,11 +101,11 @@ class action_plugin_struct_move extends DokuWiki_Action_Plugin
         foreach (Schema::getAll() as $tbl) {
             /** @noinspection SqlResolve */
             $sql = "UPDATE data_$tbl SET pid = ? WHERE pid = ?";
-            $this->db->query($sql, array($new, $old));
+            $this->db->query($sql, [$new, $old]);
 
             /** @noinspection SqlResolve */
             $sql = "UPDATE multi_$tbl SET pid = ? WHERE pid = ?";
-            $this->db->query($sql, array($new, $old));
+            $this->db->query($sql, [$new, $old]);
         }
     }
 
@@ -122,7 +119,7 @@ class action_plugin_struct_move extends DokuWiki_Action_Plugin
     {
         // assignments
         $sql = "UPDATE schema_assignments SET pid = ? WHERE pid = ?";
-        $this->db->query($sql, array($new, $old));
+        $this->db->query($sql, [$new, $old]);
         // make sure assignments still match patterns;
         $assignments = Assignments::getInstance();
         $assignments->reevaluatePageAssignments($new);
@@ -137,7 +134,7 @@ class action_plugin_struct_move extends DokuWiki_Action_Plugin
     protected function updateTitles($old, $new)
     {
         $sql = "UPDATE titles SET pid = ? WHERE pid = ?";
-        $this->db->query($sql, array($new, $old));
+        $this->db->query($sql, [$new, $old]);
     }
 
     /**
@@ -172,7 +169,7 @@ class action_plugin_struct_move extends DokuWiki_Action_Plugin
         if ($hashes) {
             $this->db->query($sql, [$old, $new, "$old#%"]); // match with hashes
         }
-        if (get_class($col->getType()) === Lookup::class) {
+        if ($col->getType() instanceof Lookup) {
             $this->db->query($sql, [$old, $new, "[\"$old\",%]"]); // match JSON string
             if ($hashes) {
                 $this->db->query($sql, [$old, $new, "[\"$old#%\",%]"]); // match JSON string with hash

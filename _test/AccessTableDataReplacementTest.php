@@ -93,7 +93,7 @@ class AccessTableDataReplacementTest extends StructTest
 
         $search = new meta\SearchConfig($actual_config);
         list(, $opts) = $search->getSQL();
-        $result = $search->execute();
+        $result = $search->getRows();
 
         $this->assertEquals(['page1', 'page2'], $opts, '$STRUCT.table.col$ should not require table to be selected');
         $this->assertEquals('data of page1', $result[0][1]->getValue());
@@ -114,7 +114,7 @@ class AccessTableDataReplacementTest extends StructTest
         $actual_config = $configParser->getConfig();
 
         $search = new meta\SearchConfig($actual_config);
-        $result = $search->execute();
+        $result = $search->getRows();
 
         $this->assertEquals(0, count($result), 'if no pages a given, then none should be shown');
     }
@@ -126,14 +126,14 @@ class AccessTableDataReplacementTest extends StructTest
                 [
                     "filter    : data = foo"
                 ],
-                "AND ((data_bar.col1 != '' AND data_bar.col1 = ?))",
+                "AND (data_bar.col1 = ?)",
                 "The WHERE-clauses from page-syntax should be wrapped in parentheses"
             ],
             [
                 [
                     "OR    : data = foo"
                 ],
-                "AND ((data_bar.col1 != '' AND data_bar.col1 = ?))",
+                "AND (data_bar.col1 = ?)",
                 "A single OR clause should be treated as AND clauses"
             ],
             [
@@ -141,7 +141,7 @@ class AccessTableDataReplacementTest extends StructTest
                     "filter    : data = foo",
                     "OR        : data = bar"
                 ],
-                "AND ((data_bar.col1 != '' AND data_bar.col1 = ?) OR (data_bar.col1 != '' AND data_bar.col1 = ?))",
+                "AND (data_bar.col1 = ? OR data_bar.col1 = ?)",
                 "The WHERE-clauses from page-syntax should be wrapped in parentheses"
             ],
             [
@@ -149,7 +149,7 @@ class AccessTableDataReplacementTest extends StructTest
                     "OR        : data = bar",
                     "filter    : data = foo"
                 ],
-                "AND ((data_bar.col1 != '' AND data_bar.col1 = ?) AND (data_bar.col1 != '' AND data_bar.col1 = ?))",
+                "AND (data_bar.col1 = ? AND data_bar.col1 = ?)",
                 "A single OR clause should be treated as AND clauses"
             ]
         ];
@@ -182,7 +182,10 @@ class AccessTableDataReplacementTest extends StructTest
                     data_bar.pid = '' OR (
                         GETACCESSLEVEL(data_bar.pid) > 0
                         AND PAGEEXISTS(data_bar.pid) = 1
-                        AND (ASSIGNED = 1 OR ASSIGNED IS NULL)
+                        AND (
+                            data_bar.rid != 0
+                            OR (ASSIGNED = 1 OR ASSIGNED IS NULL)
+                        )
                     )
                 )
             AND (

@@ -22,7 +22,7 @@ abstract class AbstractMultiBaseType extends AbstractBaseType
      */
     public function multiValueEditor($name, $rawvalues, $htmlID)
     {
-        $value = join(', ', $rawvalues);
+        $value = implode(', ', $rawvalues);
 
         return
             '<div class="multiwrap">' .

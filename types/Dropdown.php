@@ -4,9 +4,9 @@ namespace dokuwiki\plugin\struct\types;
 
 class Dropdown extends AbstractBaseType
 {
-    protected $config = array(
-        'values' => 'one, two, three',
-    );
+    protected $config = [
+        'values' => 'one, two, three'
+    ];
 
     /**
      * Creates the options array
@@ -32,11 +32,11 @@ class Dropdown extends AbstractBaseType
      */
     public function valueEditor($name, $rawvalue, $htmlID)
     {
-        $params = array(
+        $params = [
             'name' => $name,
             'class' => 'struct_' . strtolower($this->getClass()),
             'id' => $htmlID
-        );
+        ];
         $attributes = buildAttributes($params, true);
         $html = "<select $attributes>";
         foreach ($this->getOptions() as $opt => $val) {
@@ -64,13 +64,13 @@ class Dropdown extends AbstractBaseType
      */
     public function multiValueEditor($name, $rawvalues, $htmlID)
     {
-        $params = array(
+        $params = [
             'name' => $name . '[]',
             'class' => 'struct_' . strtolower($this->getClass()),
             'multiple' => 'multiple',
             'size' => '5',
             'id' => $htmlID
-        );
+        ];
         $attributes = buildAttributes($params, true);
         $html = "<select $attributes>";
         foreach ($this->getOptions() as $raw => $opt) {

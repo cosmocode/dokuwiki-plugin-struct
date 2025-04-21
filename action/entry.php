@@ -7,6 +7,9 @@
  * @author  Andreas Gohr, Michael Große <dokuwiki@cosmocode.de>
  */
 
+use dokuwiki\Extension\ActionPlugin;
+use dokuwiki\Extension\EventHandler;
+use dokuwiki\Extension\Event;
 use dokuwiki\plugin\struct\meta\AccessDataValidator;
 use dokuwiki\plugin\struct\meta\AccessTable;
 use dokuwiki\plugin\struct\meta\Assignments;
@@ -16,7 +19,7 @@ use dokuwiki\plugin\struct\meta\Assignments;
  *
  * Handles the entry process of struct data with type "page"
  */
-class action_plugin_struct_entry extends DokuWiki_Action_Plugin
+class action_plugin_struct_entry extends ActionPlugin
 {
     /**
      * @var string The form name we use to transfer schema data
@@ -35,10 +38,10 @@ class action_plugin_struct_entry extends DokuWiki_Action_Plugin
     /**
      * Registers a callback function for a given event
      *
-     * @param Doku_Event_Handler $controller DokuWiki's event controller object
+     * @param EventHandler $controller DokuWiki's event controller object
      * @return void
      */
-    public function register(Doku_Event_Handler $controller)
+    public function register(EventHandler $controller)
     {
         // validate data on preview and save;
         $controller->register_hook('ACTION_ACT_PREPROCESS', 'BEFORE', $this, 'handleValidation');
@@ -51,17 +54,17 @@ class action_plugin_struct_entry extends DokuWiki_Action_Plugin
     /**
      * Clean up and validate the input data
      *
-     * @param Doku_Event $event event object by reference
+     * @param Event $event event object by reference
      * @param mixed $param [the parameters passed as fifth argument to register_hook() when this
      *                           handler was registered]
      * @return bool
      */
-    public function handleValidation(Doku_Event $event, $param)
+    public function handleValidation(Event $event, $param)
     {
         global $ID, $INPUT;
         $act = act_clean($event->data);
-        if (!in_array($act, array('save', 'preview'))) return false;
-        $this->tosave = array();
+        if (!in_array($act, ['save', 'preview'])) return false;
+        $this->tosave = [];
 
         // run the validation for each assignded schema
         $valid = AccessDataValidator::validateDataForPage($INPUT->arr(self::$VAR), $ID, $errors);
@@ -89,12 +92,12 @@ class action_plugin_struct_entry extends DokuWiki_Action_Plugin
     /**
      * Check if the page has to be changed
      *
-     * @param Doku_Event $event event object by reference
+     * @param Event $event event object by reference
      * @param mixed $param [the parameters passed as fifth argument to register_hook() when this
      *                           handler was registered]
      * @return bool
      */
-    public function handlePagesaveBefore(Doku_Event $event, $param)
+    public function handlePagesaveBefore(Event $event, $param)
     {
         if ($event->data['contentChanged']) return false; // will be saved for page changes
         global $ACT;
@@ -122,12 +125,12 @@ class action_plugin_struct_entry extends DokuWiki_Action_Plugin
      *
      * When this is called, INPUT data has been validated already.
      *
-     * @param Doku_Event $event event object by reference
+     * @param Event $event event object by reference
      * @param mixed $param [the parameters passed as fifth argument to register_hook() when this
      *                           handler was registered]
      * @return bool
      */
-    public function handlePagesaveAfter(Doku_Event $event, $param)
+    public function handlePagesaveAfter(Event $event, $param)
     {
         global $ACT;
         if ($ACT == 'revert') return false; // handled in revert
@@ -142,9 +145,9 @@ class action_plugin_struct_entry extends DokuWiki_Action_Plugin
                     $schemaData->clearData();
                 }
             }
-        } else {
+        } elseif ($this->tosave) {
             // save the provided data
-            if ($this->tosave) foreach ($this->tosave as $validation) {
+            foreach ($this->tosave as $validation) {
                 if ($validation->getAccessTable()->getSchema()->isEditable()) {
                     $validation->saveData($event->data['newRevision']);
 

@@ -16,13 +16,10 @@ use dokuwiki\plugin\struct\meta\Value;
 
 class Lookup extends Dropdown
 {
-    protected $config = array(
-        'schema' => '',
-        'field' => ''
-    );
+    protected $config = ['schema' => '', 'field' => ''];
 
     /** @var  Column caches the referenced column */
-    protected $column = null;
+    protected $column;
 
     /**
      * Dropdown constructor.
@@ -45,7 +42,7 @@ class Lookup extends Dropdown
      */
     protected function getLookupColumn()
     {
-        if ($this->column !== null) return $this->column;
+        if ($this->column instanceof Column) return $this->column;
         $this->column = $this->getColumn($this->config['schema'], $this->config['field']);
         return $this->column;
     }
@@ -80,7 +77,7 @@ class Lookup extends Dropdown
                 $column = new PageColumn(0, new Page(), $table);
             }
             if ($infield == '%title%') {
-                $column = new PageColumn(0, new Page(array('usetitles' => true)), $table);
+                $column = new PageColumn(0, new Page(['usetitles' => true]), $table);
             }
             if ($infield == '%lastupdate%') {
                 $column = new RevisionColumn(0, new DateTime(), $table);
@@ -119,22 +116,22 @@ class Lookup extends Dropdown
     {
         $schema = $this->config['schema'];
         $column = $this->getLookupColumn();
-        if (!$column) return array();
+        if (!$column) return [];
         $field = $column->getLabel();
 
         $search = new Search();
         $search->addSchema($schema);
         $search->addColumn($field);
         $search->addSort($field);
-        $result = $search->execute();
+
+        $result = $search->getRows();
         $pids = $search->getPids();
         $rids = $search->getRids();
         $len = count($result);
 
-        /** @var Value[][] $result */
-        $options = array('' => '');
+        $options = ['' => ''];
         for ($i = 0; $i < $len; $i++) {
-            $val = json_encode([$pids[$i], (int)$rids[$i]]);
+            $val = json_encode([$pids[$i], (int)$rids[$i]], JSON_THROW_ON_ERROR);
             $options[$val] = $result[$i][0]->getDisplayValue();
         }
         return $options;
@@ -151,7 +148,7 @@ class Lookup extends Dropdown
      */
     public function renderValue($value, \Doku_Renderer $R, $mode)
     {
-        list(, $value) = \helper_plugin_struct::decodeJson($value);
+        [, $value] = \helper_plugin_struct::decodeJson($value);
         $column = $this->getLookupColumn();
         if (!$column) return false;
         return $column->getType()->renderValue($value, $R, $mode);
@@ -169,7 +166,7 @@ class Lookup extends Dropdown
     {
         $values = array_map(
             function ($val) {
-                list(, $val) = \helper_plugin_struct::decodeJson($val);
+                [, $val] = \helper_plugin_struct::decodeJson($val);
                 return $val;
             },
             $values
@@ -185,7 +182,7 @@ class Lookup extends Dropdown
      */
     public function rawValue($value)
     {
-        list($value) = \helper_plugin_struct::decodeJson($value);
+        [$value] = \helper_plugin_struct::decodeJson($value);
         return $value;
     }
 
@@ -195,7 +192,7 @@ class Lookup extends Dropdown
      */
     public function displayValue($value)
     {
-        list(, $value) = \helper_plugin_struct::decodeJson($value);
+        [, $value] = \helper_plugin_struct::decodeJson($value);
         $column = $this->getLookupColumn();
         if ($column) {
             return $column->getType()->displayValue($value);
@@ -215,7 +212,7 @@ class Lookup extends Dropdown
      */
     public function compareValue($value)
     {
-        list(, $value) = \helper_plugin_struct::decodeJson($value);
+        [, $value] = \helper_plugin_struct::decodeJson($value);
         $column = $this->getLookupColumn();
         if ($column) {
             return $column->getType()->rawValue($value);
@@ -248,7 +245,8 @@ class Lookup extends Dropdown
             $tablealias,
             $schema,
             $rightalias,
-            "$tablealias.$colname = STRUCT_JSON($rightalias.pid, CAST($rightalias.rid AS DECIMAL)) " .
+            "STRUCT_LOOKUP($tablealias.$colname, 0) = $rightalias.pid " .
+            "AND STRUCT_LOOKUP($tablealias.$colname, 1) = $rightalias.rid " .
             "AND $rightalias.latest = 1"
         );
         $column->getType()->select($QB, $rightalias, $field, $alias);

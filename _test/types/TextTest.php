@@ -24,7 +24,7 @@ class TextTest extends StructTest
                 '', // postfix
                 '=', // comp
                 'val', // value
-                '((T.col != \'\' AND T.col = ?))', // expect sql
+                '(T.col = ?)', // expect sql
                 ['val'], // expect opts
             ],
             [
@@ -32,7 +32,7 @@ class TextTest extends StructTest
                 '', // postfix
                 '=', // comp
                 'val', // value
-                '((T.col != \'\' AND ? || T.col = ?))', // expect sql
+                '(? || T.col = ?)', // expect sql
                 ['before', 'val'], // expect opts
             ],
             [
@@ -40,7 +40,7 @@ class TextTest extends StructTest
                 'after', // postfix
                 '=', // comp
                 'val', // value
-                '((T.col != \'\' AND T.col || ? = ?))', // expect sql
+                '(T.col || ? = ?)', // expect sql
                 ['after', 'val'], // expect opts
             ],
             [
@@ -48,7 +48,7 @@ class TextTest extends StructTest
                 'after', // postfix
                 '=', // comp
                 'val', // value
-                '((T.col != \'\' AND ? || T.col || ? = ?))', // expect sql
+                '(? || T.col || ? = ?)', // expect sql
                 ['before', 'after', 'val'], // expect opts
             ],
             // LIKE
@@ -57,7 +57,7 @@ class TextTest extends StructTest
                 '', // postfix
                 'LIKE', // comp
                 '%val%', // value
-                '((T.col != \'\' AND T.col LIKE ?))', // expect sql
+                '(T.col LIKE ?)', // expect sql
                 ['%val%'], // expect opts
             ],
             [
@@ -65,7 +65,7 @@ class TextTest extends StructTest
                 '', // postfix
                 'LIKE', // comp
                 '%val%', // value
-                '((T.col != \'\' AND ? || T.col LIKE ?))', // expect sql
+                '(? || T.col LIKE ?)', // expect sql
                 ['before', '%val%'], // expect opts
             ],
             [
@@ -73,7 +73,7 @@ class TextTest extends StructTest
                 'after', // postfix
                 'LIKE', // comp
                 '%val%', // value
-                '((T.col != \'\' AND T.col || ? LIKE ?))', // expect sql
+                '(T.col || ? LIKE ?)', // expect sql
                 ['after', '%val%'], // expect opts
             ],
             [
@@ -81,7 +81,7 @@ class TextTest extends StructTest
                 'after', // postfix
                 'LIKE', // comp
                 '%val%', // value
-                '((T.col != \'\' AND ? || T.col || ? LIKE ?))', // expect sql
+                '(? || T.col || ? LIKE ?)', // expect sql
                 ['before', 'after', '%val%'], // expect opts
             ],
             // NOT LIKE
@@ -90,7 +90,7 @@ class TextTest extends StructTest
                 '', // postfix
                 'NOT LIKE', // comp
                 '%val%', // value
-                '((T.col != \'\' AND T.col NOT LIKE ?))', // expect sql
+                '(T.col NOT LIKE ?)', // expect sql
                 ['%val%'], // expect opts
             ],
             [
@@ -98,7 +98,7 @@ class TextTest extends StructTest
                 '', // postfix
                 'NOT LIKE', // comp
                 '%val%', // value
-                '((T.col != \'\' AND ? || T.col NOT LIKE ?))', // expect sql
+                '(? || T.col NOT LIKE ?)', // expect sql
                 ['before', '%val%'], // expect opts
             ],
             [
@@ -106,7 +106,7 @@ class TextTest extends StructTest
                 'after', // postfix
                 'NOT LIKE', // comp
                 '%val%', // value
-                '((T.col != \'\' AND T.col || ? NOT LIKE ?))', // expect sql
+                '(T.col || ? NOT LIKE ?)', // expect sql
                 ['after', '%val%'], // expect opts
             ],
             [
@@ -114,7 +114,7 @@ class TextTest extends StructTest
                 'after', // postfix
                 'NOT LIKE', // comp
                 '%val%', // value
-                '((T.col != \'\' AND ? || T.col || ? NOT LIKE ?))', // expect sql
+                '(? || T.col || ? NOT LIKE ?)', // expect sql
                 ['before', 'after', '%val%'], // expect opts
             ],
 
@@ -124,7 +124,7 @@ class TextTest extends StructTest
                 'after', // postfix
                 'NOT LIKE', // comp
                 ['%val1%', '%val2%'], // multiple values
-                '((T.col != \'\' AND (? || T.col || ? NOT LIKE ? OR ? || T.col || ? NOT LIKE ?)))', // expect sql
+                '((? || T.col || ? NOT LIKE ? OR ? || T.col || ? NOT LIKE ?))', // expect sql
                 ['before', 'after', '%val1%', 'before', 'after', '%val2%',], // expect opts
             ],
         ];

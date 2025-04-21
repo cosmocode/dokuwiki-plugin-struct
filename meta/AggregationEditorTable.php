@@ -28,7 +28,8 @@ class AggregationEditorTable extends AggregationTable
     public function startScope()
     {
         // unique identifier for this aggregation
-        $this->renderer->info['struct_table_hash'] = md5(var_export($this->data, true));
+        $hash = md5(var_export($this->data, true));
+        $this->renderer->info['struct_table_hash'] = $hash;
 
         if ($this->mode != 'xhtml') return;
 
@@ -36,17 +37,15 @@ class AggregationEditorTable extends AggregationTable
 
         $config = $this->searchConfig->getConf();
         if (isset($config['filter'])) unset($config['filter']);
-        $config = hsc(json_encode($config));
+        $config = hsc(json_encode($config, JSON_THROW_ON_ERROR));
 
         // wrapping div
         $classes = $this->getScopeClasses();
         $classes[] = 'structaggregationeditor';
-        $classes = join(' ', $classes);
-        $this->renderer->doc .= "<div class=\"$classes\" 
+        $classes = implode(' ', $classes);
+        $this->renderer->doc .= "<div id=\"$hash\"
+                                      class=\"$classes\"
                                       data-schema=\"$table\" data-searchconf=\"$config\">";
-
-        // unique identifier for this aggregation
-        $this->renderer->info['struct_table_hash'] = md5(var_export($this->data, true));
     }
 
     /**
@@ -71,7 +70,7 @@ class AggregationEditorTable extends AggregationTable
         $this->renderer->table_open();
         $this->renderer->doc = '';
 
-        $this->renderResultRow(0, $this->result[0]);
+        $this->renderResultRow(0, $this->searchConfig->getRows()[0]);
         return $this->renderer->doc;
     }
 }

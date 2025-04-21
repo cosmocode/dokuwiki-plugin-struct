@@ -7,21 +7,24 @@
  * @author  Andreas Gohr, Michael Große <dokuwiki@cosmocode.de>
  */
 
+use dokuwiki\Extension\ActionPlugin;
+use dokuwiki\Extension\EventHandler;
+use dokuwiki\Extension\Event;
 use dokuwiki\plugin\struct\meta\AccessTable;
 use dokuwiki\plugin\struct\meta\Assignments;
 
 /**
  * Inject struct data into indexed pages and search result snippets
  */
-class action_plugin_struct_search extends DokuWiki_Action_Plugin
+class action_plugin_struct_search extends ActionPlugin
 {
     /**
      * Registers a callback function for a given event
      *
-     * @param Doku_Event_Handler $controller DokuWiki's event controller object
+     * @param EventHandler $controller DokuWiki's event controller object
      * @return void
      */
-    public function register(Doku_Event_Handler $controller)
+    public function register(EventHandler $controller)
     {
         $controller->register_hook('INDEXER_PAGE_ADD', 'BEFORE', $this, 'handleIndexing');
         $controller->register_hook('FULLTEXT_SNIPPET_CREATE', 'BEFORE', $this, 'handleSnippets');
@@ -30,12 +33,12 @@ class action_plugin_struct_search extends DokuWiki_Action_Plugin
     /**
      * Adds the structured data to the page body to be indexed
      *
-     * @param Doku_Event $event event object by reference
+     * @param Event $event event object by reference
      * @param mixed $param [the parameters passed as fifth argument to register_hook() when this
      *                           handler was registered]
      * @return bool
      */
-    public function handleIndexing(Doku_Event $event, $param)
+    public function handleIndexing(Event $event, $param)
     {
         $id = $event->data['page'];
         $assignments = Assignments::getInstance();
@@ -51,12 +54,12 @@ class action_plugin_struct_search extends DokuWiki_Action_Plugin
     /**
      * Adds the structured data to the page body to be snippeted
      *
-     * @param Doku_Event $event event object by reference
+     * @param Event $event event object by reference
      * @param mixed $param [the parameters passed as fifth argument to register_hook() when this
      *                           handler was registered]
      * @return bool
      */
-    public function handleSnippets(Doku_Event $event, $param)
+    public function handleSnippets(Event $event, $param)
     {
         $id = $event->data['id'];
         $assignments = Assignments::getInstance();

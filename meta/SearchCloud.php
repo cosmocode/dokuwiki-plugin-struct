@@ -32,6 +32,7 @@ class SearchCloud extends SearchConfig
         // add conditional page clauses if pid has a value
         $subAnd = $QB->filters()->whereSubAnd();
         $subAnd->whereAnd("$datatable.pid = ''");
+
         $subOr = $subAnd->whereSubOr();
         $subOr->whereAnd("GETACCESSLEVEL($datatable.pid) > 0");
         $subOr->whereAnd("PAGEEXISTS($datatable.pid) = 1");
@@ -80,7 +81,7 @@ class SearchCloud extends SearchConfig
         $QB->addGroupByStatement('tag');
         $QB->addOrderBy('count DESC');
 
-        list($sql, $opts) = $QB->getSQL();
+        [$sql, $opts] = $QB->getSQL();
         return [$sql . $this->limit, $opts];
     }
 
@@ -97,13 +98,14 @@ class SearchCloud extends SearchConfig
     /**
      * Execute this search and return the result
      *
-     * The result is a two dimensional array of Value()s.
+     * Because the cloud uses a different search, we omit calling
+     * getResult() und run() methods of the parent class, and return the result array directly.
      *
      * @return Value[][]
      */
-    public function execute()
+    public function getRows()
     {
-        list($sql, $opts) = $this->getSQL();
+        [$sql, $opts] = $this->getSQL();
 
         /** @var \PDOStatement $res */
         $res = $this->sqlite->query($sql, $opts);
@@ -122,7 +124,6 @@ class SearchCloud extends SearchConfig
         }
 
         $res->closeCursor();
-        $this->count = count($result);
         return $result;
     }
 }

@@ -13,7 +13,7 @@ class ValueValidator
     protected $hlp;
 
     /** @var  array list of validation errors */
-    protected $errors;
+    protected $errors = [];
 
     /**
      * ValueValidator constructor.
@@ -21,7 +21,6 @@ class ValueValidator
     public function __construct()
     {
         $this->hlp = plugin_load('helper', 'struct_db');
-        $this->errors = array();
     }
 
     /**
@@ -33,6 +32,8 @@ class ValueValidator
      */
     public function validateValue(Column $col, &$rawvalue)
     {
+        if ($rawvalue === null) $rawvalue = ''; // no data was passed
+
         // fix multi value types
         $type = $col->getType();
         $trans = $type->getTranslatedLabel();
@@ -41,9 +42,14 @@ class ValueValidator
         }
         // strip empty fields from multi vals
         // but keep at least one so we can properly delete multivalues on update
-        if (is_array($rawvalue) && count($rawvalue) > 1) {
-            $rawvalue = array_filter($rawvalue, array($this, 'filter'));
+        // some fields like media or date can post an array with multiple empty strings
+        // because they use multiple inputs instead of comma separation in one input
+        if (is_array($rawvalue)) {
+            $rawvalue = array_filter($rawvalue, [$this, 'filter']);
             $rawvalue = array_values($rawvalue); // reset the array keys
+            if ($rawvalue === []) {
+                $rawvalue = [''];
+            }
         }
 
         // validate data

@@ -2,6 +2,8 @@
 
 namespace dokuwiki\plugin\struct\meta;
 
+use dokuwiki\Debug\DebugHelper;
+use dokuwiki\Parsing\Lexer\Lexer;
 use dokuwiki\plugin\struct\types\AutoSummary;
 use dokuwiki\plugin\struct\types\DateTime;
 use dokuwiki\plugin\struct\types\Decimal;
@@ -19,9 +21,7 @@ class Search
      * The list of known and allowed comparators
      * (order matters)
      */
-    public static $COMPARATORS = array(
-        '<=', '>=', '=*', '=', '<', '>', '!=', '!~', '~', ' IN '
-    );
+    public static $COMPARATORS = ['<=', '>=', '=*', '=', '<', '>', '!=', '!~', '~', ' IN '];
 
     /** @var \helper_plugin_struct_db */
     protected $dbHelper;
@@ -30,22 +30,22 @@ class Search
     protected $sqlite;
 
     /** @var Schema[] list of schemas to query */
-    protected $schemas = array();
+    protected $schemas = [];
 
     /** @var Column[] list of columns to select */
-    protected $columns = array();
+    protected $columns = [];
 
     /** @var array the sorting of the result */
-    protected $sortby = array();
+    protected $sortby = [];
 
     /** @var array the filters */
-    protected $filter = array();
+    protected $filter = [];
 
     /** @var array the filters */
-    protected $dynamicFilter = array();
+    protected $dynamicFilter = [];
 
     /** @var array list of aliases tables can be referenced by */
-    protected $aliases = array();
+    protected $aliases = [];
 
     /** @var  int begin results from here */
     protected $range_begin = 0;
@@ -53,14 +53,10 @@ class Search
     /** @var  int end results here */
     protected $range_end = 0;
 
-    /** @var int the number of results */
-    protected $count = -1;
-    /** @var  string[] the PIDs of the result rows */
-    protected $result_pids = null;
-    /** @var  array the row ids of the result rows */
-    protected $result_rids = [];
-    /** @var  array the revisions of the result rows */
-    protected $result_revs = [];
+    /**
+     * @var SearchResult
+     */
+    protected $result;
 
     /** @var bool Include latest = 1 in select query */
     protected $selectLatest = true;
@@ -113,7 +109,7 @@ class Search
         if ($colname[0] == '-') { // remove column from previous wildcard lookup
             $colname = substr($colname, 1);
             foreach ($this->columns as $key => $col) {
-                if ($col->getLabel() == $colname) unset($this->columns[$key]);
+                if ($col->getLabel() === $colname) unset($this->columns[$key]);
             }
             return;
         }
@@ -138,7 +134,7 @@ class Search
         $col = $this->findColumn($colname);
         if (!$col) return; //FIXME do we really want to ignore missing columns?
 
-        $this->sortby[$col->getFullQualifiedLabel()] = array($col, $asc, $nc);
+        $this->sortby[$col->getFullQualifiedLabel()] = [$col, $asc, $nc];
     }
 
     /**
@@ -210,7 +206,7 @@ class Search
         }
 
         if (!in_array($comp, self::$COMPARATORS))
-            throw new StructException("Bad comperator. Use " . join(',', self::$COMPARATORS));
+            throw new StructException("Bad comperator. Use " . implode(',', self::$COMPARATORS));
         if ($op != 'OR' && $op != 'AND')
             throw new StructException('Bad filter type . Only AND or OR allowed');
 
@@ -242,7 +238,7 @@ class Search
         }
 
         // add the filter
-        return array($col, $value, $comp, $op);
+        return [$col, $value, $comp, $op];
     }
 
     /**
@@ -256,7 +252,7 @@ class Search
         $Handler = new FilterValueListHandler();
         $LexerClass = class_exists('\Doku_Lexer') ? '\Doku_Lexer' : '\dokuwiki\Parsing\Lexer\Lexer';
         $isLegacy = $LexerClass === '\Doku_Lexer';
-        /** @var \Doku_Lexer|\dokuwiki\Parsing\Lexer\Lexer $Lexer */
+        /** @var \Doku_Lexer|Lexer $Lexer */
         $Lexer = new $LexerClass($Handler, 'base', true);
 
 
@@ -294,9 +290,7 @@ class Search
      */
     protected function filterWrapAsterisks($value)
     {
-        $map = function ($input) {
-            return "*$input*";
-        };
+        $map = static fn($input) => "*$input*";
 
         if (is_array($value)) {
             $value = array_map($map, $value);
@@ -314,9 +308,7 @@ class Search
      */
     protected function filterChangeToLike($value)
     {
-        $map = function ($input) {
-            return str_replace('*', '%', $input);
-        };
+        $map = static fn($input) => str_replace('*', '%', $input);
 
         if (is_array($value)) {
             $value = array_map($map, $value);
@@ -390,58 +382,63 @@ class Search
     }
 
     /**
+     * If the search result object does not exist yet,
+     * the search is run and the result object returned
+     *
+     * @return SearchResult
+     */
+    public function getResult()
+    {
+        if (is_null($this->result)) {
+            $this->run();
+        }
+        return $this->result;
+    }
+
+    /**
      * Return the number of results (regardless of limit and offset settings)
-     *
-     * Use this to implement paging. Important: this may only be called after running @return int
-     * @see execute()
-     *
      */
     public function getCount()
     {
-        if ($this->count < 0) throw new StructException('Count is only accessible after executing the search');
-        return $this->count;
+        return $this->getResult()->getCount();
     }
 
     /**
      * Returns the PID associated with each result row
-     *
-     * Important: this may only be called after running @return \string[]
-     * @see execute()
-     *
      */
     public function getPids()
     {
-        if ($this->result_pids === null)
-            throw new StructException('PIDs are only accessible after executing the search');
-        return $this->result_pids;
+        return $this->getResult()->getPids();
     }
 
     /**
      * Returns the rid associated with each result row
      *
-     * Important: this may only be called after running @return array
-     * @see execute()
-     *
+     * @return array
      */
     public function getRids()
     {
-        if ($this->result_rids === null)
-            throw new StructException('rids are only accessible after executing the search');
-        return $this->result_rids;
+        return $this->getResult()->getRids();
     }
 
     /**
-     * Returns the rid associated with each result row
+     * Returns the revisions of search results
      *
-     * Important: this may only be called after running @return array
-     * @see execute()
-     *
+     * @return array
      */
     public function getRevs()
     {
-        if ($this->result_revs === null)
-            throw new StructException('revs are only accessible after executing the search');
-        return $this->result_revs;
+        return $this->getResult()->getRevs();
+    }
+
+    /**
+     * Returns the actual result rows
+     *
+     * @return Value[][]
+     */
+    public function getRows()
+    {
+        return $this->getResult()->getRows();
     }
 
     /**
@@ -450,58 +447,38 @@ class Search
      * The result is a two dimensional array of Value()s.
      *
      * This will always query for the full result (not using offset and limit) and then
-     * return the wanted range, setting the count (@return Value[][]
-     * @see getCount) to the whole result number
+     * return the wanted range, setting the count to the whole result number
      *
+     * @deprecated Use getRows() instead
+     * @return Value[][]
      */
     public function execute()
     {
-        list($sql, $opts) = $this->getSQL();
+        DebugHelper::dbgDeprecatedFunction(\dokuwiki\plugin\struct\meta\Search::class . '::getRows()');
+        return $this->getRows();
+    }
+
+    /**
+     * Run the actual search and populate the result object
+     *
+     * @return void
+     */
+    protected function run()
+    {
+        [$sql, $opts] = $this->getSQL();
 
         /** @var \PDOStatement $res */
         $res = $this->sqlite->query($sql, $opts);
         if ($res === false) throw new StructException("SQL execution failed for\n\n$sql");
 
-        $this->result_pids = array();
-        $result = array();
-        $cursor = -1;
-        $pageidAndRevOnly = array_reduce($this->columns, function ($pageidAndRevOnly, Column $col) {
-            return $pageidAndRevOnly && ($col->getTid() == 0);
-        }, true);
-        while ($row = $res->fetch(\PDO::FETCH_ASSOC)) {
-            $cursor++;
-            if ($cursor < $this->range_begin) continue;
-            if ($this->range_end && $cursor >= $this->range_end) continue;
+        $pageidAndRevOnly = array_reduce(
+            $this->columns,
+            static fn($pageidAndRevOnly, Column $col) => $pageidAndRevOnly && ($col->getTid() == 0),
+            true
+        );
 
-            $C = 0;
-            $resrow = array();
-            $isempty = true;
-            foreach ($this->columns as $col) {
-                $val = $row["C$C"];
-                if ($col->isMulti()) {
-                    $val = explode(self::CONCAT_SEPARATOR, $val);
-                }
-                $value = new Value($col, $val);
-                $isempty &= $this->isEmptyValue($value);
-                $resrow[] = $value;
-                $C++;
-            }
-
-            // skip empty rows
-            if ($isempty && !$pageidAndRevOnly) {
-                $cursor--;
-                continue;
-            }
-
-            $this->result_pids[] = $row['PID'];
-            $this->result_rids[] = $row['rid'];
-            $this->result_revs[] = $row['rev'];
-            $result[] = $resrow;
-        }
-
+        $this->result = new SearchResult($res, $this->range_begin, $this->range_end, $this->columns, $pageidAndRevOnly);
         $res->closeCursor();
-        $this->count = $cursor + 1;
-        return $result;
     }
 
     /**
@@ -567,7 +544,7 @@ class Search
      */
     protected function processWildcard($colname)
     {
-        list($colname, $table) = $this->resolveColumn($colname);
+        [$colname, $table] = $this->resolveColumn($colname);
         if ($colname !== '*') return false;
 
         // no table given? assume the first is meant
@@ -577,7 +554,7 @@ class Search
         }
 
         $schema = $this->schemas[$table] ?? null;
-        if (!$schema) return false;
+        if (!$schema instanceof Schema) return false;
         $this->columns = array_merge($this->columns, $schema->getColumns(false));
         return true;
     }
@@ -595,7 +572,7 @@ class Search
         if (!$this->schemas) throw new StructException('noschemas');
 
         // resolve the alias or table name
-        @list($table, $colname) = array_pad(explode('.', $colname, 2), 2, '');
+        [$table, $colname] = sexplode('.', $colname, 2, '');
         if (!$colname) {
             $colname = $table;
             $table = null;
@@ -606,7 +583,7 @@ class Search
 
         if (!$colname) throw new StructException('nocolname');
 
-        return array($colname, $table);
+        return [$colname, $table];
     }
 
     /**
@@ -625,7 +602,7 @@ class Search
             return new PageColumn(0, new Page(), $schema_list[0]);
         }
         if ($colname == '%title%') {
-            return new PageColumn(0, new Page(array('usetitles' => true)), $schema_list[0]);
+            return new PageColumn(0, new Page(['usetitles' => true]), $schema_list[0]);
         }
         if ($colname == '%lastupdate%') {
             return new RevisionColumn(0, new DateTime(), $schema_list[0]);
@@ -643,7 +620,7 @@ class Search
             return new PublishedColumn(0, new Decimal(), $schema_list[0]);
         }
 
-        list($colname, $table) = $this->resolveColumn($colname);
+        [$colname, $table] = $this->resolveColumn($colname);
 
         /*
          * If table name is given search only that, otherwise if no strict behavior
@@ -651,7 +628,7 @@ class Search
          * column name.
          */
         if ($table !== null && isset($this->schemas[$table])) {
-            $schemas = array($table => $this->schemas[$table]);
+            $schemas = [$table => $this->schemas[$table]];
         } elseif ($table === null || !$strict) {
             $schemas = $this->schemas;
         } else {
@@ -669,18 +646,5 @@ class Search
         }
 
         return $col;
-    }
-
-    /**
-     * Check if the given row is empty or references our own row
-     *
-     * @param Value $value
-     * @return bool
-     */
-    protected function isEmptyValue(Value $value)
-    {
-        if ($value->isEmpty()) return true;
-        if ($value->getColumn()->getTid() == 0) return true;
-        return false;
     }
 }

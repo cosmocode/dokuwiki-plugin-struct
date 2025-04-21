@@ -1,23 +1,27 @@
 <?php
 
+use dokuwiki\Extension\ActionPlugin;
+use dokuwiki\Extension\EventHandler;
+use dokuwiki\Extension\Event;
+use dokuwiki\plugin\sqlite\SQLiteDB;
+
 /**
  * DokuWiki Plugin struct (Action Component)
  *
  * @license GPL 2 http://www.gnu.org/licenses/gpl-2.0.html
  * @author  Andreas Gohr, Michael Große <dokuwiki@cosmocode.de>
  */
-
 /**
  * Class action_plugin_struct_migration
  *
  * Handle migrations that need more than just SQL
  */
-class action_plugin_struct_migration extends DokuWiki_Action_Plugin
+class action_plugin_struct_migration extends ActionPlugin
 {
     /**
      * @inheritDoc
      */
-    public function register(Doku_Event_Handler $controller)
+    public function register(EventHandler $controller)
     {
         $controller->register_hook('PLUGIN_SQLITE_DATABASE_UPGRADE', 'BEFORE', $this, 'handleMigrations');
     }
@@ -25,19 +29,19 @@ class action_plugin_struct_migration extends DokuWiki_Action_Plugin
     /**
      * Call our custom migrations when defined
      *
-     * @param Doku_Event $event
+     * @param Event $event
      * @param $param
      */
-    public function handleMigrations(Doku_Event $event, $param)
+    public function handleMigrations(Event $event, $param)
     {
         if ($event->data['adapter']->getDbname() !== 'struct') {
             return;
         }
         $to = $event->data['to'];
 
-        if (is_callable(array($this, "migration$to"))) {
+        if (is_callable([$this, "migration$to"])) {
             $event->preventDefault();
-            $event->result = call_user_func(array($this, "migration$to"), $event->data['adapter']);
+            $event->result = call_user_func([$this, "migration$to"], $event->data['adapter']);
         }
     }
 
@@ -46,7 +50,7 @@ class action_plugin_struct_migration extends DokuWiki_Action_Plugin
      *
      * Add a latest column to all existing multi tables
      *
-     * @param \dokuwiki\plugin\sqlite\SQLiteDB $sqlite
+     * @param SQLiteDB $sqlite
      * @return bool
      */
     protected function migration12($sqlite)
@@ -56,8 +60,9 @@ class action_plugin_struct_migration extends DokuWiki_Action_Plugin
         $tables = $sqlite->queryAll($sql);
 
         foreach ($tables as $row) {
-            $sql = 'ALTER TABLE ? ADD COLUMN latest INT DEFAULT 1';
-            $sqlite->query($sql, $row['name']);
+            $table = $row['name']; // no escaping needed, it's our own tables
+            $sql = "ALTER TABLE $table ADD COLUMN latest INT DEFAULT 1";
+            $sqlite->query($sql);
         }
 
         return true;
@@ -68,7 +73,7 @@ class action_plugin_struct_migration extends DokuWiki_Action_Plugin
      *
      * Unifies previous page and lookup schema types
      *
-     * @param \dokuwiki\plugin\sqlite\SQLiteDB $sqlite
+     * @param SQLiteDB $sqlite
      * @return bool
      */
     protected function migration16($sqlite)
@@ -173,7 +178,7 @@ class action_plugin_struct_migration extends DokuWiki_Action_Plugin
 
                     // simple lookup fields
                     $s = "UPDATE data_$name
-                             SET col$colno = '[" . '""' . ",'||col$colno||']' 
+                             SET col$colno = '[" . '""' . ",'||col$colno||']'
                            WHERE col$colno != ''
                              AND CAST(col$colno AS DECIMAL) = col$colno";
                     $ok = $ok && $sqlite->query($s);
@@ -226,7 +231,7 @@ class action_plugin_struct_migration extends DokuWiki_Action_Plugin
      * All lookups were presumed to reference lookup data, not pages, so the migrated value
      * was always ["", <previous-pid-aka-new-rid>]. For page references it is ["<previous-pid>", 0]
      *
-     * @param \dokuwiki\plugin\sqlite\SQLiteDB $sqlite
+     * @param SQLiteDB $sqlite
      * @return bool
      */
     protected function migration17($sqlite)
@@ -246,9 +251,7 @@ class action_plugin_struct_migration extends DokuWiki_Action_Plugin
             $cols = $sqlite->queryAll($s);
 
             if ($cols) {
-                $colnames = array_map(function ($c) {
-                    return 'col' . $c['COL'];
-                }, $cols);
+                $colnames = array_map(static fn($c) => 'col' . $c['COL'], $cols);
 
                 // data_ tables
                 $s = 'SELECT pid, rid, rev, ' . implode(', ', $colnames) . " FROM data_$name";
@@ -256,10 +259,10 @@ class action_plugin_struct_migration extends DokuWiki_Action_Plugin
 
                 if (!empty($allValues)) {
                     foreach ($allValues as $row) {
-                        list($pid, $rid, $rev, $colref, $rowno, $fixes) = $this->getFixedValues($row);
+                        [$pid, $rid, $rev, $colref, $rowno, $fixes] = $this->getFixedValues($row);
                         // now fix the values
                         if (!empty($fixes)) {
-                            $sql = "UPDATE data_$name 
+                            $sql = "UPDATE data_$name
                                        SET " . implode(', ', $fixes) . "
                                      WHERE pid = ?
                                        AND rid = ?
@@ -276,10 +279,10 @@ class action_plugin_struct_migration extends DokuWiki_Action_Plugin
 
                 if (!empty($allValues)) {
                     foreach ($allValues as $row) {
-                        list($pid, $rid, $rev, $colref, $rowno, $fixes) = $this->getFixedValues($row);
+                        [$pid, $rid, $rev, $colref, $rowno, $fixes] = $this->getFixedValues($row);
                         // now fix the values
                         if (!empty($fixes)) {
-                            $sql = "UPDATE multi_$name 
+                            $sql = "UPDATE multi_$name
                                        SET " . implode(', ', $fixes) . "
                                      WHERE pid = ?
                                        AND rid = ?
@@ -300,7 +303,7 @@ class action_plugin_struct_migration extends DokuWiki_Action_Plugin
     /**
      * Removes a temp table left over by migration 16
      *
-     * @param \dokuwiki\plugin\sqlite\SQLiteDB $sqlite
+     * @param SQLiteDB $sqlite
      * @return bool
      */
     protected function migration18($sqlite)
@@ -312,12 +315,13 @@ class action_plugin_struct_migration extends DokuWiki_Action_Plugin
 
         return $ok;
     }
+
     /**
      * Executes Migration 19
      *
      * Add "published" column to all existing tables
      *
-     * @param \dokuwiki\plugin\sqlite\SQLiteDB $sqlite
+     * @param SQLiteDB $sqlite
      * @return bool
      */
     protected function migration19($sqlite)
@@ -329,8 +333,36 @@ class action_plugin_struct_migration extends DokuWiki_Action_Plugin
         $tables = $sqlite->queryAll($sql);
 
         foreach ($tables as $row) {
-            $sql = 'ALTER TABLE ? ADD COLUMN published INT DEFAULT NULL';
-            $ok = $ok && $sqlite->query($sql, $row['name']);
+            $table = $row['name']; // no escaping needed, it's our own tables
+            $sql = "ALTER TABLE $table ADD COLUMN published INT DEFAULT NULL";
+            $ok = $ok && $sqlite->query($sql);
+        }
+        return $ok;
+    }
+
+    /**
+     * Executes Migration 20
+     *
+     * Adds indexes on "latest" and "published".
+     * Those fields are not part of (autoindexed) primary key, but are used in many queries.
+     *
+     * @param SQLiteDB $sqlite
+     * @return bool
+     */
+    protected function migration20($sqlite)
+    {
+        $ok = true;
+
+        /** @noinspection SqlResolve */
+        $sql = "SELECT name FROM sqlite_master WHERE type = 'table' AND (name LIKE 'data_%' OR name LIKE 'multi_%')";
+        $tables = $sqlite->queryAll($sql);
+
+        foreach ($tables as $row) {
+            $table = $row['name']; // no escaping needed, it's our own tables
+            $sql = "CREATE INDEX idx_$table" . "_latest ON $table(latest);";
+            $ok = $ok && $sqlite->query($sql);
+            $sql = "CREATE INDEX idx_$table" . "_published ON $table(published);";
+            $ok = $ok && $sqlite->query($sql);
         }
         return $ok;
     }
@@ -382,9 +414,7 @@ class action_plugin_struct_migration extends DokuWiki_Action_Plugin
         }
 
         if (!empty($fixes)) {
-            $fixes = array_map(function ($set, $key) {
-                return "$key = '$set'";
-            }, $fixes, array_keys($fixes));
+            $fixes = array_map(static fn($set, $key) => "$key = '$set'", $fixes, array_keys($fixes));
         }
 
         return [$pid, $rid, $rev, $colref, $rowno, $fixes];

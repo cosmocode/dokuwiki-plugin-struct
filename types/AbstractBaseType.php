@@ -2,6 +2,7 @@
 
 namespace dokuwiki\plugin\struct\types;
 
+use dokuwiki\Extension\Plugin;
 use dokuwiki\plugin\struct\meta\Column;
 use dokuwiki\plugin\struct\meta\QueryBuilder;
 use dokuwiki\plugin\struct\meta\QueryBuilderWhere;
@@ -28,12 +29,12 @@ abstract class AbstractBaseType
     /**
      * @var array current config
      */
-    protected $config = array();
+    protected $config = [];
 
     /**
      * @var array config keys that should not be cleaned despite not being in $config
      */
-    protected $keepconfig = array('label', 'hint', 'visibility');
+    protected $keepconfig = ['label', 'hint', 'visibility'];
 
     /**
      * @var string label for the field
@@ -53,12 +54,12 @@ abstract class AbstractBaseType
     /**
      * @var null|Column the column context this type is part of
      */
-    protected $context = null;
+    protected $context;
 
     /**
-     * @var \DokuWiki_Plugin
+     * @var Plugin
      */
-    protected $hlp = null;
+    protected $hlp;
 
     /**
      * AbstractBaseType constructor.
@@ -70,12 +71,12 @@ abstract class AbstractBaseType
     public function __construct($config = null, $label = '', $ismulti = false, $tid = 0)
     {
         // general config options
-        $baseconfig = array(
-            'visibility' => array(
+        $baseconfig = [
+            'visibility' => [
                 'inpage' => true,
-                'ineditor' => true,
-            )
-        );
+                'ineditor' => true
+            ]
+        ];
 
         // use previously saved configuration, ignoring all keys that are not supposed to be here
         if (!is_null($config)) {
@@ -117,12 +118,12 @@ abstract class AbstractBaseType
      */
     public function getAsEntry()
     {
-        return array(
-            'config' => json_encode($this->config),
+        return [
+            'config' => json_encode($this->config, JSON_THROW_ON_ERROR),
             'label' => $this->label,
             'ismulti' => $this->ismulti,
             'class' => $this->getClass()
-        );
+        ];
     }
 
     /**
@@ -295,12 +296,12 @@ abstract class AbstractBaseType
             $class .= ' struct_autocomplete';
         }
 
-        $params = array(
+        $params = [
             'name' => $name,
             'value' => $rawvalue,
             'class' => $class,
             'id' => $htmlID
-        );
+        ];
         $attributes = buildAttributes($params, true);
         return "<input $attributes>";
     }
@@ -349,10 +350,15 @@ abstract class AbstractBaseType
      * @param string $page the target to which should be linked
      * @param string $filter the filter to apply to the aggregations on $page
      * @param int $weight the scaled weight of the item. implemented as css font-size on the outside container
+     * @param int|null $showCount count for the tag, only passed if summarize was set in config
      */
-    public function renderTagCloudLink($value, \Doku_Renderer $R, $mode, $page, $filter, $weight)
+    public function renderTagCloudLink($value, \Doku_Renderer $R, $mode, $page, $filter, $weight, $showCount = null)
     {
-        $R->internallink("$page?$filter", $this->displayValue($value));
+        $value = $this->displayValue($value);
+        if ($showCount) {
+             $value .= " ($showCount)";
+        }
+        $R->internallink("$page?$filter", $value);
     }
 
     /**
@@ -425,7 +431,7 @@ abstract class AbstractBaseType
      */
     public function sort(QueryBuilder $QB, $tablealias, $colname, $order)
     {
-        $QB->addOrderBy("$tablealias.$colname $order");
+        $QB->addOrderBy("$tablealias.$colname COLLATE NOCASE $order");
     }
 
     /**

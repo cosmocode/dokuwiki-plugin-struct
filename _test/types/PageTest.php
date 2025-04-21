@@ -10,7 +10,7 @@ use dokuwiki\plugin\struct\types\Page;
 /**
  * Testing the Page Type
  *
- * @group plugin_structp
+ * @group plugin_struct
  * @group plugins
  */
 class PageTest extends StructTest
@@ -21,13 +21,14 @@ class PageTest extends StructTest
         parent::setUp();
 
         saveWikiText('syntax', 'dummy', 'test');
+        saveWikiText('foo:syntax:test_special.characters', 'dummy text', 'dummy summary');
 
         // make sure the search index is initialized
         idx_addPage('wiki:syntax');
         idx_addPage('syntax');
         idx_addPage('wiki:welcome');
         idx_addPage('wiki:dokuwiki');
-
+        idx_addPage('foo:syntax:test_special.characters');
     }
 
     public function test_sort()
@@ -57,7 +58,7 @@ class PageTest extends StructTest
         $search->addColumn('singletitle');
         $search->addSort('singletitle', true);
         /** @var Value[][] $result */
-        $result = $search->execute();
+        $result = $search->getRows();
 
         $this->assertEquals(3, count($result));
         $this->assertEquals('test3', $result[0][0]->getValue());
@@ -97,7 +98,7 @@ class PageTest extends StructTest
         $search->addColumn('multititle');
 
         /** @var Value[][] $result */
-        $result = $search->execute();
+        $result = $search->getRows();
 
         // no titles:
         $this->assertEquals('wiki:dokuwiki', $result[0][0]->getValue());
@@ -126,28 +127,28 @@ class PageTest extends StructTest
         // search single with title
         $single = clone $search;
         $single->addFilter('singletitle', 'Overview', '*~', 'AND');
-        $result = $single->execute();
+        $result = $single->getRows();
         $this->assertTrue(is_array($result));
         $this->assertEquals(1, count($result));
 
         // search multi with title
         $multi = clone $search;
         $multi->addFilter('multititle', 'Foobar', '*~', 'AND');
-        $result = $multi->execute();
+        $result = $multi->getRows();
         $this->assertTrue(is_array($result));
         $this->assertEquals(1, count($result));
 
         // search single with page
         $single = clone $search;
         $single->addFilter('singletitle', 'wiki:dokuwiki', '*~', 'AND');
-        $result = $single->execute();
+        $result = $single->getRows();
         $this->assertTrue(is_array($result));
         $this->assertEquals(1, count($result));
 
         // search multi with page
         $multi = clone $search;
         $multi->addFilter('multititle', 'welcome', '*~', 'AND');
-        $result = $multi->execute();
+        $result = $multi->getRows();
         $this->assertTrue(is_array($result));
         $this->assertEquals(1, count($result));
     }
@@ -204,7 +205,7 @@ class PageTest extends StructTest
                 'autocomplete' => [
                     'mininput' => 2,
                     'maxresult' => 5,
-                    'namespace' => '',
+                    'filter' => '',
                     'postfix' => '',
                 ],
             ]
@@ -214,7 +215,8 @@ class PageTest extends StructTest
         $this->assertEquals(
             [
                 ['label' => 'syntax', 'value' => 'syntax'],
-                ['label' => 'syntax (wiki)', 'value' => 'wiki:syntax']
+                ['label' => 'syntax (wiki)', 'value' => 'wiki:syntax'],
+                ['label' => 'test_special.characters (foo:syntax)', 'value' => 'foo:syntax:test_special.characters'],
             ], $page->handleAjax()
         );
 
@@ -222,14 +224,24 @@ class PageTest extends StructTest
         $this->assertEquals(
             [
                 ['label' => 'syntax', 'value' => 'syntax'],
-                ['label' => 'syntax (wiki)', 'value' => 'wiki:syntax']
+                ['label' => 'syntax (wiki)', 'value' => 'wiki:syntax'],
+                ['label' => 'test_special.characters (foo:syntax)', 'value' => 'foo:syntax:test_special.characters'],
             ], $page->handleAjax()
         );
 
         $INPUT->set('search', 's'); // under mininput
         $this->assertEquals([], $page->handleAjax());
+
+        $INPUT->set('search', 'test_special.char'); // special characters in id
+        $this->assertEquals([
+            ['label' => 'test_special.characters (foo:syntax)', 'value' => 'foo:syntax:test_special.characters']
+        ], $page->handleAjax());
     }
 
+    /**
+     * Test deprecated option namespace
+     * @return void
+     */
     public function test_ajax_namespace()
     {
         global $INPUT;
@@ -249,6 +261,32 @@ class PageTest extends StructTest
         $this->assertEquals([['label' => 'syntax (wiki)', 'value' => 'wiki:syntax']], $page->handleAjax());
     }
 
+    public function test_ajax_filter_multiple()
+    {
+        global $INPUT;
+
+        $page = new Page(
+            [
+                'autocomplete' => [
+                    'mininput' => 2,
+                    'maxresult' => 5,
+                    'filter' => '(wiki|foo)',
+                    'postfix' => '',
+                ],
+            ]
+        );
+
+        $INPUT->set('search', 'ynt');
+        $this->assertEquals([
+            ['label' => 'syntax (wiki)', 'value' => 'wiki:syntax'],
+            ['label' => 'test_special.characters (foo:syntax)', 'value' => 'foo:syntax:test_special.characters']
+        ], $page->handleAjax());
+    }
+
+    /**
+     * Test deprecated option postfix
+     * @return void
+     */
     public function test_ajax_postfix()
     {
         global $INPUT;
@@ -266,6 +304,74 @@ class PageTest extends StructTest
 
         $INPUT->set('search', 'oku');
         $this->assertEquals([['label' => 'dokuwiki (wiki)', 'value' => 'wiki:dokuwiki']], $page->handleAjax());
+
+        $page = new Page(
+            [
+                'autocomplete' => [
+                    'mininput' => 2,
+                    'maxresult' => 5,
+                    'namespace' => 'wiki',
+                    'postfix' => 'iki',
+                ],
+            ]
+        );
+
+        $INPUT->set('search', 'oku');
+        $this->assertEquals([['label' => 'dokuwiki (wiki)', 'value' => 'wiki:dokuwiki']], $page->handleAjax());
     }
 
+    /**
+     * Test simple filter matching in autocompletion
+     *
+     * @return void
+     */
+    public function test_filter_matching_simple()
+    {
+        $page = new Page();
+
+        $this->assertTrue($page->filterMatch('foo:start', 'foo'));
+        $this->assertTrue($page->filterMatch('start#foo', 'foo'));
+        $this->assertFalse($page->filterMatch('ns:foo', ':foo'));
+        $this->assertTrue($page->filterMatch('foo-bar:start', 'foo-bar'));
+        $this->assertTrue($page->filterMatch('foo-bar:start-with_special.chars', 'foo-bar'));
+        $this->assertTrue($page->filterMatch('foo.bar:start', 'foo.bar'));
+        $this->assertTrue($page->filterMatch('ns:foo.bar', 'foo.bar'));
+        $this->assertTrue($page->filterMatch('ns:foo.bar:start', 'foo.bar'));
+        $this->assertFalse($page->filterMatch('ns:foo_bar:start', ':foo_bar'));
+        $this->assertTrue($page->filterMatch('8bar:start', '8bar'));
+        $this->assertTrue($page->filterMatch('ns:8bar:start', '8bar'));
+        $this->assertTrue($page->filterMatch('ns:98bar:start', '8bar'));
+    }
+
+    /**
+     * Test pattern matching in autocompletion
+     *
+     * @return void
+     */
+    public function test_filter_matching_regex()
+    {
+        $page = new Page();
+
+        $filter = '(foo:|^:foo:|(?::|^)bar:|foo:bar|foo-bar:|^:foo_bar:|foo\.bar:|(?::|^)8bar:)';
+
+        $this->assertTrue($page->filterMatch('foo:start', $filter));
+        $this->assertFalse($page->filterMatch('start#foo', $filter));
+        $this->assertFalse($page->filterMatch('ns:foo', $filter));
+        $this->assertTrue($page->filterMatch('bar:foo', $filter));
+        $this->assertTrue($page->filterMatch('ns:foo:start', $filter));
+        $this->assertTrue($page->filterMatch('ns:foo:start#headline', $filter));
+        $this->assertTrue($page->filterMatch('foo-bar:start', $filter));
+        $this->assertTrue($page->filterMatch('foo-bar:start-with_special.chars', $filter));
+        $this->assertTrue($page->filterMatch('foo.bar:start', $filter));
+        $this->assertFalse($page->filterMatch('ns:foo.bar', $filter));
+        $this->assertTrue($page->filterMatch('ns:foo.bar:start', $filter));
+        $this->assertFalse($page->filterMatch('ns:foo_bar:start', $filter));
+        $this->assertTrue($page->filterMatch('8bar:start', $filter));
+        $this->assertTrue($page->filterMatch('ns:8bar:start', $filter));
+        $this->assertFalse($page->filterMatch('ns:98bar:start', $filter));
+
+        $filter = '^:systems:[^:]+:components:([^:]+:){1,2}[^:]+$';
+        $this->assertTrue($page->filterMatch('systems:system1:components:sub1:sub2:start', $filter));
+        $this->assertFalse($page->filterMatch('systems:system1:components:sub1:sub2:sub3:start', $filter));
+    }
 }

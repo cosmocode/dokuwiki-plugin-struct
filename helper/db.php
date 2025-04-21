@@ -7,11 +7,12 @@
  * @author  Andreas Gohr, Michael Große <dokuwiki@cosmocode.de>
  */
 
+use dokuwiki\Extension\Plugin;
 use dokuwiki\ErrorHandler;
 use dokuwiki\plugin\sqlite\SQLiteDB;
 use dokuwiki\plugin\struct\meta\StructException;
 
-class helper_plugin_struct_db extends DokuWiki_Plugin
+class helper_plugin_struct_db extends Plugin
 {
     /** @var SQLiteDB */
     protected $sqlite;
@@ -28,6 +29,9 @@ class helper_plugin_struct_db extends DokuWiki_Plugin
         // register our JSON function with variable parameters
         $this->sqlite->getPdo()->sqliteCreateFunction('STRUCT_JSON', [$this, 'STRUCT_JSON'], -1);
 
+        // register our JSON decode function with variable parameters
+        $this->sqlite->getPdo()->sqliteCreateFunction('STRUCT_LOOKUP', [$this, 'STRUCT_LOOKUP'], -1);
+
         // this function is meant to be overwritten by plugins
         $this->sqlite->getPdo()->sqliteCreateFunction('IS_PUBLISHER', [$this, 'IS_PUBLISHER'], -1);
     }
@@ -39,7 +43,7 @@ class helper_plugin_struct_db extends DokuWiki_Plugin
      */
     public function getDB($throw = true)
     {
-        if ($this->sqlite === null) {
+        if (!$this->sqlite instanceof SQLiteDB) {
             if (!class_exists(SQLiteDB::class)) {
                 if ($throw || defined('DOKU_UNITTEST')) throw new StructException('no sqlite');
                 return null;
@@ -77,10 +81,28 @@ class helper_plugin_struct_db extends DokuWiki_Plugin
      * @param string ...
      * @return string
      */
-    public function STRUCT_JSON() // phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
+    public function STRUCT_JSON(...$args) // phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
     {
-        $args = func_get_args();
-        return json_encode($args);
+        return json_encode($args, JSON_THROW_ON_ERROR);
+    }
+
+    /**
+     * Decodes a struct JSON structure and returns the requested value
+     *
+     * @param ...$args
+     * @return mixed|null
+     */
+    public function STRUCT_LOOKUP(...$args) // phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
+    {
+        $json = $args[0];
+        $field = $args[1];
+
+        try {
+            $vals = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
+        } catch (\JsonException $exception) {
+            return null;
+        }
+        return $vals[$field];
     }
 
     /**

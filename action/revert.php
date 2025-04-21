@@ -7,6 +7,9 @@
  * @author  Andreas Gohr, Michael Große <dokuwiki@cosmocode.de>
  */
 
+use dokuwiki\Extension\ActionPlugin;
+use dokuwiki\Extension\EventHandler;
+use dokuwiki\Extension\Event;
 use dokuwiki\plugin\struct\meta\AccessTable;
 use dokuwiki\plugin\struct\meta\Assignments;
 
@@ -15,15 +18,15 @@ use dokuwiki\plugin\struct\meta\Assignments;
  *
  * Handles reverting to old data via revert action
  */
-class action_plugin_struct_revert extends DokuWiki_Action_Plugin
+class action_plugin_struct_revert extends ActionPlugin
 {
     /**
      * Registers a callback function for a given event
      *
-     * @param Doku_Event_Handler $controller DokuWiki's event controller object
+     * @param EventHandler $controller DokuWiki's event controller object
      * @return void
      */
-    public function register(Doku_Event_Handler $controller)
+    public function register(EventHandler $controller)
     {
         // ensure a page revision is created when struct data changes:
         $controller->register_hook('COMMON_WIKIPAGE_SAVE', 'BEFORE', $this, 'handlePagesaveBefore');
@@ -34,12 +37,12 @@ class action_plugin_struct_revert extends DokuWiki_Action_Plugin
     /**
      * Check if the page has to be changed
      *
-     * @param Doku_Event $event event object by reference
+     * @param Event $event event object by reference
      * @param mixed $param [the parameters passed as fifth argument to register_hook() when this
      *                           handler was registered]
      * @return bool
      */
-    public function handlePagesaveBefore(Doku_Event $event, $param)
+    public function handlePagesaveBefore(Event $event, $param)
     {
         if ($event->data['contentChanged']) return false; // will be saved for page changes already
         global $ACT;
@@ -49,7 +52,7 @@ class action_plugin_struct_revert extends DokuWiki_Action_Plugin
         // force changes for revert if there are assignments
         $assignments = Assignments::getInstance();
         $tosave = $assignments->getPageAssignments($event->data['id']);
-        if (count($tosave)) {
+        if ($tosave !== []) {
             $event->data['contentChanged'] = true; // save for data changes
         }
 
@@ -59,12 +62,12 @@ class action_plugin_struct_revert extends DokuWiki_Action_Plugin
     /**
      * Save the data, by loading it from the old revision and storing it as a new revision
      *
-     * @param Doku_Event $event event object by reference
+     * @param Event $event event object by reference
      * @param mixed $param [the parameters passed as fifth argument to register_hook() when this
      *                           handler was registered]
      * @return bool
      */
-    public function handlePagesaveAfter(Doku_Event $event, $param)
+    public function handlePagesaveAfter(Event $event, $param)
     {
         global $ACT;
         global $REV;

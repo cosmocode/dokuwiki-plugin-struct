@@ -260,7 +260,7 @@ class SearchConfigParameterTest extends StructTest
         $this->assertEquals($this->fixedrev, $tr1->attr('data-rev'));
 
         $tr6aPrev = $table->find(".row6 a.prev");
-        $this->assertEquals('/./doku.php?id=test_pagination', $tr6aPrev->attr('href'));
+        $this->assertEquals(DOKU_BASE . DOKU_SCRIPT . '?id=test_pagination', $tr6aPrev->attr('href'));
 
     }
 }

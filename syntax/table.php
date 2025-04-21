@@ -7,13 +7,14 @@
  * @author  Andreas Gohr, Michael Große <dokuwiki@cosmocode.de>
  */
 
+use dokuwiki\Extension\SyntaxPlugin;
 use dokuwiki\plugin\struct\meta\Aggregation;
 use dokuwiki\plugin\struct\meta\AggregationTable;
 use dokuwiki\plugin\struct\meta\ConfigParser;
 use dokuwiki\plugin\struct\meta\SearchConfig;
 use dokuwiki\plugin\struct\meta\StructException;
 
-class syntax_plugin_struct_table extends DokuWiki_Syntax_Plugin
+class syntax_plugin_struct_table extends SyntaxPlugin
 {
     /** @var string which class to use for output */
     protected $tableclass = AggregationTable::class;
@@ -120,8 +121,12 @@ class syntax_plugin_struct_table extends DokuWiki_Syntax_Plugin
                 $search->setOffset(0);
             }
 
-            /** @var Aggregation $table */
             $table = new $this->tableclass($mainId, $format, $renderer, $search);
+            if (!$table instanceof Aggregation) {
+                // this may happen with plugins that extend struct
+                throw new StructException('Aggregation class does not inherit Aggregation: ' . $this->tableclass);
+            }
+
             $table->startScope();
             $table->render(true);
             $table->finishScope();

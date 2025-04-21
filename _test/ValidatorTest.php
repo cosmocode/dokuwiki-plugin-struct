@@ -6,6 +6,7 @@ use dokuwiki\plugin\struct\meta\Column;
 use dokuwiki\plugin\struct\test\mock\Assignments;
 use dokuwiki\plugin\struct\test\mock\Lookup;
 use dokuwiki\plugin\struct\types\Decimal;
+use dokuwiki\plugin\struct\types\Media;
 use dokuwiki\plugin\struct\types\Text;
 
 /**
@@ -102,6 +103,17 @@ class ValidatorTest extends StructTest
 
         $validator = new mock\ValueValidator();
         $value = '';
+
+        $validator->validateValue($col, $value);
+        $this->assertEquals([''], $value);
+
+        // some fields like media or date can post an array with multiple empty strings
+        // because they use multiple inputs instead of comma separation in one input
+        $media = new Media(null, '', true);
+        $col = new Column(10, $media);
+
+        $validator = new mock\ValueValidator();
+        $value = ['', '', ''];
 
         $validator->validateValue($col, $value);
         $this->assertEquals([''], $value);

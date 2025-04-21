@@ -7,6 +7,9 @@
  * @author  Andreas Gohr, Michael Große <dokuwiki@cosmocode.de>
  */
 
+use dokuwiki\Extension\ActionPlugin;
+use dokuwiki\Extension\EventHandler;
+use dokuwiki\Extension\Event;
 use dokuwiki\plugin\struct\meta\AccessTable;
 use dokuwiki\plugin\struct\meta\AccessTableGlobal;
 use dokuwiki\plugin\struct\meta\AggregationEditorTable;
@@ -21,10 +24,10 @@ use dokuwiki\plugin\struct\meta\Value;
  *
  * Handle global and serial data table editing
  */
-class action_plugin_struct_aggregationeditor extends DokuWiki_Action_Plugin
+class action_plugin_struct_aggregationeditor extends ActionPlugin
 {
     /** @var  Column */
-    protected $column = null;
+    protected $column;
 
     /** @var string */
     protected $pid = '';
@@ -35,10 +38,10 @@ class action_plugin_struct_aggregationeditor extends DokuWiki_Action_Plugin
     /**
      * Registers a callback function for a given event
      *
-     * @param Doku_Event_Handler $controller DokuWiki's event controller object
+     * @param EventHandler $controller DokuWiki's event controller object
      * @return void
      */
-    public function register(Doku_Event_Handler $controller)
+    public function register(EventHandler $controller)
     {
         $controller->register_hook('DOKUWIKI_STARTED', 'AFTER', $this, 'addJsinfo');
         $controller->register_hook('AJAX_CALL_UNKNOWN', 'BEFORE', $this, 'handleAjax');
@@ -47,20 +50,20 @@ class action_plugin_struct_aggregationeditor extends DokuWiki_Action_Plugin
     /**
      * Add user's permissions to JSINFO
      *
-     * @param Doku_Event $event
+     * @param Event $event
      */
-    public function addJsinfo(Doku_Event $event)
+    public function addJsinfo(Event $event)
     {
         global $ID;
         global $JSINFO;
-        $JSINFO['plugins']['struct']['isPageEditor'] = (bool)(auth_quickaclcheck($ID) >= AUTH_EDIT);
+        $JSINFO['plugins']['struct']['isPageEditor'] = auth_quickaclcheck($ID) >= AUTH_EDIT;
     }
 
 
     /**
-     * @param Doku_Event $event
+     * @param Event $event
      */
-    public function handleAjax(Doku_Event $event)
+    public function handleAjax(Event $event)
     {
         $len = strlen('plugin_struct_aggregationeditor_');
         if (substr($event->data, 0, $len) != 'plugin_struct_aggregationeditor_') {
@@ -129,7 +132,7 @@ class action_plugin_struct_aggregationeditor extends DokuWiki_Action_Plugin
         $helper = plugin_load('helper', 'struct');
         $helper->saveLookupData($access, $data);
 
-        $config = json_decode($INPUT->str('searchconf'), true);
+        $config = json_decode($INPUT->str('searchconf'), true, 512, JSON_THROW_ON_ERROR);
         // update row id
         $this->rid = $access->getRid();
         $config = $this->addTypeFilter($config);

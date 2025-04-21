@@ -5,6 +5,7 @@ namespace dokuwiki\plugin\struct\types;
 use dokuwiki\File\PageResolver;
 use dokuwiki\plugin\struct\meta\QueryBuilder;
 use dokuwiki\plugin\struct\meta\QueryBuilderWhere;
+use dokuwiki\plugin\struct\meta\StructException;
 use dokuwiki\Utf8\PhpString;
 
 /**
@@ -16,15 +17,14 @@ use dokuwiki\Utf8\PhpString;
  */
 class Page extends AbstractMultiBaseType
 {
-    protected $config = array(
+    protected $config = [
         'usetitles' => false,
-        'autocomplete' => array(
+        'autocomplete' => [
             'mininput' => 2,
             'maxresult' => 5,
-            'namespace' => '',
-            'postfix' => '',
-        ),
-    );
+            'filter' => '',
+        ]
+    ];
 
     /**
      * Output the stored data
@@ -37,7 +37,7 @@ class Page extends AbstractMultiBaseType
     public function renderValue($value, \Doku_Renderer $R, $mode)
     {
         if ($this->config['usetitles']) {
-            list($id, $title) = \helper_plugin_struct::decodeJson($value);
+            [$id, $title] = \helper_plugin_struct::decodeJson($value);
         } else {
             $id = $value;
             $title = $id; // cannot be empty or internallink() might hijack %pageid% and use headings
@@ -57,7 +57,7 @@ class Page extends AbstractMultiBaseType
      */
     public function validate($rawvalue)
     {
-        list($page, $fragment) = array_pad(explode('#', $rawvalue, 2), 2, '');
+        [$page, $fragment] = array_pad(explode('#', $rawvalue, 2), 2, '');
         return cleanID($page) . (strlen(cleanID($fragment)) > 0 ? '#' . cleanID($fragment) : '');
     }
 
@@ -72,31 +72,24 @@ class Page extends AbstractMultiBaseType
 
         // check minimum length
         $lookup = trim($INPUT->str('search'));
-        if (PhpString::strlen($lookup) < $this->config['autocomplete']['mininput']) return array();
+        if (PhpString::strlen($lookup) < $this->config['autocomplete']['mininput']) return [];
 
         // results wanted?
         $max = $this->config['autocomplete']['maxresult'];
-        if ($max <= 0) return array();
-
-        // lookup with namespace and postfix applied
-        $namespace = $this->config['autocomplete']['namespace'];
-        if ($namespace) {
-            // namespace may be relative, resolve in current context
-            $namespace .= ':foo'; // resolve expects pageID
-            $resolver = new PageResolver($INPUT->str('ns') . ':foo'); // resolve relative to current namespace
-            $namespace = $resolver->resolveId($namespace);
-            $namespace = getNS($namespace);
-        }
-        $postfix = $this->config['autocomplete']['postfix'];
-        if ($namespace) $lookup .= ' @' . $namespace;
+        if ($max <= 0) return [];
 
         $data = ft_pageLookup($lookup, true, $this->config['usetitles']);
-        if (!count($data)) return array();
+        if ($data === []) return [];
 
-        // this basically duplicates what we do in ajax_qsearch()
-        $result = array();
+        $filter = $this->config['autocomplete']['filter'];
+
+        // this basically duplicates what we do in ajax_qsearch() but with a filter
+        $result = [];
         $counter = 0;
         foreach ($data as $id => $title) {
+            if (!empty($filter) && !$this->filterMatch($id, $filter)) {
+                continue;
+            }
             if ($this->config['usetitles']) {
                 $name = $title . ' (' . $id . ')';
             } else {
@@ -108,15 +101,10 @@ class Page extends AbstractMultiBaseType
                 }
             }
 
-            // check suffix
-            if ($postfix && substr($id, -1 * strlen($postfix)) != $postfix) {
-                continue; // page does not end in postfix, don't suggest it
-            }
-
-            $result[] = array(
+            $result[] = [
                 'label' => $name,
                 'value' => $id
-            );
+            ];
 
             $counter++;
             if ($counter > $max) break;
@@ -161,7 +149,7 @@ class Page extends AbstractMultiBaseType
 
         $rightalias = $QB->generateTableAlias();
         $QB->addLeftJoin($tablealias, 'titles', $rightalias, "$tablealias.$colname = $rightalias.pid");
-        $QB->addOrderBy("$rightalias.title $order");
+        $QB->addOrderBy("$rightalias.title COLLATE NOCASE $order");
         $QB->addOrderBy("$tablealias.$colname $order");
     }
 
@@ -174,7 +162,7 @@ class Page extends AbstractMultiBaseType
     public function rawValue($value)
     {
         if ($this->config['usetitles']) {
-            list($value) = \helper_plugin_struct::decodeJson($value);
+            [$value] = \helper_plugin_struct::decodeJson($value);
         }
         return $value;
     }
@@ -188,7 +176,7 @@ class Page extends AbstractMultiBaseType
     public function displayValue($value)
     {
         if ($this->config['usetitles']) {
-            list($pageid, $value) = \helper_plugin_struct::decodeJson($value);
+            [$pageid, $value] = \helper_plugin_struct::decodeJson($value);
             if (blank($value)) {
                 $value = $pageid;
             }
@@ -223,5 +211,59 @@ class Page extends AbstractMultiBaseType
         $sub->whereOr("$tablealias.$colname $comp $pl");
         $pl = $QB->addValue($value);
         $sub->whereOr("$rightalias.title $comp $pl");
+    }
+
+    /**
+     * Check if the given id matches a configured filter pattern
+     *
+     * @param string $id
+     * @param string $filter
+     * @return bool
+     */
+    public function filterMatch($id, $filter)
+    {
+        // absolute namespace?
+        if (PhpString::substr($filter, 0, 1) === ':') {
+            $filter = '^' . $filter;
+        }
+
+        try {
+            $check = preg_match('/' . $filter . '/', ':' . $id, $matches);
+        } catch (\Exception $e) {
+            throw new StructException("Error processing regular expression '$filter'");
+        }
+        return (bool)$check;
+    }
+
+    /**
+     * Merge the current config with the base config of the type.
+     *
+     * In contrast to parent, this method does not throw away unknown keys.
+     * Required to migrate deprecated / obsolete options, no longer part of type config.
+     *
+     * @param array $current Current configuration
+     * @param array $config Base Type configuration
+     */
+    protected function mergeConfig($current, &$config)
+    {
+        foreach ($current as $key => $value) {
+            if (isset($config[$key]) && is_array($config[$key])) {
+                $this->mergeConfig($value, $config[$key]);
+            } else {
+                $config[$key] = $value;
+            }
+        }
+
+        // migrate autocomplete options 'namespace' and 'postfix' to 'filter'
+        if (empty($config['autocomplete']['filter'])) {
+            if (!empty($config['autocomplete']['namespace'])) {
+                $config['autocomplete']['filter'] = $config['autocomplete']['namespace'];
+                unset($config['autocomplete']['namespace']);
+            }
+            if (!empty($config['autocomplete']['postfix'])) {
+                $config['autocomplete']['filter'] .= '.+?' . $config['autocomplete']['postfix'] . '$';
+                unset($config['autocomplete']['postfix']);
+            }
+        }
     }
 }
