@@ -82,16 +82,12 @@ const AggregationEditor = function (idx, table) {
         const $children = $row.children();
         let insertAt = searchconf.actcol;
         if ( insertAt < 0 ) insertAt = $children.length + 1 + insertAt;
-        console.log("insertAt", insertAt);
 
         if(insertAt >= $children.length) {
-            console.log("append");
             $row.append($cell);
         } else if (insertAt < 0) {
-            console.log("prepend");
             $row.prepend($cell);
         } else {
-            console.log("insertBefore");
             $children.eq(insertAt).before($cell);
         }
     }
