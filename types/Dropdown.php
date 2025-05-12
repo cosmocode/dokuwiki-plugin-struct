@@ -51,7 +51,7 @@ class Dropdown extends AbstractBaseType
         }
         $html .= '</select>';
 
-        if ($this->config['combobox']){
+        if ($this->config['combobox']) {
             $html = "<vanilla-combobox>$html</vanilla-combobox>";
         }
 
@@ -90,7 +90,7 @@ class Dropdown extends AbstractBaseType
         $html .= '</select> ';
         $html .= '<small>' . $this->getLang('multidropdown') . '</small>';
 
-        if ($this->config['combobox']){
+        if ($this->config['combobox']) {
             $html = "<vanilla-combobox>$html</vanilla-combobox>";
         }
 
