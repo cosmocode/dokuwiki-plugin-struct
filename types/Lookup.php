@@ -16,7 +16,11 @@ use dokuwiki\plugin\struct\meta\Value;
 
 class Lookup extends Dropdown
 {
-    protected $config = ['schema' => '', 'field' => ''];
+    protected $config = [
+        'schema' => '',
+        'field' => '',
+        'combobox' => false,
+    ];
 
     /** @var  Column caches the referenced column */
     protected $column;

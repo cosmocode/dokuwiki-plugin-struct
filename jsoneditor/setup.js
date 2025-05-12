@@ -28,6 +28,10 @@ jQuery(function () {
         this.updateEditor = function () {
             editor.setText($config.val());
         };
+        // collapse all nodes except for the new element
+        if(!$config.parents('.new').length) {
+            editor.collapseAll();
+        }
     });
 
     /**

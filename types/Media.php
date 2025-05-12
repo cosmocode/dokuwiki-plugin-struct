@@ -31,7 +31,7 @@ class Media extends AbstractBaseType
 
         [, $mime, ] = mimetype($rawvalue, false);
         foreach ($allows as $allow) {
-            if (strpos($mime, $allow) === 0) return $rawvalue;
+            if (str_starts_with($mime, $allow)) return $rawvalue;
         }
 
         throw new ValidationException('Media mime type', $mime, $this->config['mime']);
@@ -77,7 +77,7 @@ class Media extends AbstractBaseType
         // add gallery meta data in XHTML
         if ($mode == 'xhtml') {
             [, $mime, ] = mimetype($value, false);
-            if (substr($mime, 0, 6) == 'image/') {
+            if (str_starts_with($mime, 'image/')) {
                 $hash = empty($R->info['struct_table_hash']) ? '' : "[gal-" . $R->info['struct_table_hash'] . "]";
                 $html = str_replace('href', "rel=\"lightbox$hash\" href", $html);
             }

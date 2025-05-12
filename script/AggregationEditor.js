@@ -31,7 +31,7 @@ const AggregationEditor = function (idx, table) {
 
             // empty header cells
             if (!rid) {
-                $me.append('<th class="action">' + LANG.plugins.struct.actions + '</th>');
+                insertActionCell($me, '<th class="action">' + LANG.plugins.struct.actions + '</th>');
                 return;
             }
 
@@ -68,9 +68,28 @@ const AggregationEditor = function (idx, table) {
                 });
 
             $td.append($btn);
-            $me.append($td);
-
+            insertActionCell($me, $td);
         });
+    }
+
+    /**
+     * Insert the action cell at the right position, depending on the actcol setting
+     *
+     * @param {jQuery<HTMLTableRowElement>} $row
+     * @param {jQuery<HTMLTableCellElement>} $cell
+     */
+    function insertActionCell($row, $cell) {
+        const $children = $row.children();
+        let insertAt = searchconf.actcol;
+        if ( insertAt < 0 ) insertAt = $children.length + 1 + insertAt;
+
+        if(insertAt >= $children.length) {
+            $row.append($cell);
+        } else if (insertAt < 0) {
+            $row.prepend($cell);
+        } else {
+            $children.eq(insertAt).before($cell);
+        }
     }
 
     /**
