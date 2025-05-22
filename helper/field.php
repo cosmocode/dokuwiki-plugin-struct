@@ -49,8 +49,8 @@ class helper_plugin_struct_field extends helper_plugin_bureaucracy_field
     {
         if (!$this->column) {
             $value = '';
-            //don't validate placeholders here
-        } elseif ($this->replace($value) == $value) {
+        } else {
+            $value = $this->replace($value);
             $validator = new ValueValidator();
             $this->error = !$validator->validateValue($this->column, $value);
             if ($this->error) {
@@ -158,6 +158,16 @@ class helper_plugin_struct_field extends helper_plugin_bureaucracy_field
      */
     protected function createValue()
     {
+        /*
+        $preparedValue = $this->opt['value'] ?? '';
+        if($this->column->isMulti()) {
+            // multi-value fields are treated as comma-separated lists
+            $preparedValue = explode(',', $preparedValue);
+            $preparedValue = array_map('trim', $preparedValue);
+            $preparedValue = array_filter($preparedValue);
+        }
+        */
+
         // input value or appropriately initialized empty value
         $preparedValue = $this->opt['value'] ?? ($this->column->isMulti() ? [] : '');
 
