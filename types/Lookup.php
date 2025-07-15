@@ -44,7 +44,7 @@ class Lookup extends Dropdown
      *
      * @return Column|false
      */
-    protected function getLookupColumn()
+    public function getLookupColumn()
     {
         if ($this->column instanceof Column) return $this->column;
         $this->column = $this->getColumn($this->config['schema'], $this->config['field']);
@@ -58,7 +58,7 @@ class Lookup extends Dropdown
      * @param string $infield
      * @return Column|false
      */
-    protected function getColumn($table, $infield)
+    public function getColumn($table, $infield)
     {
         global $conf;
 
@@ -116,7 +116,7 @@ class Lookup extends Dropdown
      *
      * @return array
      */
-    protected function getOptions()
+    public function getOptions()
     {
         $schema = $this->config['schema'];
         $column = $this->getLookupColumn();
