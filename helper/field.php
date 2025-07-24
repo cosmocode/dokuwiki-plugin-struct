@@ -47,15 +47,25 @@ class helper_plugin_struct_field extends helper_plugin_bureaucracy_field
      */
     protected function setVal($value)
     {
+        global $INPUT;
+
         if (!$this->column) {
             $value = '';
-            //don't validate placeholders here
-        } elseif ($this->replace($value) == $value) {
-            $validator = new ValueValidator();
-            $this->error = !$validator->validateValue($this->column, $value);
-            if ($this->error) {
-                foreach ($validator->getErrors() as $error) {
-                    msg(hsc($error), -1);
+        } else {
+
+            // This method is called at parsing time, and again on action submit
+            // we really only want to validate the value on action submit
+            //
+            // At parsing time, the value might still be a placeholder. Ideally
+            // bureaucracy would already handle this. But well...
+            if($INPUT->post->has('bureaucracy')) {
+                $validator = new ValueValidator();
+
+                $this->error = !$validator->validateValue($this->column, $value);
+                if ($this->error) {
+                    foreach ($validator->getErrors() as $error) {
+                        msg(hsc($error), -1);
+                    }
                 }
             }
         }
@@ -154,12 +164,23 @@ class helper_plugin_struct_field extends helper_plugin_bureaucracy_field
      * Returns a Value object for the current column.
      * Special handling for Page and Lookup literal form values.
      *
+     * Used for rendering the field only.
+     *
      * @return Value
      */
     protected function createValue()
     {
-        // input value or appropriately initialized empty value
-        $preparedValue = $this->opt['value'] ?? ($this->column->isMulti() ? [] : '');
+        // The value in bureaucracy is always a string, if unset init it.
+        $preparedValue = $this->opt['value'] ?? '';
+
+        // apply placeholder replacements
+        $preparedValue = $this->replace($preparedValue);
+
+        // Validating here is actually not a validation, that will happen again in setVal() when
+        // the form is submitted. instead, here we're using it's data cleanup functionality on the value.
+        $validator = new ValueValidator();
+        $validator->validateValue($this->column, $preparedValue);
+        /** @var string|array $preparedValue is now an array or a string */
 
         // page fields might need to be JSON encoded depending on usetitles config
         if (
