@@ -99,17 +99,17 @@ class Decimal extends AbstractMultiBaseType
     public function validate($rawvalue)
     {
         $rawvalue = parent::validate($rawvalue);
-        $rawvalue = str_replace(',', '.', $rawvalue); // we accept both
+        $rawvalue = (float) str_replace(',', '.', $rawvalue); // we accept both
 
-        if ((string)$rawvalue != (string)(float) $rawvalue) {
+        if ((string)$rawvalue != (string) $rawvalue) {
             throw new ValidationException('Decimal needed');
         }
 
-        if ($this->config['min'] !== '' && (float) $rawvalue < (float) $this->config['min']) {
+        if ($this->config['min'] !== '' && $rawvalue < (float) $this->config['min']) {
             throw new ValidationException('Decimal min', (float) $this->config['min']);
         }
 
-        if ($this->config['max'] !== '' && (float) $rawvalue > (float) $this->config['max']) {
+        if ($this->config['max'] !== '' && $rawvalue > (float) $this->config['max']) {
             throw new ValidationException('Decimal max', (float) $this->config['max']);
         }
 
