@@ -1,5 +1,5 @@
 ====== Struct - Éditeur de schémas ======
 
-Les schémas sont la base du greffon Struct. Un schéma définit un ensemble de valeurs structurées que l'on peut ensuite affecter à des pages.
+Les schémas sont la base du plugin Struct. Un schéma définit un ensemble de valeurs structurées que l'on peut ensuite affecter à des pages.
 
 Choisissez un schéma existant depuis la table des matières ou créez-en un nouveau.
