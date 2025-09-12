@@ -191,7 +191,7 @@ class syntax_plugin_struct_output extends SyntaxPlugin
                 $renderer->doc .= ' data-pid="' . hsc($schemadata->getPid()) . '"';
                 $renderer->doc .= ' data-rid="' . hsc($schemadata->getRid()) . '"';
                 $renderer->doc .= ' data-field="' . hsc($field->getColumn()->getFullQualifiedLabel()) . '"';
-                $renderer->doc .= '">';
+                $renderer->doc .= '>';
             }
 
             $renderer->tableheader_open();
