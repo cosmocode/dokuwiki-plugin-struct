@@ -20,7 +20,7 @@ class helper_plugin_struct_config extends Plugin
      */
     public function parseSort($val)
     {
-        if (substr($val, 0, 1) == '^') {
+        if (str_starts_with($val, '^')) {
             return [substr($val, 1), false];
         }
         return [$val, true];

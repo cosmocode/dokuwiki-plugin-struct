@@ -7,6 +7,7 @@
  * @author  Andreas Gohr, Michael Große <dokuwiki@cosmocode.de>
  */
 
+use dokuwiki\plugin\struct\meta\Value;
 use dokuwiki\Extension\SyntaxPlugin;
 use dokuwiki\Extension\Event;
 use dokuwiki\plugin\struct\meta\AccessTable;
@@ -194,7 +195,17 @@ class syntax_plugin_struct_output extends SyntaxPlugin
 
         $renderer->tabletbody_open();
         foreach ($data as $field) {
+            /** @var Value $field */
             $renderer->tablerow_open();
+            if ($format == 'xhtml') {
+                // add data attributes to the row for inline editing
+                $renderer->doc = substr(trim($renderer->doc), 0, -1); // remove the last >
+                $renderer->doc .= ' data-pid="' . hsc($schemadata->getPid()) . '"';
+                $renderer->doc .= ' data-rid="' . hsc($schemadata->getRid()) . '"';
+                $renderer->doc .= ' data-field="' . hsc($field->getColumn()->getFullQualifiedLabel()) . '"';
+                $renderer->doc .= '>';
+            }
+
             $renderer->tableheader_open();
             $renderer->cdata($field->getColumn()->getTranslatedLabel());
             $renderer->tableheader_close();

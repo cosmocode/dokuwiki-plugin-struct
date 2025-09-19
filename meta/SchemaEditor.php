@@ -63,7 +63,7 @@ class SchemaEditor
             $form->addHTML($this->adminColumn($col->getColref(), $col));
         }
 
-        // FIXME new one needs to be added dynamically, this is just for testing
+        // Add one new field at the end
         $form->addHTML($this->adminColumn('new1', new Column($this->schema->getMaxsort() + 10, new Text()), 'new'));
 
         $form->addHTML('</table>');
@@ -117,6 +117,7 @@ class SchemaEditor
         $base = 'schema[' . $key . '][' . $column_id . ']'; // base name for all fields
 
         $class = $col->isEnabled() ? '' : 'disabled';
+        if ($key === 'new') $class .= ' new';
 
         $html = "<tr class=\"$class\">";
 

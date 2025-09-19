@@ -5,7 +5,8 @@ namespace dokuwiki\plugin\struct\types;
 class Dropdown extends AbstractBaseType
 {
     protected $config = [
-        'values' => 'one, two, three'
+        'values' => 'one, two, three',
+        'combobox' => false,
     ];
 
     /**
@@ -50,6 +51,10 @@ class Dropdown extends AbstractBaseType
         }
         $html .= '</select>';
 
+        if ($this->config['combobox']) {
+            $html = "<vanilla-combobox>$html</vanilla-combobox>";
+        }
+
         return $html;
     }
 
@@ -84,6 +89,11 @@ class Dropdown extends AbstractBaseType
         }
         $html .= '</select> ';
         $html .= '<small>' . $this->getLang('multidropdown') . '</small>';
+
+        if ($this->config['combobox']) {
+            $html = "<vanilla-combobox>$html</vanilla-combobox>";
+        }
+
         return $html;
     }
 }

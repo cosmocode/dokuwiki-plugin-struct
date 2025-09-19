@@ -81,7 +81,7 @@ class Decimal extends AbstractMultiBaseType
                 $this->config['thousands']
             );
         }
-        if ($this->config['trimzeros'] && (strpos($value, (string) $this->config['decpoint']) !== false)) {
+        if ($this->config['trimzeros'] && (str_contains($value, (string) $this->config['decpoint']))) {
             $value = rtrim($value, '0');
             $value = rtrim($value, $this->config['decpoint']);
         }

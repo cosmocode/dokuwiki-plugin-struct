@@ -413,7 +413,7 @@ class action_plugin_struct_migration extends ActionPlugin
             }
         }
 
-        if (!empty($fixes)) {
+        if ($fixes !== []) {
             $fixes = array_map(static fn($set, $key) => "$key = '$set'", $fixes, array_keys($fixes));
         }
 
