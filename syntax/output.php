@@ -16,7 +16,7 @@ use dokuwiki\plugin\struct\meta\StructException;
 
 class syntax_plugin_struct_output extends SyntaxPlugin
 {
-    protected $hasBeenRendered = false;
+    protected $hasBeenRendered = array('metadata'=>false, 'xhtml'=>false);
 
     protected const XHTML_OPEN = '<div id="plugin__struct_output">';
     protected const XHTML_CLOSE = '</div>';
@@ -100,13 +100,25 @@ class syntax_plugin_struct_output extends SyntaxPlugin
                 return true;
             }
         }
-        if (!isset($INFO['id']) || ($ID != $INFO['id'])) return true;
-        if (!$INFO['exists']) return true;
-        if ($this->hasBeenRendered) return true;
+        if (!isset($INFO) || $format == "metadata") {
+            $pagename = pageinfo()['id'];
+        } else {
+            $pagename = $INFO['id'];
+        }
+
+        if ($ID != $pagename) return true;
+        if (!page_exists($pagename)) return true;
+        if ($this->hasBeenRendered['metadata'] && $format == 'metadata') return true;
+        if ($this->hasBeenRendered['xhtml'] && $format == 'xhtml') return true;
         if (!preg_match(self::WHITELIST_ACTIONS, act_clean($ACT))) return true;
 
         // do not render the output twice on the same page, e.g. when another page has been included
-        $this->hasBeenRendered = true;
+        if ($format == 'metadata') {
+            $this->hasBeenRendered['metadata'] = true;
+        }
+        else if ($format == 'xhtml') {
+            $this->hasBeenRendered['xhtml'] = true;
+        }
         try {
             $assignments = Assignments::getInstance();
         } catch (StructException $e) {

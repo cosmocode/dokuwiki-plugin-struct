@@ -115,8 +115,8 @@ class SearchConfig extends Search
     {
         global $INPUT;
         global $INFO;
-        if (!isset($INFO['id'])) {
-            $INFO['id'] = '';
+        if (is_null($INFO)) {
+            $INFO = pageinfo();
         }
         $ns = getNS($INFO['id']);
 
