@@ -18,6 +18,10 @@ class OutputTest extends StructTest
 
     public function setUp(): void
     {
+        if (PHP_MAJOR_VERSION < 8) {
+            $this->markTestSkipped("Include plugin requires PHP >= 8, skipping test.");
+        }
+
         parent::setUp();
 
         $this->loadSchemaJSON('schema1');
