@@ -1,0 +1,5 @@
+====== Editor schém Struct ======
+
+Schémy sú jadrom pluginu Struct. Schéma definuje šablónu štruktúrovaných dát, ktoré sa neskôr priradia stránkam.
+
+Vyberte existujúcu schému z obsahu alebo vytvorte novú.
