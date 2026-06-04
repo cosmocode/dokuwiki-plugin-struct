@@ -1,0 +1,1 @@
+**UPOZORNENIE:** Odstránenie schémy vymaže definíciu schémy aj **všetky** dáta, ktoré boli kedy pre túto schému uložené. Niet cesty späť!

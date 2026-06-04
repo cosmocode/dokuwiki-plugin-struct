@@ -1,0 +1,8 @@
+====== Priradenia schém ======
+
+Tu môžete definovať vzory na automatické priraďovanie schém stránkam. Vždy keď stránka zodpovedá niektorému z týchto vzorov, zobrazia sa príslušné schémy.
+
+  * Menné priestory bez podradených priestorov sa priraďujú ako ''<nowiki>namespace:*</nowiki>''.
+  * Menné priestory vrátane podradených priestorov sa priraďujú ako ''<nowiki>namespace:**</nowiki>''.
+  * Stránky ako zvyčajne ich plným ID.
+  * Regulárne výrazy začínajúce a končiace ''/'' - porovnávajú sa s plným ID stránky s prefixom '':''.
