@@ -11,7 +11,7 @@ class Checkbox extends AbstractBaseType
      *
      * @return array
      */
-    protected function getOptions()
+    public function getOptions()
     {
         $options = explode(',', $this->config['values']);
         $options = array_map('trim', $options);
