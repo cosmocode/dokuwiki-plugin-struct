@@ -202,7 +202,7 @@ class helper_plugin_struct_field extends helper_plugin_bureaucracy_field
         $colname = $field->getColumn()->getFullQualifiedLabel();
         $required = empty($this->opt['optional']) ? ' <sup>*</sup>' : '';
 
-        $id = uniqid('struct__', true);
+        $id = uniqid('struct__', false);
         $input = $field->getValueEditor($name, $id);
 
         $html = '<div class="field">';
