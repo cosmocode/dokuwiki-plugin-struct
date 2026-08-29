@@ -33,6 +33,53 @@ class SearchConfigTest extends StructTest
         $this->assertEquals(date('Y-m-d'), $searchConfig->applyFilterVars('$DATE(now)$'));
     }
 
+    public function test_filtervars_missing_pageid()
+    {
+        global $INFO, $ID;
+
+        $ID = 'foo:bar:baz';
+        saveWikiText($ID, 'initial page', 'created for filter var test');
+        $INFO = [];
+
+        $searchConfig = new SearchConfig([]);
+
+        $this->assertEquals($ID, $searchConfig->applyFilterVars('$ID$'));
+        $this->assertEquals('foo:bar', $searchConfig->applyFilterVars('$NS$'));
+        $this->assertEquals('baz', $searchConfig->applyFilterVars('$PAGE$'));
+
+        saveWikiText($ID, '', 'cleanup');
+        clearstatcache();
+    }
+
+    public function test_filtervars_ignore_dynamic_filters()
+    {
+        global $INPUT;
+
+        $INPUT->set(meta\SearchConfigParameters::$PARAM_SORT, '^alias2.athird');
+        $INPUT->set(meta\SearchConfigParameters::$PARAM_OFFSET, 25);
+        $_REQUEST[meta\SearchConfigParameters::$PARAM_FILTER]['alias1.first*~'] = 'test';
+        $_REQUEST[meta\SearchConfigParameters::$PARAM_FILTER]['afirst='] = 'test2';
+
+        $this->loadSchemaJSON('schema1');
+
+        $config = [
+            'schemas' => [
+                ['schema1', 'alias1']
+            ],
+            'cols' => ['first']
+        ];
+
+        $searchConfig = new SearchConfig($config, false);
+
+        $this->assertSame(0, $searchConfig->getOffset());
+        $this->assertSame([], $searchConfig->getSorts());
+        $this->assertEquals([], $this->getInaccessibleProperty($searchConfig, 'filter'));
+
+        $INPUT->remove(meta\SearchConfigParameters::$PARAM_SORT);
+        $INPUT->remove(meta\SearchConfigParameters::$PARAM_OFFSET);
+        unset($_REQUEST[meta\SearchConfigParameters::$PARAM_FILTER]);
+    }
+
     public function test_filtervars_nsorid()
     {
         global $INFO;
