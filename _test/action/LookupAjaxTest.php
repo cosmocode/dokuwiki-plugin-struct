@@ -49,4 +49,30 @@ class LookupAjaxTest extends StructTest
 
         $evt->advise_before();
     }
+
+    public function testDeleteSerialDataKeepsRowsOfOtherPages()
+    {
+        $page = 'serial:owner';
+        $claimed = 'serial:claimed';
+        saveWikiText($page, 'test page', 'test');
+        saveWikiText($claimed, 'test page', 'test');
+
+        /** @var \helper_plugin_struct $helper */
+        $helper = plugin_load('helper', 'struct');
+        $access = AccessTable::getSerialAccess('wikilookup', $page);
+        $helper->saveLookupData($access, ['FirstFieldText' => 'keep me']);
+        $rid = $access->getRid();
+
+        global $INPUT;
+        $INPUT->post->set('schema', 'wikilookup');
+        $INPUT->post->set('pid', $claimed);
+        $INPUT->post->set('rid', $rid);
+        $call = 'plugin_struct_aggregationeditor_delete';
+        $evt = new \Doku_Event('AJAX_CALL_UNKNOWN', $call);
+
+        $evt->advise_before();
+
+        $access = AccessTable::getSerialAccess('wikilookup', $page, $rid);
+        $this->assertEquals('keep me', $access->getDataArray()['FirstFieldText']);
+    }
 }

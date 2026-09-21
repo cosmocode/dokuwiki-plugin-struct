@@ -103,6 +103,7 @@ class action_plugin_struct_aggregationeditor extends ActionPlugin
         }
 
         $this->rid = $INPUT->int('rid');
+        $this->pid = cleanID($INPUT->str('pid'));
         $this->validate();
 
         action_plugin_struct_inline::checkCSRF();

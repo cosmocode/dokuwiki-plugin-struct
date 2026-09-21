@@ -18,16 +18,19 @@ class AccessTableGlobal extends AccessTable
 
     /**
      * Remove the current data
+     *
+     * Only data of the page this accessor was created for is removed. Global data has
+     * no page and is matched with an empty page id.
      */
     public function clearData()
     {
         if (!$this->rid) return; // no data
 
         /** @noinspection SqlResolve */
-        $sql = 'DELETE FROM data_' . $this->schema->getTable() . ' WHERE rid = ?';
-        $this->sqlite->query($sql, $this->rid);
-        $sql = 'DELETE FROM multi_' . $this->schema->getTable() . ' WHERE rid = ?';
-        $this->sqlite->query($sql, $this->rid);
+        $sql = 'DELETE FROM data_' . $this->schema->getTable() . ' WHERE pid = ? AND rid = ?';
+        $this->sqlite->query($sql, $this->pid, $this->rid);
+        $sql = 'DELETE FROM multi_' . $this->schema->getTable() . ' WHERE pid = ? AND rid = ?';
+        $this->sqlite->query($sql, $this->pid, $this->rid);
     }
 
     /**
