@@ -56,6 +56,7 @@ const AggregationEditor = function (idx, table) {
                             call: 'plugin_struct_aggregationeditor_delete',
                             schema: schema,
                             rid: rid,
+                            pid: pid,
                             sectok: $me.parents('.structaggregationeditor').find('.struct_entry_form input[name=sectok]').val()
                         }
                     )
