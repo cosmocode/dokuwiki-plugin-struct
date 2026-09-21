@@ -138,6 +138,28 @@ class helper_plugin_struct extends Plugin
     }
 
     /**
+     * Checks that the current user may edit the given page
+     *
+     * An empty page id passes, because global data is not attached to a page.
+     *
+     * @param string $pid page id, empty for global data
+     * @throws StructException when the page does not exist or may not be edited
+     */
+    public static function checkPageEditable($pid)
+    {
+        if ($pid === '') {
+            return;
+        }
+
+        if (!page_exists($pid)) {
+            throw new StructException('page edit error: no such page');
+        }
+        if (auth_quickaclcheck($pid) < AUTH_EDIT) {
+            throw new StructException('page edit error: acl');
+        }
+    }
+
+    /**
      * Creates a new page revision with the same page content as before
      *
      * @param string $page

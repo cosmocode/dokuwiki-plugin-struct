@@ -125,8 +125,8 @@ class action_plugin_struct_inline extends ActionPlugin
             throw new StructException('inline save error: init');
         }
         self::checkCSRF();
+        $this->checkPage();
         if (!$this->schemadata->getRid()) {
-            $this->checkPage();
             $assignments = Assignments::getInstance();
             $tables = $assignments->getPageAssignments($this->pid, true);
             if (!in_array($this->schemadata->getSchema()->getTable(), $tables)) {
@@ -209,7 +209,7 @@ class action_plugin_struct_inline extends ActionPlugin
         $this->schemadata = null;
         $this->column = null;
 
-        $pid = $INPUT->str('pid');
+        $pid = cleanID($INPUT->str('pid'));
         $rid = $INPUT->int('rid');
         $rev = $updatedRev ?: $INPUT->int('rev');
 
@@ -242,18 +242,18 @@ class action_plugin_struct_inline extends ActionPlugin
     }
 
     /**
-     * Checks if a page can be edited
+     * Checks if the page the data belongs to can be edited
+     *
+     * Global data has no page and always passes.
      *
      * @throws StructException when check fails
      */
     protected function checkPage()
     {
-        if (!page_exists($this->pid)) {
-            throw new StructException('inline save error: no such page');
+        if ($this->pid === '') {
+            return;
         }
-        if (auth_quickaclcheck($this->pid) < AUTH_EDIT) {
-            throw new StructException('inline save error: acl');
-        }
+        helper_plugin_struct::checkPageEditable($this->pid);
         if (checklock($this->pid)) {
             throw new StructException('inline save error: lock');
         }

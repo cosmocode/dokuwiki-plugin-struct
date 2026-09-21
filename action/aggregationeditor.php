@@ -107,6 +107,7 @@ class action_plugin_struct_aggregationeditor extends ActionPlugin
         $this->validate();
 
         action_plugin_struct_inline::checkCSRF();
+        helper_plugin_struct::checkPageEditable($this->pid);
 
         $access = $this->getAccess($tablename);
         if (!$access->getSchema()->isEditable()) {
@@ -123,8 +124,9 @@ class action_plugin_struct_aggregationeditor extends ActionPlugin
         global $INPUT;
         $tablename = $INPUT->str('schema');
         $data = $INPUT->arr('entry');
-        $this->pid = $INPUT->str('pid');
+        $this->pid = cleanID($INPUT->str('pid'));
         action_plugin_struct_inline::checkCSRF();
+        helper_plugin_struct::checkPageEditable($this->pid);
 
         // create a new row based on the original aggregation config
         $access = $this->getAccess($tablename);
@@ -163,7 +165,7 @@ class action_plugin_struct_aggregationeditor extends ActionPlugin
         if (!$schema->isEditable()) {
             return;
         } // no permissions, no editor
-        // separate check for serial data in JS
+        // the page permission for serial data is checked when the row is saved
 
         echo '<div class="struct_entry_form">';
         echo '<fieldset>';
