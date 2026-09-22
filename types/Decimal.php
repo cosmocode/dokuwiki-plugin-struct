@@ -25,6 +25,7 @@ class Decimal extends AbstractMultiBaseType
         'prefix' => '',
         'postfix' => '',
         'engineering' => false,
+        'format' => '',
     ];
 
     /**
@@ -37,6 +38,10 @@ class Decimal extends AbstractMultiBaseType
      */
     public function renderValue($value, \Doku_Renderer $R, $mode)
     {
+        if (preg_match("/^%(?:['+\-:.]?\D?\d*\.?\d*)?[bdeEfFu]$/", $this->config['format'])) {
+            $R->cdata($this->config['prefix'] . sprintf($this->config['format'], $value) . $this->config['postfix']);
+            return true;
+        }
 
         if ($this->config['engineering']) {
             $unitsh = ['', 'k', 'M', 'G', 'T'];
