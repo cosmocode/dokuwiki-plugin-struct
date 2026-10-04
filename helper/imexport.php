@@ -68,9 +68,7 @@ class helper_plugin_struct_imexport extends Plugin
 
         $sql = 'SELECT pattern FROM schema_assignments_patterns WHERE tbl = ?';
         $patterns = $this->sqlite->queryAll($sql, $schemaName);
-        return array_map(function ($elem) {
-            return $elem['pattern'];
-        }, $patterns);
+        return array_map(static fn($elem) => $elem['pattern'], $patterns);
     }
 
     /**

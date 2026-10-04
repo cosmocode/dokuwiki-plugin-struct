@@ -18,16 +18,19 @@ class AccessTableGlobal extends AccessTable
 
     /**
      * Remove the current data
+     *
+     * Only data of the page this accessor was created for is removed. Global data has
+     * no page and is matched with an empty page id.
      */
     public function clearData()
     {
         if (!$this->rid) return; // no data
 
         /** @noinspection SqlResolve */
-        $sql = 'DELETE FROM data_' . $this->schema->getTable() . ' WHERE rid = ?';
-        $this->sqlite->query($sql, $this->rid);
-        $sql = 'DELETE FROM multi_' . $this->schema->getTable() . ' WHERE rid = ?';
-        $this->sqlite->query($sql, $this->rid);
+        $sql = 'DELETE FROM data_' . $this->schema->getTable() . ' WHERE pid = ? AND rid = ?';
+        $this->sqlite->query($sql, $this->pid, $this->rid);
+        $sql = 'DELETE FROM multi_' . $this->schema->getTable() . ' WHERE pid = ? AND rid = ?';
+        $this->sqlite->query($sql, $this->pid, $this->rid);
     }
 
     /**
@@ -57,7 +60,7 @@ class AccessTableGlobal extends AccessTable
         $vals = array_merge($this->getSingleNoninputValues(), $this->singleValues);
         $rid = $this->getRid() ?: "(SELECT (COALESCE(MAX(rid), 0 ) + 1) FROM $this->stable)";
 
-        return "REPLACE INTO $this->stable (rid, $cols) 
+        return "REPLACE INTO $this->stable (rid, $cols)
                       VALUES ($rid," . trim(str_repeat('?,', count($vals)), ',') . ');';
     }
 
@@ -75,9 +78,11 @@ class AccessTableGlobal extends AccessTable
     protected function validateTypeData($data)
     {
         // we do not store completely empty rows
-        $isempty = array_reduce($data, function ($isempty, $cell) {
-            return $isempty && ($cell === '' || $cell === [] || $cell === null);
-        }, true);
+        $isempty = array_reduce(
+            $data,
+            static fn($isempty, $cell) => $isempty && ($cell === '' || $cell === [] || $cell === null),
+            true
+        );
 
         return !$isempty;
     }

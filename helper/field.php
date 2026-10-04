@@ -141,9 +141,7 @@ class helper_plugin_struct_field extends helper_plugin_bureaucracy_field
         }
 
         if (!empty($value) && $this->column->getType() instanceof User) {
-            $value = array_map(function ($user) {
-                return userlink($user, true);
-            }, $value);
+            $value = array_map(static fn($user) => userlink($user, true), $value);
         }
 
         //check if matched string containts a pair of brackets
@@ -160,14 +158,22 @@ class helper_plugin_struct_field extends helper_plugin_bureaucracy_field
      */
     protected function createValue()
     {
-        $preparedValue = $this->opt['value'] ?? '';
+        // input value or appropriately initialized empty value
+        $preparedValue = $this->opt['value'] ?? ($this->column->isMulti() ? [] : '');
 
         // page fields might need to be JSON encoded depending on usetitles config
         if (
             $this->column->getType() instanceof Page
             && $this->column->getType()->getConfig()['usetitles']
         ) {
-            $preparedValue = json_encode([$preparedValue, null]);
+            if ($this->column->isMulti()) {
+                $preparedValue = array_map(
+                    static fn($val) => json_encode([$val, null], JSON_THROW_ON_ERROR),
+                    $preparedValue
+                );
+            } else {
+                $preparedValue = json_encode([$preparedValue, null], JSON_THROW_ON_ERROR);
+            }
         }
 
         $value = new Value($this->column, $preparedValue);
@@ -196,7 +202,7 @@ class helper_plugin_struct_field extends helper_plugin_bureaucracy_field
         $colname = $field->getColumn()->getFullQualifiedLabel();
         $required = empty($this->opt['optional']) ? ' <sup>*</sup>' : '';
 
-        $id = uniqid('struct__', true);
+        $id = uniqid('struct__', false);
         $input = $field->getValueEditor($name, $id);
 
         $html = '<div class="field">';

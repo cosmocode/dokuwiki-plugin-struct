@@ -23,7 +23,7 @@ class action_plugin_struct_title extends ActionPlugin
     /**
      * Registers a callback function for a given event
      *
-     * @param Doku_Event_Handler $controller DokuWiki's event controller object
+     * @param EventHandler $controller DokuWiki's event controller object
      * @return void
      */
     public function register(EventHandler $controller)
@@ -34,7 +34,7 @@ class action_plugin_struct_title extends ActionPlugin
     /**
      * Store the page's title
      *
-     * @param Doku_Event $event
+     * @param Event $event
      * @param $param
      */
     public function handleMeta(Event $event, $param)

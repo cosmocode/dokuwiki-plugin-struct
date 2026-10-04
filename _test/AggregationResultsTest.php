@@ -6,8 +6,6 @@ use dokuwiki\plugin\struct\meta\AccessTablePage;
 use dokuwiki\plugin\struct\meta\ConfigParser;
 use dokuwiki\plugin\struct\meta\PageMeta;
 use dokuwiki\plugin\struct\test\mock\AccessTable as MockAccessTableAlias;
-use dokuwiki\plugin\struct\test\mock\AggregationEditorTable as MockAggregationEditorTableAlias;
-use dokuwiki\plugin\struct\test\mock\AggregationTable as MockAggregationTableAlias;
 use dokuwiki\plugin\struct\test\mock\SearchConfig as MockSearchConfigAlias;
 
 /**
@@ -181,8 +179,7 @@ class AggregationResultsTest extends StructTest
         if ($filters) $config['filter'][] = $filters;
         $search = new MockSearchConfigAlias($config);
 
-        $table = new MockAggregationTableAlias($id, 'xhtml', new \Doku_Renderer_xhtml(), $search);
-        return $table->getResult();
+        return $search->getRows();
     }
 
     /**
@@ -211,8 +208,7 @@ class AggregationResultsTest extends StructTest
         if ($filters) $config['filter'][] = $filters;
         $search = new MockSearchConfigAlias($config);
 
-        $table = new MockAggregationEditorTableAlias($id, 'xhtml', new \Doku_Renderer_xhtml(), $search);
-        return $table->getResult();
+        return $search->getRows();
     }
 
     protected function prepareLookup()

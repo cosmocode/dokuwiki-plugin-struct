@@ -7,7 +7,7 @@ use dokuwiki\plugin\struct\meta\AccessTable;
 /**
  * Tests for the integration with Bureaucracy plugin
  *
- * @group plugin_structb
+ * @group plugin_struct
  * @group plugins
  *
  */

@@ -14,25 +14,18 @@ class AggregationTable extends Aggregation
     /** @var array for summing up columns */
     protected $sums;
 
-    /** @var string[] the result PIDs for each row */
-    protected $resultPIDs;
-    protected $resultRids;
-    protected $resultRevs;
-
     public function __construct($id, $mode, \Doku_Renderer $renderer, SearchConfig $searchConfig)
     {
         parent::__construct($id, $mode, $renderer, $searchConfig);
-        $this->resultPIDs = $this->searchConfig->getPids();
-        $this->resultRids = $this->searchConfig->getRids();
-        $this->resultRevs = $this->searchConfig->getRevs();
     }
 
     /** @inheritdoc */
     public function render($showNotFound = false)
     {
+        if (in_array($this->mode, \helper_plugin_struct::BLACKLIST_RENDERER)) return;
 
         // abort early if there are no results at all (not filtered)
-        if (!$this->resultCount && !$this->isDynamicallyFiltered() && $showNotFound) {
+        if ($this->searchConfig->getCount() <= 0 && !$this->isDynamicallyFiltered() && $showNotFound) {
             $this->renderer->cdata($this->helper->getLang('none'));
             return;
         }
@@ -45,7 +38,7 @@ class AggregationTable extends Aggregation
             'format' => $this->mode,
             'search' => $this->searchConfig,
             'columns' => $this->columns,
-            'data' => $this->result
+            'data' => $this->searchConfig->getRows()
         ];
 
         $event = new Event(
@@ -71,7 +64,7 @@ class AggregationTable extends Aggregation
         $this->renderDynamicFilters();
         $this->renderer->tablethead_close();
 
-        if ($this->resultCount) {
+        if ($this->searchConfig->getCount()) {
             // actual data
             $this->renderer->tabletbody_open();
             $this->renderResult();
@@ -324,7 +317,7 @@ class AggregationTable extends Aggregation
      */
     protected function renderResult()
     {
-        foreach ($this->result as $rownum => $row) {
+        foreach ($this->searchConfig->getRows() as $rownum => $row) {
             $data = [
                 'id' => $this->id,
                 'mode' => $this->mode,
@@ -354,9 +347,9 @@ class AggregationTable extends Aggregation
 
         // add data attribute for inline edit
         if ($this->mode == 'xhtml') {
-            $pid = $this->resultPIDs[$rownum];
-            $rid = $this->resultRids[$rownum];
-            $rev = $this->resultRevs[$rownum];
+            $pid = $this->searchConfig->getPids()[$rownum];
+            $rid = $this->searchConfig->getRids()[$rownum];
+            $rev = $this->searchConfig->getRevs()[$rownum];
             $this->renderer->doc = substr(rtrim($this->renderer->doc), 0, -1); // remove closing '>'
             $this->renderer->doc .= ' data-pid="' . hsc($pid) . '" data-rev="' . $rev . '" data-rid="' . $rid . '">';
         }
@@ -407,7 +400,6 @@ class AggregationTable extends Aggregation
 
         $this->renderer->info['struct_table_meta'] = true;
         if ($this->mode == 'xhtml') {
-            /** @noinspection PhpMethodParametersCountMismatchInspection */
             $this->renderer->tablerow_open('summarize');
         } else {
             $this->renderer->tablerow_open();
@@ -463,7 +455,7 @@ class AggregationTable extends Aggregation
         }
 
         // next link
-        if ($this->resultCount > $offset + $limit) {
+        if ($this->searchConfig->getCount() > $offset + $limit) {
             $next = $offset + $limit;
             $dynamic = $this->searchConfig->getDynamicParameters();
             $dynamic->setOffset($next);
@@ -483,7 +475,7 @@ class AggregationTable extends Aggregation
     {
         if ($this->mode != 'xhtml') return;
         if (empty($this->data['csv'])) return;
-        if (!$this->resultCount) return;
+        if (!$this->searchConfig->getCount()) return;
 
         $dynamic = $this->searchConfig->getDynamicParameters();
         $params = $dynamic->getURLParameters();

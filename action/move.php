@@ -26,7 +26,7 @@ class action_plugin_struct_move extends ActionPlugin
     /**
      * Registers a callback function for a given event
      *
-     * @param Doku_Event_Handler $controller DokuWiki's event controller object
+     * @param EventHandler $controller DokuWiki's event controller object
      * @return void
      */
     public function register(EventHandler $controller)
@@ -38,7 +38,7 @@ class action_plugin_struct_move extends ActionPlugin
     /**
      * Renames all occurrences of a page ID in the database
      *
-     * @param Doku_Event $event event object by reference
+     * @param Event $event event object by reference
      * @param bool $ispage is this a page move operation?
      * @return bool
      */

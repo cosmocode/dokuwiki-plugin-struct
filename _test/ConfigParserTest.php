@@ -87,6 +87,7 @@ class ConfigParserTest extends StructTest
             'nesting' => 0,
             'index' => 0,
             'classes' => ['struct-custom-foo', 'struct-custom-bar'],
+            'actcol' => -1,
         ];
 
         $this->assertEquals($expected_config, $actual_config);

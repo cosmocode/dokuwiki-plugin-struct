@@ -16,7 +16,11 @@ use dokuwiki\plugin\struct\meta\Value;
 
 class Lookup extends Dropdown
 {
-    protected $config = ['schema' => '', 'field' => ''];
+    protected $config = [
+        'schema' => '',
+        'field' => '',
+        'combobox' => false,
+    ];
 
     /** @var  Column caches the referenced column */
     protected $column;
@@ -124,14 +128,14 @@ class Lookup extends Dropdown
         $search->addColumn($field);
         $search->addSort($field);
 
-        $result = $search->execute();
+        $result = $search->getRows();
         $pids = $search->getPids();
         $rids = $search->getRids();
         $len = count($result);
 
         $options = ['' => ''];
         for ($i = 0; $i < $len; $i++) {
-            $val = json_encode([$pids[$i], (int)$rids[$i]]);
+            $val = json_encode([$pids[$i], (int)$rids[$i]], JSON_THROW_ON_ERROR);
             $options[$val] = $result[$i][0]->getDisplayValue();
         }
         return $options;
@@ -245,7 +249,8 @@ class Lookup extends Dropdown
             $tablealias,
             $schema,
             $rightalias,
-            "$tablealias.$colname = STRUCT_JSON($rightalias.pid, CAST($rightalias.rid AS DECIMAL)) " .
+            "STRUCT_LOOKUP($tablealias.$colname, 0) = $rightalias.pid " .
+            "AND STRUCT_LOOKUP($tablealias.$colname, 1) = $rightalias.rid " .
             "AND $rightalias.latest = 1"
         );
         $column->getType()->select($QB, $rightalias, $field, $alias);

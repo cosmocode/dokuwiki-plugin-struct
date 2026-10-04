@@ -191,7 +191,7 @@ class DecimalTest extends StructTest
         $search->addColumn('field');
         $search->addSort('field', true);
         /** @var Value[][] $result */
-        $result = $search->execute();
+        $result = $search->getRows();
 
         $this->assertEquals(4, count($result));
         $this->assertEquals('page4', $result[0][0]->getValue());
@@ -216,7 +216,7 @@ class DecimalTest extends StructTest
         $search->addFilter('field', '800', '>', 'AND');
         $search->addSort('field', true);
         /** @var Value[][] $result */
-        $result = $search->execute();
+        $result = $search->getRows();
 
         $this->assertEquals(3, count($result));
         $this->assertEquals('page3', $result[0][0]->getValue());

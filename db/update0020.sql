@@ -1,0 +1,3 @@
+-- this migration is handled in action/migrations.php in migration20()
+--
+-- it adds indexes on fields that are not automatically indexed (latest, published)

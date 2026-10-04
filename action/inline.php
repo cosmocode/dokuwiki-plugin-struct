@@ -39,7 +39,7 @@ class action_plugin_struct_inline extends ActionPlugin
     /**
      * Registers a callback function for a given event
      *
-     * @param Doku_Event_Handler $controller DokuWiki's event controller object
+     * @param EventHandler $controller DokuWiki's event controller object
      * @return void
      */
     public function register(EventHandler $controller)
@@ -48,7 +48,7 @@ class action_plugin_struct_inline extends ActionPlugin
     }
 
     /**
-     * @param Doku_Event $event
+     * @param Event $event
      * @param $param
      */
     public function handleAjax(Event $event, $param)
@@ -125,8 +125,8 @@ class action_plugin_struct_inline extends ActionPlugin
             throw new StructException('inline save error: init');
         }
         self::checkCSRF();
+        $this->checkPage();
         if (!$this->schemadata->getRid()) {
-            $this->checkPage();
             $assignments = Assignments::getInstance();
             $tables = $assignments->getPageAssignments($this->pid, true);
             if (!in_array($this->schemadata->getSchema()->getTable(), $tables)) {
@@ -182,7 +182,7 @@ class action_plugin_struct_inline extends ActionPlugin
         $value = $this->schemadata->getDataColumn($this->column);
         $R = new Doku_Renderer_xhtml();
         $value->render($R, 'xhtml'); // FIXME use configured default renderer
-        $data = json_encode(['value' => $R->doc, 'rev' => $this->schemadata->getTimestamp()]);
+        $data = json_encode(['value' => $R->doc, 'rev' => $this->schemadata->getTimestamp()], JSON_THROW_ON_ERROR);
         echo $data;
     }
 
@@ -209,7 +209,7 @@ class action_plugin_struct_inline extends ActionPlugin
         $this->schemadata = null;
         $this->column = null;
 
-        $pid = $INPUT->str('pid');
+        $pid = cleanID($INPUT->str('pid'));
         $rid = $INPUT->int('rid');
         $rev = $updatedRev ?: $INPUT->int('rev');
 
@@ -242,18 +242,18 @@ class action_plugin_struct_inline extends ActionPlugin
     }
 
     /**
-     * Checks if a page can be edited
+     * Checks if the page the data belongs to can be edited
+     *
+     * Global data has no page and always passes.
      *
      * @throws StructException when check fails
      */
     protected function checkPage()
     {
-        if (!page_exists($this->pid)) {
-            throw new StructException('inline save error: no such page');
+        if ($this->pid === '') {
+            return;
         }
-        if (auth_quickaclcheck($this->pid) < AUTH_EDIT) {
-            throw new StructException('inline save error: acl');
-        }
+        helper_plugin_struct::checkPageEditable($this->pid);
         if (checklock($this->pid)) {
             throw new StructException('inline save error: lock');
         }

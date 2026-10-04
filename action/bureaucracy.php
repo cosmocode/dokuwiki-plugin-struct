@@ -31,7 +31,7 @@ class action_plugin_struct_bureaucracy extends ActionPlugin
     /**
      * Registers a callback function for a given event
      *
-     * @param Doku_Event_Handler $controller DokuWiki's event controller object
+     * @param EventHandler $controller DokuWiki's event controller object
      * @return void
      */
     public function register(EventHandler $controller)
@@ -45,7 +45,7 @@ class action_plugin_struct_bureaucracy extends ActionPlugin
     /**
      * Load a whole schema as fields
      *
-     * @param Doku_Event $event event object by reference
+     * @param Event $event event object by reference
      * @param mixed $param [the parameters passed as fifth argument to register_hook() when this
      *                           handler was registered]
      * @return bool
@@ -82,7 +82,7 @@ class action_plugin_struct_bureaucracy extends ActionPlugin
     /**
      * Replace lookup fields placeholder's values
      *
-     * @param Doku_Event $event event object by reference
+     * @param Event $event event object by reference
      * @param mixed $param [the parameters passed as fifth argument to register_hook() when this
      *                           handler was registered]
      * @return bool
@@ -103,7 +103,7 @@ class action_plugin_struct_bureaucracy extends ActionPlugin
             $search = new Search();
             $search->addSchema($config['schema']);
             $search->addColumn($config['field']);
-            $result = $search->execute();
+            $result = $search->getRows();
             $pids = $search->getPids();
             $rids = $search->getRids();
 
@@ -115,9 +115,10 @@ class action_plugin_struct_bureaucracy extends ActionPlugin
                     // lookups can reference pages or global data, so check both pid and rid
                     // make sure not to double decode pid!
                     $originalPid = $pid;
-                    $pid = json_decode($pid)[0] ?? $pid;
-                    $rid = json_decode($originalPid)[1] ?? null;
-                    if (($pid && $pids[$i] === $pid) || ($rid && $rids[$i] === (string)$rid)) {
+                    // do not throw JSON exception here, we supply alternative values if json_decode doesn't
+                    $pid = json_decode($pid, null, 512)[0] ?? $pid;
+                    $rid = json_decode($originalPid, null, 512)[1] ?? null;
+                    if (($pid && $pids[$i] === $pid) || ($rid && $rids[$i] === $rid)) {
                         $field->opt['struct_pids'][] = $pid;
                         $new_value[] = $result[$i][0]->getDisplayValue();
                     }
@@ -137,7 +138,7 @@ class action_plugin_struct_bureaucracy extends ActionPlugin
     /**
      * Save the struct data
      *
-     * @param Doku_Event $event event object by reference
+     * @param Event $event event object by reference
      * @param mixed $param [the parameters passed as fifth argument to register_hook() when this
      *                           handler was registered]
      * @return bool

@@ -70,12 +70,8 @@ class CSVPageImporter extends CSVImporter
             $this->header
         );
 
-        $keysAt = array_map(function ($key) {
-            return "@@$key@@";
-        }, $keys);
-        $keysHash = array_map(function ($key) {
-            return "##$key##";
-        }, $keys);
+        $keysAt = array_map(static fn($key) => "@@$key@@", $keys);
+        $keysHash = array_map(static fn($key) => "##$key##", $keys);
         $flatValues = array_map(
             function ($value) {
                 if (is_array($value)) {

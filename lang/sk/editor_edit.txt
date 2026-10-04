@@ -1,0 +1,9 @@
+====== Editor schém Struct ======
+
+Tu môžete pridávať alebo upravovať polia schémy.
+
+Názvy polí musia byť jedinečné. Odporúča sa používať krátke identifikátory, ktoré sa neskôr pravdepodobne nezmenia, pretože sa budú používať na odkazovanie polí v agregáciách. Pre čitateľnejšie názvy použite prekladové označenia v konfigurácii poľa.
+
+Typ poľa definuje, aký druh dát možno v poli uložiť, a ovplyvňuje jeho neskoršie zobrazenie. Každý typ má svoje špecifické konfiguračné voľby.
+
+Viac sa dozviete v [[doku>plugin:struct:type|dokumentácii]].

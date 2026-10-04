@@ -29,7 +29,7 @@ class action_plugin_struct_migration extends ActionPlugin
     /**
      * Call our custom migrations when defined
      *
-     * @param Doku_Event $event
+     * @param Event $event
      * @param $param
      */
     public function handleMigrations(Event $event, $param)
@@ -251,9 +251,7 @@ class action_plugin_struct_migration extends ActionPlugin
             $cols = $sqlite->queryAll($s);
 
             if ($cols) {
-                $colnames = array_map(function ($c) {
-                    return 'col' . $c['COL'];
-                }, $cols);
+                $colnames = array_map(static fn($c) => 'col' . $c['COL'], $cols);
 
                 // data_ tables
                 $s = 'SELECT pid, rid, rev, ' . implode(', ', $colnames) . " FROM data_$name";
@@ -342,6 +340,33 @@ class action_plugin_struct_migration extends ActionPlugin
         return $ok;
     }
 
+    /**
+     * Executes Migration 20
+     *
+     * Adds indexes on "latest" and "published".
+     * Those fields are not part of (autoindexed) primary key, but are used in many queries.
+     *
+     * @param SQLiteDB $sqlite
+     * @return bool
+     */
+    protected function migration20($sqlite)
+    {
+        $ok = true;
+
+        /** @noinspection SqlResolve */
+        $sql = "SELECT name FROM sqlite_master WHERE type = 'table' AND (name LIKE 'data_%' OR name LIKE 'multi_%')";
+        $tables = $sqlite->queryAll($sql);
+
+        foreach ($tables as $row) {
+            $table = $row['name']; // no escaping needed, it's our own tables
+            $sql = "CREATE INDEX idx_$table" . "_latest ON $table(latest);";
+            $ok = $ok && $sqlite->query($sql);
+            $sql = "CREATE INDEX idx_$table" . "_published ON $table(published);";
+            $ok = $ok && $sqlite->query($sql);
+        }
+        return $ok;
+    }
+
 
     /**
      * Returns a select statement to fetch Lookup columns in the current schema
@@ -388,10 +413,8 @@ class action_plugin_struct_migration extends ActionPlugin
             }
         }
 
-        if (!empty($fixes)) {
-            $fixes = array_map(function ($set, $key) {
-                return "$key = '$set'";
-            }, $fixes, array_keys($fixes));
+        if ($fixes !== []) {
+            $fixes = array_map(static fn($set, $key) => "$key = '$set'", $fixes, array_keys($fixes));
         }
 
         return [$pid, $rid, $rev, $colref, $rowno, $fixes];

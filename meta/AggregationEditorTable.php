@@ -37,7 +37,7 @@ class AggregationEditorTable extends AggregationTable
 
         $config = $this->searchConfig->getConf();
         if (isset($config['filter'])) unset($config['filter']);
-        $config = hsc(json_encode($config));
+        $config = hsc(json_encode($config, JSON_THROW_ON_ERROR));
 
         // wrapping div
         $classes = $this->getScopeClasses();
@@ -70,7 +70,7 @@ class AggregationEditorTable extends AggregationTable
         $this->renderer->table_open();
         $this->renderer->doc = '';
 
-        $this->renderResultRow(0, $this->result[0]);
+        $this->renderResultRow(0, $this->searchConfig->getRows()[0]);
         return $this->renderer->doc;
     }
 }

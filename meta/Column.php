@@ -193,9 +193,9 @@ class Column
         $files = glob(DOKU_PLUGIN . 'struct/types/*.php');
         foreach ($files as $file) {
             $file = basename($file, '.php');
-            if (substr($file, 0, 8) == 'Abstract') continue;
-            if (substr($file, 0, 5) == 'Trait') continue;
-            if (substr($file, 0, 4) == 'Auto') continue;
+            if (str_starts_with($file, 'Abstract')) continue;
+            if (str_starts_with($file, 'Trait')) continue;
+            if (str_starts_with($file, 'Auto')) continue;
             $map[$file] = 'dokuwiki\\plugin\\struct\\types\\' . $file;
         }
 

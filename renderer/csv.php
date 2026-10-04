@@ -168,7 +168,7 @@ class renderer_plugin_struct_csv extends Doku_Renderer
 
     public function plugin($name, $args, $state = '', $match = '')
     {
-        if (substr($name, 0, 7) == 'struct_') {
+        if (str_starts_with($name, 'struct_')) {
             parent::plugin($name, $args, $state, $match);
         } else {
             $this->cdata($match);

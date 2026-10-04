@@ -30,7 +30,8 @@ class ConfigParser
         'csv' => true,
         'nesting' => 0,
         'index' => 0,
-        'classes' => []
+        'classes' => [],
+        'actcol' => -1,
     ];
 
     /**
@@ -130,6 +131,11 @@ class ConfigParser
                 case 'class':
                 case 'classes':
                     $this->config['classes'] = $this->parseClasses($val);
+                    break;
+                case 'actcol':
+                case 'actioncol':
+                case 'actioncolumn':
+                    $this->config['actcol'] = (int) $val;
                     break;
                 default:
                     $data = ['config' => &$this->config, 'key' => $key, 'val' => $val];

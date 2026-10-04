@@ -18,7 +18,7 @@ class action_plugin_struct_ajax extends ActionPlugin
     /**
      * Registers a callback function for a given event
      *
-     * @param Doku_Event_Handler $controller DokuWiki's event controller object
+     * @param EventHandler $controller DokuWiki's event controller object
      * @return void
      */
     public function register(EventHandler $controller)
@@ -29,7 +29,7 @@ class action_plugin_struct_ajax extends ActionPlugin
     /**
      * Pass Ajax call to a type
      *
-     * @param Doku_Event $event event object by reference
+     * @param Event $event event object by reference
      */
     public function handleAjax(Event $event)
     {
@@ -51,7 +51,7 @@ class action_plugin_struct_ajax extends ActionPlugin
             http_status(500);
         }
 
-        echo json_encode($result);
+        echo json_encode($result, JSON_THROW_ON_ERROR);
     }
 
     /**

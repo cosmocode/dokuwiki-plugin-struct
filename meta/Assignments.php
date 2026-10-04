@@ -291,12 +291,12 @@ class Assignments
         }
 
         $ans = ':' . cleanID($pattern) . ':';
-        if (substr($pattern, -2) == '**') {
+        if (str_ends_with($pattern, '**')) {
             // upper namespaces match
-            if (strpos($pns, $ans) === 0) {
+            if (str_starts_with($pns, $ans)) {
                 return true;
             }
-        } elseif (substr($pattern, -1) == '*') {
+        } elseif (str_ends_with($pattern, '*')) {
             // namespaces match exact
             if ($ans == $pns) {
                 return true;

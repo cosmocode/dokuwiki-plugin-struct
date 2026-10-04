@@ -38,7 +38,7 @@ class action_plugin_struct_entry extends ActionPlugin
     /**
      * Registers a callback function for a given event
      *
-     * @param Doku_Event_Handler $controller DokuWiki's event controller object
+     * @param EventHandler $controller DokuWiki's event controller object
      * @return void
      */
     public function register(EventHandler $controller)
@@ -54,7 +54,7 @@ class action_plugin_struct_entry extends ActionPlugin
     /**
      * Clean up and validate the input data
      *
-     * @param Doku_Event $event event object by reference
+     * @param Event $event event object by reference
      * @param mixed $param [the parameters passed as fifth argument to register_hook() when this
      *                           handler was registered]
      * @return bool
@@ -92,7 +92,7 @@ class action_plugin_struct_entry extends ActionPlugin
     /**
      * Check if the page has to be changed
      *
-     * @param Doku_Event $event event object by reference
+     * @param Event $event event object by reference
      * @param mixed $param [the parameters passed as fifth argument to register_hook() when this
      *                           handler was registered]
      * @return bool
@@ -125,7 +125,7 @@ class action_plugin_struct_entry extends ActionPlugin
      *
      * When this is called, INPUT data has been validated already.
      *
-     * @param Doku_Event $event event object by reference
+     * @param Event $event event object by reference
      * @param mixed $param [the parameters passed as fifth argument to register_hook() when this
      *                           handler was registered]
      * @return bool

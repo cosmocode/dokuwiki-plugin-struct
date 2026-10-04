@@ -27,8 +27,9 @@ class SearchSQLBuilder
      * Add the schemas to the query
      *
      * @param Schema[] $schemas Schema names to query
+     * @param bool $selectMeta Select meta columns (pid, rid, rev, assigned)
      */
-    public function addSchemas($schemas)
+    public function addSchemas($schemas, $selectMeta = true)
     {
         // basic tables
         $first_table = '';
@@ -60,12 +61,14 @@ class SearchSQLBuilder
                     AND schema_assignments.tbl = '{$schema->getTable()}'"
                 );
 
-                $this->qb->addSelectColumn($datatable, 'rid');
-                $this->qb->addSelectColumn($datatable, 'pid', 'PID');
-                $this->qb->addSelectColumn($datatable, 'rev');
-                $this->qb->addSelectColumn('schema_assignments', 'assigned', 'ASSIGNED');
-                $this->qb->addGroupByColumn($datatable, 'pid');
-                $this->qb->addGroupByColumn($datatable, 'rid');
+                if ($selectMeta) {
+                    $this->qb->addSelectColumn($datatable, 'rid');
+                    $this->qb->addSelectColumn($datatable, 'pid', 'PID');
+                    $this->qb->addSelectColumn($datatable, 'rev');
+                    $this->qb->addSelectColumn('schema_assignments', 'assigned', 'ASSIGNED');
+                    $this->qb->addGroupByColumn($datatable, 'pid');
+                    $this->qb->addGroupByColumn($datatable, 'rid');
+                }
 
                 $first_table = $datatable;
             }

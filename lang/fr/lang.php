@@ -3,7 +3,8 @@
 /**
  * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
  *
- * @author Schplurtz le Déboulonné <schplurtz@laposte.net>
+ * @author Fabrice DEJAIGHER <fabrice@chtiland.com>
+ * @author Schplurtz le Déboulonné <Schplurtz@laposte.net>
  * @author zadaz <zadaz@example.com>
  * @author Nat <natdoub@hotmail.com>
  * @author salabdou <salabdou@gmail.com>
@@ -66,6 +67,7 @@ $lang['multi']                 = 'Vous pouvez entrer plusieurs valeurs séparée
 $lang['multidropdown']         = 'Maintenez les touches CTRL ou ⌘ pour sélectionner plusieurs valeurs.';
 $lang['duplicate_label']       = 'Le label <code>%s</code> existe déjà dans ce schéma, la deuxième occurrence a été renommée en <code>%s</code>.';
 $lang['emptypage']             = 'Les données du greffon Struct ne sont pas sauvegardées si la page est vide.';
+$lang['na']                    = 'n.a.';
 $lang['validation_prefix']     = 'Champ [%s] : ';
 $lang['Validation Exception Decimal needed'] = 'seuls les décimaux sont autorisés';
 $lang['Validation Exception Decimal min'] = 'doit être supérieur ou égal à %d';
@@ -86,7 +88,7 @@ $lang['Exception nolookupmix'] = 'Vous ne pouvez pas agréger plus d\'un schéma
 $lang['Exception No data saved'] = 'Aucune donnée sauvegardée';
 $lang['Exception no sqlite']   = 'Le greffon struct requiert le greffon sqlite. Merci de l\'installer et l\'activer.';
 $lang['Exception column not in table'] = 'Il n\'y a pas de colonne %s dans le schéma %s.';
-$lang['Warning: no filters for cloud'] = 'Les filtres ne sont pas utilisables pour les nuages struct.';
+$lang['Exception datefilter']  = 'Le filtre  \'<code>$Date(%s)$</code>\'  contient une valeur invalide.';
 $lang['sort']                  = 'Trier selon cette colonne';
 $lang['next']                  = 'Page suivante';
 $lang['prev']                  = 'Page précédente';
@@ -95,6 +97,7 @@ $lang['csvexport']             = 'Export CSV';
 $lang['admin_csvexport']       = 'Exporter des données brutes vers un fichier CSV';
 $lang['admin_csv_page']        = 'page';
 $lang['admin_csv_lookup']      = 'consultation';
+$lang['admin_csv_serial']      = 'série';
 $lang['admin_csvexport_datatype'] = 'Exporter les données de type';
 $lang['admin_csvimport']       = 'Importer des données brutes depuis un fichier CSV';
 $lang['admin_csvimport_datatype'] = 'Implorter les données de type';
@@ -115,3 +118,5 @@ $lang['Exception schema missing'] = 'Le schéma %s n\'existe pas !';
 $lang['no_lookup_for_page']    = 'Vous ne pouvez pas utiliser l\'éditeur de consultation sur un schéma de page !';
 $lang['lookup new entry']      = 'Créer une nouvelle entrée';
 $lang['bureaucracy_action_struct_lookup_thanks'] = 'L\'entrée a été stockée. <a href="%s">Ajouter une autre entrée</a>.';
+$lang['filter_title']          = 'Filtres d’agrégation';
+$lang['filter_button']         = 'Appliquer les filtres';

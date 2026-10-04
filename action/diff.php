@@ -19,7 +19,7 @@ class action_plugin_struct_diff extends ActionPlugin
     /**
      * Registers a callback function for a given event
      *
-     * @param Doku_Event_Handler $controller DokuWiki's event controller object
+     * @param EventHandler $controller DokuWiki's event controller object
      * @return void
      */
     public function register(EventHandler $controller)
@@ -32,7 +32,7 @@ class action_plugin_struct_diff extends ActionPlugin
      *
      * This is done by adding pseudo syntax to the page source when it is loaded in diff context
      *
-     * @param Doku_Event $event event object by reference
+     * @param Event $event event object by reference
      * @param mixed $param [the parameters passed as fifth argument to register_hook() when this
      *                           handler was registered]
      * @return bool

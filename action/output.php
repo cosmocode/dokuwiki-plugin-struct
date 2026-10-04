@@ -28,7 +28,7 @@ class action_plugin_struct_output extends ActionPlugin
     /**
      * Registers a callback function for a given event
      *
-     * @param Doku_Event_Handler $controller DokuWiki's event controller object
+     * @param EventHandler $controller DokuWiki's event controller object
      * @return void
      */
     public function register(EventHandler $controller)
@@ -42,7 +42,7 @@ class action_plugin_struct_output extends ActionPlugin
      * Appends the instruction to render our syntax output component to each page
      * after the first found headline or the very begining if no headline was found
      *
-     * @param Doku_Event $event
+     * @param Event $event
      * @param $param
      */
     public function handleOutput(Event $event, $param)
@@ -94,7 +94,7 @@ class action_plugin_struct_output extends ActionPlugin
      * If the page has a schema assigned, add its struct data
      * to dw2pdf's template replacements
      *
-     * @param Doku_Event $event
+     * @param Event $event
      * @param $param
      */
     public function replaceDw2pdf(Event $event, $param)
@@ -130,7 +130,7 @@ class action_plugin_struct_output extends ActionPlugin
      * Remove struct placeholders still present after replacement.
      * Requested data was not found.
      *
-     * @param Doku_Event $event
+     * @param Event $event
      * @param $param
      */
     public function cleanupDw2pdf(Event $event, $param)

@@ -12,7 +12,8 @@ var InlineEditor = function ($table) {
         var pid = $self.parent().data('pid');
         var rid = $self.parent().data('rid');
         var rev = $self.parent().data('rev');
-        var field = $self.parents('table').find('tr th').eq($self.index()).data('field');
+        var field = $self.parent().data('field') ||
+            $self.parents('table').find('tr th').eq($self.index()).data('field');
 
         if ((!pid && !rid) || !field) return;
 

@@ -35,13 +35,13 @@ class InlineConfigParser extends ConfigParser
         // Extract components
         $parts = explode('?', $inline, 2);
         $n_parts = count($parts);
-        $components = str_getcsv(trim($parts[0]), '.');
+        $components = str_getcsv(trim($parts[0]), '.', '"', '\\');
 
         // Extract parameters if given
         $filtering = false;  // First initialisation of the variable
         if ($n_parts == 2) {
             $filtering = false;  // Whether to filter result to current page
-            $parameters = str_getcsv(trim($parts[1]), ' ');
+            $parameters = str_getcsv(trim($parts[1]), ' ', '"', '\\');
             $n_parameters = count($parameters);
 
             // Process parameters and add to config lines
@@ -50,6 +50,7 @@ class InlineConfigParser extends ConfigParser
                 switch ($p) {
                     // Empty (due to extra spaces)
                     case '':
+                    default:
                         // Move straight to next parameter
                         continue 2;
                         break;
@@ -72,10 +73,6 @@ class InlineConfigParser extends ConfigParser
                         $filtering = true;
                         $lines[] = 'filteror: ' . trim($parameters[$i + 1]);
                         $i++;
-                        break;
-                    default:
-                        // Move straight to next parameter
-                        continue 2;
                         break;
                 }
             }

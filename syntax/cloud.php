@@ -88,9 +88,6 @@ class syntax_plugin_struct_cloud extends SyntaxPlugin
     {
         if ($mode != 'xhtml') return false;
         if (!$data) return false;
-        if (!empty($data['filter'])) {
-            msg($this->getLang('Warning: no filters for cloud'), -1);
-        }
         global $INFO, $conf;
         try {
             $search = new SearchCloud($data);

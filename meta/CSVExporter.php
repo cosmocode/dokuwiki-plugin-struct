@@ -34,7 +34,7 @@ class CSVExporter
         $search->addSchema($table);
         $search->addColumn('*');
 
-        $result = $search->execute();
+        $result = $search->getRows();
 
         if ($this->type !== self::DATATYPE_GLOBAL) {
             $pids = $search->getPids();

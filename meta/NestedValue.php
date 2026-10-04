@@ -114,9 +114,7 @@ class NestedValue
     public function addResultRow($row)
     {
         // only add unique rows
-        $ident = md5(array_reduce($row, function ($carry, $value) {
-            return $carry . $value;
-        }, ''));
+        $ident = md5(array_reduce($row, static fn($carry, $value) => $carry . $value, ''));
 
         $this->resultRows[$ident] = $row;
     }

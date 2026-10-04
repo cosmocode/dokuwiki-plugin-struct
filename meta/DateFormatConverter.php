@@ -131,16 +131,12 @@ class DateFormatConverter
             $datekeys = array_keys(self::$date);
             // create negative lookbehind regex to match all known date chars that are not a strtime pattern now
             $from = array_map(
-                function ($in) {
-                    return '/(?<!%)' . $in . '/';
-                },
+                static fn($in) => '/(?<!%)' . $in . '/',
                 $datekeys
             );
             // those need to be escaped
             $to = array_map(
-                function ($in) {
-                    return '\\' . $in;
-                },
+                static fn($in) => '\\' . $in,
                 $datekeys
             );
             // escape date chars
@@ -172,9 +168,7 @@ class DateFormatConverter
             // create negative lookbehind regex to match all unescaped known chars
             $from = array_keys(self::$date);
             $from = array_map(
-                function ($in) {
-                    return '/(?<!\\\\)' . $in . '/';
-                },
+                static fn($in) => '/(?<!\\\\)' . $in . '/',
                 $from
             );
             $to = array_values(self::$date);
@@ -191,9 +185,7 @@ class DateFormatConverter
         {
             $datekeys = array_keys(self::$date);
             $from = array_map(
-                function ($in) {
-                    return '/\\\\' . $in . '/';
-                },
+                static fn($in) => '/\\\\' . $in . '/',
                 $datekeys
             );
             $strftime = preg_replace($from, $datekeys, $strftime);

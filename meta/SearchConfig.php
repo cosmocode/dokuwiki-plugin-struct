@@ -2,6 +2,8 @@
 
 namespace dokuwiki\plugin\struct\meta;
 
+use dokuwiki\File\PageResolver;
+
 /**
  * Class SearchConfig
  *
@@ -93,9 +95,9 @@ class SearchConfig extends Search
         foreach ($filters as $filter) {
             if (is_array($filter)) $filter = $filter[2]; // this is the format we get fro the config parser
 
-            if (strpos($filter, '$USER$') !== false) {
+            if (str_contains($filter, '$USER$')) {
                 $flags |= self::$CACHE_USER;
-            } elseif (strpos($filter, '$TODAY$') !== false) {
+            } elseif (str_contains($filter, '$TODAY$')) {
                 $flags |= self::$CACHE_DATE;
             }
         }
@@ -116,6 +118,7 @@ class SearchConfig extends Search
         if (!isset($INFO['id'])) {
             $INFO['id'] = '';
         }
+        $ns = getNS($INFO['id']);
 
         // apply inexpensive filters first
         $filter = str_replace(
@@ -128,13 +131,29 @@ class SearchConfig extends Search
             ],
             [
                 $INFO['id'],
-                getNS($INFO['id']),
+                $ns,
                 noNS($INFO['id']),
                 $INPUT->server->str('REMOTE_USER'),
                 date('Y-m-d')
             ],
             $filter
         );
+
+        // apply namespace or id placeholder #712
+        // returns the namespace for start pages, otherwise the ID
+        if (preg_match('/\$NSORID\$/', $filter)) {
+            $resolver = new PageResolver('');
+
+            $start = $resolver->resolveId($ns . ':');
+            if ($start === $INFO['id']) {
+                // This is a start page, we return the namespace
+                $val = $ns;
+            } else {
+                // This is a normal page, we return the ID
+                $val = $INFO['id'];
+            }
+            $filter = str_replace('$NSORID$', $val, $filter);
+        }
 
         // apply struct column placeholder (we support only one!)
         // or apply date formula, given as strtotime

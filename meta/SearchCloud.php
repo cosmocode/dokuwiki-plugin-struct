@@ -14,48 +14,40 @@ class SearchCloud extends SearchConfig
     protected $limit = '';
 
     /**
-     * Transform the set search parameters into a statement
+     * We do not have pagination in clouds, so we can work with a limit within SQL
      *
-     * @return array ($sql, $opts) The SQL and parameters to execute
+     * @param int $limit
      */
-    public function getSQL()
+    public function setLimit($limit)
     {
-        if (!$this->columns) throw new StructException('nocolname');
+        $this->limit = " LIMIT $limit";
+    }
 
-        $QB = new QueryBuilder();
-        reset($this->schemas);
-        $schema = current($this->schemas);
-        $datatable = 'data_' . $schema->getTable();
+    /**
+     * @inheritdoc
+     */
+    protected function runSQLBuilder()
+    {
+        $sqlBuilder = new SearchSQLBuilder();
+        $sqlBuilder->setSelectLatest($this->selectLatest);
+        $sqlBuilder->addSchemas($this->schemas, false);
+        $this->addTagSelector($sqlBuilder);
+        $sqlBuilder->getQueryBuilder()->addGroupByStatement('tag');
+        $sqlBuilder->getQueryBuilder()->addOrderBy('count DESC');
+        $sqlBuilder->addFilters($this->filter);
+        return $sqlBuilder;
+    }
 
-        $QB->addTable($datatable);
-
-        // add conditional page clauses if pid has a value
-        $subAnd = $QB->filters()->whereSubAnd();
-        $subAnd->whereAnd("$datatable.pid = ''");
-
-        $subOr = $subAnd->whereSubOr();
-        $subOr->whereAnd("GETACCESSLEVEL($datatable.pid) > 0");
-        $subOr->whereAnd("PAGEEXISTS($datatable.pid) = 1");
-        $subOr->whereSubOr()
-            ->whereAnd('ASSIGNED == 1')
-            ->whereSubOr()
-                ->whereAnd("$datatable.rid > 0")
-                ->whereAnd("ASSIGNED IS NULL");
-
-        // add conditional schema assignment check
-        $QB->addLeftJoin(
-            $datatable,
-            'schema_assignments',
-            '',
-            "$datatable.pid != ''
-                    AND $datatable.pid = schema_assignments.pid
-                    AND schema_assignments.tbl = '{$schema->getTable()}'"
-        );
-
-        $QB->filters()->whereAnd("$datatable.latest = 1");
-        $QB->filters()->where('AND', 'tag IS NOT \'\'');
+    /**
+     * Add the tag selector to the SQLBuilder
+     */
+    protected function addTagSelector(SearchSQLBuilder $builder)
+    {
+        $QB = $builder->getQueryBuilder();
 
         $col = $this->columns[0];
+        $datatable = "data_{$col->getTable()}";
+
         if ($col->isMulti()) {
             $multitable = "multi_{$col->getTable()}";
             $MN = $QB->generateTableAlias('M');
@@ -77,32 +69,18 @@ class SearchCloud extends SearchConfig
             $colname = $datatable . '.' . $col->getColName();
         }
         $QB->addSelectStatement("COUNT($colname)", 'count');
-        $QB->addSelectColumn('schema_assignments', 'assigned', 'ASSIGNED');
-        $QB->addGroupByStatement('tag');
-        $QB->addOrderBy('count DESC');
-
-        [$sql, $opts] = $QB->getSQL();
-        return [$sql . $this->limit, $opts];
     }
 
-    /**
-     * We do not have pagination in clouds, so we can work with a limit within SQL
-     *
-     * @param int $limit
-     */
-    public function setLimit($limit)
-    {
-        $this->limit = " LIMIT $limit";
-    }
 
     /**
      * Execute this search and return the result
      *
-     * The result is a two dimensional array of Value()s.
+     * Because the cloud uses a different search, we omit calling
+     * getResult() und run() methods of the parent class, and return the result array directly.
      *
      * @return Value[][]
      */
-    public function execute()
+    public function getRows()
     {
         [$sql, $opts] = $this->getSQL();
 
@@ -123,7 +101,6 @@ class SearchCloud extends SearchConfig
         }
 
         $res->closeCursor();
-        $this->count = count($result);
         return $result;
     }
 }
