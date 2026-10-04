@@ -35,7 +35,19 @@ class UserTest extends StructTest
 
     public function test_ajax()
     {
-        global $INPUT;
+        global $INFO, $INPUT, $USERINFO;
+        include(__DIR__ . '/../../conf/default.php');
+        $default_allow_autocomplete = $conf['allow_username_autocomplete'];
+        unset($conf);
+
+        global $conf;
+        $conf['plugin']['struct']['allow_username_autocomplete'] = $default_allow_autocomplete;
+        $_SERVER['REMOTE_USER'] = 'john';
+        $USERINFO['name'] = 'John Smith';
+        $USERINFO['mail'] = 'john.smith@example.com';
+        $USERINFO['grps'] = ['user', 'test'];
+        //update info array
+        $INFO['userinfo'] = $USERINFO;
 
         $user = new User(
             [
@@ -55,6 +67,21 @@ class UserTest extends StructTest
 
         $INPUT->set('search', 'd'); // under mininput
         $this->assertEquals([], $user->handleAjax());
+
+        // Check restrictions on who can access username data are respected
+        $conf['plugin']['struct']['allow_username_autocomplete'] = 'john';
+        $INPUT->set('search', 'dent');
+        $this->assertEquals([['label' => 'Arthur Dent [testuser]', 'value' => 'testuser']], $user->handleAjax());
+
+        $conf['plugin']['struct']['allow_username_autocomplete'] = '@user';
+        $INPUT->set('search', 'dent');
+        $this->assertEquals([['label' => 'Arthur Dent [testuser]', 'value' => 'testuser']], $user->handleAjax());
+
+        $conf['plugin']['struct']['allow_username_autocomplete'] = '@not_in_group,not_this_user';
+        $INPUT->set('search', 'dent');
+        $this->assertEquals([], $user->handleAjax());
+
+        $conf['plugin']['struct']['allow_username_autocomplete'] = $default_allow_autocomplete;
 
         $user = new User(
             [

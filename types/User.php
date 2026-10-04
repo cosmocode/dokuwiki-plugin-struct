@@ -60,15 +60,26 @@ class User extends AbstractMultiBaseType
      * Autocompletion for user names
      *
      * @return array
-     * @todo should we have any security mechanism? Currently everybody can look up users
      */
     public function handleAjax()
     {
         /** @var AuthPlugin $auth */
         global $auth;
         global $INPUT;
+        global $_SERVER;
+        global $USERINFO;
 
         if (!$auth->canDo('getUsers')) {
+            return [];
+        }
+
+        if (
+            !auth_isMember(
+                $this->getConf('allow_username_autocomplete'),
+                $_SERVER['REMOTE_USER'],
+                (array) $USERINFO['grps']
+            )
+        ) {
             return [];
         }
 
